@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Modern Default Colors (Professional, Brand-Neutral) */
+  --brand-50: 239 246 255;
+  --brand-100: 219 234 254; 
+  --brand-200: 191 219 254;
+  --brand-300: 147 197 253;
+  --brand-400: 96 165 250;
+  --brand-500: 59 130 246;  /* Primary: Modern Blue */
+  --brand-600: 37 99 235;
+  --brand-700: 29 78 216;
+  --brand-800: 30 64 175;
+  --brand-900: 30 58 138;
+  --brand-950: 23 37 84;
+
+  /* Secondary/Accent Colors */
+  --secondary-50: 240 253 244;
+  --secondary-100: 220 252 231;
+  --secondary-500: 16 185 129; /* Modern Green */
+  --secondary-600: 5 150 105;
+  --secondary-700: 4 120 87;
+  
+  --accent-50: 245 243 255;
+  --accent-100: 237 233 254;
+  --accent-500: 139 92 246;    /* Modern Purple */
+  --accent-600: 124 58 237;
+  --accent-700: 109 40 217;
+  
+  /* Success/Warning/Error Colors */
+  --success-50: 240 253 244;
+  --success-100: 220 252 231;
+  --success-500: 16 185 129;
+  --success-600: 5 150 105;
+  --success-700: 4 120 87;
+
+  --warning-50: 255 251 235;
+  --warning-100: 254 243 199;
+  --warning-500: 245 158 11;
+  --warning-600: 217 119 6;
+  --warning-700: 180 83 9;
+
+  --error-50: 254 242 242;
+  --error-100: 254 226 226;
+  --error-500: 239 68 68;
+  --error-600: 220 38 38;
+  --error-700: 185 28 28;
+
+  /* Modern Neutral Grays */
+  --neutral-50: 249 250 251;
+  --neutral-100: 243 244 246;
+  --neutral-200: 229 231 235;
+  --neutral-300: 209 213 219;
+  --neutral-400: 156 163 175;
+  --neutral-500: 107 114 128;
+  --neutral-600: 75 85 99;
+  --neutral-700: 55 65 81;
+  --neutral-800: 31 41 55;
+  --neutral-900: 17 24 39;
+  --neutral-950: 3 7 18;
+
+  /* Background colors */
+  --bg-primary: 255 255 255;
+  --bg-secondary: 249 250 251;
+  --bg-tertiary: 243 244 246;
+  --bg-overlay: 0 0 0;
+
+  /* Text colors */
+  --text-primary: 17 24 39;
+  --text-secondary: 75 85 99;
+  --text-tertiary: 156 163 175;
+  --text-inverse: 255 255 255;
+
+  /* Border colors */
+  --border-primary: 229 231 235;
+  --border-secondary: 209 213 219;
+  --border-focus: var(--brand-500);
+
+  /* Shadow colors */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Animation variables */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+
+  /* Spacing scale */
+  --space-px: 1px;
+  --space-0: 0px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Border radius scale */
+  --radius-none: 0px;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+@layer components {
+  /* Modern Atomic Design System Classes */
+  
+  /* Button variants */
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-neutral-100 hover:bg-neutral-200 text-neutral-900 px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  .btn-outline {
+    @apply border border-brand-600 text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  .btn-ghost {
+    @apply text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  /* Modern form styling */
+  .input-base {
+    @apply border border-neutral-300 rounded-lg px-3 py-2 text-neutral-900 placeholder-neutral-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
+    @apply transition-colors duration-200;
+  }
+
+  .input-error {
+    @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+  }
+  
+  .input-wrapper {
+    @apply space-y-1;
+  }
+  
+  .input-label {
+    @apply block text-sm font-medium text-neutral-700;
+  }
+  
+  .input-error-text {
+    @apply text-sm text-error-600;
+  }
+  
+  .input-help-text {
+    @apply text-sm text-neutral-500;
+  }
+  
+  /* Card variants */
+  .card {
+    @apply bg-white rounded-xl border border-neutral-200 p-6;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  /* Modern typography scale */
+  .text-heading-1 {
+    @apply text-4xl font-bold tracking-tight text-neutral-900; /* 36px */
+  }
+  
+  .text-heading-2 {
+    @apply text-3xl font-semibold tracking-tight text-neutral-900; /* 30px */
+  }
+  
+  .text-heading-3 {
+    @apply text-2xl font-semibold text-neutral-900; /* 24px */
+  }
+  
+  .text-heading-4 {
+    @apply text-xl font-semibold text-neutral-900; /* 20px */
+  }
+  
+  .text-heading-5 {
+    @apply text-lg font-semibold text-neutral-900; /* 18px */
+  }
+  
+  .text-body {
+    @apply text-base leading-relaxed text-neutral-700; /* 16px */
+  }
+  
+  .text-body-sm {
+    @apply text-sm leading-relaxed text-neutral-700; /* 14px */
+  }
+  
+  .text-caption {
+    @apply text-xs text-neutral-500; /* 12px */
+  }
+  
+  /* Modern shadow system */
+  .shadow-soft {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-strong {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* Responsive grid utilities */
+  .grid-responsive-1 {
+    @apply grid grid-cols-1;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+}
