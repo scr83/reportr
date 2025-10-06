@@ -8,8 +8,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Brand colors for white-label customization
+        // Digital Frog brand colors
         brand: {
+          teal: '#06B6D4',
+          lime: '#84CC16',
+          aqua: '#22D3EE',
           50: 'rgb(var(--brand-50) / <alpha-value>)',
           100: 'rgb(var(--brand-100) / <alpha-value>)',
           200: 'rgb(var(--brand-200) / <alpha-value>)',
@@ -21,6 +24,36 @@ module.exports = {
           800: 'rgb(var(--brand-800) / <alpha-value>)',
           900: 'rgb(var(--brand-900) / <alpha-value>)',
           950: 'rgb(var(--brand-950) / <alpha-value>)',
+        },
+        // Digital Frog tech color system
+        slate: {
+          dark: '#030712',
+          medium: '#111827',
+          light: '#1F2937',
+        },
+        primary: {
+          50: '#ecfeff',
+          100: '#cffafe',
+          200: '#a5f3fc',
+          300: '#67e8f9',
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
+          700: '#0e7490',
+          800: '#155e75',
+          900: '#164e63',
+        },
+        secondary: {
+          50: '#f7fee7',
+          100: '#ecfccb',
+          200: '#d9f99d',
+          300: '#bef264',
+          400: '#a3e635',
+          500: '#84cc16',
+          600: '#65a30d',
+          700: '#4d7c0f',
+          800: '#3f6212',
+          900: '#365314',
         },
         // Semantic colors
         success: {

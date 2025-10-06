@@ -3,31 +3,31 @@
 @tailwind utilities;
 
 :root {
-  /* Modern Default Colors (Professional, Brand-Neutral) */
-  --brand-50: 239 246 255;
-  --brand-100: 219 234 254; 
-  --brand-200: 191 219 254;
-  --brand-300: 147 197 253;
-  --brand-400: 96 165 250;
-  --brand-500: 59 130 246;  /* Primary: Modern Blue */
-  --brand-600: 37 99 235;
-  --brand-700: 29 78 216;
-  --brand-800: 30 64 175;
-  --brand-900: 30 58 138;
-  --brand-950: 23 37 84;
+  /* Digital Frog Brand Colors (Teal/Lime Tech Palette) */
+  --brand-50: 236 254 255;    /* Teal 50 */
+  --brand-100: 207 250 254;   /* Teal 100 */
+  --brand-200: 165 243 252;   /* Teal 200 */
+  --brand-300: 103 232 249;   /* Teal 300 */
+  --brand-400: 34 211 238;    /* Teal 400 */
+  --brand-500: 6 182 212;     /* Primary: Digital Frog Teal */
+  --brand-600: 8 145 178;     /* Teal 600 */
+  --brand-700: 14 116 144;    /* Teal 700 */
+  --brand-800: 21 94 117;     /* Teal 800 */
+  --brand-900: 22 78 99;      /* Teal 900 */
+  --brand-950: 8 51 68;       /* Teal 950 */
 
-  /* Secondary/Accent Colors */
-  --secondary-50: 240 253 244;
-  --secondary-100: 220 252 231;
-  --secondary-500: 16 185 129; /* Modern Green */
-  --secondary-600: 5 150 105;
-  --secondary-700: 4 120 87;
+  /* Secondary/Accent Colors (Lime for Digital Frog) */
+  --secondary-50: 247 254 231;  /* Lime 50 */
+  --secondary-100: 236 252 203; /* Lime 100 */
+  --secondary-500: 132 204 22;  /* Digital Frog Lime */
+  --secondary-600: 101 163 13;  /* Lime 600 */
+  --secondary-700: 77 124 15;   /* Lime 700 */
   
-  --accent-50: 245 243 255;
-  --accent-100: 237 233 254;
-  --accent-500: 139 92 246;    /* Modern Purple */
-  --accent-600: 124 58 237;
-  --accent-700: 109 40 217;
+  --accent-50: 236 254 255;     /* Aqua 50 */
+  --accent-100: 207 250 254;    /* Aqua 100 */
+  --accent-500: 34 211 238;     /* Digital Frog Aqua */
+  --accent-600: 8 145 178;      /* Aqua 600 */
+  --accent-700: 14 116 144;     /* Aqua 700 */
   
   /* Success/Warning/Error Colors */
   --success-50: 240 253 244;

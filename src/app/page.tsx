@@ -219,7 +219,7 @@ export default function HomePage() {
                   <div className="h-32 bg-gradient-to-br from-brand-100 to-brand-200 rounded"></div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="h-16 bg-green-100 rounded"></div>
-                    <div className="h-16 bg-blue-100 rounded"></div>
+                    <div className="h-16 bg-brand-100 rounded"></div>
                     <div className="h-16 bg-purple-100 rounded"></div>
                   </div>
                   <div className="h-4 bg-neutral-200 rounded w-2/3"></div>

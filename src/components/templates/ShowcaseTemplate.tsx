@@ -154,8 +154,8 @@ export const ShowcaseTemplate: React.FC<ShowcaseTemplateProps> = ({
                       'w-full text-left px-3 py-3 text-sm rounded-md transition-colors',
                       activeSection === section.id
                         ? isDarkMode
-                          ? 'bg-blue-600 text-white font-medium'
-                          : 'bg-blue-50 text-blue-900 font-medium border border-blue-200 shadow-sm'
+                          ? 'bg-brand-600 text-white font-medium'
+                          : 'bg-brand-50 text-brand-900 font-medium border border-brand-200 shadow-sm'
                         : isDarkMode
                         ? 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
                         : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
@@ -188,8 +188,8 @@ export const ShowcaseTemplate: React.FC<ShowcaseTemplateProps> = ({
                     'w-full text-left px-3 py-2 text-sm rounded-md transition-colors',
                     activeSection === section.id
                       ? isDarkMode
-                        ? 'bg-blue-600 text-white font-medium'
-                        : 'bg-blue-50 text-blue-900 font-medium border border-blue-200 shadow-sm'
+                        ? 'bg-brand-600 text-white font-medium'
+                        : 'bg-brand-50 text-brand-900 font-medium border border-brand-200 shadow-sm'
                       : isDarkMode
                       ? 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
                       : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'

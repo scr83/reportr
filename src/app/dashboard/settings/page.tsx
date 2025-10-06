@@ -254,8 +254,8 @@ export default function SettingsPage() {
           {/* Google Search Console */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Typography variant="body" className="font-bold text-blue-600">
+              <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center">
+                <Typography variant="body" className="font-bold text-brand-600">
                   GSC
                 </Typography>
               </div>

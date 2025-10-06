@@ -21,9 +21,9 @@ export default function DashboardPage() {
       <div className="mt-6 space-y-2">
         <p><strong>Test these routes:</strong></p>
         <ul className="list-disc list-inside space-y-1 text-neutral-600">
-          <li><Link href="/dashboard/clients" className="text-blue-600 hover:underline">Clients Page</Link></li>
-          <li><Link href="/dashboard/reports" className="text-blue-600 hover:underline">Reports Page</Link></li>
-          <li><Link href="/debug" className="text-blue-600 hover:underline">Debug Page</Link></li>
+          <li><Link href="/dashboard/clients" className="text-brand-600 hover:underline">Clients Page</Link></li>
+          <li><Link href="/dashboard/reports" className="text-brand-600 hover:underline">Reports Page</Link></li>
+          <li><Link href="/debug" className="text-brand-600 hover:underline">Debug Page</Link></li>
         </ul>
       </div>
     </div>
