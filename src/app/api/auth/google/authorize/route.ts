@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Client ID required' }, { status: 400 });
   }
   
-  const redirectUri = process.env.NEXTAUTH_URL 
-    ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
-    : 'https://reportr-one.vercel.app/api/auth/google/callback';
+  const redirectUri = process.env.NODE_ENV === 'production'
+    ? 'https://reportr-one.vercel.app/api/auth/google/callback'
+    : 'http://localhost:3003/api/auth/google/callback';
   
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
