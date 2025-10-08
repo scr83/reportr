@@ -35,7 +35,6 @@ import {
   ButtonGroup,
   TabGroup,
   MetricCard,
-  UserMenu,
   StatusBadge,
   EmptyState,
   LoadingCard

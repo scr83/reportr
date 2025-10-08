@@ -1,7 +1,5 @@
 // Navigation & Layout
 export { NavigationBar } from './NavigationBar'
-export { Sidebar } from './Sidebar'
-export { MobileNavigation } from './MobileNavigation'
 
 // Dashboard Components
 export { StatsOverview } from './StatsOverview'

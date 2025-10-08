@@ -10,7 +10,6 @@ export { TabGroup } from './TabGroup'
 
 // Display & Feedback
 export { MetricCard } from './MetricCard'
-export { UserMenu } from './UserMenu'
 export { StatusBadge } from './StatusBadge'
 export { EmptyState } from './EmptyState'
 export { LoadingCard } from './LoadingCard'
