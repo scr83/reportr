@@ -1,12 +1,38 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
-import { Card, Typography, Button } from '@/components/atoms'
+import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
+import { Modal } from '@/components/organisms'
 import { Users, Plus, Globe, Calendar } from 'lucide-react'
 
+interface Client {
+  id: string
+  name: string
+  domain: string
+  contactName: string
+  contactEmail: string
+  reportsCount: number
+  lastReportDate: string
+  gscConnected: boolean
+  ga4Connected: boolean
+}
+
+interface ClientFormData {
+  name: string
+  domain: string
+  contactName: string
+  contactEmail: string
+}
+
+interface FormErrors {
+  name?: string
+  domain?: string
+  contactEmail?: string
+}
+
 export default function ClientsPage() {
-  const clients = [
+  const [clients, setClients] = useState<Client[]>([
     {
       id: '1',
       name: 'TechStart Solutions',
@@ -29,7 +55,105 @@ export default function ClientsPage() {
       gscConnected: true,
       ga4Connected: false
     }
-  ]
+  ])
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [formData, setFormData] = useState<ClientFormData>({
+    name: '',
+    domain: '',
+    contactName: '',
+    contactEmail: ''
+  })
+  const [errors, setErrors] = useState<FormErrors>({})
+
+  // Form validation
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    // Client name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Client name is required'
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Client name must be at least 2 characters'
+    }
+
+    // Domain validation
+    if (!formData.domain.trim()) {
+      newErrors.domain = 'Website domain is required'
+    } else {
+      try {
+        new URL(formData.domain)
+      } catch {
+        newErrors.domain = 'Please enter a valid URL (e.g., https://example.com)'
+      }
+    }
+
+    // Contact email validation (optional but must be valid if provided)
+    if (formData.contactEmail.trim() && !isValidEmail(formData.contactEmail)) {
+      newErrors.contactEmail = 'Please enter a valid email address'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  // Handle form submission
+  const handleAddClient = async () => {
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      // For now, simulate API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Create new client with generated ID
+      const newClient: Client = {
+        id: Date.now().toString(),
+        name: formData.name.trim(),
+        domain: formData.domain.trim(),
+        contactName: formData.contactName.trim(),
+        contactEmail: formData.contactEmail.trim(),
+        reportsCount: 0,
+        lastReportDate: 'Never',
+        gscConnected: false,
+        ga4Connected: false
+      }
+
+      // Add to clients list
+      setClients(prev => [...prev, newClient])
+
+      // Reset form and close modal
+      setFormData({ name: '', domain: '', contactName: '', contactEmail: '' })
+      setErrors({})
+      setIsModalOpen(false)
+      setShowSuccess(true)
+
+      // Hide success message after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000)
+
+    } catch (error) {
+      console.error('Failed to add client:', error)
+      // In a real app, show error message to user
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setFormData({ name: '', domain: '', contactName: '', contactEmail: '' })
+    setErrors({})
+  }
 
   return (
     <DashboardLayout>
@@ -44,7 +168,7 @@ export default function ClientsPage() {
               Manage your client websites and SEO reports.
             </Typography>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => alert('Add client functionality coming soon!')}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>
@@ -136,12 +260,94 @@ export default function ClientsPage() {
             <Typography className="text-gray-600 mb-4">
               Start by adding your first client to begin generating SEO reports.
             </Typography>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => alert('Add client functionality coming soon!')}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Client
             </Button>
           </div>
         )}
+
+        {/* Success Message */}
+        {showSuccess && (
+          <div className="fixed top-4 right-4 z-50">
+            <Alert variant="success" className="shadow-lg">
+              Client added successfully! 🎉
+            </Alert>
+          </div>
+        )}
+
+        {/* Add Client Modal */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          title="Add New Client"
+          description="Add a new client to start generating SEO reports"
+          size="md"
+        >
+          <div className="space-y-6">
+            <div>
+              <Input
+                label="Client Name"
+                placeholder="Acme Corporation"
+                value={formData.name}
+                onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
+                error={errors.name}
+                required
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Website Domain"
+                placeholder="https://example.com"
+                value={formData.domain}
+                onChange={(value) => setFormData(prev => ({ ...prev, domain: value }))}
+                error={errors.domain}
+                required
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Contact Name"
+                placeholder="John Smith"
+                value={formData.contactName}
+                onChange={(value) => setFormData(prev => ({ ...prev, contactName: value }))}
+              />
+              <p className="text-sm text-gray-500 mt-1">Optional</p>
+            </div>
+
+            <div>
+              <Input
+                label="Contact Email"
+                type="email"
+                placeholder="john@example.com"
+                value={formData.contactEmail}
+                onChange={(value) => setFormData(prev => ({ ...prev, contactEmail: value }))}
+                error={errors.contactEmail}
+              />
+              <p className="text-sm text-gray-500 mt-1">Optional</p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={handleModalClose}
+                className="flex-1"
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddClient}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Adding...' : 'Add Client'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </DashboardLayout>
   )
