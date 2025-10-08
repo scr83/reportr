@@ -1,0 +1,458 @@
+'use client'
+
+import React, { useState } from 'react'
+import { DashboardLayout } from '@/components/templates/DashboardLayout'
+import { Card, Typography, Button, Input, Select } from '@/components/atoms'
+import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar } from 'lucide-react'
+
+interface ReportData {
+  client: string
+  startDate: string
+  endDate: string
+  gscData: {
+    totalClicks: string
+    totalImpressions: string
+    averageCTR: string
+    averagePosition: string
+    topQueries: string
+  }
+  ga4Data: {
+    users: string
+    sessions: string
+    bounceRate: string
+    conversions: string
+  }
+}
+
+export default function GenerateReportPage() {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [reportData, setReportData] = useState<ReportData>({
+    client: '',
+    startDate: '',
+    endDate: '',
+    gscData: {
+      totalClicks: '',
+      totalImpressions: '',
+      averageCTR: '',
+      averagePosition: '',
+      topQueries: ''
+    },
+    ga4Data: {
+      users: '',
+      sessions: '',
+      bounceRate: '',
+      conversions: ''
+    }
+  })
+  const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4'>('gsc')
+
+  const steps = [
+    { number: 1, title: 'Report Details', icon: FileText },
+    { number: 2, title: 'Import Data', icon: BarChart3 },
+    { number: 3, title: 'Preview & Generate', icon: Check }
+  ]
+
+  const handleNext = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const renderProgressBar = () => (
+    <div className="flex items-center justify-center mb-8">
+      {steps.map((step, index) => (
+        <div key={step.number} className="flex items-center">
+          <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
+            currentStep >= step.number
+              ? 'bg-indigo-600 border-indigo-600 text-white'
+              : 'border-gray-300 text-gray-400'
+          }`}>
+            {currentStep > step.number ? (
+              <Check className="w-5 h-5" />
+            ) : (
+              <step.icon className="w-5 h-5" />
+            )}
+          </div>
+          <div className="ml-3 text-sm">
+            <div className={`font-medium ${currentStep >= step.number ? 'text-indigo-600' : 'text-gray-400'}`}>
+              Step {step.number}
+            </div>
+            <div className="text-gray-600">{step.title}</div>
+          </div>
+          {index < steps.length - 1 && (
+            <div className={`w-20 h-0.5 mx-4 ${
+              currentStep > step.number ? 'bg-indigo-600' : 'bg-gray-300'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+
+  const renderStep1 = () => (
+    <Card className="p-8 max-w-2xl mx-auto">
+      <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
+        Report Details
+      </Typography>
+      
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select Client
+          </label>
+          <Select
+            value={reportData.client}
+            onChange={(e) => setReportData({ ...reportData, client: e.target.value })}
+            className="w-full"
+          >
+            <option value="">Choose a client...</option>
+            <option value="techstart">TechStart Solutions</option>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Start Date
+            </label>
+            <Input
+              type="date"
+              value={reportData.startDate}
+              onChange={(value) => setReportData({ ...reportData, startDate: value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              End Date
+            </label>
+            <Input
+              type="date"
+              value={reportData.endDate}
+              onChange={(value) => setReportData({ ...reportData, endDate: value })}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-6">
+          <Button 
+            onClick={handleNext}
+            disabled={!reportData.client || !reportData.startDate || !reportData.endDate}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            Continue to Data Import
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </Card>
+  )
+
+  const renderStep2 = () => (
+    <Card className="p-8 max-w-4xl mx-auto">
+      <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
+        Import Data
+      </Typography>
+
+      {/* Info Box */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <BarChart3 className="h-5 w-5 text-blue-400" />
+          </div>
+          <div className="ml-3">
+            <Typography className="text-sm text-blue-800">
+              <strong>Note:</strong> Direct API integration isn&apos;t available yet. Export CSV from GSC/GA4 and enter metrics here.
+            </Typography>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveDataTab('gsc')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeDataTab === 'gsc'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Google Search Console
+          </button>
+          <button
+            onClick={() => setActiveDataTab('ga4')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeDataTab === 'ga4'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Google Analytics 4
+          </button>
+        </nav>
+      </div>
+
+      {/* GSC Fields */}
+      {activeDataTab === 'gsc' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total Clicks
+              </label>
+              <Input
+                value={reportData.gscData.totalClicks}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  gscData: { ...reportData.gscData, totalClicks: value }
+                })}
+                placeholder="e.g., 1,234"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total Impressions
+              </label>
+              <Input
+                value={reportData.gscData.totalImpressions}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  gscData: { ...reportData.gscData, totalImpressions: value }
+                })}
+                placeholder="e.g., 45,678"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Average CTR (%)
+              </label>
+              <Input
+                value={reportData.gscData.averageCTR}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  gscData: { ...reportData.gscData, averageCTR: value }
+                })}
+                placeholder="e.g., 2.7"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Average Position
+              </label>
+              <Input
+                value={reportData.gscData.averagePosition}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  gscData: { ...reportData.gscData, averagePosition: value }
+                })}
+                placeholder="e.g., 12.5"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Top Queries (JSON format)
+            </label>
+            <textarea
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              value={reportData.gscData.topQueries}
+              onChange={(e) => setReportData({
+                ...reportData,
+                gscData: { ...reportData.gscData, topQueries: e.target.value }
+              })}
+              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567}, ...]'
+            />
+          </div>
+        </div>
+      )}
+
+      {/* GA4 Fields */}
+      {activeDataTab === 'ga4' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Users
+              </label>
+              <Input
+                value={reportData.ga4Data.users}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  ga4Data: { ...reportData.ga4Data, users: value }
+                })}
+                placeholder="e.g., 856"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sessions
+              </label>
+              <Input
+                value={reportData.ga4Data.sessions}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  ga4Data: { ...reportData.ga4Data, sessions: value }
+                })}
+                placeholder="e.g., 1,203"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bounce Rate
+              </label>
+              <Input
+                value={reportData.ga4Data.bounceRate}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  ga4Data: { ...reportData.ga4Data, bounceRate: value }
+                })}
+                placeholder="e.g., 45.2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Conversions
+              </label>
+              <Input
+                value={reportData.ga4Data.conversions}
+                onChange={(value) => setReportData({
+                  ...reportData,
+                  ga4Data: { ...reportData.ga4Data, conversions: value }
+                })}
+                placeholder="e.g., 24"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between pt-8">
+        <Button variant="secondary" onClick={handleBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Button onClick={handleNext} className="bg-indigo-600 hover:bg-indigo-700">
+          Preview Report
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </Card>
+  )
+
+  const renderStep3 = () => (
+    <Card className="p-8 max-w-4xl mx-auto">
+      <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
+        Preview & Generate
+      </Typography>
+
+      {/* Client & Period Info */}
+      <div className="bg-gray-50 rounded-lg p-6 mb-6">
+        <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-2">
+          TechStart Solutions
+        </Typography>
+        <div className="flex items-center text-gray-600">
+          <Calendar className="h-4 w-4 mr-2" />
+          Reporting Period: {reportData.startDate} to {reportData.endDate}
+        </div>
+      </div>
+
+      {/* Metrics Display */}
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        {/* GSC Metrics */}
+        <div>
+          <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
+            Google Search Console
+          </Typography>
+          <div className="space-y-3">
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Total Clicks</span>
+              <span className="font-medium">{reportData.gscData.totalClicks || '—'}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Total Impressions</span>
+              <span className="font-medium">{reportData.gscData.totalImpressions || '—'}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Average CTR</span>
+              <span className="font-medium">{reportData.gscData.averageCTR ? `${reportData.gscData.averageCTR}%` : '—'}</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="text-gray-600">Average Position</span>
+              <span className="font-medium">{reportData.gscData.averagePosition || '—'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* GA4 Metrics */}
+        <div>
+          <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
+            Google Analytics 4
+          </Typography>
+          <div className="space-y-3">
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Users</span>
+              <span className="font-medium">{reportData.ga4Data.users || '—'}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Sessions</span>
+              <span className="font-medium">{reportData.ga4Data.sessions || '—'}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Bounce Rate</span>
+              <span className="font-medium">{reportData.ga4Data.bounceRate ? `${reportData.ga4Data.bounceRate}%` : '—'}</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="text-gray-600">Conversions</span>
+              <span className="font-medium">{reportData.ga4Data.conversions || '—'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-6">
+        <Button variant="secondary" onClick={handleBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Button className="bg-green-600 hover:bg-green-700" onClick={() => alert('Report generation would start here!')}>
+          Generate PDF Report
+          <FileText className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </Card>
+  )
+
+  return (
+    <DashboardLayout>
+      <div className="p-8">
+        <div className="mb-8">
+          <Typography variant="h1" className="text-3xl font-bold text-gray-900 mb-2">
+            Generate Report
+          </Typography>
+          <Typography className="text-gray-600">
+            Create a comprehensive SEO report in 3 simple steps.
+          </Typography>
+        </div>
+
+        {renderProgressBar()}
+
+        <div className="min-h-[600px]">
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+        </div>
+      </div>
+    </DashboardLayout>
+  )
+}

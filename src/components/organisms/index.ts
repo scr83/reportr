@@ -1,5 +1,6 @@
 // Navigation & Layout
 export { NavigationBar } from './NavigationBar'
+export { DashboardSidebar } from './DashboardSidebar'
 
 // Dashboard Components
 export { StatsOverview } from './StatsOverview'
