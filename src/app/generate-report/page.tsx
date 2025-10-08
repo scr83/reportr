@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Select } from '@/components/atoms'
-import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
 
 interface ReportData {
   clientId: string
@@ -28,6 +28,8 @@ interface ReportData {
 export default function GenerateReportPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isFetchingGoogle, setIsFetchingGoogle] = useState(false)
+  const [googleError, setGoogleError] = useState<string | null>(null)
   const [jsonError, setJsonError] = useState<string | null>(null)
   const [reportData, setReportData] = useState<ReportData>({
     clientId: 'techstart-client-id', // Default to TechStart client ID
@@ -90,6 +92,81 @@ export default function GenerateReportPage() {
     } catch (error) {
       setJsonError('Invalid JSON format')
       return false
+    }
+  }
+
+  const handleFetchGoogleData = async () => {
+    if (!reportData.clientId || !reportData.startDate || !reportData.endDate) {
+      setGoogleError('Please select a client and date range first')
+      return
+    }
+
+    setIsFetchingGoogle(true)
+    setGoogleError(null)
+
+    try {
+      // Fetch GSC data
+      const gscRes = await fetch(
+        `/api/clients/${reportData.clientId}/google/search-console?startDate=${reportData.startDate}&endDate=${reportData.endDate}`
+      )
+      
+      let gscData = null
+      if (gscRes.ok) {
+        const gscResponse = await gscRes.json()
+        gscData = gscResponse.data
+      } else {
+        const gscError = await gscRes.json()
+        console.warn('GSC fetch failed:', gscError.error)
+      }
+
+      // Fetch GA4 data
+      const ga4Res = await fetch(
+        `/api/clients/${reportData.clientId}/google/analytics?startDate=${reportData.startDate}&endDate=${reportData.endDate}`
+      )
+      
+      let ga4Data = null
+      if (ga4Res.ok) {
+        const ga4Response = await ga4Res.json()
+        ga4Data = ga4Response.data
+      } else {
+        const ga4Error = await ga4Res.json()
+        console.warn('GA4 fetch failed:', ga4Error.error)
+      }
+
+      // Update form data with fetched data
+      if (gscData || ga4Data) {
+        setReportData(prev => ({
+          ...prev,
+          gscData: {
+            totalClicks: gscData?.clicks?.toLocaleString() || prev.gscData.totalClicks,
+            totalImpressions: gscData?.impressions?.toLocaleString() || prev.gscData.totalImpressions,
+            averageCTR: gscData?.ctr || prev.gscData.averageCTR,
+            averagePosition: gscData?.position || prev.gscData.averagePosition,
+            topQueries: gscData?.topQueries ? JSON.stringify(gscData.topQueries, null, 2) : prev.gscData.topQueries
+          },
+          ga4Data: {
+            users: ga4Data?.users?.toLocaleString() || prev.ga4Data.users,
+            sessions: ga4Data?.sessions?.toLocaleString() || prev.ga4Data.sessions,
+            bounceRate: ga4Data?.bounceRate || prev.ga4Data.bounceRate,
+            conversions: ga4Data?.conversions?.toLocaleString() || prev.ga4Data.conversions
+          }
+        }))
+
+        // Show success message
+        const fetchedSources = []
+        if (gscData) fetchedSources.push('Search Console')
+        if (ga4Data) fetchedSources.push('Analytics')
+        
+        alert(`Data successfully fetched from Google ${fetchedSources.join(' and ')}!`)
+      } else {
+        throw new Error('Failed to fetch data from both Google APIs. Please check your Google connection.')
+      }
+
+    } catch (error: any) {
+      console.error('Google data fetch error:', error)
+      setGoogleError(error.message || 'Failed to fetch data from Google APIs')
+    } finally {
+      setIsFetchingGoogle(false)
     }
   }
 
@@ -258,17 +335,55 @@ export default function GenerateReportPage() {
         Import Data
       </Typography>
 
-      {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <BarChart3 className="h-5 w-5 text-blue-400" />
+      {/* Google Auto-Fetch Section */}
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Zap className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="ml-3">
+              <Typography className="text-lg font-semibold text-gray-900">
+                Auto-Fetch from Google APIs
+              </Typography>
+              <Typography className="text-sm text-gray-600">
+                Automatically import data from Google Search Console and Analytics
+              </Typography>
+            </div>
           </div>
-          <div className="ml-3">
-            <Typography className="text-sm text-blue-800">
-              <strong>Note:</strong> Direct API integration isn&apos;t available yet. Export CSV from GSC/GA4 and enter metrics here.
-            </Typography>
+          <Button 
+            variant="outline"
+            onClick={handleFetchGoogleData}
+            disabled={isFetchingGoogle || !reportData.client || !reportData.startDate || !reportData.endDate}
+            className="border-purple-300 text-purple-700 hover:bg-purple-50"
+          >
+            {isFetchingGoogle ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Fetching...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Fetch from Google
+              </>
+            )}
+          </Button>
+        </div>
+        
+        {googleError && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-3">
+            <div className="flex">
+              <AlertCircle className="h-4 w-4 text-red-400 mt-0.5" />
+              <div className="ml-2">
+                <Typography className="text-sm text-red-800">{googleError}</Typography>
+              </div>
+            </div>
           </div>
+        )}
+        
+        <div className="mt-4 text-xs text-gray-500">
+          <strong>Note:</strong> You can also manually enter data below if auto-fetch is not available.
         </div>
       </div>
 

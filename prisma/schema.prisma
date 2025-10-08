@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,109 +8,51 @@ datasource db {
   directUrl = env("DATABASE_URL")
 }
 
-// ============================================
-// COMMENTED OUT MODELS (NextAuth only)
-// ============================================
-
-// model Account {
-//   id                String  @id @default(cuid())
-//   userId            String
-//   type              String
-//   provider          String
-//   providerAccountId String
-//   refresh_token     String? @db.Text
-//   access_token      String? @db.Text
-//   expires_at        Int?
-//   token_type        String?
-//   scope             String?
-//   id_token          String? @db.Text
-//   session_state     String?
-//
-//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-//
-//   @@unique([provider, providerAccountId])
-//   @@map("accounts")
-// }
-
-// model Session {
-//   id           String   @id @default(cuid())
-//   sessionToken String   @unique
-//   userId       String
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//
-//   @@map("sessions")
-// }
-
-// model VerificationToken {
-//   identifier String
-//   token      String   @unique
-//   expires    DateTime
-//
-//   @@unique([identifier, token])
-//   @@map("verification_tokens")
-// }
-
-// Application Models
 model User {
-  id           String    @id @default(cuid())
-  name         String?
-  email        String    @unique
-  emailVerified DateTime?
-  image        String?
-  
-  // White-label branding fields
-  companyName  String?
-  primaryColor String    @default("#3B82F6") // Default blue
-  logo         String?
-  
-  // Subscription/billing fields
-  plan         Plan      @default(FREE)
-  planExpires  DateTime?
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime?
+  image            String?
+  companyName      String?
+  primaryColor     String    @default("#3B82F6")
+  logo             String?
+  plan             Plan      @default(FREE)
+  planExpires      DateTime?
   stripeCustomerId String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  // accounts Account[]  // REMOVED - references deleted model
-  // sessions Session[]  // REMOVED - references deleted model
-  clients  Client[]
-  reports  Report[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  clients          Client[]
+  reports          Report[]
 
   @@map("users")
 }
 
 model Client {
-  id     String @id @default(cuid())
-  name   String
-  domain String
-  
-  // Contact information
-  contactEmail String?
-  contactName  String?
-  
-  // Google API connections
-  googleSearchConsoleConnected Boolean @default(false)
-  googleAnalyticsConnected     Boolean @default(false)
+  id                           String    @id @default(cuid())
+  name                         String
+  domain                       String
+  contactEmail                 String?
+  contactName                  String?
+  googleSearchConsoleConnected Boolean   @default(false)
+  googleAnalyticsConnected     Boolean   @default(false)
   searchConsolePropertyUrl     String?
   googleAnalyticsPropertyId    String?
-  
-  // API tokens (encrypted)
-  searchConsoleRefreshToken String?
-  analyticsRefreshToken     String?
-  
-  // Performance tracking
-  lastReportGenerated DateTime?
-  totalReportsGenerated Int @default(0)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports Report[]
+  searchConsoleRefreshToken    String?
+  analyticsRefreshToken        String?
+  lastReportGenerated          DateTime?
+  totalReportsGenerated        Int       @default(0)
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  userId                       String
+  gaPropertyId                 String?
+  googleAccessToken            String?
+  googleConnectedAt            DateTime?
+  googleRefreshToken           String?
+  googleTokenExpiry            DateTime?
+  gscSiteUrl                   String?
+  user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports                      Report[]
 
   @@index([userId])
   @@index([domain])
@@ -121,33 +60,22 @@ model Client {
 }
 
 model Report {
-  id       String       @id @default(cuid())
-  title    String
-  status   ReportStatus @default(PENDING)
-  
-  // Raw report data stored as JSON
-  data     Json?
-  
-  // Generated PDF
-  pdfUrl   String?
-  pdfSize  Int?
-  
-  // Processing metadata
-  processingStartedAt DateTime?
+  id                    String       @id @default(cuid())
+  title                 String
+  status                ReportStatus @default(PENDING)
+  data                  Json?
+  pdfUrl                String?
+  pdfSize               Int?
+  processingStartedAt   DateTime?
   processingCompletedAt DateTime?
-  errorMessage        String?
-  
-  // Performance metrics
-  generationTimeMs    Int?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  clientId String
-  userId   String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  errorMessage          String?
+  generationTimeMs      Int?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  clientId              String
+  userId                String
+  client                Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
   @@index([userId])
@@ -156,65 +84,52 @@ model Report {
   @@map("reports")
 }
 
-// API Usage Tracking
 model ApiUsage {
-  id       String   @id @default(cuid())
-  userId   String
-  endpoint String
-  method   String
-  
-  // Request details
-  requestSize  Int?
-  responseSize Int?
-  responseTime Int?
-  statusCode   Int
-  
-  // Rate limiting
+  id                 String   @id @default(cuid())
+  userId             String
+  endpoint           String
+  method             String
+  requestSize        Int?
+  responseSize       Int?
+  responseTime       Int?
+  statusCode         Int
   rateLimitRemaining Int?
-  
-  // Cost tracking
-  cost Float @default(0.0)
-  
-  timestamp DateTime @default(now())
-  
+  cost               Float    @default(0.0)
+  timestamp          DateTime @default(now())
+
   @@index([userId])
   @@index([timestamp])
   @@map("api_usage")
 }
 
-// Webhook Events
 model WebhookEvent {
-  id            String           @id @default(cuid())
+  id            String        @id @default(cuid())
   eventType     String
   eventData     Json
-  status        WebhookStatus    @default(PENDING)
-  attempts      Int              @default(0)
-  maxAttempts   Int              @default(3)
+  status        WebhookStatus @default(PENDING)
+  attempts      Int           @default(0)
+  maxAttempts   Int           @default(3)
   nextAttemptAt DateTime?
   lastError     String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
   @@index([status])
   @@index([nextAttemptAt])
   @@map("webhook_events")
 }
 
-// Settings and Configuration
 model AppSetting {
-  id          String @id @default(cuid())
-  key         String @unique
+  id          String   @id @default(cuid())
+  key         String   @unique
   value       Json
   description String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   @@map("app_settings")
 }
 
-// Enums
 enum Plan {
   FREE
   STARTER

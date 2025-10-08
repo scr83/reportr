@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
-import { Users, Plus, Globe, Calendar } from 'lucide-react'
+import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle } from 'lucide-react'
 
 interface Client {
   id: string
@@ -16,6 +16,7 @@ interface Client {
   lastReportDate: string
   gscConnected: boolean
   ga4Connected: boolean
+  googleConnectedAt?: string
 }
 
 interface ClientFormData {
@@ -155,6 +156,34 @@ export default function ClientsPage() {
     setErrors({})
   }
 
+  // Handle Google OAuth connection
+  const handleConnectGoogle = (clientId: string) => {
+    const width = 600
+    const height = 700
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
+    
+    const popup = window.open(
+      `/api/auth/google/authorize?clientId=${clientId}`,
+      'google-oauth',
+      `width=${width},height=${height},left=${left},top=${top}`
+    )
+
+    // Listen for popup close to refresh client data
+    const checkClosed = setInterval(() => {
+      if (popup?.closed) {
+        clearInterval(checkClosed)
+        // Refresh page or update client data
+        window.location.reload()
+      }
+    }, 1000)
+  }
+
+  // Check if client has Google connection
+  const hasGoogleConnection = (client: Client) => {
+    return client.gscConnected || client.ga4Connected || client.googleConnectedAt
+  }
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -223,23 +252,55 @@ export default function ClientsPage() {
 
               {/* Connection Status */}
               <div className="border-t border-gray-200 pt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Connections</span>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-600">Google Integration</span>
+                  {hasGoogleConnection(client) ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Connected
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Not Connected
+                    </span>
+                  )}
                 </div>
-                <div className="flex space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <div className={`w-2 h-2 rounded-full ${client.gscConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span className="text-xs text-gray-600">GSC</span>
+                
+                {hasGoogleConnection(client) ? (
+                  <div className="flex space-x-4 mb-3">
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${client.gscConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span className="text-xs text-gray-600">Search Console</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${client.ga4Connected ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span className="text-xs text-gray-600">Analytics</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <div className={`w-2 h-2 rounded-full ${client.ga4Connected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span className="text-xs text-gray-600">GA4</span>
+                ) : (
+                  <div className="mb-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleConnectGoogle(client.id)}
+                    >
+                      <Link className="h-4 w-4 mr-2" />
+                      Connect Google APIs
+                    </Button>
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="mt-4 flex space-x-2">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => alert(`Generating report for ${client.name}`)}>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={() => alert(`Generating report for ${client.name}`)}
+                  disabled={!hasGoogleConnection(client)}
+                >
                   Generate Report
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => alert(`Editing ${client.name}`)}>

@@ -1,0 +1,52 @@
+import { google } from 'googleapis';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code');
+  const clientId = searchParams.get('state');
+  const error = searchParams.get('error');
+  
+  if (error) {
+    console.error('OAuth error:', error);
+    return NextResponse.redirect('/dashboard/clients?error=oauth_denied');
+  }
+  
+  if (!code || !clientId) {
+    return NextResponse.redirect('/dashboard/clients?error=oauth_failed');
+  }
+  
+  try {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/google/callback`
+    );
+    
+    const { tokens } = await oauth2Client.getToken(code);
+    
+    if (!tokens.access_token || !tokens.refresh_token) {
+      throw new Error('Missing required tokens');
+    }
+    
+    // Save tokens to database
+    await prisma.client.update({
+      where: { id: clientId },
+      data: {
+        googleAccessToken: tokens.access_token,
+        googleRefreshToken: tokens.refresh_token,
+        googleTokenExpiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+        googleConnectedAt: new Date(),
+        // Update legacy flags for backward compatibility
+        googleSearchConsoleConnected: true,
+        googleAnalyticsConnected: true
+      }
+    });
+    
+    return NextResponse.redirect('/dashboard/clients?connected=true');
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    return NextResponse.redirect('/dashboard/clients?error=oauth_failed');
+  }
+}
