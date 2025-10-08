@@ -18,10 +18,21 @@ export async function GET(request: NextRequest) {
   }
   
   try {
+    const redirectUri = process.env.NEXTAUTH_URL 
+      ? `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
+      : 'https://reportr-one.vercel.app/api/auth/google/callback';
+
+    console.log('Callback OAuth Config:', {
+      clientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
+      redirectUri,
+      receivedCode: !!code,
+      receivedState: clientId
+    });
+
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/google/callback`
+      redirectUri
     );
     
     const { tokens } = await oauth2Client.getToken(code);
