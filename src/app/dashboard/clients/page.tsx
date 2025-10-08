@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
@@ -10,13 +10,17 @@ interface Client {
   id: string
   name: string
   domain: string
-  contactName: string
-  contactEmail: string
+  contactName: string | null
+  contactEmail: string | null
   reportsCount: number
   lastReportDate: string
   gscConnected: boolean
   ga4Connected: boolean
-  googleConnectedAt?: string
+  googleConnectedAt?: string | null
+  googleAccessToken?: string | null
+  reports?: any[]
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface ClientFormData {
@@ -33,34 +37,12 @@ interface FormErrors {
 }
 
 export default function ClientsPage() {
-  const [clients, setClients] = useState<Client[]>([
-    {
-      id: '1',
-      name: 'TechStart Solutions',
-      domain: 'https://techstart.com',
-      contactName: 'John Smith',
-      contactEmail: 'john@techstart.com',
-      reportsCount: 6,
-      lastReportDate: '2024-11-01',
-      gscConnected: true,
-      ga4Connected: true
-    },
-    {
-      id: '2',
-      name: 'Digital Marketing Pro',
-      domain: 'https://digitalmktpro.com',
-      contactName: 'Sarah Johnson',
-      contactEmail: 'sarah@digitalmktpro.com',
-      reportsCount: 3,
-      lastReportDate: '2024-10-15',
-      gscConnected: true,
-      ga4Connected: false
-    }
-  ])
-
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
     domain: '',
@@ -68,6 +50,40 @@ export default function ClientsPage() {
     contactEmail: ''
   })
   const [errors, setErrors] = useState<FormErrors>({})
+
+  // Fetch clients on mount
+  useEffect(() => {
+    fetchClients()
+  }, [])
+
+  const fetchClients = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch('/api/clients')
+      if (!res.ok) throw new Error('Failed to fetch clients')
+      const data = await res.json()
+      
+      // Transform database data to match Client interface
+      const transformedClients = data.map((client: any) => ({
+        ...client,
+        reportsCount: client.reports?.length || 0,
+        lastReportDate: client.reports?.[0]?.createdAt 
+          ? new Date(client.reports[0].createdAt).toLocaleDateString()
+          : 'Never',
+        gscConnected: !!client.googleAccessToken,
+        ga4Connected: !!client.googleAccessToken,
+        contactName: client.contactName || '',
+        contactEmail: client.contactEmail || ''
+      }))
+      
+      setClients(transformedClients)
+    } catch (error) {
+      console.error('Failed to fetch clients:', error)
+      setError('Failed to load clients')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Form validation
   const validateForm = (): boolean => {
@@ -112,26 +128,40 @@ export default function ClientsPage() {
     }
 
     setIsLoading(true)
+    setError('')
 
     try {
-      // For now, simulate API call with a delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const res = await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          domain: formData.domain.trim(),
+          contactName: formData.contactName.trim() || undefined,
+          contactEmail: formData.contactEmail.trim() || undefined
+        })
+      })
 
-      // Create new client with generated ID
-      const newClient: Client = {
-        id: Date.now().toString(),
-        name: formData.name.trim(),
-        domain: formData.domain.trim(),
-        contactName: formData.contactName.trim(),
-        contactEmail: formData.contactEmail.trim(),
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to create client')
+      }
+
+      const newClient = await res.json()
+      
+      // Transform the new client to match our interface
+      const transformedClient = {
+        ...newClient,
         reportsCount: 0,
         lastReportDate: 'Never',
         gscConnected: false,
-        ga4Connected: false
+        ga4Connected: false,
+        contactName: newClient.contactName || '',
+        contactEmail: newClient.contactEmail || ''
       }
 
       // Add to clients list
-      setClients(prev => [...prev, newClient])
+      setClients(prev => [transformedClient, ...prev])
 
       // Reset form and close modal
       setFormData({ name: '', domain: '', contactName: '', contactEmail: '' })
@@ -142,9 +172,9 @@ export default function ClientsPage() {
       // Hide success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add client:', error)
-      // In a real app, show error message to user
+      setError(error.message || 'Failed to add client')
     } finally {
       setIsLoading(false)
     }
@@ -154,6 +184,7 @@ export default function ClientsPage() {
     setIsModalOpen(false)
     setFormData({ name: '', domain: '', contactName: '', contactEmail: '' })
     setErrors({})
+    setError('')
   }
 
   // Handle Google OAuth connection
@@ -173,15 +204,15 @@ export default function ClientsPage() {
     const checkClosed = setInterval(() => {
       if (popup?.closed) {
         clearInterval(checkClosed)
-        // Refresh page or update client data
-        window.location.reload()
+        // Refresh client data
+        fetchClients()
       }
     }, 1000)
   }
 
   // Check if client has Google connection
   const hasGoogleConnection = (client: Client) => {
-    return client.gscConnected || client.ga4Connected || client.googleConnectedAt
+    return client.gscConnected || client.ga4Connected || client.googleConnectedAt || client.googleAccessToken
   }
 
   return (
@@ -203,129 +234,146 @@ export default function ClientsPage() {
           </Button>
         </div>
 
-        {/* Clients Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {clients.map((client) => (
-            <Card key={client.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                    <Users className="h-5 w-5 text-purple-600" />
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6">
+            <Alert variant="error">{error}</Alert>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <span className="ml-2 text-gray-600">Loading clients...</span>
+          </div>
+        ) : (
+          <>
+            {/* Clients Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {clients.map((client) => (
+                <Card key={client.id} className="p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                        <Users className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <Typography className="font-semibold text-gray-900">
+                          {client.name}
+                        </Typography>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Globe className="h-3 w-3 mr-1" />
+                          {client.domain}
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => alert(`Managing ${client.name}`)}>
+                      Manage
+                    </Button>
                   </div>
-                  <div>
-                    <Typography className="font-semibold text-gray-900">
-                      {client.name}
-                    </Typography>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Globe className="h-3 w-3 mr-1" />
-                      {client.domain}
+
+                  <div className="space-y-3 mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Contact</span>
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900">{client.contactName || 'Not provided'}</div>
+                        <div className="text-xs text-gray-600">{client.contactEmail || 'Not provided'}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Reports Generated</span>
+                      <span className="text-sm font-medium text-gray-900">{client.reportsCount}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Last Report</span>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {client.lastReportDate === 'Never' ? 'Never' : client.lastReportDate}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => alert(`Managing ${client.name}`)}>
-                  Manage
-                </Button>
-              </div>
 
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Contact</span>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{client.contactName}</div>
-                    <div className="text-xs text-gray-600">{client.contactEmail}</div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Reports Generated</span>
-                  <span className="text-sm font-medium text-gray-900">{client.reportsCount}</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Last Report</span>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {new Date(client.lastReportDate).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Connection Status */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-600">Google Integration</span>
-                  {hasGoogleConnection(client) ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Connected
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      <XCircle className="h-3 w-3 mr-1" />
-                      Not Connected
-                    </span>
-                  )}
-                </div>
-                
-                {hasGoogleConnection(client) ? (
-                  <div className="flex space-x-4 mb-3">
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${client.gscConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span className="text-xs text-gray-600">Search Console</span>
+                  {/* Connection Status */}
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm text-gray-600">Google Integration</span>
+                      {hasGoogleConnection(client) ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Connected
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Not Connected
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${client.ga4Connected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span className="text-xs text-gray-600">Analytics</span>
-                    </div>
+                    
+                    {hasGoogleConnection(client) ? (
+                      <div className="flex space-x-4 mb-3">
+                        <div className="flex items-center space-x-1">
+                          <div className={`w-2 h-2 rounded-full ${client.gscConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
+                          <span className="text-xs text-gray-600">Search Console</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <div className={`w-2 h-2 rounded-full ${client.ga4Connected ? 'bg-green-500' : 'bg-gray-300'}`} />
+                          <span className="text-xs text-gray-600">Analytics</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-3">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleConnectGoogle(client.id)}
+                        >
+                          <Link className="h-4 w-4 mr-2" />
+                          Connect Google APIs
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="mb-3">
+
+                  <div className="flex space-x-2">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="w-full"
-                      onClick={() => handleConnectGoogle(client.id)}
+                      className="flex-1" 
+                      onClick={() => alert(`Generating report for ${client.name}`)}
+                      disabled={!hasGoogleConnection(client)}
                     >
-                      <Link className="h-4 w-4 mr-2" />
-                      Connect Google APIs
+                      Generate Report
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => alert(`Editing ${client.name}`)}>
+                      Edit
                     </Button>
                   </div>
-                )}
-              </div>
+                </Card>
+              ))}
+            </div>
 
-              <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1" 
-                  onClick={() => alert(`Generating report for ${client.name}`)}
-                  disabled={!hasGoogleConnection(client)}
-                >
-                  Generate Report
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => alert(`Editing ${client.name}`)}>
-                  Edit
+            {/* Empty State for when no clients exist */}
+            {clients.length === 0 && (
+              <div className="text-center py-12">
+                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <Typography variant="h3" className="text-lg font-medium text-gray-900 mb-2">
+                  No clients yet
+                </Typography>
+                <Typography className="text-gray-600 mb-4">
+                  Start by adding your first client to begin generating SEO reports.
+                </Typography>
+                <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Client
                 </Button>
               </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Empty State for when no clients exist */}
-        {clients.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <Typography variant="h3" className="text-lg font-medium text-gray-900 mb-2">
-              No clients yet
-            </Typography>
-            <Typography className="text-gray-600 mb-4">
-              Start by adding your first client to begin generating SEO reports.
-            </Typography>
-            <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Client
-            </Button>
-          </div>
+            )}
+          </>
         )}
 
         {/* Success Message */}
@@ -389,6 +437,11 @@ export default function ClientsPage() {
               />
               <p className="text-sm text-gray-500 mt-1">Optional</p>
             </div>
+
+            {/* Error in modal */}
+            {error && (
+              <Alert variant="error">{error}</Alert>
+            )}
 
             <div className="flex gap-3 pt-4">
               <Button
