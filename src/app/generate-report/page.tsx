@@ -67,7 +67,7 @@ export default function GenerateReportPage() {
   }
 
   const validateJsonQueries = (jsonString: string): boolean => {
-    if (!jsonString.trim()) return true // Empty is OK
+    if (!jsonString.trim()) return true
     
     try {
       const parsed = JSON.parse(jsonString)
@@ -95,13 +95,11 @@ export default function GenerateReportPage() {
     setIsGenerating(true)
     
     try {
-      // Validate JSON first
       if (!validateJsonQueries(reportData.gscData.topQueries)) {
         setIsGenerating(false)
         return
       }
       
-      // Convert string values to numbers
       const pdfData = {
         clientName: reportData.client === 'techstart' ? 'TechStart Solutions' : reportData.client,
         startDate: reportData.startDate,
@@ -135,17 +133,15 @@ export default function GenerateReportPage() {
         throw new Error(error.error || 'Failed to generate PDF')
       }
       
-      // Download the PDF
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.style.display = 'none'
       a.href = url
       
-      // Get filename from response headers or generate one
       const contentDisposition = response.headers.get('content-disposition')
       const filename = contentDisposition
-        ? contentDisposition.split('filename="')[1]?.split('"')[0]
+        ? contentDisposition.split('filename="')[1]?.split('"')[0] || `${pdfData.clientName}_SEO_Report.pdf`
         : `${pdfData.clientName}_SEO_Report.pdf`
       
       a.download = filename
@@ -154,7 +150,6 @@ export default function GenerateReportPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
       
-      // Show success message
       alert('Report generated successfully!')
       
     } catch (error) {
@@ -363,43 +358,15 @@ export default function GenerateReportPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Top Queries (JSON format)
             </label>
-            <div className="mb-2">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <AlertCircle className="h-4 w-4 text-yellow-400" />
-                  </div>
-                  <div className="ml-2">
-                    <Typography className="text-xs text-yellow-800">
-                      <strong>Example format:</strong> [{&quot;query&quot;: &quot;seo tools&quot;, &quot;clicks&quot;: 100, &quot;impressions&quot;: 1000, &quot;ctr&quot;: 10, &quot;position&quot;: 5}]
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-            </div>
             <textarea
-              className={`w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                jsonError ? 'border-red-300' : 'border-gray-300'
-              }`}
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               value={reportData.gscData.topQueries}
-              onChange={(e) => {
-                setReportData({
-                  ...reportData,
-                  gscData: { ...reportData.gscData, topQueries: e.target.value }
-                })
-                if (jsonError) {
-                  validateJsonQueries(e.target.value)
-                }
-              }}
-              onBlur={(e) => validateJsonQueries(e.target.value)}
-              placeholder='[{"query": "example keyword", "clicks": 100, "impressions": 1000, "ctr": 10, "position": 5}]'
+              onChange={(e) => setReportData({
+                ...reportData,
+                gscData: { ...reportData.gscData, topQueries: e.target.value }
+              })}
+              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567}, ...]'
             />
-            {jsonError && (
-              <div className="mt-2 text-sm text-red-600 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {jsonError}
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -488,7 +455,7 @@ export default function GenerateReportPage() {
       {/* Client & Period Info */}
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-2">
-          {reportData.client === 'techstart' ? 'TechStart Solutions' : reportData.client || 'Client Name'}
+          TechStart Solutions
         </Typography>
         <div className="flex items-center text-gray-600">
           <Calendar className="h-4 w-4 mr-2" />
