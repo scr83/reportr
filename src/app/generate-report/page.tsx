@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Select } from '@/components/atoms'
-import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle } from 'lucide-react'
 
 interface ReportData {
   client: string
@@ -26,6 +26,8 @@ interface ReportData {
 
 export default function GenerateReportPage() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [jsonError, setJsonError] = useState<string | null>(null)
   const [reportData, setReportData] = useState<ReportData>({
     client: '',
     startDate: '',
@@ -61,6 +63,105 @@ export default function GenerateReportPage() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const validateJsonQueries = (jsonString: string): boolean => {
+    if (!jsonString.trim()) return true // Empty is OK
+    
+    try {
+      const parsed = JSON.parse(jsonString)
+      if (!Array.isArray(parsed)) {
+        setJsonError('Top queries must be an array')
+        return false
+      }
+      
+      for (const item of parsed) {
+        if (typeof item !== 'object' || !item.query || typeof item.clicks !== 'number' || typeof item.impressions !== 'number' || typeof item.ctr !== 'number' || typeof item.position !== 'number') {
+          setJsonError('Each query must have: query (string), clicks (number), impressions (number), ctr (number), position (number)')
+          return false
+        }
+      }
+      
+      setJsonError(null)
+      return true
+    } catch (error) {
+      setJsonError('Invalid JSON format')
+      return false
+    }
+  }
+
+  const handleGeneratePDF = async () => {
+    setIsGenerating(true)
+    
+    try {
+      // Validate JSON first
+      if (!validateJsonQueries(reportData.gscData.topQueries)) {
+        setIsGenerating(false)
+        return
+      }
+      
+      // Convert string values to numbers
+      const pdfData = {
+        clientName: reportData.client === 'techstart' ? 'TechStart Solutions' : reportData.client,
+        startDate: reportData.startDate,
+        endDate: reportData.endDate,
+        agencyName: 'Digital Frog Agency',
+        gscData: {
+          clicks: parseFloat(reportData.gscData.totalClicks.replace(/,/g, '')) || 0,
+          impressions: parseFloat(reportData.gscData.totalImpressions.replace(/,/g, '')) || 0,
+          ctr: parseFloat(reportData.gscData.averageCTR) || 0,
+          position: parseFloat(reportData.gscData.averagePosition) || 0,
+          topQueries: reportData.gscData.topQueries ? JSON.parse(reportData.gscData.topQueries) : undefined
+        },
+        ga4Data: {
+          users: parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0,
+          sessions: parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0,
+          bounceRate: parseFloat(reportData.ga4Data.bounceRate) || 0,
+          conversions: parseFloat(reportData.ga4Data.conversions.replace(/,/g, '')) || 0
+        }
+      }
+      
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pdfData),
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to generate PDF')
+      }
+      
+      // Download the PDF
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      
+      // Get filename from response headers or generate one
+      const contentDisposition = response.headers.get('content-disposition')
+      const filename = contentDisposition
+        ? contentDisposition.split('filename="')[1]?.split('"')[0]
+        : `${pdfData.clientName}_SEO_Report.pdf`
+      
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      
+      // Show success message
+      alert('Report generated successfully!')
+      
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -262,15 +363,43 @@ export default function GenerateReportPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Top Queries (JSON format)
             </label>
+            <div className="mb-2">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-4 w-4 text-yellow-400" />
+                  </div>
+                  <div className="ml-2">
+                    <Typography className="text-xs text-yellow-800">
+                      <strong>Example format:</strong> [{&quot;query&quot;: &quot;seo tools&quot;, &quot;clicks&quot;: 100, &quot;impressions&quot;: 1000, &quot;ctr&quot;: 10, &quot;position&quot;: 5}]
+                    </Typography>
+                  </div>
+                </div>
+              </div>
+            </div>
             <textarea
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className={`w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                jsonError ? 'border-red-300' : 'border-gray-300'
+              }`}
               value={reportData.gscData.topQueries}
-              onChange={(e) => setReportData({
-                ...reportData,
-                gscData: { ...reportData.gscData, topQueries: e.target.value }
-              })}
-              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567}, ...]'
+              onChange={(e) => {
+                setReportData({
+                  ...reportData,
+                  gscData: { ...reportData.gscData, topQueries: e.target.value }
+                })
+                if (jsonError) {
+                  validateJsonQueries(e.target.value)
+                }
+              }}
+              onBlur={(e) => validateJsonQueries(e.target.value)}
+              placeholder='[{"query": "example keyword", "clicks": 100, "impressions": 1000, "ctr": 10, "position": 5}]'
             />
+            {jsonError && (
+              <div className="mt-2 text-sm text-red-600 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {jsonError}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -359,7 +488,7 @@ export default function GenerateReportPage() {
       {/* Client & Period Info */}
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-2">
-          TechStart Solutions
+          {reportData.client === 'techstart' ? 'TechStart Solutions' : reportData.client || 'Client Name'}
         </Typography>
         <div className="flex items-center text-gray-600">
           <Calendar className="h-4 w-4 mr-2" />
@@ -425,9 +554,22 @@ export default function GenerateReportPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button className="bg-green-600 hover:bg-green-700" onClick={() => alert('Report generation would start here!')}>
-          Generate PDF Report
-          <FileText className="ml-2 h-4 w-4" />
+        <Button 
+          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+          onClick={handleGeneratePDF}
+          disabled={isGenerating || !!jsonError}
+        >
+          {isGenerating ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Generating PDF...
+            </>
+          ) : (
+            <>
+              <Download className="mr-2 h-4 w-4" />
+              Generate PDF Report
+            </>
+          )}
         </Button>
       </div>
     </Card>
