@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { 
   Container, 
@@ -27,38 +25,7 @@ import {
 } from 'lucide-react'
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
-
-  // Client-side redirect for authenticated users
-  useEffect(() => {
-    if (status === 'authenticated' && session) {
-      router.push('/dashboard')
-    }
-  }, [session, status, router])
-
-  // Show loading while checking authentication
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-4"></div>
-          <Typography variant="body">Loading...</Typography>
-        </div>
-      </div>
-    )
-  }
-
-  // Don't render marketing page if user is authenticated (will redirect)
-  if (status === 'authenticated') {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <Typography variant="body">Redirecting to dashboard...</Typography>
-        </div>
-      </div>
-    )
-  }
 
   const features = [
     {
@@ -123,7 +90,7 @@ export default function HomePage() {
             </Typography>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="px-8 py-4 text-lg" onClick={() => router.push('/signin')}>
+              <Button size="lg" className="px-8 py-4 text-lg" onClick={() => alert('Authentication coming soon!')}>
                 Start Free Trial
                 <Icon icon={ArrowRight} size="sm" className="ml-2" />
               </Button>
@@ -204,7 +171,7 @@ export default function HomePage() {
 
               <Spacer size="lg" />
 
-              <Button size="xl" className="px-12 py-6 text-lg font-semibold" onClick={() => router.push('/signin')}>
+              <Button size="xl" className="px-12 py-6 text-lg font-semibold" onClick={() => alert('Authentication coming soon!')}>
                 Get Started Today
                 <Icon icon={ArrowRight} size="md" className="ml-3" />
               </Button>
@@ -244,7 +211,7 @@ export default function HomePage() {
             </Typography>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg" className="px-8 py-4 text-lg" onClick={() => router.push('/signin')}>
+              <Button variant="secondary" size="lg" className="px-8 py-4 text-lg" onClick={() => alert('Authentication coming soon!')}>
                 Start Free Trial
               </Button>
               <Button variant="ghost" size="lg" className="px-8 py-4 text-lg text-white hover:bg-white/10">

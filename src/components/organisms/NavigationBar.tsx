@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useSession } from 'next-auth/react'
 import { Menu, Search, Bell } from 'lucide-react'
 import { 
   Button, 
@@ -11,7 +10,6 @@ import {
   Container 
 } from '@/components/atoms'
 import { SearchBox } from '@/components/molecules'
-import { UserMenu } from '@/components/molecules'
 import { cn } from '@/lib/utils'
 
 export interface NavigationBarProps {
@@ -25,7 +23,6 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   showMobileMenu = true,
   className,
 }) => {
-  const { data: session } = useSession()
 
   return (
     <nav className={cn(
@@ -58,13 +55,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               href="/"
             />
 
-            {/* Desktop navigation links - only show for authenticated users and not on dashboard pages */}
-            {session && (
-              <div className="hidden md:flex items-center space-x-8">
-                {/* These links are only shown in the top navigation bar when not in dashboard area */}
-                {/* Dashboard area uses Sidebar component for navigation */}
-              </div>
-            )}
+            {/* Desktop navigation links */}
+            <div className="hidden md:flex items-center space-x-8">
+              {/* Navigation links for marketing site */}
+            </div>
           </div>
 
           {/* Right section */}
@@ -79,40 +73,15 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               />
             </div>
 
-            {/* Notifications */}
-            {session && (
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative"
-                  aria-label="Notifications"
-                >
-                  <Icon icon={Bell} size="md" />
-                  <Badge
-                    variant="error"
-                    size="sm"
-                    className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs"
-                  >
-                    3
-                  </Badge>
-                </Button>
-              </div>
-            )}
-
-            {/* User menu */}
-            {session ? (
-              <UserMenu />
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-                <Button variant="primary" size="sm">
-                  Get Started
-                </Button>
-              </div>
-            )}
+            {/* Auth buttons */}
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" onClick={() => alert('Authentication coming soon!')}>
+                Sign In
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => alert('Authentication coming soon!')}>
+                Get Started
+              </Button>
+            </div>
           </div>
         </div>
       </Container>
