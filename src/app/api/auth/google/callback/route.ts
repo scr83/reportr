@@ -30,9 +30,28 @@ export async function GET(request: NextRequest) {
       throw new Error('Missing required tokens');
     }
     
+    // TEMPORARY: Use test user ID until auth is built
+    const testUserId = 'test-user-id';
+    
+    // Check if client exists and belongs to test user
+    const client = await prisma.client.findFirst({
+      where: { 
+        id: clientId,
+        userId: testUserId
+      }
+    });
+
+    if (!client) {
+      console.error(`Client not found: ${clientId} for user: ${testUserId}`);
+      return NextResponse.redirect('/dashboard/clients?error=client_not_found');
+    }
+    
     // Save tokens to database
     await prisma.client.update({
-      where: { id: clientId },
+      where: { 
+        id: clientId,
+        userId: testUserId // Ensure client belongs to test user
+      },
       data: {
         googleAccessToken: tokens.access_token,
         googleRefreshToken: tokens.refresh_token,

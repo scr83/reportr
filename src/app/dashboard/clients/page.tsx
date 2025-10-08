@@ -42,6 +42,7 @@ export default function ClientsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const [error, setError] = useState('')
   const [formData, setFormData] = useState<ClientFormData>({
     name: '',
@@ -54,6 +55,32 @@ export default function ClientsPage() {
   // Fetch clients on mount
   useEffect(() => {
     fetchClients()
+    
+    // Handle OAuth callback results
+    const urlParams = new URLSearchParams(window.location.search)
+    const connected = urlParams.get('connected')
+    const errorParam = urlParams.get('error')
+    
+    if (connected === 'true') {
+      setSuccessMessage('Google account connected successfully! 🎉')
+      setShowSuccess(true)
+      setError('')
+      setTimeout(() => setShowSuccess(false), 5000)
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard/clients')
+    } else if (errorParam) {
+      let errorMessage = 'Failed to connect Google account'
+      if (errorParam === 'oauth_denied') {
+        errorMessage = 'Google OAuth was denied. Please try connecting again.'
+      } else if (errorParam === 'client_not_found') {
+        errorMessage = 'Client not found. Please refresh the page and try again.'
+      } else if (errorParam === 'oauth_failed') {
+        errorMessage = 'Google OAuth failed. Please try connecting again.'
+      }
+      setError(errorMessage)
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard/clients')
+    }
   }, [])
 
   const fetchClients = async () => {
@@ -167,6 +194,7 @@ export default function ClientsPage() {
       setFormData({ name: '', domain: '', contactName: '', contactEmail: '' })
       setErrors({})
       setIsModalOpen(false)
+      setSuccessMessage('Client added successfully! 🎉')
       setShowSuccess(true)
 
       // Hide success message after 3 seconds
@@ -333,7 +361,7 @@ export default function ClientsPage() {
                           onClick={() => handleConnectGoogle(client.id)}
                         >
                           <Link className="h-4 w-4 mr-2" />
-                          Connect Google APIs
+                          Connect Google Accounts
                         </Button>
                       </div>
                     )}
@@ -380,7 +408,7 @@ export default function ClientsPage() {
         {showSuccess && (
           <div className="fixed top-4 right-4 z-50">
             <Alert variant="success" className="shadow-lg">
-              Client added successfully! 🎉
+              {successMessage}
             </Alert>
           </div>
         )}
