@@ -28,19 +28,22 @@ async function main() {
 
   console.log('👤 Created users:', { user1: user1.email, user2: user2.email })
 
-  // Create sample clients for user1
-  const client1 = await prisma.client.create({
-    data: {
-      name: 'Tech Startup Corp',
-      domain: 'https://techstartup.com',
-      contactEmail: 'marketing@techstartup.com',
-      contactName: 'Mike Wilson',
+  // Create TechStart Solutions client with our specific ID
+  const client1 = await prisma.client.upsert({
+    where: { id: 'techstart-client-id' },
+    update: {},
+    create: {
+      id: 'techstart-client-id',
+      name: 'TechStart Solutions',
+      domain: 'https://techstartsolutions.com',
+      contactEmail: 'contact@techstartsolutions.com',
+      contactName: 'John Smith',
       userId: user1.id,
       googleSearchConsoleConnected: true,
       googleAnalyticsConnected: true,
-      searchConsolePropertyUrl: 'https://techstartup.com/',
-      googleAnalyticsPropertyId: 'GA-123456789',
-      totalReportsGenerated: 5,
+      searchConsolePropertyUrl: 'https://techstartsolutions.com/',
+      googleAnalyticsPropertyId: 'GA4-123456789',
+      totalReportsGenerated: 3,
     },
   })
 
@@ -209,45 +212,97 @@ async function main() {
     },
   }
 
+  // Create reports with new format matching our PDF generation
   const report1 = await prisma.report.create({
     data: {
-      title: 'January 2024 SEO Report - Tech Startup Corp',
+      title: 'SEO Report - TechStart Solutions (2024-10-01 to 2024-10-31)',
       status: ReportStatus.COMPLETED,
       clientId: client1.id,
       userId: user1.id,
-      data: sampleReportData,
-      pdfUrl: 'https://example.com/reports/report-1.pdf',
+      data: {
+        clientName: 'TechStart Solutions',
+        startDate: '2024-10-01',
+        endDate: '2024-10-31',
+        agencyName: 'Digital Marketing Pro',
+        gscData: {
+          clicks: 1234,
+          impressions: 45678,
+          ctr: 2.7,
+          position: 12.5
+        },
+        ga4Data: {
+          users: 856,
+          sessions: 1205,
+          bounceRate: 58.2,
+          conversions: 23
+        }
+      },
       generationTimeMs: 15400,
-      processingCompletedAt: new Date(),
+      processingStartedAt: new Date('2024-11-01T10:00:00Z'),
+      processingCompletedAt: new Date('2024-11-01T10:00:30Z'),
+      createdAt: new Date('2024-11-01T10:00:00Z')
     },
   })
 
   const report2 = await prisma.report.create({
     data: {
-      title: 'December 2023 SEO Report - Tech Startup Corp',
+      title: 'SEO Report - TechStart Solutions (2024-09-01 to 2024-09-30)',
       status: ReportStatus.COMPLETED,
       clientId: client1.id,
       userId: user1.id,
       data: {
-        ...sampleReportData,
-        dateRange: {
-          start: '2023-12-01T00:00:00Z',
-          end: '2023-12-31T23:59:59Z',
+        clientName: 'TechStart Solutions',
+        startDate: '2024-09-01',
+        endDate: '2024-09-30',
+        agencyName: 'Digital Marketing Pro',
+        gscData: {
+          clicks: 1156,
+          impressions: 42341,
+          ctr: 2.5,
+          position: 13.2
         },
+        ga4Data: {
+          users: 782,
+          sessions: 1089,
+          bounceRate: 61.4,
+          conversions: 19
+        }
       },
-      pdfUrl: 'https://example.com/reports/report-2.pdf',
       generationTimeMs: 14200,
-      processingCompletedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      processingStartedAt: new Date('2024-10-01T10:00:00Z'),
+      processingCompletedAt: new Date('2024-10-01T10:00:28Z'),
+      createdAt: new Date('2024-10-01T10:00:00Z')
     },
   })
 
   const report3 = await prisma.report.create({
     data: {
-      title: 'January 2024 SEO Report - E-commerce Fashion',
-      status: ReportStatus.PROCESSING,
-      clientId: client3.id,
-      userId: user2.id,
-      processingStartedAt: new Date(),
+      title: 'SEO Report - TechStart Solutions (2024-08-01 to 2024-08-31)',
+      status: ReportStatus.COMPLETED,
+      clientId: client1.id,
+      userId: user1.id,
+      data: {
+        clientName: 'TechStart Solutions',
+        startDate: '2024-08-01',
+        endDate: '2024-08-31',
+        agencyName: 'Digital Marketing Pro',
+        gscData: {
+          clicks: 1089,
+          impressions: 39876,
+          ctr: 2.3,
+          position: 14.1
+        },
+        ga4Data: {
+          users: 734,
+          sessions: 998,
+          bounceRate: 63.7,
+          conversions: 16
+        }
+      },
+      generationTimeMs: 16800,
+      processingStartedAt: new Date('2024-09-01T10:00:00Z'),
+      processingCompletedAt: new Date('2024-09-01T10:00:32Z'),
+      createdAt: new Date('2024-09-01T10:00:00Z')
     },
   })
 
