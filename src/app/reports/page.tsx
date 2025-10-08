@@ -164,8 +164,8 @@ export default function ReportsPage() {
               <Card key={report.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
-                      <FileText className="h-4 w-4 text-indigo-600" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                      <FileText className="h-4 w-4 text-purple-600" />
                     </div>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(report.status)}`}>
                       {report.status.toLowerCase()}
@@ -251,7 +251,7 @@ export default function ReportsPage() {
               Start by generating your first SEO report.
             </Typography>
             <Link href="/generate-report">
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button className="bg-purple-600 hover:bg-purple-700">
                 Generate Report
               </Button>
             </Link>
@@ -348,7 +348,7 @@ export default function ReportsPage() {
                   <div className="flex gap-3 pt-4">
                     {selectedReport.status === 'COMPLETED' && selectedReport.pdfUrl && (
                       <Button 
-                        className="bg-indigo-600 hover:bg-indigo-700"
+                        className="bg-purple-600 hover:bg-purple-700"
                         onClick={() => handleDownloadPDF(selectedReport)}
                       >
                         <Download className="mr-2 h-4 w-4" />

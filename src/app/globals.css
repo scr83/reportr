@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 :root {
-  /* Digital Frog Brand Colors (Teal/Lime Tech Palette) */
-  --brand-50: 236 254 255;    /* Teal 50 */
-  --brand-100: 207 250 254;   /* Teal 100 */
-  --brand-200: 165 243 252;   /* Teal 200 */
-  --brand-300: 103 232 249;   /* Teal 300 */
-  --brand-400: 34 211 238;    /* Teal 400 */
-  --brand-500: 6 182 212;     /* Primary: Digital Frog Teal */
-  --brand-600: 8 145 178;     /* Teal 600 */
-  --brand-700: 14 116 144;    /* Teal 700 */
-  --brand-800: 21 94 117;     /* Teal 800 */
-  --brand-900: 22 78 99;      /* Teal 900 */
-  --brand-950: 8 51 68;       /* Teal 950 */
+  /* Digital Frog Brand Colors (Purple Tech Palette) */
+  --brand-50: 250 245 255;    /* Purple 50 */
+  --brand-100: 243 232 255;   /* Purple 100 */
+  --brand-200: 233 213 255;   /* Purple 200 */
+  --brand-300: 216 180 254;   /* Purple 300 */
+  --brand-400: 196 141 253;   /* Purple 400 */
+  --brand-500: 152 16 249;    /* Primary: Digital Frog Purple */
+  --brand-600: 126 34 206;    /* Purple 600 */
+  --brand-700: 107 33 168;    /* Purple 700 */
+  --brand-800: 88 28 135;     /* Purple 800 */
+  --brand-900: 74 29 115;     /* Purple 900 */
+  --brand-950: 59 7 100;      /* Purple 950 */
 
   /* Secondary/Accent Colors (Lime for Digital Frog) */
   --secondary-50: 247 254 231;  /* Lime 50 */

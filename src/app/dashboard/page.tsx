@@ -171,8 +171,8 @@ export default function DashboardPage() {
                     onClick={() => router.push(action.href as any)}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                        <action.icon className="h-5 w-5 text-indigo-600" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                        <action.icon className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <Typography className="font-semibold text-gray-900 mb-1">

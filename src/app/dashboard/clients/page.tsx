@@ -168,7 +168,7 @@ export default function ClientsPage() {
               Manage your client websites and SEO reports.
             </Typography>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsModalOpen(true)}>
+          <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>
@@ -180,8 +180,8 @@ export default function ClientsPage() {
             <Card key={client.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                    <Users className="h-5 w-5 text-indigo-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <Users className="h-5 w-5 text-purple-600" />
                   </div>
                   <div>
                     <Typography className="font-semibold text-gray-900">
@@ -260,7 +260,7 @@ export default function ClientsPage() {
             <Typography className="text-gray-600 mb-4">
               Start by adding your first client to begin generating SEO reports.
             </Typography>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setIsModalOpen(true)}>
+            <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Client
             </Button>
@@ -340,7 +340,7 @@ export default function ClientsPage() {
               </Button>
               <Button
                 onClick={handleAddClient}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
                 disabled={isLoading}
               >
                 {isLoading ? 'Adding...' : 'Add Client'}

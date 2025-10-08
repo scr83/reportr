@@ -10,7 +10,7 @@ module.exports = {
       colors: {
         // Digital Frog brand colors
         brand: {
-          teal: '#06B6D4',
+          purple: '#9810f9',
           lime: '#84CC16',
           aqua: '#22D3EE',
           50: 'rgb(var(--brand-50) / <alpha-value>)',
@@ -32,16 +32,16 @@ module.exports = {
           light: '#1F2937',
         },
         primary: {
-          50: '#ecfeff',
-          100: '#cffafe',
-          200: '#a5f3fc',
-          300: '#67e8f9',
-          400: '#22d3ee',
-          500: '#06b6d4',
-          600: '#0891b2',
-          700: '#0e7490',
-          800: '#155e75',
-          900: '#164e63',
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          300: '#d8b4fe',
+          400: '#c084fc',
+          500: '#9810f9',
+          600: '#7e22ce',
+          700: '#6b21a8',
+          800: '#581c87',
+          900: '#4a1d73',
         },
         secondary: {
           50: '#f7fee7',

@@ -43,8 +43,8 @@ export const demoThemes: Theme[] = [
   {
     id: 'agency',
     name: "Agency Purple",
-    primary: "#8b5cf6",
-    secondary: "#06b6d4",
+    primary: "#9810f9",
+    secondary: "#9810f9",
     accent: "#f59e0b",
     neutral: "#6b7280",
     description: "Creative agency styling"
