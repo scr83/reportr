@@ -1,7 +1,5 @@
-import React from 'react'
 import { NextRequest, NextResponse } from 'next/server'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { ReportTemplate } from '@/components/pdf/ReportTemplate'
+import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
@@ -57,9 +55,9 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Generate the PDF
-    const ReportDoc = () => React.createElement(ReportTemplate, { data: validatedData })
-    const pdfBuffer = await renderToBuffer(React.createElement(ReportDoc))
+    // Generate the PDF using jsPDF
+    const pdfArrayBuffer = generatePDFWithJsPDF(validatedData)
+    const pdfBuffer = Buffer.from(pdfArrayBuffer)
     
     // Convert PDF to base64 for storage
     const pdfBase64 = pdfBuffer.toString('base64')
