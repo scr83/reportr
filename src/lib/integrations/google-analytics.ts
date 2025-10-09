@@ -205,19 +205,52 @@ export async function getAnalyticsData(
   }
 }
 
+export interface GA4Property {
+  name: string;        // e.g., "properties/123456789"
+  propertyId: string;  // e.g., "123456789"
+  displayName: string; // e.g., "Acme Corp Website"
+}
+
 /**
- * Lists available Google Analytics properties for a client
- * Note: This is a simplified version - in production you might want to use the Admin API
+ * Lists available Google Analytics properties for a client using Admin API
  */
-export async function getAnalyticsProperties(clientId: string) {
+export async function getAnalyticsProperties(clientId: string): Promise<GA4Property[]> {
   try {
-    // For now, we'll skip the properties listing to avoid complex Admin API setup
-    // In production, you would implement the Admin API client here
-    console.log('Analytics properties listing not implemented yet');
-    return [];
+    const { google } = require('googleapis');
+    const accessToken = await getValidAccessToken(clientId);
+    
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({ access_token: accessToken });
+    
+    const analyticsadmin = google.analyticsadmin({ version: 'v1beta', auth });
+    
+    const response = await analyticsadmin.properties.list();
+    
+    const properties: GA4Property[] = (response.data.properties || []).map((prop: any) => {
+      // Extract property ID from name (format: "properties/123456789")
+      const propertyId = prop.name?.split('/')[1] || '';
+      
+      return {
+        name: prop.name || '',
+        propertyId: propertyId,
+        displayName: prop.displayName || prop.name || ''
+      };
+    });
+    
+    console.log(`Found ${properties.length} Analytics properties`);
+    return properties;
+    
   } catch (error: any) {
-    console.error('Failed to list Analytics properties:', error);
-    throw new Error(`Failed to list Analytics properties: ${error.message}`);
+    console.error('Error listing GA4 properties:', error.message);
+    
+    // If error is about insufficient permissions, return empty array
+    // Frontend will show manual entry option
+    if (error.message?.includes('403') || error.message?.includes('permission')) {
+      console.log('Insufficient permissions to list properties, manual entry required');
+      return [];
+    }
+    
+    throw new Error('Failed to fetch Analytics properties');
   }
 }
 

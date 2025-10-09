@@ -108,7 +108,7 @@ const redirectUri = process.env.NODE_ENV === 'production'
 **Error:** "invalid_client" / "The OAuth client was not found"  
 **Symptoms:** 
 - Google OAuth showing "invalid_client" error
-- URL inspection revealed `client_id=687204712221-...%0A`
+- URL inspection revealed `client_id=[YOUR_CLIENT_ID]%0A`
 - CSP errors were appearing but were secondary
 
 **Root Cause:** `GOOGLE_CLIENT_ID` environment variable had trailing newline character (`%0A`)  
@@ -202,7 +202,7 @@ User clicks "Connect" → OAuth popup → Google consent → Callback with code 
 
 ### Environment Variables Required
 ```bash
-GOOGLE_CLIENT_ID=687204712221-... # Must not have trailing whitespace!
+GOOGLE_CLIENT_ID=[YOUR_CLIENT_ID] # Must not have trailing whitespace!
 GOOGLE_CLIENT_SECRET=GOCSPX-...
 NEXTAUTH_URL=https://reportr-one.vercel.app # or http://localhost:3003
 ```

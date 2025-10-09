@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
+// Force dynamic rendering for client API
+export const dynamic = 'force-dynamic';
+
 const clientSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   domain: z.string().url('Must be a valid URL'),

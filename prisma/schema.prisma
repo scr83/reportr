@@ -46,11 +46,23 @@ model Client {
   updatedAt                    DateTime  @updatedAt
   userId                       String
   gaPropertyId                 String?
+  
+  // OAuth tokens (Phase 4)
   googleAccessToken            String?
   googleConnectedAt            DateTime?
   googleRefreshToken           String?
   googleTokenExpiry            DateTime?
-  gscSiteUrl                   String?
+  
+  // Property selections (Phase 5A)
+  gscSiteUrl                   String?   // e.g., "https://acmecorp.com/"
+  gscSiteName                  String?   // e.g., "acmecorp.com"
+  ga4PropertyId                String?   // e.g., "123456789"
+  ga4PropertyName              String?   // e.g., "Acme Corp Website"
+  
+  // Data fetch tracking
+  lastDataFetch                DateTime?
+  dataFetchStatus              String?   // 'success' | 'failed' | 'pending'
+  
   user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   reports                      Report[]
 

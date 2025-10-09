@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Select } from '@/components/atoms'
 import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
@@ -31,8 +31,10 @@ export default function GenerateReportPage() {
   const [isFetchingGoogle, setIsFetchingGoogle] = useState(false)
   const [googleError, setGoogleError] = useState<string | null>(null)
   const [jsonError, setJsonError] = useState<string | null>(null)
+  const [clients, setClients] = useState<any[]>([])
+  const [loadingClients, setLoadingClients] = useState(true)
   const [reportData, setReportData] = useState<ReportData>({
-    clientId: 'techstart-client-id', // Default to TechStart client ID
+    clientId: '',
     client: '',
     startDate: '',
     endDate: '',
@@ -51,6 +53,23 @@ export default function GenerateReportPage() {
     }
   })
   const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4'>('gsc')
+
+  // Fetch clients on component mount
+  useEffect(() => {
+    async function fetchClients() {
+      try {
+        const response = await fetch('/api/clients')
+        const data = await response.json()
+        setClients(data || [])
+      } catch (error) {
+        console.error('Failed to fetch clients:', error)
+      } finally {
+        setLoadingClients(false)
+      }
+    }
+    
+    fetchClients()
+  }, [])
 
   const steps = [
     { number: 1, title: 'Report Details', icon: FileText },
@@ -282,14 +301,35 @@ export default function GenerateReportPage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Client
           </label>
-          <Select
-            value={reportData.client}
-            onChange={(e) => setReportData({ ...reportData, client: e.target.value })}
-            className="w-full"
-          >
-            <option value="">Choose a client...</option>
-            <option value="techstart">TechStart Solutions</option>
-          </Select>
+          {loadingClients ? (
+            <div className="p-3 text-slate-400 bg-gray-50 rounded-md">
+              Loading clients...
+            </div>
+          ) : clients.length === 0 ? (
+            <div className="p-3 text-slate-400 bg-gray-50 rounded-md">
+              No clients found. Add a client first.
+            </div>
+          ) : (
+            <Select
+              value={reportData.clientId}
+              onChange={(e) => {
+                const selectedClient = clients.find(c => c.id === e.target.value)
+                setReportData({ 
+                  ...reportData, 
+                  clientId: e.target.value,
+                  client: selectedClient?.name || ''
+                })
+              }}
+              className="w-full"
+            >
+              <option value="">Choose a client...</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </Select>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -318,7 +358,7 @@ export default function GenerateReportPage() {
         <div className="flex justify-end pt-6">
           <Button 
             onClick={handleNext}
-            disabled={!reportData.client || !reportData.startDate || !reportData.endDate}
+            disabled={!reportData.clientId || !reportData.startDate || !reportData.endDate}
             className="bg-purple-600 hover:bg-purple-700"
           >
             Continue to Data Import
@@ -354,7 +394,7 @@ export default function GenerateReportPage() {
           <Button 
             variant="outline"
             onClick={handleFetchGoogleData}
-            disabled={isFetchingGoogle || !reportData.client || !reportData.startDate || !reportData.endDate}
+            disabled={isFetchingGoogle || !reportData.clientId || !reportData.startDate || !reportData.endDate}
             className="border-purple-300 text-purple-700 hover:bg-purple-50"
           >
             {isFetchingGoogle ? (
@@ -573,7 +613,7 @@ export default function GenerateReportPage() {
       {/* Client & Period Info */}
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-2">
-          TechStart Solutions
+          {reportData.client || 'Selected Client'}
         </Typography>
         <div className="flex items-center text-gray-600">
           <Calendar className="h-4 w-4 mr-2" />
