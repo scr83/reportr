@@ -1,8 +1,11 @@
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering for OAuth authorize
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = request.nextUrl;
   const clientId = searchParams.get('clientId');
   
   if (!clientId) {

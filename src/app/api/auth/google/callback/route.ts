@@ -2,6 +2,9 @@ import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering for OAuth callback
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   console.log('=== OAuth Callback Started ===');
   
@@ -10,7 +13,7 @@ export async function GET(request: NextRequest) {
     await prisma.$connect();
     console.log('Database connected successfully');
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     const code = searchParams.get('code');
     const clientId = searchParams.get('state');
     const error = searchParams.get('error');
@@ -20,15 +23,20 @@ export async function GET(request: NextRequest) {
       clientId, 
       hasError: !!error 
     });
+
+    // Get base URL for absolute redirects
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://reportr-one.vercel.app' 
+      : 'http://localhost:3003';
     
     if (error) {
       console.error('OAuth error from Google:', error);
-      return NextResponse.redirect('/dashboard/clients?error=oauth_denied');
+      return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_denied`);
     }
     
     if (!code || !clientId) {
       console.error('Missing required params:', { code: !!code, clientId: !!clientId });
-      return NextResponse.redirect('/dashboard/clients?error=oauth_failed');
+      return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_failed`);
     }
     
     console.log('Creating OAuth2 client...');
@@ -89,7 +97,7 @@ export async function GET(request: NextRequest) {
       });
       console.log('Client exists with different user?', !!anyClient);
       
-      return NextResponse.redirect('/dashboard/clients?error=client_not_found');
+      return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=client_not_found`);
     }
     
     console.log('Updating client with Google tokens...');
@@ -111,7 +119,7 @@ export async function GET(request: NextRequest) {
     });
     
     console.log('=== OAuth Callback Successful ===');
-    return NextResponse.redirect('/dashboard/clients?connected=true');
+    return NextResponse.redirect(`${baseUrl}/dashboard/clients?connected=true`);
     
   } catch (error: any) {
     console.error('=== OAuth Callback Error ===');
@@ -119,7 +127,12 @@ export async function GET(request: NextRequest) {
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
     console.error('Full error:', error);
+
+    // Get base URL for error redirect
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://reportr-one.vercel.app' 
+      : 'http://localhost:3003';
     
-    return NextResponse.redirect('/dashboard/clients?error=oauth_failed');
+    return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_failed`);
   }
 }
