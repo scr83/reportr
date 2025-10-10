@@ -53,7 +53,7 @@ export async function getAnalyticsData(
     }
 
     // Use provided propertyId or fallback to stored one
-    const targetPropertyId = propertyId || client.gaPropertyId;
+    const targetPropertyId = propertyId || client.ga4PropertyId;
     
     if (!targetPropertyId) {
       throw new Error('Google Analytics property ID not configured');
@@ -169,10 +169,10 @@ export async function getAnalyticsData(
     })) || [];
 
     // Update the client's GA property ID if it was successful
-    if (!client.gaPropertyId && targetPropertyId) {
+    if (!client.ga4PropertyId && targetPropertyId) {
       await prisma.client.update({
         where: { id: clientId },
-        data: { gaPropertyId: targetPropertyId }
+        data: { ga4PropertyId: targetPropertyId }
       });
     }
 

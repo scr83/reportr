@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
 import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
+import { ManageClientModal } from '@/components/organisms/ManageClientModal'
 import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle, AlertCircle, BarChart, Settings } from 'lucide-react'
 
 interface Client {
@@ -63,6 +64,10 @@ export default function ClientsPage() {
   const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientName, setSelectedClientName] = useState('')
+  
+  // Manage client modal state
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   // Fetch clients on mount
   useEffect(() => {
@@ -301,6 +306,20 @@ export default function ClientsPage() {
     setTimeout(() => setShowSuccess(false), 3000)
   }
 
+  // Handle opening manage client modal
+  const handleManageClient = (client: Client) => {
+    setSelectedClient(client)
+    setIsManageModalOpen(true)
+  }
+
+  // Handle manage client modal success (refresh client data)
+  const handleManageClientSuccess = () => {
+    fetchClients()
+    setSuccessMessage('Client updated successfully! 🎉')
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 3000)
+  }
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -354,7 +373,7 @@ export default function ClientsPage() {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => alert(`Managing ${client.name}`)}>
+                    <Button variant="ghost" size="sm" onClick={() => handleManageClient(client)}>
                       Manage
                     </Button>
                   </div>
@@ -579,6 +598,14 @@ export default function ClientsPage() {
           clientId={selectedClientId}
           clientName={selectedClientName}
           onSuccess={handlePropertyModalSuccess}
+        />
+
+        {/* Manage Client Modal */}
+        <ManageClientModal
+          isOpen={isManageModalOpen}
+          onClose={() => setIsManageModalOpen(false)}
+          client={selectedClient}
+          onSuccess={handleManageClientSuccess}
         />
       </div>
     </DashboardLayout>

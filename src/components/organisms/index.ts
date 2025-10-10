@@ -8,3 +8,4 @@ export { RecentActivity } from './RecentActivity'
 
 // Forms & Modals
 export { Modal } from './Modal'
+export { ManageClientModal } from './ManageClientModal'
