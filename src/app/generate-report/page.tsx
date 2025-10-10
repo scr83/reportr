@@ -264,9 +264,12 @@ export default function GenerateReportPage() {
         console.warn('GSC fetch failed:', gscError.error)
       }
 
-      // Fetch GA4 data
+      // Fetch GA4 data with dynamic metrics
+      const fieldsToShow = getFieldsForReportType()
+      const metricsToRequest = fieldsToShow.map(field => field.id).join(',')
+      
       const ga4Res = await fetch(
-        `/api/clients/${reportData.clientId}/google/analytics?startDate=${reportData.startDate}&endDate=${reportData.endDate}`
+        `/api/clients/${reportData.clientId}/google/analytics?startDate=${reportData.startDate}&endDate=${reportData.endDate}&metrics=${metricsToRequest}`
       )
       
       let ga4Data = null
@@ -311,46 +314,30 @@ export default function GenerateReportPage() {
           newFormData.topQueries = gscData.topQueries ? JSON.stringify(gscData.topQueries, null, 2) : ''
         }
         
-        // Add GA4 data for dynamic fields
+        // Add GA4 data for dynamic fields from new dynamicMetrics property
         fieldsToShow.forEach(field => {
-          if (ga4Data) {
-            switch (field.id) {
-              case 'users':
-                newFormData[field.id] = ga4Data.users?.toLocaleString() || ''
-                break
-              case 'sessions':
-                newFormData[field.id] = ga4Data.sessions?.toLocaleString() || ''
-                break
-              case 'bounceRate':
-                newFormData[field.id] = ga4Data.bounceRate || ''
-                break
-              case 'conversions':
-                newFormData[field.id] = ga4Data.conversions?.toLocaleString() || ''
-                break
-              case 'avgSessionDuration':
-                newFormData[field.id] = ga4Data.avgSessionDuration || ''
-                break
-              case 'pagesPerSession':
-                newFormData[field.id] = ga4Data.pagesPerSession || ''
-                break
-              case 'newUsers':
-                newFormData[field.id] = ga4Data.newUsers?.toLocaleString() || ''
-                break
-              case 'organicTraffic':
-                newFormData[field.id] = ga4Data.organicTraffic || ''
-                break
-              case 'topLandingPages':
-                newFormData[field.id] = ga4Data.topLandingPages ? JSON.stringify(ga4Data.topLandingPages, null, 2) : ''
-                break
-              case 'deviceBreakdown':
-                newFormData[field.id] = ga4Data.deviceBreakdown ? JSON.stringify(ga4Data.deviceBreakdown, null, 2) : ''
-                break
-              default:
-                // For custom metrics, try to find in ga4Data
-                newFormData[field.id] = ga4Data[field.id] || ''
+          if (ga4Data && ga4Data.dynamicMetrics) {
+            const value = ga4Data.dynamicMetrics[field.id]
+            if (value !== undefined) {
+              // Format the value appropriately
+              if (typeof value === 'number' && ['users', 'newUsers', 'sessions', 'conversions'].includes(field.id)) {
+                newFormData[field.id] = value.toLocaleString()
+              } else if (typeof value === 'object') {
+                newFormData[field.id] = JSON.stringify(value, null, 2)
+              } else {
+                newFormData[field.id] = value.toString()
+              }
             }
           }
         })
+        
+        // Keep backward compatibility with existing hardcoded fields
+        if (ga4Data) {
+          if (ga4Data.users) newFormData.users = ga4Data.users.toString()
+          if (ga4Data.sessions) newFormData.sessions = ga4Data.sessions.toString()
+          if (ga4Data.bounceRate) newFormData.bounceRate = ga4Data.bounceRate.toString()
+          if (ga4Data.conversions) newFormData.conversions = ga4Data.conversions.toString()
+        }
         
         setFormData(newFormData)
 

@@ -22,6 +22,7 @@ export async function GET(
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const propertyId = searchParams.get('propertyId');
+    const metricsParam = searchParams.get('metrics'); // NEW: Support for dynamic metrics
     const clientId = params.id;
     
     if (!startDate || !endDate) {
@@ -65,13 +66,23 @@ export async function GET(
       );
     }
 
-    console.log(`Fetching GA4 data for client ${clientId}, property: ${client.ga4PropertyId}`);
+    // Parse metrics if provided
+    const requestedMetrics = metricsParam 
+      ? metricsParam.split(',').map(m => m.trim()).filter(Boolean)
+      : undefined;
+
+    console.log(`Fetching GA4 data for client ${clientId}`, {
+      property: client.ga4PropertyId,
+      dateRange: `${startDate} to ${endDate}`,
+      metrics: requestedMetrics || 'default (4 metrics)'
+    });
     
     const data = await getAnalyticsData(
       client.id,
       startDate,
       endDate,
-      propertyId || undefined
+      propertyId || undefined,
+      requestedMetrics
     );
     
     return NextResponse.json({

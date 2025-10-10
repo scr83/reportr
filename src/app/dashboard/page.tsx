@@ -123,26 +123,6 @@ export default function DashboardPage() {
     fetchDashboardData()
   }, [])
 
-  const quickActions = [
-    {
-      title: 'Manage Clients',
-      description: 'Add, edit, or remove clients',
-      href: '/dashboard/clients',
-      icon: Users
-    },
-    {
-      title: 'Generate New Report',
-      description: 'Create a fresh SEO report',
-      href: '/generate-report',
-      icon: Plus
-    },
-    {
-      title: 'View All Reports',
-      description: 'Browse your reports library',
-      href: '/reports',
-      icon: FileText
-    }
-  ]
 
   return (
     <DashboardLayout>
@@ -194,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Reports Section */}
+          {/* Recent Reports Section - 2/3 width */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <Typography variant="h2" className="text-xl font-semibold text-gray-900">
@@ -292,36 +272,80 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Actions Sidebar */}
+          {/* Active Clients Sidebar - 1/3 width */}
           <div>
-            <Typography variant="h2" className="text-xl font-semibold text-gray-900 mb-6">
-              Quick Actions
-            </Typography>
+            <div className="flex items-center justify-between mb-6">
+              <Typography variant="h2" className="text-xl font-semibold text-gray-900">
+                Active Clients
+              </Typography>
+              <Link href="/dashboard/clients">
+                <Button variant="ghost" size="sm">
+                  View all
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
             
-            <div className="space-y-4">
-              {quickActions.map((action, index) => (
-                <Card key={index} className="p-6 hover:shadow-md transition-shadow cursor-pointer">
-                  <Button 
-                    variant="ghost" 
-                    className="w-full p-0 h-auto text-left"
-                    onClick={() => router.push(action.href as any)}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                        <action.icon className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <Typography className="font-semibold text-gray-900 mb-1">
-                          {action.title}
-                        </Typography>
-                        <Typography className="text-sm text-gray-600">
-                          {action.description}
-                        </Typography>
+            <div className="space-y-3">
+              {loading ? (
+                // Loading skeleton for clients
+                Array.from({ length: 5 }).map((_, index) => (
+                  <Card key={index} className="p-4 animate-pulse">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-8 w-8 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                        <div className="h-3 bg-gray-200 rounded w-32"></div>
                       </div>
                     </div>
+                  </Card>
+                ))
+              ) : clients.length === 0 ? (
+                <Card className="p-6 text-center">
+                  <Users className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                  <Typography className="text-sm text-gray-600 mb-2">
+                    No clients yet
+                  </Typography>
+                  <Typography className="text-xs text-gray-500 mb-3">
+                    Add your first client to get started
+                  </Typography>
+                  <Button 
+                    size="sm"
+                    onClick={() => router.push('/dashboard/clients')}
+                  >
+                    Add Client
                   </Button>
                 </Card>
-              ))}
+              ) : (
+                clients.slice(0, 6).map((client, index) => (
+                  <Card key={client.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full p-0 h-auto text-left"
+                      onClick={() => router.push('/dashboard/clients')}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                          <Users className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Typography className="font-medium text-gray-900 text-sm truncate">
+                            {client.name}
+                          </Typography>
+                          <Typography className="text-xs text-gray-600 truncate">
+                            {client.domain}
+                          </Typography>
+                        </div>
+                        <div className="text-right">
+                          <Typography className="text-xs text-gray-500">
+                            {client.reports?.length || 0} reports
+                          </Typography>
+                        </div>
+                      </div>
+                    </Button>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
 import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
 import { ManageClientModal } from '@/components/organisms/ManageClientModal'
-import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle, AlertCircle, BarChart, Settings } from 'lucide-react'
+import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle, AlertCircle, BarChart, Settings, Search } from 'lucide-react'
 
 interface Client {
   id: string
@@ -47,6 +47,7 @@ export default function ClientsPage() {
   const router = useRouter()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -320,6 +321,19 @@ export default function ClientsPage() {
     setTimeout(() => setShowSuccess(false), 3000)
   }
 
+  // Filter clients based on search query
+  const filteredClients = clients.filter(client => {
+    if (!searchQuery.trim()) return true
+    
+    const query = searchQuery.toLowerCase()
+    return (
+      client.name.toLowerCase().includes(query) ||
+      client.domain.toLowerCase().includes(query) ||
+      (client.contactName && client.contactName.toLowerCase().includes(query)) ||
+      (client.contactEmail && client.contactEmail.toLowerCase().includes(query))
+    )
+  })
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -339,6 +353,20 @@ export default function ClientsPage() {
           </Button>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search clients by name, domain, or contact..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+            />
+          </div>
+        </div>
+
         {/* Error Message */}
         {error && (
           <div className="mb-6">
@@ -356,7 +384,7 @@ export default function ClientsPage() {
           <>
             {/* Clients Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {clients.map((client) => (
+              {filteredClients.map((client) => (
                 <Card key={client.id} className="p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -485,20 +513,42 @@ export default function ClientsPage() {
               ))}
             </div>
 
-            {/* Empty State for when no clients exist */}
-            {clients.length === 0 && (
+            {/* Empty State */}
+            {filteredClients.length === 0 && (
               <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <Typography variant="h3" className="text-lg font-medium text-gray-900 mb-2">
-                  No clients yet
-                </Typography>
-                <Typography className="text-gray-600 mb-4">
-                  Start by adding your first client to begin generating SEO reports.
-                </Typography>
-                <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Your First Client
-                </Button>
+                {searchQuery.trim() ? (
+                  // No search results
+                  <>
+                    <Search className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <Typography variant="h3" className="text-lg font-medium text-gray-900 mb-2">
+                      No clients found
+                    </Typography>
+                    <Typography className="text-gray-600 mb-4">
+                      No clients match your search for "{searchQuery}". Try a different search term.
+                    </Typography>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setSearchQuery('')}
+                    >
+                      Clear search
+                    </Button>
+                  </>
+                ) : (
+                  // No clients at all
+                  <>
+                    <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <Typography variant="h3" className="text-lg font-medium text-gray-900 mb-2">
+                      No clients yet
+                    </Typography>
+                    <Typography className="text-gray-600 mb-4">
+                      Start by adding your first client to begin generating SEO reports.
+                    </Typography>
+                    <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Your First Client
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </>

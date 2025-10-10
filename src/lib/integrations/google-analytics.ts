@@ -3,6 +3,44 @@ import { getValidAccessToken, GoogleTokenError, createAuthenticatedGoogleClient 
 import { prisma } from '@/lib/prisma';
 import { google } from 'googleapis';
 
+// Map frontend metric IDs to GA4 API metric names
+const METRIC_MAPPING: Record<string, string> = {
+  // Audience metrics
+  'users': 'totalUsers',
+  'newUsers': 'newUsers',
+  'sessions': 'sessions',
+  'engagedSessions': 'engagedSessions',
+  'engagementRate': 'engagementRate',
+  'sessionsPerUser': 'sessionsPerUser',
+  
+  // Engagement metrics
+  'bounceRate': 'bounceRate',
+  'pagesPerSession': 'screenPageViewsPerSession',
+  'avgSessionDuration': 'averageSessionDuration',
+  'eventCount': 'eventCount',
+  'scrollDepth': 'scrollDepth', // May not be available in all properties
+  
+  // Conversion metrics
+  'conversions': 'conversions',
+  'conversionRate': 'sessionConversionRate',
+  'revenue': 'totalRevenue',
+  'ecommercePurchases': 'ecommercePurchases',
+  'transactions': 'transactions',
+  
+  // Traffic source metrics (calculated differently)
+  'organicTraffic': 'sessions', // Will be filtered by source
+  'directTraffic': 'sessions',
+  'referralTraffic': 'sessions',
+  'socialTraffic': 'sessions',
+  'paidTraffic': 'sessions',
+  
+  // Behavior metrics (require additional API calls)
+  'deviceBreakdown': 'sessions', // Grouped by deviceCategory dimension
+  'topLandingPages': 'sessions', // Grouped by landingPage dimension
+  'topExitPages': 'sessions', // Grouped by exitPage dimension
+  'screenPageViews': 'screenPageViews'
+};
+
 export interface AnalyticsLandingPage {
   page: string;
   sessions: number;
@@ -31,16 +69,81 @@ export interface AnalyticsData {
     avgBounceRate: number;
     totalConversions: number;
   };
+  dynamicMetrics: Record<string, any>; // NEW: Dynamic metrics data
+}
+
+// Fetch landing pages separately (requires dimension query)
+async function getTopLandingPages(
+  analyticsDataClient: BetaAnalyticsDataClient,
+  propertyId: string,
+  startDate: string,
+  endDate: string
+) {
+  try {
+    const [response] = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [{ startDate, endDate }],
+      dimensions: [{ name: 'landingPage' }],
+      metrics: [
+        { name: 'sessions' },
+        { name: 'totalUsers' },
+        { name: 'bounceRate' }
+      ],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+      limit: 10
+    });
+
+    return response.rows?.map(row => ({
+      page: row.dimensionValues?.[0]?.value || '',
+      sessions: parseInt(row.metricValues?.[0]?.value || '0'),
+      users: parseInt(row.metricValues?.[1]?.value || '0'),
+      bounceRate: parseFloat(row.metricValues?.[2]?.value || '0')
+    })) || [];
+  } catch (error) {
+    console.error('Error fetching landing pages:', error);
+    return [];
+  }
+}
+
+// Fetch device breakdown separately
+async function getDeviceBreakdown(
+  analyticsDataClient: BetaAnalyticsDataClient,
+  propertyId: string,
+  startDate: string,
+  endDate: string
+) {
+  try {
+    const [response] = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [{ startDate, endDate }],
+      dimensions: [{ name: 'deviceCategory' }],
+      metrics: [{ name: 'sessions' }]
+    });
+
+    const breakdown: Record<string, number> = {};
+    response.rows?.forEach(row => {
+      const device = row.dimensionValues?.[0]?.value || 'unknown';
+      const sessions = parseInt(row.metricValues?.[0]?.value || '0');
+      breakdown[device] = sessions;
+    });
+
+    return breakdown;
+  } catch (error) {
+    console.error('Error fetching device breakdown:', error);
+    return {};
+  }
 }
 
 /**
  * Fetches Google Analytics 4 data for organic traffic
+ * Now supports dynamic metric selection
  */
 export async function getAnalyticsData(
   clientId: string,
   startDate: string,
   endDate: string,
-  propertyId?: string
+  propertyId?: string,
+  requestedMetrics?: string[] // NEW: Array of metric IDs from frontend
 ): Promise<AnalyticsData> {
   try {
     // Get client with property ID
@@ -74,27 +177,24 @@ export async function getAnalyticsData(
       }
     });
 
-    // Fetch main organic traffic metrics
+    // Map requested metric IDs to GA4 metric names
+    const metricsToFetch = requestedMetrics && requestedMetrics.length > 0
+      ? requestedMetrics
+          .map(id => METRIC_MAPPING[id])
+          .filter(Boolean)
+          .filter((name, index, arr) => arr.indexOf(name) === index) // Remove duplicates
+      : ['totalUsers', 'sessions', 'bounceRate', 'conversions']; // Default metrics
+
+    console.log('Fetching GA4 metrics:', { requestedMetrics, metricsToFetch });
+
+    // Build metrics array for GA4 API
+    const metrics = metricsToFetch.map(name => ({ name }));
+
+    // Fetch main metrics
     const [mainResponse] = await analyticsDataClient.runReport({
       property: `properties/${targetPropertyId}`,
       dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
-      metrics: [
-        { name: 'activeUsers' },
-        { name: 'sessions' },
-        { name: 'bounceRate' },
-        { name: 'conversions' },
-        { name: 'averageSessionDuration' }
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: 'sessionDefaultChannelGroup',
-          stringFilter: {
-            matchType: 'EXACT',
-            value: 'Organic Search'
-          }
-        }
-      }
+      metrics: metrics
     });
 
     // Fetch top landing pages for organic traffic
@@ -142,13 +242,59 @@ export async function getAnalyticsData(
       orderBys: [{ dimension: { dimensionName: 'date' } }]
     });
 
-    // Parse main metrics
-    const mainRow = mainResponse.rows?.[0];
-    const users = parseInt(mainRow?.metricValues?.[0]?.value || '0');
-    const sessions = parseInt(mainRow?.metricValues?.[1]?.value || '0');
-    const bounceRate = parseFloat(mainRow?.metricValues?.[2]?.value || '0');
-    const conversions = parseInt(mainRow?.metricValues?.[3]?.value || '0');
-    const avgSessionDuration = parseFloat(mainRow?.metricValues?.[4]?.value || '0');
+    // Process response and map back to frontend IDs
+    const result: Record<string, any> = {};
+
+    if (mainResponse.rows && mainResponse.rows.length > 0) {
+      const row = mainResponse.rows[0];
+      
+      mainResponse.metricHeaders?.forEach((header, index) => {
+        const ga4MetricName = header.name;
+        const value = row?.metricValues?.[index]?.value;
+        
+        // Find frontend ID for this GA4 metric
+        const frontendId = Object.keys(METRIC_MAPPING).find(
+          key => METRIC_MAPPING[key] === ga4MetricName
+        );
+        
+        if (frontendId && value !== undefined && value !== null) {
+          // Format numeric values appropriately
+          if (['users', 'newUsers', 'sessions', 'engagedSessions', 'conversions', 'ecommercePurchases', 'transactions', 'eventCount', 'screenPageViews'].includes(frontendId)) {
+            result[frontendId] = parseInt(value) || 0;
+          } else if (['bounceRate', 'engagementRate', 'conversionRate', 'avgSessionDuration', 'pagesPerSession', 'sessionsPerUser', 'revenue'].includes(frontendId)) {
+            result[frontendId] = parseFloat(value) || 0;
+          } else {
+            result[frontendId] = value;
+          }
+        }
+      });
+    }
+
+    // Handle special metrics that require separate API calls
+    if (requestedMetrics?.includes('topLandingPages')) {
+      result.topLandingPages = await getTopLandingPages(
+        analyticsDataClient,
+        targetPropertyId,
+        startDate,
+        endDate
+      );
+    }
+
+    if (requestedMetrics?.includes('deviceBreakdown')) {
+      result.deviceBreakdown = await getDeviceBreakdown(
+        analyticsDataClient,
+        targetPropertyId,
+        startDate,
+        endDate
+      );
+    }
+
+    // Keep backward compatibility with existing interface
+    const users = result.users || 0;
+    const sessions = result.sessions || 0;
+    const bounceRate = result.bounceRate || 0;
+    const conversions = result.conversions || 0;
+    const avgSessionDuration = result.avgSessionDuration || 0;
 
     // Parse landing pages
     const topLandingPages: AnalyticsLandingPage[] = landingPagesResponse.rows?.map(row => ({
@@ -175,6 +321,7 @@ export async function getAnalyticsData(
     }
 
     return {
+      // Legacy format for backward compatibility
       users,
       sessions,
       bounceRate: (bounceRate * 100).toFixed(2),
@@ -187,7 +334,9 @@ export async function getAnalyticsData(
         totalSessions: sessions,
         avgBounceRate: bounceRate * 100,
         totalConversions: conversions
-      }
+      },
+      // NEW: Dynamic metrics data
+      dynamicMetrics: result
     };
   } catch (error: any) {
     console.error('Google Analytics API error:', error);
