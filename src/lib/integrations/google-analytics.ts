@@ -61,13 +61,12 @@ export async function getAnalyticsData(
 
     const accessToken = await getValidAccessToken(clientId);
     
-    // Create Google OAuth2 client
-    const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: accessToken });
-    
     // Create Analytics Data client with OAuth credentials
+    // BetaAnalyticsDataClient requires credentials object, not OAuth2Client
     const analyticsDataClient = new BetaAnalyticsDataClient({
-      auth: oauth2Client
+      credentials: {
+        access_token: accessToken
+      }
     });
 
     // Fetch main organic traffic metrics
