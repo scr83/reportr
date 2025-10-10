@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
-import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle } from 'lucide-react'
+import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
+import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle, AlertCircle, BarChart, Settings } from 'lucide-react'
 
 interface Client {
   id: string
@@ -18,6 +19,10 @@ interface Client {
   ga4Connected: boolean
   googleConnectedAt?: string | null
   googleAccessToken?: string | null
+  gscSiteUrl?: string | null
+  gscSiteName?: string | null
+  ga4PropertyId?: string | null
+  ga4PropertyName?: string | null
   reports?: any[]
   createdAt?: string
   updatedAt?: string
@@ -51,6 +56,11 @@ export default function ClientsPage() {
     contactEmail: ''
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  
+  // Property management modal state
+  const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false)
+  const [selectedClientId, setSelectedClientId] = useState('')
+  const [selectedClientName, setSelectedClientName] = useState('')
 
   // Fetch clients on mount
   useEffect(() => {
@@ -243,6 +253,52 @@ export default function ClientsPage() {
     return client.gscConnected || client.ga4Connected || client.googleConnectedAt || client.googleAccessToken
   }
 
+  // Check if client is fully configured (has both OAuth and properties selected)
+  const isFullyConfigured = (client: Client) => {
+    return hasGoogleConnection(client) && client.gscSiteUrl && client.ga4PropertyId
+  }
+
+  // Get connection status for display
+  const getConnectionStatus = (client: Client) => {
+    if (isFullyConfigured(client)) {
+      return {
+        status: 'configured',
+        label: 'Configured',
+        icon: CheckCircle,
+        className: 'bg-green-500 text-white'
+      }
+    } else if (hasGoogleConnection(client)) {
+      return {
+        status: 'setup-required',
+        label: 'Setup Required',
+        icon: AlertCircle,
+        className: 'bg-yellow-500 text-white'
+      }
+    } else {
+      return {
+        status: 'not-connected',
+        label: 'Not Connected',
+        icon: XCircle,
+        className: 'bg-gray-400 text-white'
+      }
+    }
+  }
+
+  // Handle opening property management modal
+  const handleManageProperties = (client: Client) => {
+    setSelectedClientId(client.id)
+    setSelectedClientName(client.name)
+    setIsPropertyModalOpen(true)
+  }
+
+  // Handle property modal success (refresh client data)
+  const handlePropertyModalSuccess = () => {
+    fetchClients()
+    setSuccessMessage('Properties updated successfully! 🎉')
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 3000)
+  }
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -328,29 +384,48 @@ export default function ClientsPage() {
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-gray-600">Google Integration</span>
-                      {hasGoogleConnection(client) ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Connected
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          Not Connected
-                        </span>
-                      )}
+                      {(() => {
+                        const status = getConnectionStatus(client)
+                        const Icon = status.icon
+                        return (
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${status.className}`}>
+                            <Icon className="h-3 w-3 mr-1" />
+                            {status.label}
+                          </span>
+                        )
+                      })()}
                     </div>
                     
+                    {/* Show selected properties if configured */}
+                    {isFullyConfigured(client) && (
+                      <div className="space-y-2 mb-3">
+                        {client.gscSiteUrl && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Globe className="h-3 w-3 mr-2 text-gray-400" />
+                            <span className="text-[#9810f9] font-medium">{client.gscSiteName}</span>
+                          </div>
+                        )}
+                        {client.ga4PropertyName && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <BarChart className="h-3 w-3 mr-2 text-gray-400" />
+                            <span className="text-[#9810f9] font-medium">{client.ga4PropertyName}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Action buttons based on status */}
                     {hasGoogleConnection(client) ? (
-                      <div className="flex space-x-4 mb-3">
-                        <div className="flex items-center space-x-1">
-                          <div className={`w-2 h-2 rounded-full ${client.gscConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                          <span className="text-xs text-gray-600">Search Console</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <div className={`w-2 h-2 rounded-full ${client.ga4Connected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                          <span className="text-xs text-gray-600">Analytics</span>
-                        </div>
+                      <div className="mb-3">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-[#9810f9] text-[#9810f9] hover:bg-[#9810f9] hover:text-white"
+                          onClick={() => handleManageProperties(client)}
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          {isFullyConfigured(client) ? 'Manage Properties' : 'Setup Properties'}
+                        </Button>
                       </div>
                     ) : (
                       <div className="mb-3">
@@ -373,7 +448,7 @@ export default function ClientsPage() {
                       size="sm" 
                       className="flex-1" 
                       onClick={() => alert(`Generating report for ${client.name}`)}
-                      disabled={!hasGoogleConnection(client)}
+                      disabled={!isFullyConfigured(client)}
                     >
                       Generate Report
                     </Button>
@@ -490,6 +565,15 @@ export default function ClientsPage() {
             </div>
           </div>
         </Modal>
+
+        {/* Property Management Modal */}
+        <PropertyManagementModal
+          isOpen={isPropertyModalOpen}
+          onClose={() => setIsPropertyModalOpen(false)}
+          clientId={selectedClientId}
+          clientName={selectedClientName}
+          onSuccess={handlePropertyModalSuccess}
+        />
       </div>
     </DashboardLayout>
   )
