@@ -63,16 +63,14 @@ export async function getAnalyticsData(
       throw new Error('Google account not connected for this client. Please connect in client settings.');
     }
 
-    const accessToken = await getValidAccessToken(clientId);
-    
     // Use proper OAuth2 credentials format
     const analyticsDataClient = new BetaAnalyticsDataClient({
       credentials: {
         type: 'authorized_user',
         client_id: process.env.GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        refresh_token: client.googleRefreshToken,
-        access_token: accessToken
+        refresh_token: client.googleRefreshToken
+        // access_token not needed - library will refresh automatically
       }
     });
 
