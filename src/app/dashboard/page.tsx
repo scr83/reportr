@@ -178,8 +178,8 @@ export default function DashboardPage() {
           <div className="lg:col-span-1">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Recent Reports</h2>
-              <Link 
-                href="/reports-library"
+              <Link
+                href="/reports"
                 className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
               >
                 View all
@@ -362,7 +362,7 @@ export default function DashboardPage() {
 
               {/* View All Reports */}
               <Link 
-                href="/reports-library"
+                href="/reports"
                 className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
               >
                 <div className="flex items-center gap-3">
