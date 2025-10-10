@@ -37,6 +37,7 @@ export default function GenerateReportPage() {
   const [reportType, setReportType] = useState<'executive' | 'standard' | 'custom'>('executive')
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['users', 'sessions', 'bounceRate', 'conversions'])
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false)
+  const [formData, setFormData] = useState<Record<string, any>>({})
   const [reportData, setReportData] = useState<ReportData>({
     clientId: '',
     client: '',
@@ -279,6 +280,7 @@ export default function GenerateReportPage() {
 
       // Update form data with fetched data
       if (gscData || ga4Data) {
+        // Update legacy reportData for existing functionality
         setReportData(prev => ({
           ...prev,
           gscData: {
@@ -295,6 +297,62 @@ export default function GenerateReportPage() {
             conversions: ga4Data?.conversions?.toLocaleString() || prev.ga4Data.conversions
           }
         }))
+
+        // Map fetched data to dynamic form fields
+        const newFormData: Record<string, any> = {}
+        const fieldsToShow = getFieldsForReportType()
+        
+        // Add GSC data
+        if (gscData) {
+          newFormData.totalClicks = gscData.clicks?.toLocaleString() || ''
+          newFormData.totalImpressions = gscData.impressions?.toLocaleString() || ''
+          newFormData.averageCTR = gscData.ctr || ''
+          newFormData.averagePosition = gscData.position || ''
+          newFormData.topQueries = gscData.topQueries ? JSON.stringify(gscData.topQueries, null, 2) : ''
+        }
+        
+        // Add GA4 data for dynamic fields
+        fieldsToShow.forEach(field => {
+          if (ga4Data) {
+            switch (field.id) {
+              case 'users':
+                newFormData[field.id] = ga4Data.users?.toLocaleString() || ''
+                break
+              case 'sessions':
+                newFormData[field.id] = ga4Data.sessions?.toLocaleString() || ''
+                break
+              case 'bounceRate':
+                newFormData[field.id] = ga4Data.bounceRate || ''
+                break
+              case 'conversions':
+                newFormData[field.id] = ga4Data.conversions?.toLocaleString() || ''
+                break
+              case 'avgSessionDuration':
+                newFormData[field.id] = ga4Data.avgSessionDuration || ''
+                break
+              case 'pagesPerSession':
+                newFormData[field.id] = ga4Data.pagesPerSession || ''
+                break
+              case 'newUsers':
+                newFormData[field.id] = ga4Data.newUsers?.toLocaleString() || ''
+                break
+              case 'organicTraffic':
+                newFormData[field.id] = ga4Data.organicTraffic || ''
+                break
+              case 'topLandingPages':
+                newFormData[field.id] = ga4Data.topLandingPages ? JSON.stringify(ga4Data.topLandingPages, null, 2) : ''
+                break
+              case 'deviceBreakdown':
+                newFormData[field.id] = ga4Data.deviceBreakdown ? JSON.stringify(ga4Data.deviceBreakdown, null, 2) : ''
+                break
+              default:
+                // For custom metrics, try to find in ga4Data
+                newFormData[field.id] = ga4Data[field.id] || ''
+            }
+          }
+        })
+        
+        setFormData(newFormData)
 
         // Show success message
         const fetchedSources = []
@@ -767,6 +825,8 @@ export default function GenerateReportPage() {
                     </label>
                     <input
                       type="text"
+                      value={formData[field.id] || ''}
+                      onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                       placeholder={field.placeholder}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
@@ -835,29 +895,49 @@ export default function GenerateReportPage() {
           </div>
         </div>
 
-        {/* GA4 Metrics */}
+        {/* GA4 Metrics - Dynamic */}
         <div>
           <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
             Google Analytics 4
           </Typography>
           <div className="space-y-3">
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Users</span>
-              <span className="font-medium">{reportData.ga4Data.users || '—'}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Sessions</span>
-              <span className="font-medium">{reportData.ga4Data.sessions || '—'}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Bounce Rate</span>
-              <span className="font-medium">{reportData.ga4Data.bounceRate ? `${reportData.ga4Data.bounceRate}%` : '—'}</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-gray-600">Conversions</span>
-              <span className="font-medium">{reportData.ga4Data.conversions || '—'}</span>
-            </div>
+            {(() => {
+              const fieldsToShow = getFieldsForReportType()
+              
+              if (fieldsToShow.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    No metrics selected for preview
+                  </div>
+                )
+              }
+              
+              return fieldsToShow.map((field, index) => {
+                const value = formData[field.id]
+                const isLast = index === fieldsToShow.length - 1
+                
+                return (
+                  <div key={field.id} className={`flex justify-between py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}>
+                    <span className="text-gray-600">{field.label}</span>
+                    <span className="font-medium">
+                      {value ? (
+                        typeof value === 'object' ? JSON.stringify(value) : value
+                      ) : '—'}
+                    </span>
+                  </div>
+                )
+              })
+            })()}
           </div>
+          
+          {/* Show message if no data */}
+          {Object.keys(formData).length === 0 && (
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="text-sm text-yellow-800">
+                💡 No data fetched yet. Go back to Step 2 and fetch data from Google APIs to see preview.
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
