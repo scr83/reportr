@@ -1,6 +1,7 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { getValidAccessToken, GoogleTokenError } from '@/lib/utils/refresh-google-token';
+import { getValidAccessToken, GoogleTokenError, createAuthenticatedGoogleClient } from '@/lib/utils/refresh-google-token';
 import { prisma } from '@/lib/prisma';
+import { google } from 'googleapis';
 
 export interface AnalyticsLandingPage {
   page: string;
@@ -61,7 +62,6 @@ export async function getAnalyticsData(
     const accessToken = await getValidAccessToken(clientId);
     
     // Create Google OAuth2 client
-    const { google } = require('googleapis');
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: accessToken });
     
@@ -216,41 +216,77 @@ export interface GA4Property {
  */
 export async function getAnalyticsProperties(clientId: string): Promise<GA4Property[]> {
   try {
-    const { google } = require('googleapis');
-    const accessToken = await getValidAccessToken(clientId);
+    console.log(`Fetching GA4 properties for client: ${clientId}`);
     
-    const auth = new google.auth.OAuth2();
-    auth.setCredentials({ access_token: accessToken });
-    
+    // Use the same auth method as working GSC implementation
+    const auth = await createAuthenticatedGoogleClient(clientId);
     const analyticsadmin = google.analyticsadmin({ version: 'v1beta', auth });
     
-    const response = await analyticsadmin.properties.list();
+    // First get all Analytics accounts
+    const accountsResponse = await analyticsadmin.accounts.list();
+    const accounts = accountsResponse.data.accounts || [];
     
-    const properties: GA4Property[] = (response.data.properties || []).map((prop: any) => {
-      // Extract property ID from name (format: "properties/123456789")
-      const propertyId = prop.name?.split('/')[1] || '';
-      
-      return {
-        name: prop.name || '',
-        propertyId: propertyId,
-        displayName: prop.displayName || prop.name || ''
-      };
-    });
+    if (accounts.length === 0) {
+      console.log('No Analytics accounts found for client');
+      return [];
+    }
     
-    console.log(`Found ${properties.length} Analytics properties`);
-    return properties;
+    console.log(`Found ${accounts.length} Analytics accounts`);
+    
+    // Get properties for all accounts
+    const allProperties: GA4Property[] = [];
+    
+    for (const account of accounts) {
+      try {
+        const response = await analyticsadmin.properties.list({
+          filter: `parent:${account.name}`  // Format: parent:accounts/123456789
+        });
+        
+        const accountProperties = (response.data.properties || []).map((prop: any) => {
+          // Extract property ID from name (format: "properties/123456789")
+          const propertyId = prop.name?.split('/')[1] || '';
+          
+          return {
+            name: prop.name || '',
+            propertyId: propertyId,
+            displayName: prop.displayName || prop.name || ''
+          };
+        });
+        
+        allProperties.push(...accountProperties);
+        
+      } catch (accountError: any) {
+        console.warn(`Failed to get properties for account ${account.displayName}:`, accountError.message);
+        // Continue with other accounts
+      }
+    }
+    
+    console.log(`Found ${allProperties.length} Analytics properties`);
+    return allProperties;
     
   } catch (error: any) {
     console.error('Error listing GA4 properties:', error.message);
     
-    // If error is about insufficient permissions, return empty array
-    // Frontend will show manual entry option
-    if (error.message?.includes('403') || error.message?.includes('permission')) {
+    // Handle specific error types
+    if (error instanceof GoogleTokenError) {
+      throw error;
+    }
+    
+    // Handle Google API specific errors
+    if (error.code === 403 || error.status === 403) {
       console.log('Insufficient permissions to list properties, manual entry required');
       return [];
     }
     
-    throw new Error('Failed to fetch Analytics properties');
+    if (error.code === 404 || error.status === 404) {
+      throw new Error('Google Analytics Admin API not found. Please ensure the Analytics Admin API is enabled in Google Cloud Console.');
+    }
+    
+    if (error.code === 400 || error.status === 400) {
+      throw new Error(`Invalid request to Google Analytics API: ${error.message}`);
+    }
+    
+    throw new Error(`Failed to fetch Analytics properties: ${error.message || 'Unknown error'}`);
   }
 }
 
