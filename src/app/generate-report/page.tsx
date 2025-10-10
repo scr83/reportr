@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Select } from '@/components/atoms'
+import { MetricSelectorModal } from '@/components/organisms'
 import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
 
 interface ReportData {
@@ -33,6 +34,9 @@ export default function GenerateReportPage() {
   const [jsonError, setJsonError] = useState<string | null>(null)
   const [clients, setClients] = useState<any[]>([])
   const [loadingClients, setLoadingClients] = useState(true)
+  const [reportType, setReportType] = useState<'executive' | 'standard' | 'custom'>('executive')
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['users', 'sessions', 'bounceRate', 'conversions'])
+  const [isMetricModalOpen, setIsMetricModalOpen] = useState(false)
   const [reportData, setReportData] = useState<ReportData>({
     clientId: '',
     client: '',
@@ -352,6 +356,87 @@ export default function GenerateReportPage() {
             </Select>
           )}
         </div>
+
+        {/* Report Type Selection */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
+            Report Type
+          </Typography>
+          <div className="space-y-3">
+            <label className="flex items-start p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50">
+              <input
+                type="radio"
+                name="reportType"
+                value="executive"
+                checked={reportType === 'executive'}
+                onChange={(e) => setReportType(e.target.value as 'executive')}
+                className="mt-1 w-4 h-4 text-purple-600"
+              />
+              <div className="ml-3">
+                <div className="font-medium text-gray-900">📊 Executive Summary</div>
+                <div className="text-sm text-gray-600">High-level overview with key metrics and insights</div>
+              </div>
+            </label>
+            
+            <label className="flex items-start p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50">
+              <input
+                type="radio"
+                name="reportType"
+                value="standard"
+                checked={reportType === 'standard'}
+                onChange={(e) => setReportType(e.target.value as 'standard')}
+                className="mt-1 w-4 h-4 text-purple-600"
+              />
+              <div className="ml-3">
+                <div className="font-medium text-gray-900">📈 Standard SEO Report</div>
+                <div className="text-sm text-gray-600">Comprehensive analysis with all standard metrics</div>
+              </div>
+            </label>
+            
+            <label className="flex items-start p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50">
+              <input
+                type="radio"
+                name="reportType"
+                value="custom"
+                checked={reportType === 'custom'}
+                onChange={(e) => setReportType(e.target.value as 'custom')}
+                className="mt-1 w-4 h-4 text-purple-600"
+              />
+              <div className="ml-3">
+                <div className="font-medium text-gray-900">⚙️ Custom Report</div>
+                <div className="text-sm text-gray-600">Choose specific metrics and sections</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Custom Metrics Selection */}
+        {reportType === 'custom' && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-3">
+              <Typography variant="h4" className="text-md font-semibold text-gray-900">
+                Selected Metrics ({selectedMetrics.length})
+              </Typography>
+              <Button
+                variant="outline"
+                onClick={() => setIsMetricModalOpen(true)}
+                className="border-purple-300 text-purple-700 hover:bg-purple-100"
+              >
+                Choose Metrics
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedMetrics.map(metric => (
+                <span
+                  key={metric}
+                  className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-1 rounded"
+                >
+                  {metric}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -740,6 +825,14 @@ export default function GenerateReportPage() {
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
         </div>
+
+        {/* Metric Selector Modal */}
+        <MetricSelectorModal
+          isOpen={isMetricModalOpen}
+          onClose={() => setIsMetricModalOpen(false)}
+          selectedMetrics={selectedMetrics}
+          onSave={(metrics: string[]) => setSelectedMetrics(metrics)}
+        />
       </div>
     </DashboardLayout>
   )
