@@ -524,7 +524,7 @@ export default function ClientsPage() {
                       No clients found
                     </Typography>
                     <Typography className="text-gray-600 mb-4">
-                      No clients match your search for "{searchQuery}". Try a different search term.
+                      No clients match your search for &quot;{searchQuery}&quot;. Try a different search term.
                     </Typography>
                     <Button 
                       variant="outline" 
