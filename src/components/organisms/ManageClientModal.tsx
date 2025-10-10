@@ -254,7 +254,7 @@ export const ManageClientModal: React.FC<ManageClientModalProps> = ({
             ) : (
               <div className="space-y-3">
                 <p className="text-sm font-medium text-red-800">
-                  Are you sure you want to delete "{client.name}"?
+                  Are you sure you want to delete this client?
                 </p>
                 <div className="flex space-x-2">
                   <Button
