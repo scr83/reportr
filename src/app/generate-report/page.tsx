@@ -58,6 +58,106 @@ export default function GenerateReportPage() {
   })
   const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4'>('gsc')
 
+  // Field definitions for each report type
+  const REPORT_FIELDS = {
+    executive: [
+      { id: 'users', label: 'Users', placeholder: 'e.g., 1,234' },
+      { id: 'sessions', label: 'Sessions', placeholder: 'e.g., 2,456' },
+      { id: 'bounceRate', label: 'Bounce Rate (%)', placeholder: 'e.g., 45.2' },
+      { id: 'conversions', label: 'Conversions', placeholder: 'e.g., 24' }
+    ],
+    standard: [
+      { id: 'users', label: 'Users', placeholder: 'e.g., 1,234' },
+      { id: 'sessions', label: 'Sessions', placeholder: 'e.g., 2,456' },
+      { id: 'bounceRate', label: 'Bounce Rate (%)', placeholder: 'e.g., 45.2' },
+      { id: 'conversions', label: 'Conversions', placeholder: 'e.g., 24' },
+      { id: 'avgSessionDuration', label: 'Avg Session Duration', placeholder: 'e.g., 3:24' },
+      { id: 'pagesPerSession', label: 'Pages per Session', placeholder: 'e.g., 4.2' },
+      { id: 'newUsers', label: 'New Users', placeholder: 'e.g., 856' },
+      { id: 'organicTraffic', label: 'Organic Traffic %', placeholder: 'e.g., 68.5' },
+      { id: 'topLandingPages', label: 'Top Landing Pages (JSON)', placeholder: '[...]' },
+      { id: 'deviceBreakdown', label: 'Device Breakdown (JSON)', placeholder: '{...}' }
+    ],
+    custom: [] // Will be populated from selectedMetrics
+  }
+
+  // Get metric categories for field mapping
+  const METRIC_CATEGORIES = {
+    audience: {
+      title: '👥 Audience',
+      metrics: [
+        { id: 'users', name: 'Users', description: 'Total number of users' },
+        { id: 'newUsers', name: 'New Users', description: 'First-time visitors' },
+        { id: 'sessions', name: 'Sessions', description: 'Total sessions' },
+        { id: 'engagedSessions', name: 'Engaged Sessions', description: 'Sessions with engagement' },
+        { id: 'engagementRate', name: 'Engagement Rate', description: '% of engaged sessions' },
+        { id: 'sessionsPerUser', name: 'Sessions per User', description: 'Avg sessions per user' }
+      ]
+    },
+    engagement: {
+      title: '🎯 Engagement',
+      metrics: [
+        { id: 'bounceRate', name: 'Bounce Rate', description: '% of single-page sessions' },
+        { id: 'pagesPerSession', name: 'Pages per Session', description: 'Avg pages viewed' },
+        { id: 'avgSessionDuration', name: 'Avg Session Duration', description: 'Time on site' },
+        { id: 'eventCount', name: 'Event Count', description: 'Total events triggered' },
+        { id: 'scrollDepth', name: 'Scroll Depth', description: 'How far users scroll' }
+      ]
+    },
+    conversions: {
+      title: '💰 Conversions',
+      metrics: [
+        { id: 'conversions', name: 'Conversions', description: 'Total conversions' },
+        { id: 'conversionRate', name: 'Conversion Rate', description: '% of converting sessions' },
+        { id: 'revenue', name: 'Revenue', description: 'Total revenue (if e-commerce)' },
+        { id: 'ecommercePurchases', name: 'E-commerce Purchases', description: 'Purchase events' },
+        { id: 'transactions', name: 'Transactions', description: 'Completed transactions' }
+      ]
+    },
+    traffic: {
+      title: '📍 Traffic Sources',
+      metrics: [
+        { id: 'organicTraffic', name: 'Organic Traffic %', description: 'Traffic from search' },
+        { id: 'directTraffic', name: 'Direct Traffic', description: 'Direct visits' },
+        { id: 'referralTraffic', name: 'Referral Traffic', description: 'Traffic from other sites' },
+        { id: 'socialTraffic', name: 'Social Traffic', description: 'Traffic from social media' },
+        { id: 'paidTraffic', name: 'Paid Traffic', description: 'Traffic from ads' }
+      ]
+    },
+    behavior: {
+      title: '📱 Behavior',
+      metrics: [
+        { id: 'deviceBreakdown', name: 'Device Breakdown', description: 'Desktop/Mobile/Tablet' },
+        { id: 'topLandingPages', name: 'Top Landing Pages', description: 'Most visited entry pages' },
+        { id: 'topExitPages', name: 'Top Exit Pages', description: 'Most common exit points' },
+        { id: 'screenPageViews', name: 'Page Views', description: 'Total page views' }
+      ]
+    }
+  }
+
+  // Determine which fields to show
+  const getFieldsForReportType = () => {
+    if (reportType === 'custom') {
+      // Map selected metric IDs to field definitions
+      return selectedMetrics.map(metricId => {
+        // Find metric definition from METRIC_CATEGORIES
+        for (const category of Object.values(METRIC_CATEGORIES)) {
+          const metric = category.metrics.find(m => m.id === metricId)
+          if (metric) {
+            return {
+              id: metricId,
+              label: metric.name,
+              placeholder: `e.g., value for ${metric.name}`
+            }
+          }
+        }
+        return null
+      }).filter((field): field is { id: string; label: string; placeholder: string } => field !== null)
+    }
+    
+    return REPORT_FIELDS[reportType] || REPORT_FIELDS.executive
+  }
+
   // Fetch clients on component mount and handle URL params
   useEffect(() => {
     async function fetchClients() {
@@ -375,6 +475,9 @@ export default function GenerateReportPage() {
               <div className="ml-3">
                 <div className="font-medium text-gray-900">📊 Executive Summary</div>
                 <div className="text-sm text-gray-600">High-level overview with key metrics and insights</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Users • Sessions • Bounce Rate • Conversions
+                </div>
               </div>
             </label>
             
@@ -390,6 +493,9 @@ export default function GenerateReportPage() {
               <div className="ml-3">
                 <div className="font-medium text-gray-900">📈 Standard SEO Report</div>
                 <div className="text-sm text-gray-600">Comprehensive analysis with all standard metrics</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Users • Sessions • Bounce Rate • Conversions • Avg Duration • Pages/Session • New Users • Organic % • Top Landing Pages • Devices
+                </div>
               </div>
             </label>
             
@@ -405,6 +511,9 @@ export default function GenerateReportPage() {
               <div className="ml-3">
                 <div className="font-medium text-gray-900">⚙️ Custom Report</div>
                 <div className="text-sm text-gray-600">Choose specific metrics and sections</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Select from 30+ available GA4 metrics
+                </div>
               </div>
             </label>
           </div>
@@ -638,62 +747,34 @@ export default function GenerateReportPage() {
       {/* GA4 Fields */}
       {activeDataTab === 'ga4' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Users
-              </label>
-              <Input
-                value={reportData.ga4Data.users}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  ga4Data: { ...reportData.ga4Data, users: value }
-                })}
-                placeholder="e.g., 856"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sessions
-              </label>
-              <Input
-                value={reportData.ga4Data.sessions}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  ga4Data: { ...reportData.ga4Data, sessions: value }
-                })}
-                placeholder="e.g., 1,203"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bounce Rate
-              </label>
-              <Input
-                value={reportData.ga4Data.bounceRate}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  ga4Data: { ...reportData.ga4Data, bounceRate: value }
-                })}
-                placeholder="e.g., 45.2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Conversions
-              </label>
-              <Input
-                value={reportData.ga4Data.conversions}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  ga4Data: { ...reportData.ga4Data, conversions: value }
-                })}
-                placeholder="e.g., 24"
-              />
-            </div>
-          </div>
+          {(() => {
+            const fieldsToShow = getFieldsForReportType()
+            
+            if (fieldsToShow.length === 0) {
+              return (
+                <div className="text-center py-8 text-gray-500">
+                  No metrics selected. Please select metrics in Step 1.
+                </div>
+              )
+            }
+            
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {fieldsToShow.map(field => (
+                  <div key={field.id}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {field.label}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={field.placeholder}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
