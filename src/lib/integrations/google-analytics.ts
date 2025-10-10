@@ -59,21 +59,21 @@ export async function getAnalyticsData(
       throw new Error('Google Analytics property ID not configured');
     }
 
+    if (!client.googleRefreshToken) {
+      throw new Error('Google account not connected for this client. Please connect in client settings.');
+    }
+
     const accessToken = await getValidAccessToken(clientId);
     
-    // Create Analytics Data client
-    // BetaAnalyticsDataClient uses Google Auth Library internally
-    const { GoogleAuth } = require('google-auth-library');
-    const googleAuth = new GoogleAuth();
-    const authClient = await googleAuth.fromJSON({
-      type: 'authorized_user',
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      refresh_token: (await prisma.client.findUnique({ where: { id: clientId } }))?.googleRefreshToken
-    });
-    
+    // Use proper OAuth2 credentials format
     const analyticsDataClient = new BetaAnalyticsDataClient({
-      auth: authClient
+      credentials: {
+        type: 'authorized_user',
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        refresh_token: client.googleRefreshToken,
+        access_token: accessToken
+      }
     });
 
     // Fetch main organic traffic metrics
