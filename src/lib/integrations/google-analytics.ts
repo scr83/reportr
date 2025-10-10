@@ -61,12 +61,19 @@ export async function getAnalyticsData(
 
     const accessToken = await getValidAccessToken(clientId);
     
-    // Create Analytics Data client with OAuth credentials
-    // BetaAnalyticsDataClient requires credentials object, not OAuth2Client
+    // Create Analytics Data client
+    // BetaAnalyticsDataClient uses Google Auth Library internally
+    const { GoogleAuth } = require('google-auth-library');
+    const googleAuth = new GoogleAuth();
+    const authClient = await googleAuth.fromJSON({
+      type: 'authorized_user',
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      refresh_token: (await prisma.client.findUnique({ where: { id: clientId } }))?.googleRefreshToken
+    });
+    
     const analyticsDataClient = new BetaAnalyticsDataClient({
-      credentials: {
-        access_token: accessToken
-      }
+      auth: authClient
     });
 
     // Fetch main organic traffic metrics
