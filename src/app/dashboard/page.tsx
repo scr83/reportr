@@ -173,179 +173,210 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Reports Section - 2/3 width */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <Typography variant="h2" className="text-xl font-semibold text-gray-900">
-                Recent Reports
-              </Typography>
-              <Link href="/reports">
-                <Button variant="ghost" size="sm">
-                  View all
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Column 1: Recent Reports */}
+          <div className="lg:col-span-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Recent Reports</h2>
+              <Link 
+                href="/reports-library"
+                className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
 
+            {/* Recent Reports List */}
             <div className="space-y-4">
               {error ? (
-                <Card className="p-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <Typography className="text-red-600 text-center">
                     {error}
                   </Typography>
-                </Card>
+                </div>
               ) : loading ? (
                 // Loading skeleton for reports
                 Array.from({ length: 3 }).map((_, index) => (
-                  <Card key={index} className="p-6 animate-pulse">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <div className="h-5 bg-gray-200 rounded w-32"></div>
-                          <div className="h-5 bg-gray-200 rounded w-16"></div>
-                        </div>
-                        <div className="h-4 bg-gray-200 rounded w-24 mb-3"></div>
-                        <div className="flex items-center space-x-6">
-                          <div className="h-4 bg-gray-200 rounded w-20"></div>
-                          <div className="h-4 bg-gray-200 rounded w-20"></div>
-                        </div>
-                      </div>
-                      <div className="h-8 bg-gray-200 rounded w-16"></div>
+                  <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="h-5 bg-gray-200 rounded w-32"></div>
+                      <div className="h-5 bg-gray-200 rounded w-16"></div>
                     </div>
-                  </Card>
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-3"></div>
+                    <div className="flex justify-between items-center text-xs">
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                    </div>
+                  </div>
                 ))
               ) : recentReports.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <Typography className="text-gray-600 mb-2">
-                    No reports generated yet
-                  </Typography>
-                  <Typography className="text-sm text-gray-500">
-                    Create your first report to see it here
-                  </Typography>
-                  <Button 
-                    className="mt-4"
-                    onClick={() => router.push('/generate-report')}
+                <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                  <p className="text-gray-500 mb-4">No reports generated yet</p>
+                  <Link 
+                    href="/generate-report"
+                    className="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm"
                   >
                     Generate First Report
-                  </Button>
-                </Card>
+                  </Link>
+                </div>
               ) : (
-                recentReports.map((report, index) => (
-                  <Card key={report.id} className="p-6 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <Typography className="font-semibold text-gray-900">
-                            {report.client}
-                          </Typography>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            report.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            report.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {report.status}
-                          </span>
-                        </div>
-                        <Typography className="text-sm text-gray-600 mb-3">
-                          {report.dateRange}
-                        </Typography>
-                        <div className="flex items-center space-x-6 text-sm">
-                          <div className="flex items-center space-x-1">
-                            <span className="font-medium text-gray-700">GSC Clicks:</span>
-                            <span className="text-gray-600">{report.gscClicks}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <span className="font-medium text-gray-700">GA4 Users:</span>
-                            <span className="text-gray-600">{report.ga4Users}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
+                recentReports.slice(0, 3).map((report) => (
+                  <div
+                    key={report.id}
+                    className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900">{report.client}</h3>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        report.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        report.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {report.status}
+                      </span>
                     </div>
-                  </Card>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {report.dateRange}
+                    </p>
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <span>Clicks: {report.gscClicks}</span>
+                      <span>Users: {report.ga4Users}</span>
+                    </div>
+                  </div>
                 ))
               )}
             </div>
           </div>
 
-          {/* Active Clients Sidebar - 1/3 width */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <Typography variant="h2" className="text-xl font-semibold text-gray-900">
-                Active Clients
-              </Typography>
-              <Link href="/dashboard/clients">
-                <Button variant="ghost" size="sm">
-                  View all
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </Button>
+          {/* Column 2: Active Clients */}
+          <div className="lg:col-span-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Active Clients</h2>
+              <Link 
+                href="/dashboard/clients"
+                className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
-            
+
+            {/* Active Clients List */}
             <div className="space-y-3">
               {loading ? (
                 // Loading skeleton for clients
-                Array.from({ length: 5 }).map((_, index) => (
-                  <Card key={index} className="p-4 animate-pulse">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 bg-gray-200 rounded-lg"></div>
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+                    <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
                         <div className="h-3 bg-gray-200 rounded w-32"></div>
                       </div>
+                      <div className="h-5 bg-gray-200 rounded w-16"></div>
                     </div>
-                  </Card>
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                  </div>
                 ))
               ) : clients.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <Users className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                  <Typography className="text-sm text-gray-600 mb-2">
-                    No clients yet
-                  </Typography>
-                  <Typography className="text-xs text-gray-500 mb-3">
-                    Add your first client to get started
-                  </Typography>
-                  <Button 
-                    size="sm"
-                    onClick={() => router.push('/dashboard/clients')}
+                <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                  <p className="text-gray-500 mb-4">No clients yet</p>
+                  <Link 
+                    href="/dashboard/clients"
+                    className="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm"
                   >
-                    Add Client
-                  </Button>
-                </Card>
+                    Add First Client
+                  </Link>
+                </div>
               ) : (
-                clients.slice(0, 6).map((client, index) => (
-                  <Card key={client.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                    <Button 
-                      variant="ghost" 
-                      className="w-full p-0 h-auto text-left"
-                      onClick={() => router.push('/dashboard/clients')}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                          <Users className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Typography className="font-medium text-gray-900 text-sm truncate">
-                            {client.name}
-                          </Typography>
-                          <Typography className="text-xs text-gray-600 truncate">
-                            {client.domain}
-                          </Typography>
-                        </div>
-                        <div className="text-right">
-                          <Typography className="text-xs text-gray-500">
-                            {client.reports?.length || 0} reports
-                          </Typography>
-                        </div>
+                clients.slice(0, 3).map((client) => (
+                  <Link 
+                    key={client.id}
+                    href={`/dashboard/clients?client=${client.id}`}
+                    className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{client.name}</h3>
+                        <p className="text-sm text-gray-500 truncate">{client.domain}</p>
                       </div>
-                    </Button>
-                  </Card>
+                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+                        Setup
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {client.reports?.length || 0} reports
+                    </div>
+                  </Link>
                 ))
               )}
+            </div>
+          </div>
+
+          {/* Column 3: Quick Actions */}
+          <div className="lg:col-span-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
+            </div>
+
+            <div className="space-y-3">
+              {/* Manage Clients */}
+              <Link 
+                href="/dashboard/clients"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Manage Clients</h3>
+                    <p className="text-sm text-gray-600">Add, edit, or remove clients</p>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Generate New Report */}
+              <Link 
+                href="/generate-report"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Generate New Report</h3>
+                    <p className="text-sm text-gray-600">Create a fresh SEO report</p>
+                  </div>
+                </div>
+              </Link>
+
+              {/* View All Reports */}
+              <Link 
+                href="/reports-library"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">View All Reports</h3>
+                    <p className="text-sm text-gray-600">Browse your reports library</p>
+                  </div>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
