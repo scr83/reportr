@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
@@ -42,6 +43,7 @@ interface FormErrors {
 }
 
 export default function ClientsPage() {
+  const router = useRouter()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -447,12 +449,16 @@ export default function ClientsPage() {
                       variant="outline" 
                       size="sm" 
                       className="flex-1" 
-                      onClick={() => alert(`Generating report for ${client.name}`)}
+                      onClick={() => router.push(`/generate-report?clientId=${client.id}`)}
                       disabled={!isFullyConfigured(client)}
                     >
                       Generate Report
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => alert(`Editing ${client.name}`)}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleManageProperties(client)}
+                    >
                       Edit
                     </Button>
                   </div>

@@ -54,13 +54,27 @@ export default function GenerateReportPage() {
   })
   const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4'>('gsc')
 
-  // Fetch clients on component mount
+  // Fetch clients on component mount and handle URL params
   useEffect(() => {
     async function fetchClients() {
       try {
         const response = await fetch('/api/clients')
         const data = await response.json()
         setClients(data || [])
+        
+        // Auto-select client from URL params
+        const urlParams = new URLSearchParams(window.location.search)
+        const clientIdFromUrl = urlParams.get('clientId')
+        if (clientIdFromUrl && data) {
+          const selectedClient = data.find((c: any) => c.id === clientIdFromUrl)
+          if (selectedClient) {
+            setReportData(prev => ({
+              ...prev,
+              clientId: selectedClient.id,
+              client: selectedClient.name
+            }))
+          }
+        }
       } catch (error) {
         console.error('Failed to fetch clients:', error)
       } finally {
@@ -117,6 +131,13 @@ export default function GenerateReportPage() {
   const handleFetchGoogleData = async () => {
     if (!reportData.clientId || !reportData.startDate || !reportData.endDate) {
       setGoogleError('Please select a client and date range first')
+      return
+    }
+
+    // Check if client has properties configured
+    const selectedClient = clients.find(c => c.id === reportData.clientId)
+    if (!selectedClient?.gscSiteUrl || !selectedClient?.ga4PropertyId) {
+      setGoogleError('This client needs Google properties configured first. Please go to the client page and set up Search Console and Analytics properties.')
       return
     }
 
@@ -178,7 +199,7 @@ export default function GenerateReportPage() {
         
         alert(`Data successfully fetched from Google ${fetchedSources.join(' and ')}!`)
       } else {
-        throw new Error('Failed to fetch data from both Google APIs. Please check your Google connection.')
+        throw new Error('Failed to fetch data from both Google APIs. Please verify your Google connection and try again.')
       }
 
     } catch (error: any) {
