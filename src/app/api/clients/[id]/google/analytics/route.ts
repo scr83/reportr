@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAnalyticsData } from '@/lib/integrations/google-analytics';
 import { GoogleTokenError } from '@/lib/utils/refresh-google-token';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth-helpers';
 
 export async function GET(
   request: NextRequest,
@@ -32,8 +33,13 @@ export async function GET(
       );
     }
 
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
+    const user = await requireUser();
+    
+    const client = await prisma.client.findFirst({
+      where: { 
+        id: clientId,
+        userId: user.id
+      },
       select: {
         id: true,
         googleRefreshToken: true,
@@ -91,6 +97,10 @@ export async function GET(
     });
   } catch (error: any) {
     console.error('Google Analytics API error:', error);
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     if (error instanceof GoogleTokenError) {
       return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { requireUser } from '@/lib/auth-helpers';
 
 const updateClientSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
@@ -14,10 +15,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const client = await prisma.client.findUnique({
+    const user = await requireUser();
+    
+    const client = await prisma.client.findFirst({
       where: { 
         id: params.id,
-        userId: 'test-user-id' // Ensure user owns this client
+        userId: user.id // Ensure user owns this client
       },
       include: {
         reports: {
@@ -33,6 +36,11 @@ export async function GET(
     return NextResponse.json(client);
   } catch (error: any) {
     console.error('Failed to fetch client:', error);
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     return NextResponse.json({ 
       error: 'Failed to fetch client' 
     }, { status: 500 });
@@ -44,19 +52,21 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await requireUser();
+    
     const body = await request.json();
     const validated = updateClientSchema.parse(body);
     
     // Check if client exists and belongs to user
-    const existingClient = await prisma.client.findUnique({
+    const existingClient = await prisma.client.findFirst({
       where: { 
         id: params.id,
-        userId: 'test-user-id'
+        userId: user.id
       }
     });
 
     if (!existingClient) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Client not found or unauthorized' }, { status: 404 });
     }
 
     const updatedClient = await prisma.client.update({
@@ -73,6 +83,10 @@ export async function PUT(
     return NextResponse.json(updatedClient);
   } catch (error: any) {
     console.error('Failed to update client:', error);
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     if (error instanceof z.ZodError) {
       return NextResponse.json({ 
@@ -92,16 +106,18 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await requireUser();
+    
     // Check if client exists and belongs to user
-    const existingClient = await prisma.client.findUnique({
+    const existingClient = await prisma.client.findFirst({
       where: { 
         id: params.id,
-        userId: 'test-user-id'
+        userId: user.id
       }
     });
 
     if (!existingClient) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Client not found or unauthorized' }, { status: 404 });
     }
 
     // Delete client (reports will be cascade deleted)
@@ -112,6 +128,11 @@ export async function DELETE(
     return NextResponse.json({ message: 'Client deleted successfully' });
   } catch (error: any) {
     console.error('Failed to delete client:', error);
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     return NextResponse.json({ 
       error: 'Failed to delete client' 
     }, { status: 500 });

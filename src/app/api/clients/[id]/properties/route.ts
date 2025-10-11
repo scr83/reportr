@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,19 +16,23 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await requireUser();
     const clientId = params.id;
     const body: PropertyUpdateBody = await request.json();
 
     console.log(`Updating properties for client: ${clientId}`, body);
 
-    // Validate client exists
-    const client = await prisma.client.findUnique({
-      where: { id: clientId }
+    // Validate client exists AND belongs to user
+    const client = await prisma.client.findFirst({
+      where: { 
+        id: clientId,
+        userId: user.id
+      }
     });
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { error: 'Client not found or unauthorized' },
         { status: 404 }
       );
     }
@@ -53,6 +58,11 @@ export async function PATCH(
     
   } catch (error: any) {
     console.error('Error updating properties:', error);
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     return NextResponse.json(
       { error: error.message || 'Failed to update properties' },
       { status: 500 }

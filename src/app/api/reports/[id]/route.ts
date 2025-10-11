@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireUser } from '@/lib/auth-helpers'
 
 interface RouteParams {
   params: {
@@ -12,8 +13,13 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const report = await prisma.report.findUnique({
-      where: { id: params.id },
+    const user = await requireUser()
+    
+    const report = await prisma.report.findFirst({
+      where: { 
+        id: params.id,
+        userId: user.id // Ensure user owns this report
+      },
       include: {
         client: {
           select: {
@@ -39,14 +45,19 @@ export async function GET(
     
     if (!report) {
       return NextResponse.json(
-        { error: 'Report not found' },
+        { error: 'Report not found or unauthorized' },
         { status: 404 }
       )
     }
     
     return NextResponse.json(report)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch report:', error)
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch report' },
       { status: 500 }
@@ -59,15 +70,20 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    // Check if report exists
-    const existingReport = await prisma.report.findUnique({
-      where: { id: params.id },
+    const user = await requireUser()
+    
+    // Check if report exists AND belongs to user
+    const existingReport = await prisma.report.findFirst({
+      where: { 
+        id: params.id,
+        userId: user.id
+      },
       include: { client: true }
     })
     
     if (!existingReport) {
       return NextResponse.json(
-        { error: 'Report not found' },
+        { error: 'Report not found or unauthorized' },
         { status: 404 }
       )
     }
@@ -88,8 +104,13 @@ export async function DELETE(
     })
     
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to delete report:', error)
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     return NextResponse.json(
       { error: 'Failed to delete report' },
       { status: 500 }
