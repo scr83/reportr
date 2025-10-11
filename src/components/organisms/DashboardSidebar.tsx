@@ -9,9 +9,11 @@ import {
   FileText, 
   Plus,
   BarChart3,
-  X
+  X,
+  Settings
 } from 'lucide-react'
 import { Button } from '@/components/atoms'
+import { UserMenu } from '@/components/organisms/UserMenu'
 import { cn } from '@/lib/utils'
 
 interface DashboardSidebarProps {
@@ -40,6 +42,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       name: 'Reports Library',
       href: '/reports',
       icon: FileText,
+    },
+    {
+      name: 'Settings',
+      href: '/settings',
+      icon: Settings,
     },
   ]
 
@@ -116,12 +123,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </Link>
       </div>
 
-      {/* Agency Info Footer */}
+      {/* User Menu */}
       <div className="px-4 pb-4 border-t border-gray-200 pt-4">
-        <div className="text-xs text-gray-500">
-          <div className="font-medium">Digital Frog Agency</div>
-          <div>2 clients • 2 reports this month</div>
-        </div>
+        <UserMenu />
       </div>
     </div>
   )

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Menu, BarChart3 } from 'lucide-react'
+import { UserMenu } from '@/components/organisms/UserMenu'
 import { cn } from '@/lib/utils'
 
 interface DashboardMobileHeaderProps {
@@ -35,8 +36,8 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
         <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
       </div>
 
-      {/* Spacer to center logo */}
-      <div className="w-10" />
+      {/* User Menu */}
+      <UserMenu />
     </header>
   )
 }
