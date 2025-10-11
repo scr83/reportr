@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { requireUser } from '@/lib/auth-helpers'
 
 const topQuerySchema = z.object({
   query: z.string(),
@@ -37,20 +38,24 @@ export async function POST(request: NextRequest) {
   const processingStarted = new Date()
   
   try {
+    const user = await requireUser()
     const body = await request.json()
     
     // Validate the request data
     const validatedData = generatePdfSchema.parse(body)
     
-    // Check if client exists
-    const client = await prisma.client.findUnique({
-      where: { id: validatedData.clientId },
+    // Check if client exists AND belongs to user
+    const client = await prisma.client.findFirst({
+      where: { 
+        id: validatedData.clientId,
+        userId: user.id
+      },
       include: { user: true }
     })
     
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { error: 'Client not found or unauthorized' },
         { status: 404 }
       )
     }
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
         processingCompletedAt: new Date(),
         generationTimeMs: Date.now() - processingStarted.getTime(),
         clientId: validatedData.clientId,
-        userId: client.userId
+        userId: user.id
       }
     })
     
@@ -114,8 +119,12 @@ export async function POST(request: NextRequest) {
       },
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('PDF generation error:', error)
+    
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
