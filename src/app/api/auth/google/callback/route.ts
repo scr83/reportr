@@ -1,26 +1,28 @@
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth-helpers';
 
 // Force dynamic rendering for OAuth callback
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  console.log('=== OAuth Callback Started ===');
+  console.log('========== OAUTH CALLBACK START ==========');
   
   try {
-    console.log('Testing database connection...');
+    console.log('1. Testing database connection...');
     await prisma.$connect();
-    console.log('Database connected successfully');
+    console.log('   Database connected successfully');
 
     const { searchParams } = request.nextUrl;
     const code = searchParams.get('code');
     const clientId = searchParams.get('state');
     const error = searchParams.get('error');
     
-    console.log('Received OAuth params:', { 
-      code: code?.substring(0, 20) + '...', 
-      clientId, 
+    console.log('2. Received OAuth params:', { 
+      hasCode: !!code,
+      codeLength: code?.length,
+      clientId: clientId,
       hasError: !!error 
     });
 
@@ -28,20 +30,23 @@ export async function GET(request: NextRequest) {
     const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin;
     
     if (error) {
-      console.error('OAuth error from Google:', error);
+      console.error('3. OAuth error from Google:', error);
       return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_denied`);
     }
     
     if (!code || !clientId) {
-      console.error('Missing required params:', { code: !!code, clientId: !!clientId });
+      console.error('3. Missing required params:', { hasCode: !!code, hasClientId: !!clientId });
       return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_failed`);
     }
     
-    console.log('Creating OAuth2 client...');
-    // Use same logic as authorize endpoint for consistency
+    console.log('3. Getting authenticated user...');
+    const user = await requireUser();
+    console.log('   User authenticated:', { userId: user.id, email: user.email });
+    
+    console.log('4. Creating OAuth2 client...');
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
-    console.log('OAuth Config:', {
+    console.log('   OAuth Config:', {
       clientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
       redirectUri,
       hasClientSecret: !!process.env.GOOGLE_CLIENT_SECRET
@@ -53,56 +58,63 @@ export async function GET(request: NextRequest) {
       redirectUri
     );
     
-    console.log('Exchanging code for tokens...');
+    console.log('5. Exchanging code for tokens...');
     const { tokens } = await oauth2Client.getToken(code);
     
-    console.log('Tokens received:', { 
+    console.log('   Tokens received from Google:', { 
       hasAccessToken: !!tokens.access_token,
+      accessTokenLength: tokens.access_token?.length,
       hasRefreshToken: !!tokens.refresh_token,
-      expiryDate: tokens.expiry_date
+      refreshTokenLength: tokens.refresh_token?.length,
+      expiryDate: tokens.expiry_date,
+      tokenType: tokens.token_type,
+      scope: tokens.scope
     });
     
     if (!tokens.access_token || !tokens.refresh_token) {
-      console.error('Missing required tokens');
+      console.error('6. Missing required tokens');
       throw new Error('Missing required tokens');
     }
     
-    // TEMPORARY: Use test user ID until auth is built
-    const testUserId = 'test-user-id';
-    
-    console.log('Looking for client in database...');
-    // Check if client exists and belongs to test user
+    console.log('6. Looking for client in database...');
     const client = await prisma.client.findFirst({
       where: { 
         id: clientId,
-        userId: testUserId
-      }
+        userId: user.id  // Use actual authenticated user ID
+      },
+      include: { user: true }
     });
 
-    console.log('Client lookup result:', { 
+    console.log('   Client lookup result:', { 
       found: !!client, 
       clientId: clientId,
-      userId: testUserId 
+      userId: user.id,
+      clientName: client?.name,
+      clientDomain: client?.domain
     });
 
     if (!client) {
-      console.error(`Client not found: ${clientId} for user: ${testUserId}`);
+      console.error(`7. CLIENT NOT FOUND: ${clientId} for user: ${user.id}`);
       
-      // Let's also check if the client exists at all
+      // Debug: check if client exists with different user
       const anyClient = await prisma.client.findFirst({
-        where: { id: clientId }
+        where: { id: clientId },
+        include: { user: true }
       });
-      console.log('Client exists with different user?', !!anyClient);
+      console.log('   Client exists with different user?:', {
+        exists: !!anyClient,
+        actualUserId: anyClient?.userId,
+        actualUserEmail: anyClient?.user?.email
+      });
       
       return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=client_not_found`);
     }
     
-    console.log('Updating client with Google tokens...');
-    // Save tokens to database
-    await prisma.client.update({
+    console.log('7. Updating client with Google tokens...');
+    const updatedClient = await prisma.client.update({
       where: { 
         id: clientId,
-        userId: testUserId // Ensure client belongs to test user
+        userId: user.id
       },
       data: {
         googleAccessToken: tokens.access_token,
@@ -115,21 +127,33 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    console.log('=== OAuth Callback Successful ===');
-    return NextResponse.redirect(`${baseUrl}/dashboard/clients?connected=true`);
+    console.log('8. Database update COMPLETE:', {
+      clientId: updatedClient.id,
+      hasAccessToken: !!updatedClient.googleAccessToken,
+      hasRefreshToken: !!updatedClient.googleRefreshToken,
+      tokenExpiresAt: updatedClient.googleTokenExpiry,
+      connectedAt: updatedClient.googleConnectedAt,
+      accessTokenLength: updatedClient.googleAccessToken?.length,
+      refreshTokenLength: updatedClient.googleRefreshToken?.length
+    });
+    
+    console.log('9. Redirecting to clients page...');
+    console.log('========== OAUTH CALLBACK SUCCESS ==========');
+    return NextResponse.redirect(`${baseUrl}/dashboard/clients?connected=true&clientId=${clientId}`);
     
   } catch (error: any) {
-    console.error('=== OAuth Callback Error ===');
-    console.error('Error name:', error.name);
+    console.error('========== OAUTH CALLBACK ERROR ==========');
+    console.error('Error type:', error.constructor.name);
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
-    console.error('Full error:', error);
-
-    // Get base URL for error redirect
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://reportr-one.vercel.app' 
-      : 'http://localhost:3003';
+    console.error('Full error object:', JSON.stringify(error, null, 2));
     
-    return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_failed`);
+    // Get base URL for error redirect
+    const baseUrl = process.env.NEXTAUTH_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://reportr-one.vercel.app' 
+        : 'http://localhost:3001');
+    
+    return NextResponse.redirect(`${baseUrl}/dashboard/clients?error=oauth_failed&details=${encodeURIComponent(error.message)}`);
   }
 }
