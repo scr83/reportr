@@ -27,7 +27,6 @@ export function ReportHeader({ branding, clientName, pageTitle, showLogo = true 
               objectFit: 'contain',
               marginRight: 12
             }}
-            alt={`${branding.name} logo`}
           />
         )}
         <View>

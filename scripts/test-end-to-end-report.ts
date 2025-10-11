@@ -59,8 +59,8 @@ async function testEndToEndReportGeneration() {
 
     // Step 2: Fetch real API data
     log('\n🔧 STEP 2: Fetching real API data', 'cyan');
-    const endDate = new Date().toISOString().split('T')[0];
-    const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const endDate: string = new Date().toISOString().split('T')[0]!;
+    const startDate: string = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!;
 
     log(`   Date range: ${startDate} to ${endDate}`, 'blue');
 

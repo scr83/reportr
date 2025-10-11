@@ -1,0 +1,21 @@
+# Test scripts
+scripts/
+documentation/
+
+# Development files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Environment files
+.env.local
+.env.development
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

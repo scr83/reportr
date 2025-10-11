@@ -276,7 +276,7 @@ export const ReportTemplate: React.FC<{ data: ReportData }> = ({ data }) => {
       {/* PAGE 1 - COVER PAGE */}
       <Page size="A4" style={[styles.page, styles.coverPage]}>
         {data.agencyLogo && (
-          <Image src={data.agencyLogo} style={styles.coverLogo} alt="Agency logo" />
+          <Image src={data.agencyLogo} style={styles.coverLogo} />
         )}
         
         <Text style={styles.reportTitle}>SEO Performance Report</Text>

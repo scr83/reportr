@@ -164,6 +164,9 @@ export async function getAnalyticsData(
     if (!targetPropertyId) {
       throw new Error('Google Analytics property ID not configured');
     }
+    
+    // Ensure propertyId is a string
+    const propertyIdString = String(targetPropertyId);
 
     if (!client.googleRefreshToken) {
       throw new Error('Google account not connected for this client. Please connect in client settings.');
@@ -179,7 +182,7 @@ export async function getAnalyticsData(
     const metricsToFetch = requestedMetrics && requestedMetrics.length > 0
       ? requestedMetrics
           .map(id => METRIC_MAPPING[id])
-          .filter(Boolean)
+          .filter((name): name is string => Boolean(name))
           .filter(name => validMetrics.includes(name)) // Filter to valid metrics only
           .filter((name, index, arr) => arr.indexOf(name) === index) // Remove duplicates
       : ['totalUsers', 'sessions', 'bounceRate', 'conversions']; // Default metrics
@@ -191,7 +194,7 @@ export async function getAnalyticsData(
 
     // Fetch main metrics
     const mainResponse = await analyticsData.properties.runReport({
-      property: `properties/${targetPropertyId}`,
+      property: `properties/${propertyIdString}`,
       requestBody: {
         dateRanges: [{ startDate, endDate }],
         metrics: metrics
@@ -199,8 +202,8 @@ export async function getAnalyticsData(
     });
 
     // Fetch top landing pages for organic traffic
-    const landingPagesResponse = await analyticsData.properties.runReport({
-      property: `properties/${targetPropertyId}`,
+    const landingPagesResponse = await (analyticsData.properties.runReport as any)({
+      property: `properties/${propertyIdString}`,
       requestBody: {
         dateRanges: [{ startDate, endDate }],
         dimensions: [{ name: 'landingPage' }],
@@ -225,8 +228,8 @@ export async function getAnalyticsData(
     });
 
     // Fetch daily traffic trend
-    const trendResponse = await analyticsData.properties.runReport({
-      property: `properties/${targetPropertyId}`,
+    const trendResponse = await (analyticsData.properties.runReport as any)({
+      property: `properties/${propertyIdString}`,
       requestBody: {
         dateRanges: [{ startDate, endDate }],
         dimensions: [{ name: 'date' }],
@@ -279,7 +282,7 @@ export async function getAnalyticsData(
     if (requestedMetrics?.includes('topLandingPages')) {
       result.topLandingPages = await getTopLandingPages(
         analyticsData,
-        targetPropertyId,
+        propertyIdString,
         startDate,
         endDate
       );
@@ -288,7 +291,7 @@ export async function getAnalyticsData(
     if (requestedMetrics?.includes('deviceBreakdown')) {
       result.deviceBreakdown = await getDeviceBreakdown(
         analyticsData,
-        targetPropertyId,
+        propertyIdString,
         startDate,
         endDate
       );
@@ -321,7 +324,7 @@ export async function getAnalyticsData(
     if (!client.ga4PropertyId && targetPropertyId) {
       await prisma.client.update({
         where: { id: clientId },
-        data: { ga4PropertyId: targetPropertyId }
+        data: { ga4PropertyId: propertyIdString }
       });
     }
 

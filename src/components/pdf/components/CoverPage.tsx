@@ -48,7 +48,6 @@ export function CoverPage({ clientName, reportType, dateRange, branding }: Cover
                 height: 60, 
                 objectFit: 'contain' 
               }}
-              alt={`${branding.name} logo`}
             />
           </View>
         )}
