@@ -463,9 +463,9 @@ export default function GenerateReportPage() {
   }
 
   const renderProgressBar = () => (
-    <div className="flex items-center justify-center mb-8">
+    <div className="flex flex-col sm:flex-row items-center justify-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
       {steps.map((step, index) => (
-        <div key={step.number} className="flex items-center">
+        <div key={step.number} className="flex items-center w-full sm:w-auto">
           <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
             currentStep >= step.number
               ? 'bg-purple-600 border-purple-600 text-white'
@@ -477,14 +477,14 @@ export default function GenerateReportPage() {
               <step.icon className="w-5 h-5" />
             )}
           </div>
-          <div className="ml-3 text-sm">
+          <div className="ml-3 text-sm flex-1">
             <div className={`font-medium ${currentStep >= step.number ? 'text-purple-600' : 'text-gray-400'}`}>
               Step {step.number}
             </div>
             <div className="text-gray-600">{step.title}</div>
           </div>
           {index < steps.length - 1 && (
-            <div className={`w-20 h-0.5 mx-4 ${
+            <div className={`w-20 h-0.5 mx-4 hidden sm:block ${
               currentStep > step.number ? 'bg-purple-600' : 'bg-gray-300'
             }`} />
           )}
@@ -494,7 +494,7 @@ export default function GenerateReportPage() {
   )
 
   const renderStep1 = () => (
-    <Card className="p-8 max-w-2xl mx-auto">
+    <Card className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
       <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
         Report Details
       </Typography>
@@ -625,7 +625,7 @@ export default function GenerateReportPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Start Date
@@ -663,7 +663,7 @@ export default function GenerateReportPage() {
   )
 
   const renderStep2 = () => (
-    <Card className="p-8 max-w-4xl mx-auto">
+    <Card className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
         Import Data
       </Typography>
@@ -749,7 +749,7 @@ export default function GenerateReportPage() {
       {/* GSC Fields */}
       {activeDataTab === 'gsc' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Total Clicks
@@ -777,7 +777,7 @@ export default function GenerateReportPage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Average CTR (%)
@@ -872,7 +872,7 @@ export default function GenerateReportPage() {
   )
 
   const renderStep3 = () => (
-    <Card className="p-8 max-w-4xl mx-auto">
+    <Card className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
         Preview & Generate
       </Typography>
@@ -1022,9 +1022,9 @@ export default function GenerateReportPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
-        <div className="mb-8">
-          <Typography variant="h1" className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 sm:mb-8">
+          <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Generate Report
           </Typography>
           <Typography className="text-gray-600">

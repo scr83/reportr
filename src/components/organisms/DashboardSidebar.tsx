@@ -8,12 +8,21 @@ import {
   Users, 
   FileText, 
   Plus,
-  BarChart3
+  BarChart3,
+  X
 } from 'lucide-react'
 import { Button } from '@/components/atoms'
 import { cn } from '@/lib/utils'
 
-export const DashboardSidebar = () => {
+interface DashboardSidebarProps {
+  mobile?: boolean
+  onClose?: () => void
+}
+
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ 
+  mobile = false, 
+  onClose 
+}) => {
   const pathname = usePathname()
 
   const navigation = [
@@ -34,16 +43,36 @@ export const DashboardSidebar = () => {
     },
   ]
 
+  const handleLinkClick = () => {
+    // Close mobile sidebar when a link is clicked
+    if (mobile && onClose) {
+      onClose()
+    }
+  }
+
   return (
-    <div className="flex h-full w-64 flex-col bg-white border-r border-gray-200">
+    <div className={cn(
+      "flex h-full flex-col bg-white border-r border-gray-200",
+      mobile ? "w-full" : "w-64"
+    )}>
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-1">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-600">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
         </div>
+        {/* Close button for mobile */}
+        {mobile && onClose && (
+          <button
+            onClick={onClose}
+            className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -54,8 +83,9 @@ export const DashboardSidebar = () => {
             <Link
               key={item.name}
               href={item.href as any}
+              onClick={handleLinkClick}
               className={cn(
-                'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px]',
                 isActive
                   ? 'bg-purple-100 text-purple-700'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
@@ -75,9 +105,9 @@ export const DashboardSidebar = () => {
 
       {/* Generate Report Button */}
       <div className="px-4 pb-6">
-        <Link href="/generate-report">
+        <Link href="/generate-report" onClick={handleLinkClick}>
           <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white min-h-[44px]"
             size="md"
           >
             <Plus className="h-4 w-4 mr-2" />

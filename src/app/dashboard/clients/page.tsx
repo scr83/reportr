@@ -336,18 +336,18 @@ export default function ClientsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <div>
-            <Typography variant="h1" className="text-3xl font-bold text-gray-900 mb-2">
+            <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Clients
             </Typography>
             <Typography className="text-gray-600">
               Manage your client websites and SEO reports.
             </Typography>
           </div>
-          <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
+          <Button className="bg-purple-600 hover:bg-purple-700 min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>
@@ -355,14 +355,14 @@ export default function ClientsPage() {
 
         {/* Search Bar */}
         <div className="mb-6">
-          <div className="relative max-w-md">
+          <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search clients by name, domain, or contact..."
+              placeholder="Search clients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none min-h-[44px]"
             />
           </div>
         </div>
@@ -383,9 +383,9 @@ export default function ClientsPage() {
         ) : (
           <>
             {/* Clients Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {filteredClients.map((client) => (
-                <Card key={client.id} className="p-6 hover:shadow-lg transition-shadow">
+                <Card key={client.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
@@ -401,7 +401,7 @@ export default function ClientsPage() {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => handleManageClient(client)}>
+                    <Button variant="ghost" size="sm" className="min-h-[44px] px-4" onClick={() => handleManageClient(client)}>
                       Manage
                     </Button>
                   </div>
@@ -491,11 +491,11 @@ export default function ClientsPage() {
                     )}
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1" 
+                      className="flex-1 min-h-[44px]" 
                       onClick={() => router.push(`/generate-report?clientId=${client.id}`)}
                       disabled={!isFullyConfigured(client)}
                     >
@@ -504,6 +504,7 @@ export default function ClientsPage() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
+                      className="min-h-[44px] sm:flex-shrink-0"
                       onClick={() => handleManageProperties(client)}
                     >
                       Edit

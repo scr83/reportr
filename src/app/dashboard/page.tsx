@@ -126,10 +126,10 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-8">
-          <Typography variant="h1" className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-6 sm:mb-8">
+          <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Dashboard
           </Typography>
           <Typography className="text-gray-600">
@@ -138,7 +138,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {loading ? (
             // Loading skeleton
             Array.from({ length: 3 }).map((_, index) => (
@@ -173,11 +173,11 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Column 1: Recent Reports */}
           <div className="lg:col-span-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Recent Reports</h2>
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Recent Reports</h2>
               <Link
                 href="/reports"
                 className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
@@ -253,8 +253,8 @@ export default function DashboardPage() {
 
           {/* Column 2: Active Clients */}
           <div className="lg:col-span-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Active Clients</h2>
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Active Clients</h2>
               <Link 
                 href="/dashboard/clients"
                 className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
@@ -319,8 +319,8 @@ export default function DashboardPage() {
 
           {/* Column 3: Quick Actions */}
           <div className="lg:col-span-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Quick Actions</h2>
             </div>
 
             <div className="space-y-3">
