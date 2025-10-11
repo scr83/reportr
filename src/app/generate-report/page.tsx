@@ -460,17 +460,17 @@ export default function GenerateReportPage() {
           agencyName: pdfReportData.branding?.name,
           agencyLogo: pdfReportData.branding?.logo,
           gscData: {
-            clicks: pdfReportData.gscData?.clicks || 0,
-            impressions: pdfReportData.gscData?.impressions || 0,
-            ctr: pdfReportData.gscData?.ctr || 0,
-            position: pdfReportData.gscData?.position || 0,
+            clicks: parseFloat(pdfReportData.gscData?.totalClicks || '0'),
+            impressions: parseFloat(pdfReportData.gscData?.totalImpressions || '0'),
+            ctr: parseFloat(pdfReportData.gscData?.averageCTR || '0'),
+            position: parseFloat(pdfReportData.gscData?.averagePosition || '0'),
             topQueries: pdfReportData.gscData?.topQueries
           },
           ga4Data: {
-            users: pdfReportData.ga4Data?.users || 0,
-            sessions: pdfReportData.ga4Data?.sessions || 0,
-            bounceRate: pdfReportData.ga4Data?.bounceRate || 0,
-            conversions: pdfReportData.ga4Data?.conversions || 0
+            users: parseFloat(pdfReportData.ga4Data?.users || '0'),
+            sessions: parseFloat(pdfReportData.ga4Data?.sessions || '0'),
+            bounceRate: parseFloat(pdfReportData.ga4Data?.bounceRate || '0'),
+            conversions: parseFloat(pdfReportData.ga4Data?.conversions || '0')
           }
         })
       })
