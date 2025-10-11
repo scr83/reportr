@@ -25,9 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get base URL for absolute redirects
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://reportr-one.vercel.app' 
-      : 'http://localhost:3003';
+    const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin;
     
     if (error) {
       console.error('OAuth error from Google:', error);
@@ -40,9 +38,8 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('Creating OAuth2 client...');
-    const redirectUri = process.env.NODE_ENV === 'production'
-      ? 'https://reportr-one.vercel.app/api/auth/google/callback'
-      : 'http://localhost:3003/api/auth/google/callback';
+    // Use same logic as authorize endpoint for consistency
+    const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
     console.log('OAuth Config:', {
       clientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
