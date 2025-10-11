@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useSession, signIn } from 'next-auth/react'
 import { 
   Container, 
   Typography, 
@@ -26,6 +27,7 @@ import {
 
 export default function HomePage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
 
   const features = [
     {
@@ -90,10 +92,32 @@ export default function HomePage() {
             </Typography>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="px-8 py-4 text-lg" onClick={() => alert('Authentication coming soon!')}>
-                Start Free Trial
-                <Icon icon={ArrowRight} size="sm" className="ml-2" />
-              </Button>
+              {status === 'loading' ? (
+                // Loading state
+                <Button size="lg" className="px-8 py-4 text-lg" disabled>
+                  Loading...
+                </Button>
+              ) : session ? (
+                // If logged in, go to dashboard
+                <Button 
+                  size="lg" 
+                  className="px-8 py-4 text-lg" 
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Go to Dashboard
+                  <Icon icon={ArrowRight} size="sm" className="ml-2" />
+                </Button>
+              ) : (
+                // If not logged in, sign up
+                <Button 
+                  size="lg" 
+                  className="px-8 py-4 text-lg" 
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                  <Icon icon={ArrowRight} size="sm" className="ml-2" />
+                </Button>
+              )}
               <Button variant="secondary" size="lg" className="px-8 py-4 text-lg">
                 Watch Demo
               </Button>
@@ -171,10 +195,29 @@ export default function HomePage() {
 
               <Spacer size="lg" />
 
-              <Button size="xl" className="px-12 py-6 text-lg font-semibold" onClick={() => alert('Authentication coming soon!')}>
-                Get Started Today
-                <Icon icon={ArrowRight} size="md" className="ml-3" />
-              </Button>
+              {status === 'loading' ? (
+                <Button size="xl" className="px-12 py-6 text-lg font-semibold" disabled>
+                  Loading...
+                </Button>
+              ) : session ? (
+                <Button 
+                  size="xl" 
+                  className="px-12 py-6 text-lg font-semibold" 
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Go to Dashboard
+                  <Icon icon={ArrowRight} size="md" className="ml-3" />
+                </Button>
+              ) : (
+                <Button 
+                  size="xl" 
+                  className="px-12 py-6 text-lg font-semibold" 
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Get Started Today
+                  <Icon icon={ArrowRight} size="md" className="ml-3" />
+                </Button>
+              )}
             </div>
 
             {/* Visual */}
@@ -211,9 +254,29 @@ export default function HomePage() {
             </Typography>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg" className="px-8 py-4 text-lg" onClick={() => alert('Authentication coming soon!')}>
-                Start Free Trial
-              </Button>
+              {status === 'loading' ? (
+                <Button variant="secondary" size="lg" className="px-8 py-4 text-lg" disabled>
+                  Loading...
+                </Button>
+              ) : session ? (
+                <Button 
+                  variant="secondary" 
+                  size="lg" 
+                  className="px-8 py-4 text-lg"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Go to Dashboard
+                </Button>
+              ) : (
+                <Button 
+                  variant="secondary" 
+                  size="lg" 
+                  className="px-8 py-4 text-lg"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                </Button>
+              )}
               <Button variant="ghost" size="lg" className="px-8 py-4 text-lg text-white hover:bg-white/10">
                 Schedule Demo
               </Button>

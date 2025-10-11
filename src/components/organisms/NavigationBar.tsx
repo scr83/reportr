@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession, signIn } from 'next-auth/react'
 import { Menu, Search, Bell } from 'lucide-react'
 import { 
   Button, 
@@ -23,6 +25,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   showMobileMenu = true,
   className,
 }) => {
+  const router = useRouter()
+  const { data: session, status } = useSession()
 
   return (
     <nav className={cn(
@@ -75,12 +79,39 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
             {/* Auth buttons */}
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" onClick={() => alert('Authentication coming soon!')}>
-                Sign In
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => alert('Authentication coming soon!')}>
-                Get Started
-              </Button>
+              {status === 'loading' ? (
+                // Loading state
+                <Button variant="ghost" size="sm" disabled>
+                  Loading...
+                </Button>
+              ) : session ? (
+                // If logged in, show dashboard link
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Dashboard
+                </Button>
+              ) : (
+                // If not logged in, show auth buttons
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
