@@ -453,7 +453,7 @@ export default function GenerateReportPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          clientId: selectedClient?.id,
+          clientId: reportData.clientId,
           clientName: pdfReportData.clientName,
           startDate: pdfReportData.startDate,
           endDate: pdfReportData.endDate,
