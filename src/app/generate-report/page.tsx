@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Select } from '@/components/atoms'
 import { MetricSelectorModal } from '@/components/organisms'
 import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
-import { generateAndDownloadPDF, checkPDFSupport, getReportTypeDescription, estimatePDFSize } from '@/lib/pdf-generator'
+import { checkPDFSupport, getReportTypeDescription, estimatePDFSize } from '@/lib/pdf-generator'
 import { MOCK_BRANDING, MOCK_EXECUTIVE_REPORT, MOCK_STANDARD_REPORT, MOCK_CUSTOM_REPORT } from '@/lib/mock-report-data'
 import { ReportData } from '@/types/report'
 
@@ -445,13 +445,54 @@ export default function GenerateReportPage() {
         pdfReportData.clientName = clientName
       }
       
-      // Generate and download PDF
-      const result = await generateAndDownloadPDF(pdfReportData)
-      
-      if (result.success) {
-        alert('PDF report generated and downloaded successfully! 🎉')
+      // Generate and download PDF via server API (saves to database)
+      console.log('🚀 Calling server-side PDF generation API...')
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clientId: selectedClient?.id,
+          clientName: pdfReportData.clientName,
+          startDate: pdfReportData.startDate,
+          endDate: pdfReportData.endDate,
+          agencyName: pdfReportData.branding?.name,
+          agencyLogo: pdfReportData.branding?.logo,
+          gscData: {
+            clicks: pdfReportData.gscData?.clicks || 0,
+            impressions: pdfReportData.gscData?.impressions || 0,
+            ctr: pdfReportData.gscData?.ctr || 0,
+            position: pdfReportData.gscData?.position || 0,
+            topQueries: pdfReportData.gscData?.topQueries
+          },
+          ga4Data: {
+            users: pdfReportData.ga4Data?.users || 0,
+            sessions: pdfReportData.ga4Data?.sessions || 0,
+            bounceRate: pdfReportData.ga4Data?.bounceRate || 0,
+            conversions: pdfReportData.ga4Data?.conversions || 0
+          }
+        })
+      })
+
+      if (response.ok) {
+        // Server returns PDF as blob for immediate download
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.href = url
+        a.download = `${pdfReportData.clientName.replace(/[^a-zA-Z0-9]/g, '_')}_SEO_Report.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        console.log('✅ PDF generated, downloaded, and saved to database!')
+        alert('PDF report generated and downloaded successfully! 🎉\n\nThe report has been saved to your Reports Library.')
       } else {
-        throw new Error(result.error || 'Failed to generate PDF')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate PDF')
       }
       
     } catch (error) {
