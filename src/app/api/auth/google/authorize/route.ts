@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
   
   const scopes = [
     'https://www.googleapis.com/auth/webmasters.readonly',
-    'https://www.googleapis.com/auth/analytics.readonly'
+    'https://www.googleapis.com/auth/analytics.readonly',
+    'openid',
+    'email',
+    'profile'
   ];
   
   const authUrl = oauth2Client.generateAuthUrl({

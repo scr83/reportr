@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-10-10T15:57:58.771Z",
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "warnings": 0,
+    "total": 10
+  },
+  "overallStatus": "PASS",
+  "avgDuration": 137,
+  "results": [
+    {
+      "testName": "Executive Summary Report",
+      "status": "PASS",
+      "duration": 231,
+      "fileSize": 11314,
+      "fileName": "executive-test-client-executive-executive-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Standard SEO Report",
+      "status": "PASS",
+      "duration": 264,
+      "fileSize": 25470,
+      "fileName": "standard-test-client-standard-standard-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Custom Report (5 metrics)",
+      "status": "PASS",
+      "duration": 152,
+      "fileSize": 17967,
+      "fileName": "custom-5-test-client-custom-5-custom-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Custom Report (15 metrics)",
+      "status": "PASS",
+      "duration": 182,
+      "fileSize": 22535,
+      "fileName": "custom-15-test-client-custom-15-custom-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "No Data Edge Case",
+      "status": "PASS",
+      "duration": 94,
+      "fileSize": 11315,
+      "fileName": "no-data-empty-data-client-executive-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Large Numbers Edge Case",
+      "status": "PASS",
+      "duration": 170,
+      "fileSize": 23310,
+      "fileName": "large-numbers-large-numbers-client-standard-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Special Characters Edge Case",
+      "status": "PASS",
+      "duration": 92,
+      "fileSize": 11563,
+      "fileName": "special-chars-o-brien---sons---special-characters-testing-co--executive-report-2024-10-01-2025-10-10.pdf"
+    },
+    {
+      "testName": "Validation Error Handling",
+      "status": "PASS",
+      "duration": 0,
+      "validationErrors": 5
+    },
+    {
+      "testName": "Performance Test",
+      "status": "PASS",
+      "duration": 188,
+      "generationTime": 188
+    },
+    {
+      "testName": "File Size Estimation",
+      "status": "PASS",
+      "duration": 0,
+      "executive": "~150KB",
+      "standard": "~366KB",
+      "custom": "~308KB"
+    }
+  ]
+}

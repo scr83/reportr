@@ -1,4 +1,3 @@
-import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { getValidAccessToken, GoogleTokenError, createAuthenticatedGoogleClient } from '@/lib/utils/refresh-google-token';
 import { prisma } from '@/lib/prisma';
 import { google } from 'googleapis';
@@ -74,26 +73,28 @@ export interface AnalyticsData {
 
 // Fetch landing pages separately (requires dimension query)
 async function getTopLandingPages(
-  analyticsDataClient: BetaAnalyticsDataClient,
+  analyticsData: any,
   propertyId: string,
   startDate: string,
   endDate: string
 ) {
   try {
-    const [response] = await analyticsDataClient.runReport({
+    const response = await analyticsData.properties.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'landingPage' }],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'totalUsers' },
-        { name: 'bounceRate' }
-      ],
-      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
-      limit: 10
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'landingPage' }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'totalUsers' },
+          { name: 'bounceRate' }
+        ],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 10
+      }
     });
 
-    return response.rows?.map(row => ({
+    return response.data.rows?.map((row: any) => ({
       page: row.dimensionValues?.[0]?.value || '',
       sessions: parseInt(row.metricValues?.[0]?.value || '0'),
       users: parseInt(row.metricValues?.[1]?.value || '0'),
@@ -107,21 +108,23 @@ async function getTopLandingPages(
 
 // Fetch device breakdown separately
 async function getDeviceBreakdown(
-  analyticsDataClient: BetaAnalyticsDataClient,
+  analyticsData: any,
   propertyId: string,
   startDate: string,
   endDate: string
 ) {
   try {
-    const [response] = await analyticsDataClient.runReport({
+    const response = await analyticsData.properties.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'deviceCategory' }],
-      metrics: [{ name: 'sessions' }]
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'deviceCategory' }],
+        metrics: [{ name: 'sessions' }]
+      }
     });
 
     const breakdown: Record<string, number> = {};
-    response.rows?.forEach(row => {
+    response.data.rows?.forEach((row: any) => {
       const device = row.dimensionValues?.[0]?.value || 'unknown';
       const sessions = parseInt(row.metricValues?.[0]?.value || '0');
       breakdown[device] = sessions;
@@ -166,22 +169,18 @@ export async function getAnalyticsData(
       throw new Error('Google account not connected for this client. Please connect in client settings.');
     }
 
-    // Use proper OAuth2 credentials format
-    const analyticsDataClient = new BetaAnalyticsDataClient({
-      credentials: {
-        type: 'authorized_user',
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        refresh_token: client.googleRefreshToken
-        // access_token not needed - library will refresh automatically
-      }
-    });
+    // Create authenticated Google client using working method
+    const auth = await createAuthenticatedGoogleClient(clientId);
+    const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
 
     // Map requested metric IDs to GA4 metric names
+    const validMetrics = ['totalUsers', 'sessions', 'bounceRate', 'conversions', 'newUsers', 'engagedSessions', 'engagementRate', 'sessionsPerUser', 'screenPageViewsPerSession', 'averageSessionDuration', 'eventCount', 'screenPageViews', 'ecommercePurchases', 'totalRevenue'];
+    
     const metricsToFetch = requestedMetrics && requestedMetrics.length > 0
       ? requestedMetrics
           .map(id => METRIC_MAPPING[id])
           .filter(Boolean)
+          .filter(name => validMetrics.includes(name)) // Filter to valid metrics only
           .filter((name, index, arr) => arr.indexOf(name) === index) // Remove duplicates
       : ['totalUsers', 'sessions', 'bounceRate', 'conversions']; // Default metrics
 
@@ -191,64 +190,70 @@ export async function getAnalyticsData(
     const metrics = metricsToFetch.map(name => ({ name }));
 
     // Fetch main metrics
-    const [mainResponse] = await analyticsDataClient.runReport({
+    const mainResponse = await analyticsData.properties.runReport({
       property: `properties/${targetPropertyId}`,
-      dateRanges: [{ startDate, endDate }],
-      metrics: metrics
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        metrics: metrics
+      }
     });
 
     // Fetch top landing pages for organic traffic
-    const [landingPagesResponse] = await analyticsDataClient.runReport({
+    const landingPagesResponse = await analyticsData.properties.runReport({
       property: `properties/${targetPropertyId}`,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'landingPage' }],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'activeUsers' },
-        { name: 'bounceRate' },
-        { name: 'averageSessionDuration' }
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: 'sessionDefaultChannelGroup',
-          stringFilter: {
-            matchType: 'EXACT',
-            value: 'Organic Search'
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'landingPage' }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'activeUsers' },
+          { name: 'bounceRate' },
+          { name: 'averageSessionDuration' }
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: 'sessionDefaultChannelGroup',
+            stringFilter: {
+              matchType: 'EXACT',
+              value: 'Organic Search'
+            }
           }
-        }
-      },
-      limit: 20,
-      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }]
+        },
+        limit: 20,
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }]
+      }
     });
 
     // Fetch daily traffic trend
-    const [trendResponse] = await analyticsDataClient.runReport({
+    const trendResponse = await analyticsData.properties.runReport({
       property: `properties/${targetPropertyId}`,
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [{ name: 'date' }],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'activeUsers' }
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: 'sessionDefaultChannelGroup',
-          stringFilter: {
-            matchType: 'EXACT',
-            value: 'Organic Search'
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'date' }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'activeUsers' }
+        ],
+        dimensionFilter: {
+          filter: {
+            fieldName: 'sessionDefaultChannelGroup',
+            stringFilter: {
+              matchType: 'EXACT',
+              value: 'Organic Search'
+            }
           }
-        }
-      },
-      orderBys: [{ dimension: { dimensionName: 'date' } }]
+        },
+        orderBys: [{ dimension: { dimensionName: 'date' } }]
+      }
     });
 
     // Process response and map back to frontend IDs
     const result: Record<string, any> = {};
 
-    if (mainResponse.rows && mainResponse.rows.length > 0) {
-      const row = mainResponse.rows[0];
+    if (mainResponse.data.rows && mainResponse.data.rows.length > 0) {
+      const row = mainResponse.data.rows[0];
       
-      mainResponse.metricHeaders?.forEach((header, index) => {
+      mainResponse.data.metricHeaders?.forEach((header: any, index: number) => {
         const ga4MetricName = header.name;
         const value = row?.metricValues?.[index]?.value;
         
@@ -273,7 +278,7 @@ export async function getAnalyticsData(
     // Handle special metrics that require separate API calls
     if (requestedMetrics?.includes('topLandingPages')) {
       result.topLandingPages = await getTopLandingPages(
-        analyticsDataClient,
+        analyticsData,
         targetPropertyId,
         startDate,
         endDate
@@ -282,7 +287,7 @@ export async function getAnalyticsData(
 
     if (requestedMetrics?.includes('deviceBreakdown')) {
       result.deviceBreakdown = await getDeviceBreakdown(
-        analyticsDataClient,
+        analyticsData,
         targetPropertyId,
         startDate,
         endDate
@@ -297,7 +302,7 @@ export async function getAnalyticsData(
     const avgSessionDuration = result.avgSessionDuration || 0;
 
     // Parse landing pages
-    const topLandingPages: AnalyticsLandingPage[] = landingPagesResponse.rows?.map(row => ({
+    const topLandingPages: AnalyticsLandingPage[] = landingPagesResponse.data.rows?.map((row: any) => ({
       page: row.dimensionValues?.[0]?.value || '',
       sessions: parseInt(row.metricValues?.[0]?.value || '0'),
       users: parseInt(row.metricValues?.[1]?.value || '0'),
@@ -306,7 +311,7 @@ export async function getAnalyticsData(
     })) || [];
 
     // Parse traffic trend
-    const trafficTrend: AnalyticsTrafficData[] = trendResponse.rows?.map(row => ({
+    const trafficTrend: AnalyticsTrafficData[] = trendResponse.data.rows?.map((row: any) => ({
       date: row.dimensionValues?.[0]?.value || '',
       sessions: parseInt(row.metricValues?.[0]?.value || '0'),
       users: parseInt(row.metricValues?.[1]?.value || '0')
@@ -346,12 +351,22 @@ export async function getAnalyticsData(
     }
     
     // Handle specific Google API errors
-    if (error.code === 403) {
+    if (error.code === 400 && error.message?.includes('not a valid metric')) {
+      console.warn('Some metrics were invalid, filtering and retrying...');
+      // Try again with just basic metrics
+      return await getAnalyticsData(clientId, startDate, endDate, propertyId, ['users', 'sessions', 'bounceRate']);
+    }
+    
+    if (error.code === 403 || error.status === 403) {
       throw new Error('Access denied to Google Analytics. Please ensure you have access to the property.');
     }
     
-    if (error.code === 404) {
+    if (error.code === 404 || error.status === 404) {
       throw new Error('Google Analytics property not found. Please verify the property ID.');
+    }
+    
+    if (error.code === 401 || error.status === 401) {
+      throw new Error('Google authentication failed. Please reconnect your Google account.');
     }
     
     throw new Error(`Failed to fetch Google Analytics data: ${error.message}`);

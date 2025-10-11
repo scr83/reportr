@@ -118,8 +118,13 @@ export async function createAuthenticatedGoogleClient(clientId: string) {
     process.env.GOOGLE_CLIENT_SECRET
   );
   
+  const client = await prisma.client.findUnique({
+    where: { id: clientId }
+  });
+
   oauth2Client.setCredentials({
-    access_token: accessToken
+    access_token: accessToken,
+    refresh_token: client?.googleRefreshToken
   });
   
   return oauth2Client;
