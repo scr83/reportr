@@ -60,25 +60,34 @@ export default function WelcomePage() {
   const isFormValid = formData.role && formData.clientCount
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-6">
+          <div className="text-center mb-6">
+            <Typography variant="caption" className="text-slate-600 mb-2 block">
+              Step 1 of 3
+            </Typography>
+            <div className="w-full bg-slate-200 rounded-full h-2 mb-6">
+              <div className="bg-[#9233ea] h-2 rounded-full" style={{ width: '33%' }}></div>
+            </div>
+          </div>
+          
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#9233ea] rounded-full mb-6">
             <span className="text-2xl">👋</span>
           </div>
-          <Typography variant="h1" className="text-white mb-4">
+          <Typography variant="h1" className="text-slate-900 mb-4">
             Welcome to Reportr
           </Typography>
-          <Typography variant="lead" className="text-slate-400">
+          <Typography variant="lead" className="text-slate-600">
             Let&apos;s get you set up with professional SEO reports in under 3 minutes
           </Typography>
         </div>
 
-        <Card className="bg-slate-800 border border-slate-700 p-8">
+        <Card className="bg-white border border-slate-200 shadow-sm p-8">
           <CardContent>
             <div className="space-y-8">
               <div>
-                <Typography variant="h3" className="text-white mb-6">
+                <Typography variant="h3" className="text-slate-900 mb-6">
                   What best describes your role?
                 </Typography>
                 <div className="space-y-4">
@@ -91,14 +100,14 @@ export default function WelcomePage() {
                       description={option.description}
                       checked={formData.role === option.value}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                      className="text-white"
+                      className="text-slate-900"
                     />
                   ))}
                 </div>
               </div>
 
               <div>
-                <Typography variant="h3" className="text-white mb-6">
+                <Typography variant="h3" className="text-slate-900 mb-6">
                   How many clients do you typically work with?
                 </Typography>
                 <div className="grid grid-cols-2 gap-4">
@@ -110,7 +119,7 @@ export default function WelcomePage() {
                       label={option.label}
                       checked={formData.clientCount === option.value}
                       onChange={(e) => setFormData({ ...formData, clientCount: e.target.value })}
-                      className="text-white"
+                      className="text-slate-900"
                     />
                   ))}
                 </div>
@@ -121,7 +130,7 @@ export default function WelcomePage() {
                   variant="outline"
                   size="lg"
                   onClick={() => router.back()}
-                  className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                  className="flex-1 border-slate-300 text-slate-700 hover:bg-slate-50"
                 >
                   Back
                 </Button>
@@ -130,7 +139,7 @@ export default function WelcomePage() {
                   size="lg"
                   onClick={handleContinue}
                   disabled={!isFormValid}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
+                  className="flex-1 bg-[#9233ea] hover:bg-[#7c2bc7] text-white"
                 >
                   Continue
                 </Button>
@@ -140,11 +149,10 @@ export default function WelcomePage() {
         </Card>
 
         <div className="flex justify-center mt-8">
-          <div className="flex space-x-2">
-            <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
-            <div className="w-3 h-3 bg-slate-600 rounded-full"></div>
-            <div className="w-3 h-3 bg-slate-600 rounded-full"></div>
-            <div className="w-3 h-3 bg-slate-600 rounded-full"></div>
+          <div className="flex gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#9233ea]"></div>
+            <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+            <div className="w-2 h-2 rounded-full bg-slate-300"></div>
           </div>
         </div>
       </div>
