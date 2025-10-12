@@ -74,12 +74,20 @@ export default function ClientsPage() {
   useEffect(() => {
     fetchClients()
     
-    // Handle OAuth callback results
+    // Handle OAuth callback results and onboarding completion
     const urlParams = new URLSearchParams(window.location.search)
     const connected = urlParams.get('connected')
     const errorParam = urlParams.get('error')
+    const onboarding = urlParams.get('onboarding')
     
-    if (connected === 'true') {
+    if (onboarding === 'complete') {
+      setSuccessMessage('Welcome! Your first client has been added. Connect Google to start generating reports! 🎉')
+      setShowSuccess(true)
+      setError('')
+      setTimeout(() => setShowSuccess(false), 8000)
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard/clients')
+    } else if (connected === 'true') {
       setSuccessMessage('Google account connected successfully! 🎉')
       setShowSuccess(true)
       setError('')
