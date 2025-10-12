@@ -1,7 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import { prisma } from '@/lib/prisma';
 
 declare module 'next-auth' {
   interface Session {
@@ -15,43 +13,28 @@ declare module 'next-auth' {
 }
 
 export const authOptions: NextAuthOptions = {
-  // Add PrismaAdapter for database integration and auto-user creation
-  adapter: PrismaAdapter(prisma) as any,
-  
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      // Allow account linking
-      allowDangerousEmailAccountLinking: true,
-    }),
+    })
   ],
-  
   session: {
-    strategy: 'database', // Changed from 'jwt' to 'database' for user persistence
+    strategy: 'jwt'
   },
-  
   callbacks: {
-    // Session callback - add user ID
-    session: async ({ session, user }) => {
-      if (session?.user) {
-        session.user.id = user.id;
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.sub!,
+      },
+    }),
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.sub = user.id
       }
-      return session;
-    },
-    
-    // Redirect callback - handle post-login routing
-    async redirect({ url, baseUrl }) {
-      // If user just signed in, check if they need onboarding
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      return baseUrl;
+      return token
     },
   },
-  
-  pages: {
-    signIn: '/',
-    error: '/auth/error',
-  },
-};
+}
