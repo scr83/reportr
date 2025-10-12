@@ -1,95 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Button } from '@/components/atoms/Button'
-import { Input } from '@/components/atoms/Input'
 import { Typography } from '@/components/atoms/Typography'
 import { Card, CardContent } from '@/components/atoms/Card'
 
-export default function AddFirstClientPage() {
+export default function SignInPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const [formData, setFormData] = useState({
-    name: '',
-    domain: '',
-    contactEmail: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
 
-  // Debug authentication state
+  // If already authenticated, redirect to complete onboarding
   useEffect(() => {
-    console.log('=== ONBOARDING STEP 3 DEBUG ===')
-    console.log('Session status:', status)
-    console.log('Session data:', session)
-    console.log('User ID:', session?.user?.id)
-    console.log('User email:', session?.user?.email)
-    console.log('User name:', session?.user?.name)
-    console.log('==================================')
-  }, [session, status])
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (error) setError('') // Clear error when user starts typing
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Wait for session to load
-    if (status === 'loading') {
-      setError('Please wait while we verify your session...')
-      return
+    if (status === 'authenticated' && session) {
+      // User just signed in, complete onboarding
+      router.push('/onboarding/complete')
     }
-    
-    // Check if user is authenticated
-    if (status === 'unauthenticated' || !session) {
-      setError('You must be logged in to create a client. Please sign in and try again.')
-      return
-    }
-    
-    setIsSubmitting(true)
-    setError('')
+  }, [status, session, router])
 
-    try {
-      // Create client in database via API
-      const response = await fetch('/api/clients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // CRITICAL: Include cookies for authentication
-        body: JSON.stringify({
-          name: formData.name,
-          domain: formData.domain,
-          contactEmail: formData.contactEmail || undefined,
-        }),
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to create client')
-      }
-
-      const client = await response.json()
-
-      // Redirect to clients page with success flag
-      router.push('/dashboard/clients?onboarding=complete')
-    } catch (error) {
-      console.error('Error creating client:', error)
-      setError(error instanceof Error ? error.message : 'Failed to create client')
-      setIsSubmitting(false)
-    }
+  const handleSignIn = async () => {
+    await signIn('google', {
+      callbackUrl: '/onboarding/complete'
+    })
   }
 
   const handleBack = () => {
     router.push('/onboarding/connect-client')
   }
-
-  const isFormValid = formData.name.trim() && formData.domain.trim()
-  const canSubmit = isFormValid && status === 'authenticated' && !!session
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
@@ -110,112 +48,97 @@ export default function AddFirstClientPage() {
             {/* Icon */}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
-                <span className="text-3xl">📊</span>
+                <span className="text-3xl">🔐</span>
               </div>
             </div>
 
             {/* Header */}
             <Typography variant="h1" className="text-slate-900 text-center mb-2">
-              Add Your First Client
+              Create Your Account
             </Typography>
             <Typography variant="lead" className="text-slate-600 text-center mb-8">
-              Let&apos;s set up the first website you want to track
+              Sign in with Google to complete your setup
             </Typography>
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Client Name */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Client Name *
-                </label>
-                <Input
-                  type="text"
-                  required
-                  placeholder="e.g., Acme Corp"
-                  value={formData.name}
-                  onChange={(value) => handleInputChange('name', value)}
-                  className="w-full bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-[#9233ea] focus:ring-[#9233ea]"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              {/* Website URL */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Website URL *
-                </label>
-                <Input
-                  type="url"
-                  required
-                  placeholder="https://example.com"
-                  value={formData.domain}
-                  onChange={(value) => handleInputChange('domain', value)}
-                  className="w-full bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-[#9233ea] focus:ring-[#9233ea]"
-                  disabled={isSubmitting}
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  Include https:// or http://
-                </p>
-              </div>
-
-              {/* Contact Email */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Contact Email (optional)
-                </label>
-                <Input
-                  type="email"
-                  placeholder="client@example.com"
-                  value={formData.contactEmail}
-                  onChange={(value) => handleInputChange('contactEmail', value)}
-                  className="w-full bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-[#9233ea] focus:ring-[#9233ea]"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              {/* Info Box */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-[#9233ea] text-white rounded-full text-sm">
-                    💡
-                  </span>
-                  <Typography variant="body" className="text-slate-700 text-sm">
-                    After adding, you&apos;ll connect Google Search Console and Analytics to start generating reports
+            {/* Benefits */}
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <div>
+                  <Typography variant="body" className="text-slate-700">
+                    <strong>Secure authentication</strong> - Your data is protected
                   </Typography>
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  onClick={handleBack}
-                  className="flex-1 border-slate-300 text-slate-700 hover:bg-slate-50"
-                  disabled={isSubmitting}
-                >
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={!canSubmit || isSubmitting}
-                  loading={isSubmitting || status === 'loading'}
-                  className="flex-1 bg-[#9233ea] hover:bg-[#7c2bc7] text-white disabled:opacity-50"
-                >
-                  {status === 'loading' ? 'Verifying session...' : isSubmitting ? 'Adding Client...' : 'Add Client & Continue →'}
-                </Button>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <div>
+                  <Typography variant="body" className="text-slate-700">
+                    <strong>Quick setup</strong> - No password required
+                  </Typography>
+                </div>
               </div>
-            </form>
+
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <div>
+                  <Typography variant="body" className="text-slate-700">
+                    <strong>Easy access</strong> - Connect Google services automatically
+                  </Typography>
+                </div>
+              </div>
+            </div>
+
+            {/* Sign In Button */}
+            <Button
+              size="lg"
+              onClick={handleSignIn}
+              className="w-full bg-[#9233ea] hover:bg-[#7c2bc7] text-white mb-4"
+              loading={status === 'loading'}
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Continue with Google
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleBack}
+              className="w-full border-slate-300 text-slate-700 hover:bg-slate-50"
+            >
+              Back
+            </Button>
+
+            {/* Info */}
+            <div className="mt-6 text-center">
+              <Typography variant="caption" className="text-slate-500">
+                By continuing, you agree to our Terms of Service and Privacy Policy
+              </Typography>
+            </div>
           </CardContent>
         </Card>
 
