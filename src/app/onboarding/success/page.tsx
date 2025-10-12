@@ -37,6 +37,19 @@ export default function AddFirstClientPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Wait for session to load
+    if (status === 'loading') {
+      setError('Please wait while we verify your session...')
+      return
+    }
+    
+    // Check if user is authenticated
+    if (status === 'unauthenticated' || !session) {
+      setError('You must be logged in to create a client. Please sign in and try again.')
+      return
+    }
+    
     setIsSubmitting(true)
     setError('')
 
@@ -76,6 +89,7 @@ export default function AddFirstClientPage() {
   }
 
   const isFormValid = formData.name.trim() && formData.domain.trim()
+  const canSubmit = isFormValid && status === 'authenticated' && !!session
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
@@ -194,11 +208,11 @@ export default function AddFirstClientPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={!isFormValid || isSubmitting}
-                  loading={isSubmitting}
+                  disabled={!canSubmit || isSubmitting}
+                  loading={isSubmitting || status === 'loading'}
                   className="flex-1 bg-[#9233ea] hover:bg-[#7c2bc7] text-white disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Adding Client...' : 'Add Client & Continue →'}
+                  {status === 'loading' ? 'Verifying session...' : isSubmitting ? 'Adding Client...' : 'Add Client & Continue →'}
                 </Button>
               </div>
             </form>
