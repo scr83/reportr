@@ -5,27 +5,14 @@ import { prisma } from '@/lib/prisma'
 export async function getCurrentUser() {
   const session = await getServerSession(authOptions)
   
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return null
   }
 
-  // Try to find existing user
-  let user = await prisma.user.findUnique({
-    where: { email: session.user.email }
+  // With database session strategy, we can directly use the user ID
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
   })
-
-  // If user doesn't exist, create them (auto-registration)
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: session.user.email,
-        name: session.user.name,
-        image: session.user.image,
-        companyName: session.user.name ? `${session.user.name}'s Agency` : 'My Agency'
-      }
-    })
-    console.log('Auto-created user record:', user.id, user.email)
-  }
 
   return user
 }
