@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
+    "@auth/prisma-adapter": "^2.11.0",
     "@google-analytics/admin": "^9.0.0",
     "@google-analytics/data": "^5.2.0",
     "@prisma/client": "^5.7.0",
