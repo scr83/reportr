@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/atoms/Button'
 import { Input } from '@/components/atoms/Input'
 import { Typography } from '@/components/atoms/Typography'
@@ -9,6 +10,7 @@ import { Card, CardContent } from '@/components/atoms/Card'
 
 export default function AddFirstClientPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [formData, setFormData] = useState({
     name: '',
     domain: '',
@@ -16,6 +18,17 @@ export default function AddFirstClientPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  // Debug authentication state
+  useEffect(() => {
+    console.log('=== ONBOARDING STEP 3 DEBUG ===')
+    console.log('Session status:', status)
+    console.log('Session data:', session)
+    console.log('User ID:', session?.user?.id)
+    console.log('User email:', session?.user?.email)
+    console.log('User name:', session?.user?.name)
+    console.log('==================================')
+  }, [session, status])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -34,6 +47,7 @@ export default function AddFirstClientPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // CRITICAL: Include cookies for authentication
         body: JSON.stringify({
           name: formData.name,
           domain: formData.domain,
