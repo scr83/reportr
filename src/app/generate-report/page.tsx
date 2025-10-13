@@ -895,7 +895,7 @@ export default function GenerateReportPage() {
                     <input
                       type="text"
                       value={formData[field.id] || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))
+                      onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
                       placeholder={field.placeholder}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
