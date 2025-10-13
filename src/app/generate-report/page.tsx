@@ -566,11 +566,11 @@ export default function GenerateReportPage() {
               value={reportData.clientId}
               onChange={(e) => {
                 const selectedClient = clients.find(c => c.id === e.target.value)
-                setReportData({ 
-                  ...reportData, 
+                setReportData(prev => ({ 
+                  ...prev, 
                   clientId: e.target.value,
                   client: selectedClient?.name || ''
-                })
+                }))
               }}
               className="w-full"
             >
@@ -682,7 +682,7 @@ export default function GenerateReportPage() {
             <Input
               type="date"
               value={reportData.startDate}
-              onChange={(value) => setReportData({ ...reportData, startDate: value })}
+              onChange={(value) => setReportData(prev => ({ ...prev, startDate: value }))}
             />
           </div>
           <div>
@@ -692,7 +692,7 @@ export default function GenerateReportPage() {
             <Input
               type="date"
               value={reportData.endDate}
-              onChange={(value) => setReportData({ ...reportData, endDate: value })}
+              onChange={(value) => setReportData(prev => ({ ...prev, endDate: value }))}
             />
           </div>
         </div>
@@ -805,10 +805,10 @@ export default function GenerateReportPage() {
               </label>
               <Input
                 value={reportData.gscData.totalClicks}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  gscData: { ...reportData.gscData, totalClicks: value }
-                })}
+                onChange={(value) => setReportData(prev => ({
+                  ...prev,
+                  gscData: { ...prev.gscData, totalClicks: value }
+                }))}
                 placeholder="e.g., 1,234"
               />
             </div>
@@ -818,10 +818,10 @@ export default function GenerateReportPage() {
               </label>
               <Input
                 value={reportData.gscData.totalImpressions}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  gscData: { ...reportData.gscData, totalImpressions: value }
-                })}
+                onChange={(value) => setReportData(prev => ({
+                  ...prev,
+                  gscData: { ...prev.gscData, totalImpressions: value }
+                }))}
                 placeholder="e.g., 45,678"
               />
             </div>
@@ -833,10 +833,10 @@ export default function GenerateReportPage() {
               </label>
               <Input
                 value={reportData.gscData.averageCTR}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  gscData: { ...reportData.gscData, averageCTR: value }
-                })}
+                onChange={(value) => setReportData(prev => ({
+                  ...prev,
+                  gscData: { ...prev.gscData, averageCTR: value }
+                }))}
                 placeholder="e.g., 2.7"
               />
             </div>
@@ -846,10 +846,10 @@ export default function GenerateReportPage() {
               </label>
               <Input
                 value={reportData.gscData.averagePosition}
-                onChange={(value) => setReportData({
-                  ...reportData,
-                  gscData: { ...reportData.gscData, averagePosition: value }
-                })}
+                onChange={(value) => setReportData(prev => ({
+                  ...prev,
+                  gscData: { ...prev.gscData, averagePosition: value }
+                }))}
                 placeholder="e.g., 12.5"
               />
             </div>
@@ -861,10 +861,10 @@ export default function GenerateReportPage() {
             <textarea
               className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               value={reportData.gscData.topQueries}
-              onChange={(e) => setReportData({
-                ...reportData,
-                gscData: { ...reportData.gscData, topQueries: e.target.value }
-              })}
+              onChange={(e) => setReportData(prev => ({
+                ...prev,
+                gscData: { ...prev.gscData, topQueries: e.target.value }
+              }))}
               placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567}, ...]'
             />
           </div>
@@ -895,7 +895,7 @@ export default function GenerateReportPage() {
                     <input
                       type="text"
                       value={formData[field.id] || ''}
-                      onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))
                       placeholder={field.placeholder}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
