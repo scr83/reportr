@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator-v3'
 import { prisma } from '@/lib/prisma'
+import { put } from '@vercel/blob'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
 
+// Enhanced validation schemas for flexible data handling
 const topQuerySchema = z.object({
   query: z.string(),
   clicks: z.number(),
@@ -12,20 +14,74 @@ const topQuerySchema = z.object({
   position: z.number()
 })
 
+const landingPageSchema = z.object({
+  page: z.string(),
+  sessions: z.number(),
+  users: z.number(),
+  bounceRate: z.number(),
+  conversions: z.number().optional()
+})
+
+const deviceBreakdownSchema = z.object({
+  mobile: z.number(),
+  desktop: z.number(),
+  tablet: z.number()
+})
+
+// Flexible GA4 data schema - accepts any additional fields
+const flexibleGA4Schema = z.object({
+  users: z.number().min(0),
+  sessions: z.number().min(0),
+  bounceRate: z.number().min(0),
+  conversions: z.number().min(0),
+  // Optional additional fields that may come from dynamic forms
+  newUsers: z.number().optional(),
+  engagedSessions: z.number().optional(),
+  engagementRate: z.number().optional(),
+  pagesPerSession: z.number().optional(),
+  avgSessionDuration: z.number().optional(),
+  organicTraffic: z.number().optional(),
+  directTraffic: z.number().optional(),
+  referralTraffic: z.number().optional(),
+  socialTraffic: z.number().optional(),
+  emailTraffic: z.number().optional(),
+  paidTraffic: z.number().optional(),
+  mobileUsers: z.number().optional(),
+  desktopUsers: z.number().optional(),
+  tabletUsers: z.number().optional(),
+  returningUsers: z.number().optional(),
+  pageViews: z.number().optional(),
+  uniquePageViews: z.number().optional(),
+  averageTimeOnPage: z.number().optional(),
+  exitRate: z.number().optional(),
+  conversionRate: z.number().optional(),
+  // Allow for dynamic landing pages and device breakdown
+  topLandingPages: z.array(landingPageSchema).optional(),
+  deviceBreakdown: deviceBreakdownSchema.optional()
+}).passthrough() // Allow additional fields not defined in schema
+
 const generatePdfSchema = z.object({
   clientId: z.string().min(1, 'Client ID is required'),
   clientName: z.string().min(1, 'Client name is required'),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
   reportType: z.enum(['standard', 'custom', 'executive']).optional().default('standard'),
+  
+  // Custom fields for advanced report customization
   customFields: z.array(z.object({
     title: z.string(),
     content: z.string(),
     type: z.enum(['insight', 'recommendation', 'metric'])
   })).optional(),
+  
+  // Selected metrics for custom reports
   selectedMetrics: z.array(z.string()).optional(),
+  
+  // Agency branding
   agencyName: z.string().optional(),
   agencyLogo: z.string().optional(),
+  
+  // Google Search Console data
   gscData: z.object({
     clicks: z.number().min(0),
     impressions: z.number().min(0),
@@ -33,12 +89,11 @@ const generatePdfSchema = z.object({
     position: z.number().min(0),
     topQueries: z.array(topQuerySchema).optional()
   }),
-  ga4Data: z.object({
-    users: z.number().min(0),
-    sessions: z.number().min(0),
-    bounceRate: z.number().min(0),
-    conversions: z.number().min(0)
-  }),
+  
+  // Flexible GA4 data - now accepts dynamic fields
+  ga4Data: flexibleGA4Schema.optional(),
+  
+  // Legacy metrics object (for backward compatibility)
   metrics: z.object({
     users: z.number().optional(),
     newUsers: z.number().optional(),
@@ -67,29 +122,57 @@ const generatePdfSchema = z.object({
   }).optional()
 })
 
+// Configure route for serverless function optimization
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60 // 60 seconds max duration
+
+/**
+ * Enhanced PDF Generation API Route
+ * Handles all report types (executive, standard, custom) with dynamic GA4 data
+ * Integrates with Vercel Blob storage for scalable PDF storage
+ * Supports complex report data with full metrics and custom fields
+ */
 export async function POST(request: NextRequest) {
   const processingStarted = new Date()
-  console.log('========== PDF GENERATION START ==========')
+  console.log('========== ENHANCED PDF GENERATION START ==========')
+  console.log('Timestamp:', processingStarted.toISOString())
   
   try {
-    console.log('1. Getting authenticated user...')
+    // Step 1: Authentication
+    console.log('1. Authenticating user...')
     const user = await requireUser()
-    console.log('2. User authenticated:', { userId: user.id, email: user.email })
+    console.log('2. User authenticated:', { 
+      userId: user.id, 
+      email: user.email,
+      companyName: user.companyName 
+    })
     
+    // Step 2: Parse and validate request data
     console.log('3. Parsing request body...')
     const body = await request.json()
-    console.log('4. Request body received:', {
+    
+    // Log data structure for debugging
+    console.log('4. Request data structure:', {
       clientId: body.clientId,
       clientName: body.clientName,
+      reportType: body.reportType,
       hasGscData: !!body.gscData,
-      hasGa4Data: !!body.ga4Data
+      hasGa4Data: !!body.ga4Data,
+      hasSelectedMetrics: !!body.selectedMetrics,
+      selectedMetricsCount: body.selectedMetrics?.length || 0,
+      hasCustomFields: !!body.customFields,
+      ga4DataKeys: body.ga4Data ? Object.keys(body.ga4Data) : [],
+      hasTopLandingPages: !!body.ga4Data?.topLandingPages,
+      hasDeviceBreakdown: !!body.ga4Data?.deviceBreakdown
     })
     
     console.log('5. Validating request data...')
     const validatedData = generatePdfSchema.parse(body)
-    console.log('6. Data validated successfully')
+    console.log('6. Data validation successful')
     
-    console.log('7. Looking up client in database...')
+    // Step 3: Verify client ownership
+    console.log('7. Verifying client ownership...')
     const client = await prisma.client.findFirst({
       where: { 
         id: validatedData.clientId,
@@ -99,81 +182,138 @@ export async function POST(request: NextRequest) {
     })
     
     if (!client) {
-      console.error('8. CLIENT NOT FOUND:', {
-        searchedClientId: validatedData.clientId,
-        searchedUserId: user.id
+      console.error('8. CLIENT ACCESS DENIED:', {
+        requestedClientId: validatedData.clientId,
+        userId: user.id
       })
       return NextResponse.json(
-        { error: 'Client not found or unauthorized' },
+        { error: 'Client not found or access denied' },
         { status: 404 }
       )
     }
     
-    console.log('8. Client found:', {
+    console.log('8. Client ownership verified:', {
       clientId: client.id,
       clientName: client.name,
-      userId: client.userId
+      domain: client.domain
     })
     
-    console.log('9. Generating PDF...')
-    const pdfArrayBuffer = generatePDFWithJsPDF({
+    // Step 4: Merge GA4 data intelligently
+    console.log('9. Processing GA4 data...')
+    
+    // Ensure required fields are present with defaults
+    const baseGA4Data = {
+      users: 0,
+      sessions: 0,
+      bounceRate: 0,
+      conversions: 0
+    }
+    
+    // Merge legacy metrics and new GA4 data, ensuring required fields
+    const mergedGA4Data = {
+      ...baseGA4Data, // Defaults for required fields
+      ...validatedData.metrics, // Legacy metrics as fallback
+      ...validatedData.ga4Data, // New GA4 data takes priority
+    }
+    
+    console.log('10. Merged GA4 data keys:', Object.keys(mergedGA4Data))
+    console.log('11. Required fields check:', {
+      users: mergedGA4Data.users,
+      sessions: mergedGA4Data.sessions,
+      bounceRate: mergedGA4Data.bounceRate,
+      conversions: mergedGA4Data.conversions
+    })
+    
+    // Step 5: Generate PDF with all data
+    console.log('12. Generating PDF with enhanced data...')
+    const pdfGenerationData = {
       clientName: validatedData.clientName,
       startDate: validatedData.startDate,
       endDate: validatedData.endDate,
       reportType: validatedData.reportType,
       customFields: validatedData.customFields,
       selectedMetrics: validatedData.selectedMetrics,
-      agencyName: validatedData.agencyName,
+      agencyName: validatedData.agencyName || user.companyName || 'Digital Frog Agency',
       agencyLogo: validatedData.agencyLogo,
       gscData: validatedData.gscData,
-      ga4Data: validatedData.ga4Data,
-      metrics: validatedData.metrics
-    })
+      ga4Data: mergedGA4Data, // Use merged data with guaranteed required fields
+      metrics: mergedGA4Data // Also pass as metrics for backward compatibility
+    }
+    
+    const pdfArrayBuffer = generatePDFWithJsPDF(pdfGenerationData)
     const pdfBuffer = Buffer.from(pdfArrayBuffer)
-    console.log('10. PDF generated:', {
+    
+    console.log('13. PDF generated successfully:', {
       bufferSize: pdfBuffer.length,
-      sizeKB: (pdfBuffer.length / 1024).toFixed(2)
+      sizeMB: (pdfBuffer.length / 1024 / 1024).toFixed(2),
+      reportType: validatedData.reportType
     })
     
-    console.log('11. Converting PDF to base64...')
-    const pdfBase64 = pdfBuffer.toString('base64')
-    console.log('12. Base64 conversion complete:', {
-      base64Length: pdfBase64.length
-    })
+    // Step 6: Upload to Vercel Blob storage
+    console.log('14. Uploading PDF to Vercel Blob storage...')
     
     const startDate = new Date(validatedData.startDate).toISOString().split('T')[0]
     const endDate = new Date(validatedData.endDate).toISOString().split('T')[0]
-    const filename = `${validatedData.clientName.replace(/[^a-zA-Z0-9]/g, '_')}_SEO_Report_${startDate}_${endDate}.pdf`
-    const reportTitle = `SEO Report - ${validatedData.clientName} (${startDate} to ${endDate})`
+    const timestamp = Date.now()
+    const sanitizedClientName = validatedData.clientName.replace(/[^a-zA-Z0-9]/g, '_')
+    const filename = `reports/${sanitizedClientName}_${validatedData.reportType}_${startDate}_${endDate}_${timestamp}.pdf`
     
-    console.log('13. Creating report in database...')
-    console.log('Report data to save:', {
-      title: reportTitle,
-      status: 'COMPLETED',
-      clientId: validatedData.clientId,
-      userId: user.id,
-      pdfSize: pdfBuffer.length,
-      hasData: !!validatedData
+    // Upload to Vercel Blob
+    const blob = await put(filename, pdfBuffer, {
+      access: 'public',
+      contentType: 'application/pdf'
     })
+    
+    console.log('15. PDF uploaded to blob storage:', {
+      url: blob.url,
+      size: pdfBuffer.length,
+      filename: filename
+    })
+    
+    // Step 7: Save complete report data to database
+    console.log('16. Saving report to database...')
+    
+    const reportTitle = `${validatedData.reportType.charAt(0).toUpperCase() + validatedData.reportType.slice(1)} Report - ${validatedData.clientName} (${startDate} to ${endDate})`
+    
+    // Store comprehensive report data
+    const reportData = {
+      // Basic report info
+      clientName: validatedData.clientName,
+      startDate: validatedData.startDate,
+      endDate: validatedData.endDate,
+      reportType: validatedData.reportType,
+      
+      // Custom configuration
+      customFields: validatedData.customFields,
+      selectedMetrics: validatedData.selectedMetrics,
+      
+      // Agency branding
+      agencyName: pdfGenerationData.agencyName,
+      agencyLogo: validatedData.agencyLogo,
+      
+      // SEO data
+      gscData: validatedData.gscData,
+      
+      // Complete GA4 data (including dynamic fields)
+      ga4Data: mergedGA4Data,
+      
+      // Additional metadata
+      generatedAt: processingStarted.toISOString(),
+      dataSourceInfo: {
+        hasGSC: !!validatedData.gscData,
+        hasGA4: !!validatedData.ga4Data,
+        metricsCount: Object.keys(mergedGA4Data).length,
+        hasCustomFields: !!validatedData.customFields?.length,
+        selectedMetricsCount: validatedData.selectedMetrics?.length || 0
+      }
+    }
     
     const report = await prisma.report.create({
       data: {
         title: reportTitle,
         status: 'COMPLETED',
-        data: {
-          clientName: validatedData.clientName,
-          startDate: validatedData.startDate,
-          endDate: validatedData.endDate,
-          reportType: validatedData.reportType,
-          customFields: validatedData.customFields,
-          selectedMetrics: validatedData.selectedMetrics,
-          agencyName: validatedData.agencyName,
-          agencyLogo: validatedData.agencyLogo,
-          gscData: validatedData.gscData,
-          ga4Data: validatedData.ga4Data,
-          metrics: validatedData.metrics
-        },
-        pdfUrl: pdfBase64,
+        data: reportData, // Save comprehensive data
+        pdfUrl: blob.url, // Store Vercel Blob URL
         pdfSize: pdfBuffer.length,
         processingStartedAt: processingStarted,
         processingCompletedAt: new Date(),
@@ -183,15 +323,15 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('14. Report created successfully:', {
+    console.log('17. Report saved to database:', {
       reportId: report.id,
       title: report.title,
-      status: report.status,
-      clientId: report.clientId,
-      userId: report.userId
+      pdfUrl: report.pdfUrl,
+      dataSize: JSON.stringify(reportData).length
     })
     
-    console.log('15. Updating client statistics...')
+    // Step 8: Update client statistics
+    console.log('18. Updating client statistics...')
     await prisma.client.update({
       where: { id: validatedData.clientId },
       data: {
@@ -201,55 +341,105 @@ export async function POST(request: NextRequest) {
         }
       }
     })
-    console.log('16. Client statistics updated')
     
-    console.log('17. Returning PDF response...')
+    const processingTime = Date.now() - processingStarted.getTime()
+    console.log('19. Client statistics updated')
     console.log('========== PDF GENERATION SUCCESS ==========')
+    console.log('Total processing time:', processingTime, 'ms')
     
-    return new NextResponse(pdfBuffer as any, {
+    // Step 9: Return PDF response with download
+    const downloadFilename = `${sanitizedClientName}_${validatedData.reportType}_Report_${startDate}_to_${endDate}.pdf`
+    
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Disposition': `attachment; filename="${downloadFilename}"`,
         'Content-Length': pdfBuffer.length.toString(),
         'X-Report-ID': report.id,
+        'X-Blob-URL': blob.url,
+        'X-Processing-Time': processingTime.toString()
       },
     })
     
   } catch (error: any) {
+    const processingTime = Date.now() - processingStarted.getTime()
+    
     console.error('========== PDF GENERATION ERROR ==========')
+    console.error('Processing time before error:', processingTime, 'ms')
     console.error('Error type:', error.constructor.name)
     console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
-    console.error('Full error object:', JSON.stringify(error, null, 2))
     
-    if (error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
+    // Enhanced error logging
     if (error instanceof z.ZodError) {
-      console.error('Validation errors:', error.errors)
+      console.error('Validation errors:', error.errors.map(e => ({
+        path: e.path.join('.'),
+        message: e.message,
+        code: e.code
+      })))
+      
       return NextResponse.json(
         { 
           error: 'Invalid request data', 
-          details: error.errors 
+          details: error.errors.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
+          }))
         }, 
         { status: 400 }
       )
     }
     
-    // Check for database-specific errors
-    if (error.code === 'P2002') {
-      console.error('Database constraint violation:', error.meta)
-    } else if (error.code?.startsWith('P')) {
-      console.error('Prisma error code:', error.code, 'Meta:', error.meta)
+    // Handle authentication errors
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ 
+        error: 'Authentication required' 
+      }, { status: 401 })
     }
     
+    // Handle Vercel Blob errors
+    if (error.message?.includes('blob') || error.message?.includes('storage')) {
+      console.error('Blob storage error:', error.message)
+      return NextResponse.json(
+        { 
+          error: 'PDF storage failed',
+          message: 'Unable to save PDF to cloud storage'
+        }, 
+        { status: 500 }
+      )
+    }
+    
+    // Handle PDF generation errors
+    if (error.message?.includes('PDF') || error.message?.includes('jsPDF')) {
+      console.error('PDF generation error:', error.message)
+      return NextResponse.json(
+        { 
+          error: 'PDF generation failed',
+          message: 'Unable to create PDF from provided data'
+        }, 
+        { status: 500 }
+      )
+    }
+    
+    // Handle database errors
+    if (error.code?.startsWith('P')) {
+      console.error('Database error:', error.code, error.meta)
+      return NextResponse.json(
+        { 
+          error: 'Database operation failed',
+          message: 'Unable to save report data'
+        }, 
+        { status: 500 }
+      )
+    }
+    
+    // Generic error handling
+    console.error('Unexpected error:', error.stack)
     return NextResponse.json(
       { 
-        error: 'Failed to generate PDF',
-        message: error instanceof Error ? error.message : 'Unknown error',
-        code: error.code || 'UNKNOWN'
+        error: 'PDF generation failed',
+        message: 'An unexpected error occurred during PDF generation',
+        code: error.code || 'UNKNOWN_ERROR'
       }, 
       { status: 500 }
     )

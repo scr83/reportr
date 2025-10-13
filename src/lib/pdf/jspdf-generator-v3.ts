@@ -22,13 +22,49 @@ interface ReportData {
       position: number
     }>
   }
+  // Enhanced GA4 data interface - now supports dynamic fields
   ga4Data: {
     users: number
     sessions: number
     bounceRate: number
     conversions: number
-  }
-  // Extended metrics for custom reports (all 24 available metrics)
+    // Dynamic additional fields from frontend forms
+    newUsers?: number
+    engagedSessions?: number
+    engagementRate?: number
+    pagesPerSession?: number
+    avgSessionDuration?: number
+    organicTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    socialTraffic?: number
+    emailTraffic?: number
+    paidTraffic?: number
+    mobileUsers?: number
+    desktopUsers?: number
+    tabletUsers?: number
+    returningUsers?: number
+    pageViews?: number
+    uniquePageViews?: number
+    averageTimeOnPage?: number
+    exitRate?: number
+    conversionRate?: number
+    // Landing pages data
+    topLandingPages?: Array<{
+      page: string
+      sessions: number
+      users: number
+      bounceRate: number
+      conversions?: number
+    }>
+    // Device breakdown data
+    deviceBreakdown?: {
+      mobile: number
+      desktop: number
+      tablet: number
+    }
+  } & Record<string, any> // Allow any additional fields from dynamic forms
+  // Extended metrics for custom reports (backward compatibility)
   metrics?: {
     users?: number
     newUsers?: number
@@ -63,6 +99,104 @@ interface CustomFieldData {
   type: 'insight' | 'recommendation' | 'metric'
 }
 
+// Helper Functions for Smart Data Formatting
+const formatMetricValue = (key: string, value: any): string => {
+  if (value === undefined || value === null) return '0'
+  
+  // Handle JSON strings first
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) {
+        return `${parsed.length} items`
+      } else if (typeof parsed === 'object' && parsed !== null) {
+        const keys = Object.keys(parsed)
+        return `${keys.length} categories`
+      }
+    } catch {
+      // If not JSON, treat as regular string
+      if (value.length > 50) return `${value.substring(0, 47)}...`
+      return value
+    }
+  }
+  
+  // Handle arrays and objects
+  if (Array.isArray(value)) {
+    return `${value.length} items`
+  }
+  if (typeof value === 'object' && value !== null) {
+    return `${Object.keys(value).length} categories`
+  }
+  
+  // Convert to number for formatting
+  const numValue = Number(value)
+  if (isNaN(numValue)) return String(value)
+  
+  // Percentage formatting
+  if (key.toLowerCase().includes('rate') || key.toLowerCase().includes('ctr') || key === 'bounceRate' || key === 'engagementRate' || key === 'conversionRate' || key === 'exitRate') {
+    return `${numValue.toFixed(1)}%`
+  }
+  
+  // Currency formatting (if we add revenue metrics later)
+  if (key.toLowerCase().includes('revenue') || key.toLowerCase().includes('value') || key.toLowerCase().includes('cost')) {
+    return `$${numValue.toLocaleString()}`
+  }
+  
+  // Duration formatting (seconds to minutes/seconds)
+  if (key.toLowerCase().includes('duration') || key.toLowerCase().includes('time') || key === 'avgSessionDuration' || key === 'averageTimeOnPage') {
+    const mins = Math.floor(numValue / 60)
+    const secs = Math.floor(numValue % 60)
+    return `${mins}m ${secs}s`
+  }
+  
+  // Large number formatting with commas
+  if (numValue >= 1000) {
+    return numValue.toLocaleString()
+  }
+  
+  // Small decimals
+  if (numValue < 10 && numValue % 1 !== 0) {
+    return numValue.toFixed(2)
+  }
+  
+  return numValue.toString()
+}
+
+const getMetricDisplayName = (key: string): string => {
+  const displayNames: Record<string, string> = {
+    users: 'Total Users',
+    newUsers: 'New Users',
+    sessions: 'Sessions',
+    bounceRate: 'Bounce Rate',
+    conversions: 'Conversions',
+    pagesPerSession: 'Pages/Session',
+    avgSessionDuration: 'Avg Session Duration',
+    engagedSessions: 'Engaged Sessions',
+    engagementRate: 'Engagement Rate',
+    conversionRate: 'Conversion Rate',
+    organicTraffic: 'Organic Traffic',
+    directTraffic: 'Direct Traffic',
+    referralTraffic: 'Referral Traffic',
+    socialTraffic: 'Social Traffic',
+    emailTraffic: 'Email Traffic',
+    paidTraffic: 'Paid Traffic',
+    mobileUsers: 'Mobile Users',
+    desktopUsers: 'Desktop Users',
+    tabletUsers: 'Tablet Users',
+    returningUsers: 'Returning Users',
+    pageViews: 'Page Views',
+    uniquePageViews: 'Unique Page Views',
+    averageTimeOnPage: 'Avg Time on Page',
+    exitRate: 'Exit Rate',
+    topLandingPages: 'Top Landing Pages',
+    deviceBreakdown: 'Device Breakdown'
+  }
+  
+  return displayNames[key] || key.split(/(?=[A-Z])/).map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ')
+}
+
 export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.width
@@ -70,13 +204,12 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   const margin = 20
   let yPosition = margin
 
-  // Colors - Digital Frog Purple Branding
-  const primaryPurple: [number, number, number] = [146, 51, 234] // #9233ea
-  const softPurple: [number, number, number] = [200, 153, 244] // 50% opacity purple for cover (#9233ea at 50%)
-  const lightPurple: [number, number, number] = [233, 213, 255] // #e9d5ff
+  // Updated Colors - Purple Primary with Cyan Accents
+  const primaryPurple: [number, number, number] = [139, 92, 246] // #8b5cf6
+  const lightPurple: [number, number, number] = [243, 232, 255] // #f3e8ff
   const veryLightPurple: [number, number, number] = [250, 245, 255] // #faf5ff
-  const teal: [number, number, number] = [34, 211, 238] // #22d3ee
-  const lightTeal: [number, number, number] = [165, 243, 252] // #a5f3fc
+  const cyan: [number, number, number] = [34, 211, 238] // #22d3ee
+  const lightCyan: [number, number, number] = [165, 243, 252] // #a5f3fc
   const darkGray: [number, number, number] = [30, 41, 59] // #1e293b
   const mediumGray: [number, number, number] = [100, 116, 139] // #64748b
   const lightGray: [number, number, number] = [241, 245, 249] // #f1f5f9
@@ -98,179 +231,6 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   const agencyEmail = 'jump@digitalfrog.co'
   const agencyPhone = '+56 9 9073 0352'
 
-  // Complete mapping of all 24 available metrics
-  const AVAILABLE_METRICS: Record<string, {
-    title: string
-    getValue: (data: ReportData) => any
-    desc: string
-    format: (val: any) => string
-  }> = {
-    // Audience Metrics (7)
-    users: {
-      title: 'Total Users',
-      getValue: (data: ReportData) => data.metrics?.users || data.ga4Data?.users,
-      desc: 'Unique website visitors',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    newUsers: {
-      title: 'New Users',
-      getValue: (data: ReportData) => data.metrics?.newUsers,
-      desc: 'First-time visitors',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    returningUsers: {
-      title: 'Returning Users',
-      getValue: (data: ReportData) => data.metrics?.returningUsers,
-      desc: 'Repeat visitors',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    sessions: {
-      title: 'Total Sessions',
-      getValue: (data: ReportData) => data.metrics?.sessions || data.ga4Data?.sessions,
-      desc: 'Website visits',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    engagedSessions: {
-      title: 'Engaged Sessions',
-      getValue: (data: ReportData) => data.metrics?.engagedSessions,
-      desc: 'Sessions with engagement',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    engagementRate: {
-      title: 'Engagement Rate',
-      getValue: (data: ReportData) => data.metrics?.engagementRate,
-      desc: '% of engaged sessions',
-      format: (val: any) => `${val?.toFixed(2) || 0}%`
-    },
-    bounceRate: {
-      title: 'Bounce Rate',
-      getValue: (data: ReportData) => data.metrics?.bounceRate || data.ga4Data?.bounceRate,
-      desc: 'Single-page sessions (%)',
-      format: (val: any) => `${val?.toFixed(2) || 0}%`
-    },
-
-    // Behavior Metrics (4)
-    pagesPerSession: {
-      title: 'Pages Per Session',
-      getValue: (data: ReportData) => data.metrics?.pagesPerSession,
-      desc: 'Avg pages viewed',
-      format: (val: any) => val?.toFixed(2) || '0'
-    },
-    avgSessionDuration: {
-      title: 'Session Duration',
-      getValue: (data: ReportData) => data.metrics?.avgSessionDuration,
-      desc: 'Average time on site',
-      format: (val: any) => {
-        const seconds = val || 0
-        const mins = Math.floor(seconds / 60)
-        const secs = Math.floor(seconds % 60)
-        return `${mins}m ${secs}s`
-      }
-    },
-    pageViews: {
-      title: 'Page Views',
-      getValue: (data: ReportData) => data.metrics?.pageViews,
-      desc: 'Total page views',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    uniquePageViews: {
-      title: 'Unique Page Views',
-      getValue: (data: ReportData) => data.metrics?.uniquePageViews,
-      desc: 'Unique page views',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-
-    // Conversion Metrics (3)
-    conversions: {
-      title: 'Conversions',
-      getValue: (data: ReportData) => data.metrics?.conversions || data.ga4Data?.conversions,
-      desc: 'Goal completions',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    conversionRate: {
-      title: 'Conversion Rate',
-      getValue: (data: ReportData) => data.metrics?.conversionRate,
-      desc: '% of sessions converting',
-      format: (val: any) => `${val?.toFixed(2) || 0}%`
-    },
-    averageTimeOnPage: {
-      title: 'Avg Time On Page',
-      getValue: (data: ReportData) => data.metrics?.averageTimeOnPage,
-      desc: 'Average page duration',
-      format: (val: any) => {
-        const seconds = val || 0
-        const mins = Math.floor(seconds / 60)
-        const secs = Math.floor(seconds % 60)
-        return `${mins}m ${secs}s`
-      }
-    },
-
-    // Traffic Source Metrics (6)
-    organicTraffic: {
-      title: 'Organic Traffic',
-      getValue: (data: ReportData) => data.metrics?.organicTraffic,
-      desc: 'Search engine traffic',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    directTraffic: {
-      title: 'Direct Traffic',
-      getValue: (data: ReportData) => data.metrics?.directTraffic,
-      desc: 'Direct visits',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    referralTraffic: {
-      title: 'Referral Traffic',
-      getValue: (data: ReportData) => data.metrics?.referralTraffic,
-      desc: 'Traffic from other sites',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    socialTraffic: {
-      title: 'Social Traffic',
-      getValue: (data: ReportData) => data.metrics?.socialTraffic,
-      desc: 'Social media traffic',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    emailTraffic: {
-      title: 'Email Traffic',
-      getValue: (data: ReportData) => data.metrics?.emailTraffic,
-      desc: 'Email campaign traffic',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    paidTraffic: {
-      title: 'Paid Traffic',
-      getValue: (data: ReportData) => data.metrics?.paidTraffic,
-      desc: 'Paid advertising traffic',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-
-    // Device Metrics (3)
-    mobileUsers: {
-      title: 'Mobile Users',
-      getValue: (data: ReportData) => data.metrics?.mobileUsers,
-      desc: 'Mobile device users',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    desktopUsers: {
-      title: 'Desktop Users',
-      getValue: (data: ReportData) => data.metrics?.desktopUsers,
-      desc: 'Desktop computer users',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-    tabletUsers: {
-      title: 'Tablet Users',
-      getValue: (data: ReportData) => data.metrics?.tabletUsers,
-      desc: 'Tablet device users',
-      format: (val: any) => val?.toLocaleString() || '0'
-    },
-
-    // Additional Metric (1)
-    exitRate: {
-      title: 'Exit Rate',
-      getValue: (data: ReportData) => data.metrics?.exitRate,
-      desc: '% exits from pages',
-      format: (val: any) => `${val?.toFixed(2) || 0}%`
-    }
-  }
 
   // Generate dynamic content based on report type
   const generateInsights = (): Array<{
@@ -302,7 +262,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
         title: 'User Engagement Analysis',
         text: `${data.ga4Data.bounceRate < 40 ? 'Excellent' : data.ga4Data.bounceRate < 60 ? 'Good' : 'Moderate'} engagement with ${data.ga4Data.bounceRate.toFixed(1)}% bounce rate. This indicates ${data.ga4Data.bounceRate < 50 ? 'strong content relevance and user satisfaction' : 'room for improvement in content relevance or page loading speed'}.`,
         bgColor: [240, 253, 250] as [number, number, number],
-        borderColor: lightTeal
+        borderColor: lightCyan
       }
     ]
 
@@ -314,7 +274,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       title: 'Conversion Performance',
       text: `${data.ga4Data.conversions > 0 ? `Achieved ${formatNumber(data.ga4Data.conversions)} conversions during this period. Focus on scaling successful campaigns and optimizing conversion funnels.` : 'No conversions tracked. Implementing proper conversion tracking is crucial for measuring ROI and optimizing marketing efforts.'}`,
       bgColor: [240, 253, 250] as [number, number, number],
-      borderColor: lightTeal
+      borderColor: lightCyan
     })
 
     return standardInsights
@@ -379,103 +339,6 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     }
   }
 
-  // Custom Metrics Page Generator
-  const generateCustomMetricsPage = (): { pageCount: number } => {
-    if (!data.selectedMetrics || data.selectedMetrics.length === 0) {
-      return { pageCount: 0 }
-    }
-
-    // Filter to only show selected metrics with data
-    const metricsToShow = data.selectedMetrics
-      .filter(metricKey => AVAILABLE_METRICS[metricKey])
-      .map(metricKey => {
-        const metric = AVAILABLE_METRICS[metricKey]
-        if (!metric) return null
-        const value = metric.getValue(data)
-        return {
-          title: metric.title,
-          value: metric.format(value),
-          desc: metric.desc,
-          hasData: value !== undefined && value !== null
-        }
-      })
-      .filter((m): m is NonNullable<typeof m> => m !== null && m.hasData)
-
-    if (metricsToShow.length === 0) {
-      return { pageCount: 0 }
-    }
-
-    doc.addPage()
-    addPageHeader()
-    
-    // Page title
-    doc.setFontSize(20)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(...primaryPurple)
-    doc.text('Custom Analytics Report', margin, 40)
-    
-    // Underline
-    doc.setDrawColor(...teal)
-    doc.setLineWidth(1.5)
-    doc.line(margin, 45, margin + 70, 45)
-
-    // Adaptive grid layout based on metric count
-    const metricCount = metricsToShow.length
-    const columns = metricCount <= 4 ? 2 : metricCount <= 9 ? 3 : 4
-    const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
-    const cardHeight = 45
-    
-    let x = margin
-    let y = 60
-    let col = 0
-    let currentPageNum = 2
-
-    metricsToShow.forEach((metric, index) => {
-      // Draw metric card
-      doc.setFillColor(...lightPurple)
-      doc.setDrawColor(...primaryPurple)
-      doc.setLineWidth(1)
-      doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
-      
-      // Metric content
-      doc.setFontSize(11)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(...primaryPurple)
-      doc.text(metric.title, x + 8, y + 15)
-      
-      doc.setFontSize(18)
-      doc.setTextColor(...darkGray)
-      doc.text(metric.value, x + 8, y + 28)
-      
-      doc.setFontSize(8)
-      doc.setTextColor(...mediumGray)
-      doc.text(metric.desc, x + 8, y + 36)
-      
-      // Grid positioning
-      col++
-      if (col >= columns) {
-        col = 0
-        x = margin
-        y += cardHeight + 10
-      } else {
-        x += cardWidth + 10
-      }
-      
-      // Handle page overflow
-      if (y > pageHeight - 80 && index < metricsToShow.length - 1) {
-        addFooter(currentPageNum, 4)
-        doc.addPage()
-        addPageHeader()
-        currentPageNum++
-        x = margin
-        y = 60
-        col = 0
-      }
-    })
-    
-    addFooter(currentPageNum, 4)
-    return { pageCount: currentPageNum }
-  }
 
   // Helper: Add footer with proper spacing
   const addFooter = (pageNum?: number, totalPages?: number) => {
@@ -571,8 +434,8 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setFont('helvetica', 'normal')
   doc.text(`${formatDate(data.startDate)} - ${formatDate(data.endDate)}`, pageWidth / 2, contentY + 95, { align: 'center' })
 
-  // Separator line (teal for contrast)
-  doc.setDrawColor(...teal)
+  // Separator line (cyan for contrast)
+  doc.setDrawColor(...cyan)
   doc.setLineWidth(2)
   doc.line(pageWidth / 2 - 40, contentY + 105, pageWidth / 2 + 40, contentY + 105)
 
@@ -582,128 +445,51 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.text(`Generated on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`, pageWidth / 2, contentY + 130, { align: 'center' })
 
   // ======================
-  // PAGE 2: EXECUTIVE SUMMARY
+  // PAGE 2: METRICS (Different by report type)
   // ======================
   
   doc.addPage()
   addPageHeader()
-  yPosition = 40
-
-  // Page title
-  doc.setFontSize(20)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(...primaryPurple)
-  doc.text('Executive Summary', margin, yPosition)
-  yPosition += 5
-
-  // Underline
-  doc.setDrawColor(...teal)
-  doc.setLineWidth(1.5)
-  doc.line(margin, yPosition, margin + 50, yPosition)
-  yPosition += 12
-
-  // Subtitle
-  doc.setFontSize(10)
-  doc.setTextColor(...mediumGray)
-  doc.setFont('helvetica', 'normal')
-  doc.text(`Performance overview for ${formatDate(data.startDate)} to ${formatDate(data.endDate)}`, margin, yPosition)
-  yPosition += 15
-
-  // Metric Cards (2x2 grid) - REDUCED HEIGHT
-  const cardWidth = (pageWidth - 3 * margin) / 2
-  const cardHeight = 38 // Reduced from 45
-  const cardSpacing = 8 // Reduced from 10
-
-  const summaryMetrics: Array<{
-    label: string
-    value: string
-    description: string
-    color: [number, number, number]
-  }> = [
-    { 
-      label: 'Total Users', 
-      value: formatNumber(data.ga4Data.users),
-      description: 'Unique website visitors',
-      color: lightPurple
-    },
-    { 
-      label: 'Total Sessions', 
-      value: formatNumber(data.ga4Data.sessions),
-      description: 'Website visits',
-      color: lightPurple
-    },
-    { 
-      label: 'Bounce Rate', 
-      value: `${data.ga4Data.bounceRate.toFixed(2)}%`,
-      description: 'Single-page sessions (%)',
-      color: lightPurple
-    },
-    { 
-      label: 'Conversions', 
-      value: formatNumber(data.ga4Data.conversions),
-      description: 'Goal completions',
-      color: lightPurple
-    }
-  ]
-
-  let cardX = margin
-  let cardY = yPosition
-
-  summaryMetrics.forEach((metric, index) => {
-    // Card background
-    doc.setFillColor(...metric.color)
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'F')
-
-    // Card border
-    doc.setDrawColor(...primaryPurple)
-    doc.setLineWidth(1)
-    doc.roundedRect(cardX, cardY, cardWidth, cardHeight, 3, 3, 'S')
-
-    // Label
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(...primaryPurple)
-    doc.text(metric.label, cardX + 6, cardY + 10)
-
-    // Value
-    doc.setFontSize(20)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(...darkGray)
-    doc.text(metric.value, cardX + 6, cardY + 24)
-
-    // Description
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(...mediumGray)
-    doc.text(metric.description, cardX + 6, cardY + 32)
-
-    // Move to next position
-    if (index % 2 === 0) {
-      cardX += cardWidth + cardSpacing
-    } else {
-      cardX = margin
-      cardY += cardHeight + cardSpacing
-    }
-  })
-
-  yPosition = cardY + cardHeight + 18 // Reduced spacing
-
-  // Executive Summary now ends here - Key Insights moved to Page 3
-  addFooter(1, 4)
-
-  // ======================
-  // PAGE 2: METRICS (Different by report type)
-  // ======================
-  
   let currentPageNumber = 2
 
+  // Determine metrics to show based on report type
+  let metricsToShow: Array<{
+    title: string
+    value: string
+    description: string
+  }> = []
+
   if (data.reportType === 'executive') {
-    // Executive report: same as current page 1 summary, no additional metrics page needed
-    // Skip metrics page for executive reports
+    // Executive: EXACTLY 4 core metrics
+    const coreMetrics = ['users', 'sessions', 'bounceRate', 'conversions']
+    metricsToShow = coreMetrics.map(key => ({
+      title: getMetricDisplayName(key),
+      value: formatMetricValue(key, data.ga4Data[key]),
+      description: key === 'users' ? 'Unique website visitors' :
+                  key === 'sessions' ? 'Website visits' :
+                  key === 'bounceRate' ? 'Single-page sessions' :
+                  'Goal completions'
+    }))
+    
+    // Page title
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...primaryPurple)
+    doc.text('Executive Summary', margin, 40)
+    
   } else if (data.reportType === 'standard') {
-    // Standard report: show standard metrics set (~10 metrics)
-    doc.addPage()
-    addPageHeader()
+    // Standard: ALL available data fields that have values
+    const allDataKeys = Object.keys(data.ga4Data).filter(key => 
+      data.ga4Data[key] !== undefined && 
+      data.ga4Data[key] !== null && 
+      data.ga4Data[key] !== 0
+    )
+    
+    metricsToShow = allDataKeys.map(key => ({
+      title: getMetricDisplayName(key),
+      value: formatMetricValue(key, data.ga4Data[key]),
+      description: `${key} metric data`
+    }))
     
     // Page title
     doc.setFontSize(20)
@@ -711,75 +497,92 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.setTextColor(...primaryPurple)
     doc.text('Standard Analytics Report', margin, 40)
     
-    // Underline
-    doc.setDrawColor(...teal)
-    doc.setLineWidth(1.5)
-    doc.line(margin, 45, margin + 70, 45)
-
-    // Standard metrics (2x5 grid)
-    const standardMetrics = ['users', 'sessions', 'bounceRate', 'conversions', 'pagesPerSession', 'avgSessionDuration', 'newUsers', 'organicTraffic', 'engagementRate', 'conversionRate']
-    const metricsToShow = standardMetrics
-      .filter(metricKey => AVAILABLE_METRICS[metricKey])
-      .map(metricKey => {
-        const metric = AVAILABLE_METRICS[metricKey]
-        if (!metric) return null
-        const value = metric.getValue(data)
-        return {
-          title: metric.title,
-          value: metric.format(value),
-          desc: metric.desc,
-          hasData: value !== undefined && value !== null
-        }
-      })
-      .filter((m): m is NonNullable<typeof m> => m !== null && m.hasData)
-      .slice(0, 10) // Limit to 10 for standard
-
-    const columns = 2
-    const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
-    const cardHeight = 45
+  } else if (data.reportType === 'custom' && data.selectedMetrics) {
+    // Custom: ONLY user-selected metrics
+    metricsToShow = data.selectedMetrics
+      .filter(key => data.ga4Data[key] !== undefined && data.ga4Data[key] !== null)
+      .map(key => ({
+        title: getMetricDisplayName(key),
+        value: formatMetricValue(key, data.ga4Data[key]),
+        description: `Selected: ${key}`
+      }))
     
-    let x = margin
-    let y = 60
-    let col = 0
-
-    metricsToShow.forEach((metric, index) => {
-      // Draw metric card
-      doc.setFillColor(...lightPurple)
-      doc.setDrawColor(...primaryPurple)
-      doc.setLineWidth(1)
-      doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
-      
-      // Metric content
-      doc.setFontSize(11)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(...primaryPurple)
-      doc.text(metric.title, x + 8, y + 15)
-      
-      doc.setFontSize(18)
-      doc.setTextColor(...darkGray)
-      doc.text(metric.value, x + 8, y + 28)
-      
-      doc.setFontSize(8)
-      doc.setTextColor(...mediumGray)
-      doc.text(metric.desc, x + 8, y + 36)
-      
-      // Grid positioning
-      col++
-      if (col >= columns) {
-        col = 0
-        x = margin
-        y += cardHeight + 10
-      } else {
-        x += cardWidth + 10
-      }
-    })
-    
-    addFooter(2, 4)
-  } else if (data.reportType === 'custom') {
-    // Custom report: show only selected metrics
-    const customPageResult = generateCustomMetricsPage()
-    currentPageNumber = customPageResult.pageCount
+    // Page title
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...primaryPurple)
+    doc.text('Custom Analytics Report', margin, 40)
   }
+
+  // Underline
+  doc.setDrawColor(...cyan)
+  doc.setLineWidth(1.5)
+  doc.line(margin, 45, margin + 80, 45)
+
+  // Subtitle
+  doc.setFontSize(10)
+  doc.setTextColor(...mediumGray)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Performance data for ${formatDate(data.startDate)} to ${formatDate(data.endDate)}`, margin, 57)
+
+  // Adaptive grid layout based on metric count
+  const metricCount = metricsToShow.length
+  const columns = metricCount <= 4 ? 2 : metricCount <= 9 ? 3 : 4
+  const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
+  const cardHeight = 45
+  
+  let x = margin
+  let y = 70
+  let col = 0
+
+  metricsToShow.forEach((metric, index) => {
+    // Check for page overflow
+    if (y > pageHeight - 100 && index < metricsToShow.length - 1) {
+      addFooter(currentPageNumber, 4)
+      doc.addPage()
+      addPageHeader()
+      currentPageNumber++
+      x = margin
+      y = 50
+      col = 0
+    }
+
+    // Draw metric card with enhanced styling
+    doc.setFillColor(...lightPurple)
+    doc.setDrawColor(...primaryPurple)
+    doc.setLineWidth(1)
+    doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
+    
+    // Metric content
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...primaryPurple)
+    doc.text(metric.title, x + 8, y + 15)
+    
+    doc.setFontSize(18)
+    doc.setTextColor(...darkGray)
+    // Ensure value fits in card width
+    const maxWidth = cardWidth - 16
+    const valueLines = doc.splitTextToSize(metric.value, maxWidth)
+    doc.text(valueLines[0], x + 8, y + 28)
+    
+    doc.setFontSize(8)
+    doc.setTextColor(...mediumGray)
+    const descLines = doc.splitTextToSize(metric.description, maxWidth)
+    doc.text(descLines[0], x + 8, y + 36)
+    
+    // Grid positioning
+    col++
+    if (col >= columns) {
+      col = 0
+      x = margin
+      y += cardHeight + 10
+    } else {
+      x += cardWidth + 10
+    }
+  })
+  
+  addFooter(currentPageNumber, 4)
 
   // ======================
   // PAGE 3: KEY INSIGHTS
@@ -797,7 +600,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   yPosition += 5
 
   // Underline
-  doc.setDrawColor(...teal)
+  doc.setDrawColor(...cyan)
   doc.setLineWidth(1.5)
   doc.line(margin, yPosition, margin + 35, yPosition)
   yPosition += 15
@@ -840,7 +643,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     yPosition += boxHeight + 12
   })
 
-  const insightsPageNum = data.reportType === 'executive' ? 2 : (data.reportType === 'custom' && currentPageNumber > 2) ? currentPageNumber + 1 : 3
+  const insightsPageNum = currentPageNumber + 1
   addFooter(insightsPageNum, 4)
 
 
@@ -859,7 +662,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.text('Strategic Recommendations', margin, yPosition)
   yPosition += 5
 
-  doc.setDrawColor(...teal)
+  doc.setDrawColor(...cyan)
   doc.setLineWidth(1.5)
   doc.line(margin, yPosition, margin + 70, yPosition)
   yPosition += 15
@@ -947,7 +750,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setFont('helvetica', 'bold')
   doc.text(`${agencyEmail} • ${agencyPhone}`, pageWidth / 2, yPosition + 8, { align: 'center' })
 
-  const finalPageNum = data.reportType === 'executive' ? 3 : 4
+  const finalPageNum = currentPageNumber + 2
   addFooter(finalPageNum, 4)
 
 
