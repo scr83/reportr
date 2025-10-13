@@ -40,8 +40,16 @@ export default function TestPDFPage() {
           organicTraffic: 68.5,
           engagementRate: 57.7,
           conversionRate: 1.0,
-          topLandingPages: '[{\"page\":\"/\",\"sessions\":7504}]',
-          deviceBreakdown: '{\"desktop\":11256,\"mobile\":6568}'
+          topLandingPages: [
+            { page: '/', sessions: 500, users: 400, bounceRate: 30.5, conversions: 10 },
+            { page: '/services', sessions: 300, users: 250, bounceRate: 40.2, conversions: 5 },
+            { page: '/about', sessions: 200, users: 180, bounceRate: 35.8, conversions: 3 }
+          ],
+          deviceBreakdown: {
+            mobile: 1000,
+            desktop: 1200,
+            tablet: 256
+          }
         }
       }
       
