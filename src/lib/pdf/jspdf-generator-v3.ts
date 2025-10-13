@@ -165,7 +165,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
 
     // Draw line chart
     doc.setDrawColor(...color)
-    doc.setLineWidth(1.5)
+    doc.setLineWidth(1)
 
     const stepX = chartWidth / (dataPoints.length - 1 || 1)
     
@@ -196,17 +196,17 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       doc.circle(lastX, lastY, 1.5, 'F')
     }
 
-    // Add min/max labels
+    // Add min/max labels inside chart area
     doc.setFontSize(8)
     doc.setTextColor(...mediumGray)
-    doc.text(formatNumber(maxValue), chartX - 5, chartY + 5, { align: 'right' })
-    doc.text(formatNumber(minValue), chartX - 5, chartY + chartHeight, { align: 'right' })
+    doc.text(formatNumber(maxValue), chartX + 5, chartY + 5)
+    doc.text(formatNumber(minValue), chartX + 5, chartY + chartHeight - 2)
     
-    // Y-axis label
-    doc.text('Count', chartX - 5, chartY - 8, { align: 'right' })
+    // Y-axis label inside chart area
+    doc.text('Count', chartX + 8, chartY + 15)
     
-    // X-axis label  
-    doc.text('Time Period', chartX + chartWidth / 2, chartY + chartHeight + 12, { align: 'center' })
+    // X-axis label inside chart area  
+    doc.text('Time Period', chartX + chartWidth / 2, chartY + chartHeight - 5, { align: 'center' })
   }
 
   // Helper: Draw horizontal bar chart
@@ -277,10 +277,11 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       doc.text(formatNumber(item.value), valueX, barY + 8)
     })
 
-    // X-axis label
+    // X-axis label inside chart area
     doc.setFontSize(8)
     doc.setTextColor(...mediumGray)
-    doc.text('Clicks', chartX + chartWidth / 2, chartY + (data.length * (barHeight + barSpacing)) + 15, { align: 'center' })
+    const labelY = Math.min(chartY + (data.length * (barHeight + barSpacing)) + 10, y + height - 8)
+    doc.text('Clicks', chartX + chartWidth / 2, labelY, { align: 'center' })
   }
 
   // ======================
@@ -291,11 +292,18 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   // doc.setFillColor(255, 255, 255)
   // doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
-  // Purple content card
+  // Purple content card with border and soft fill
   const contentY = 80
   const contentHeight = 170
-  doc.setFillColor(...primaryPurple) // Purple card background
-  doc.roundedRect(margin, contentY, pageWidth - 2 * margin, contentHeight, 5, 5, 'F')
+  
+  // Soft purple fill first
+  doc.setFillColor(...lightPurple) // Light purple fill
+  doc.roundedRect(margin, contentY, pageWidth - 2 * margin, contentHeight, 15, 15, 'F')
+  
+  // Bold purple border on top
+  doc.setDrawColor(...primaryPurple)
+  doc.setLineWidth(3)
+  doc.roundedRect(margin, contentY, pageWidth - 2 * margin, contentHeight, 15, 15, 'S')
 
   // Agency name above purple card
   doc.setTextColor(...primaryPurple)
@@ -303,18 +311,18 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setFont('helvetica', 'bold')
   doc.text(agencyName, pageWidth / 2, 50, { align: 'center' })
 
-  // Report title on purple card (white text)
-  doc.setTextColor(255, 255, 255)
+  // Report title on purple card (purple text on light background)
+  doc.setTextColor(...primaryPurple)
   doc.setFontSize(28)
   doc.setFont('helvetica', 'bold')
   doc.text('Executive Summary Report', pageWidth / 2, contentY + 40, { align: 'center' })
 
-  // Client name (white text)
-  doc.setTextColor(255, 255, 255)
+  // Client name (dark text)
+  doc.setTextColor(...darkGray)
   doc.setFontSize(22)
   doc.text(data.clientName, pageWidth / 2, contentY + 70, { align: 'center' })
 
-  // Date range (white text)
+  // Date range (dark text)
   doc.setFontSize(14)
   doc.setFont('helvetica', 'normal')
   doc.text(`${formatDate(data.startDate)} - ${formatDate(data.endDate)}`, pageWidth / 2, contentY + 95, { align: 'center' })
@@ -324,9 +332,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setLineWidth(2)
   doc.line(pageWidth / 2 - 40, contentY + 105, pageWidth / 2 + 40, contentY + 105)
 
-  // Generated date (light gray on purple)
+  // Generated date (medium gray)
   doc.setFontSize(11)
-  doc.setTextColor(220, 220, 220) // Light gray for better contrast on purple
+  doc.setTextColor(...mediumGray)
   doc.text(`Generated on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`, pageWidth / 2, contentY + 130, { align: 'center' })
 
   // ======================
