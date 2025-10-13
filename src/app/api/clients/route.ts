@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { requireUser } from '@/lib/auth-helpers';
+import { checkTrialExpiry } from '@/lib/check-trial';
 
 // Force dynamic rendering for client API
 export const dynamic = 'force-dynamic';
@@ -15,7 +16,14 @@ const clientSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireUser();
+    let user = await requireUser();
+    
+    // Check trial expiry and possibly downgrade user
+    const trialStatus = await checkTrialExpiry(user.id);
+    if (trialStatus.expired) {
+      // Refetch user data after potential downgrade
+      user = await requireUser();
+    }
     
     // Check tier limits
     const clientCount = await prisma.client.count({

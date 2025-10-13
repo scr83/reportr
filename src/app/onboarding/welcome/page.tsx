@@ -45,14 +45,32 @@ export default function WelcomePage() {
   ]
 
   const clientCountOptions = [
-    { value: '1-5', label: '1-5 clients' },
-    { value: '6-15', label: '6-15 clients' },
-    { value: '16-30', label: '16-30 clients' },
-    { value: '30+', label: '30+ clients' }
+    { value: '1', label: '1 client', tier: 'FREE', price: '$0' },
+    { value: '2-5', label: '2-5 clients', tier: 'STARTER', price: '$39/mo' },
+    { value: '6-15', label: '6-15 clients', tier: 'PROFESSIONAL', price: '$99/mo' },
+    { value: '16+', label: '16+ clients', tier: 'ENTERPRISE', price: '$199/mo' }
   ]
+
+  // Get recommended tier based on client count
+  const getRecommendedTier = (clientCount: string) => {
+    if (clientCount === '1') return 'FREE'
+    if (clientCount === '2-5') return 'STARTER'
+    if (clientCount === '6-15') return 'PROFESSIONAL'
+    if (clientCount === '16+') return 'ENTERPRISE'
+    return 'FREE'
+  }
+
+  const selectedOption = clientCountOptions.find(opt => opt.value === formData.clientCount)
+  const recommendedTier = selectedOption ? getRecommendedTier(selectedOption.value) : null
 
   const handleContinue = () => {
     if (formData.role && formData.clientCount) {
+      // Save recommended tier to localStorage for later use
+      const tier = getRecommendedTier(formData.clientCount)
+      localStorage.setItem('recommendedTier', tier)
+      localStorage.setItem('agencyRole', formData.role)
+      localStorage.setItem('clientCount', formData.clientCount)
+      
       router.push('/onboarding/connect-client')
     }
   }
@@ -112,18 +130,54 @@ export default function WelcomePage() {
                 </Typography>
                 <div className="grid grid-cols-2 gap-4">
                   {clientCountOptions.map((option) => (
-                    <Radio
-                      key={option.value}
-                      name="clientCount"
-                      value={option.value}
-                      label={option.label}
-                      checked={formData.clientCount === option.value}
-                      onChange={(e) => setFormData({ ...formData, clientCount: e.target.value })}
-                      className="text-slate-900"
-                    />
+                    <div key={option.value} className="relative">
+                      <Radio
+                        name="clientCount"
+                        value={option.value}
+                        label={option.label}
+                        checked={formData.clientCount === option.value}
+                        onChange={(e) => setFormData({ ...formData, clientCount: e.target.value })}
+                        className="text-slate-900"
+                      />
+                      <div className="mt-1 text-xs text-slate-500">
+                        {option.tier} • {option.price}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+
+              {/* Tier Recommendation */}
+              {recommendedTier && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-[#9233ea] rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                    <div>
+                      <Typography variant="h4" className="text-slate-900 mb-2">
+                        {recommendedTier} Plan is perfect for you
+                      </Typography>
+                      <Typography variant="body" className="text-slate-600 mb-3">
+                        {recommendedTier === 'FREE' ? (
+                          <>Perfect for testing with your first client. Includes 1 client and 5 reports per month.</>
+                        ) : recommendedTier === 'STARTER' ? (
+                          <>Great for small agencies. Includes 5 clients, 20 reports/month. Start with a 14-day free trial.</>
+                        ) : recommendedTier === 'PROFESSIONAL' ? (
+                          <>Ideal for growing agencies. Includes 15 clients, 75 reports/month. Start with a 14-day free trial.</>
+                        ) : (
+                          <>Perfect for large agencies. Includes 50 clients, 250 reports/month. Start with a 14-day free trial.</>
+                        )}
+                      </Typography>
+                      {recommendedTier !== 'FREE' && (
+                        <div className="inline-flex items-center text-sm text-[#9233ea] font-medium">
+                          🎉 14-day free trial included
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <Button
@@ -141,7 +195,7 @@ export default function WelcomePage() {
                   disabled={!isFormValid}
                   className="flex-1 bg-[#9233ea] hover:bg-[#7c2bc7] text-white"
                 >
-                  Continue
+                  {recommendedTier === 'FREE' ? 'Get Started Free' : 'Start Free Trial'} →
                 </Button>
               </div>
             </div>

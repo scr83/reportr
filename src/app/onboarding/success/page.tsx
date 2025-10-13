@@ -11,17 +11,51 @@ export default function SignInPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
 
-  // If already authenticated, redirect to add client step
+  // If already authenticated, redirect based on tier
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      // User just signed in, go to add client
-      router.push('/onboarding/add-client')
+      // Get the recommended tier from localStorage
+      const tier = localStorage.getItem('recommendedTier') || 'FREE'
+      
+      // Route based on tier
+      switch (tier) {
+        case 'FREE':
+          router.push('/onboarding/add-client')
+          break
+        case 'STARTER':
+          router.push('/onboarding/starter/batch-clients')
+          break
+        case 'PROFESSIONAL':
+          router.push('/onboarding/professional/batch-clients')
+          break
+        case 'ENTERPRISE':
+          router.push('/onboarding/enterprise/batch-clients')
+          break
+        default:
+          router.push('/onboarding/add-client')
+      }
     }
   }, [status, session, router])
 
   const handleSignIn = async () => {
+    // Get tier to determine callback URL  
+    const tier = localStorage.getItem('recommendedTier') || 'FREE'
+    
+    let callbackUrl = '/onboarding/add-client' // Default for FREE
+    switch (tier) {
+      case 'STARTER':
+        callbackUrl = '/onboarding/starter/batch-clients'
+        break
+      case 'PROFESSIONAL':
+        callbackUrl = '/onboarding/professional/batch-clients'
+        break
+      case 'ENTERPRISE':
+        callbackUrl = '/onboarding/enterprise/batch-clients'
+        break
+    }
+    
     await signIn('google', {
-      callbackUrl: '/onboarding/add-client'
+      callbackUrl: callbackUrl
     })
   }
 

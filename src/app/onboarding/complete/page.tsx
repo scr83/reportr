@@ -26,28 +26,38 @@ export default function CompleteOnboardingPage() {
         // Get onboarding data from localStorage
         const agencyData = localStorage.getItem('agencySetup')
         const clientData = localStorage.getItem('firstClient')
+        const batchClients = localStorage.getItem('clientsBatch')
+        const recommendedTier = localStorage.getItem('recommendedTier') || 'FREE'
 
-        // Step 1: Update user profile with agency info
-        if (agencyData) {
-          setStep('Setting up your agency profile...')
-          const agency = JSON.parse(agencyData)
-          
-          const response = await fetch('/api/user/profile', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              companyName: agency.companyName,
-              website: agency.website,
-            }),
-          })
+        // Step 1: Update user profile with agency info and tier
+        setStep('Setting up your agency profile...')
+        const agency = agencyData ? JSON.parse(agencyData) : { companyName: '', website: '' }
+        
+        // Calculate trial expiry for paid tiers
+        const planExpires = recommendedTier !== 'FREE' 
+          ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days from now
+          : null
+        
+        const profileResponse = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            companyName: agency.companyName,
+            website: agency.website,
+            plan: recommendedTier,
+            planExpires: planExpires?.toISOString(),
+          }),
+        })
 
-          if (!response.ok) {
-            throw new Error('Failed to update profile')
-          }
+        if (!profileResponse.ok) {
+          throw new Error('Failed to update profile')
         }
 
-        // Step 2: Create first client if provided
+        // Step 2: Create client(s)
+        let clientsCreated = 0
+        
+        // Handle single client (FREE tier)
         if (clientData) {
           setStep('Adding your first client...')
           const client = JSON.parse(clientData)
@@ -67,19 +77,68 @@ export default function CompleteOnboardingPage() {
             const data = await response.json()
             throw new Error(data.error || 'Failed to create client')
           }
+          clientsCreated = 1
         }
 
-        // Clear localStorage
+        // Handle batch clients (paid tiers)
+        if (batchClients) {
+          const clients = JSON.parse(batchClients)
+          
+          if (clients.length > 0) {
+            setStep(`Adding ${clients.length} clients...`)
+            
+            for (let i = 0; i < clients.length; i++) {
+              const client = clients[i]
+              
+              // Only create if both name and domain are provided
+              if (client.name?.trim() && client.domain?.trim()) {
+                setStep(`Adding client ${i + 1} of ${clients.length}: ${client.name}`)
+                
+                const response = await fetch('/api/clients', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    name: client.name,
+                    domain: client.domain,
+                    contactEmail: client.contactEmail || undefined,
+                  }),
+                })
+
+                if (!response.ok) {
+                  const data = await response.json()
+                  console.error(`Failed to create client ${client.name}:`, data)
+                  // Continue with other clients even if one fails
+                } else {
+                  clientsCreated++
+                }
+              }
+            }
+          }
+        }
+
+        // Clear all localStorage
         localStorage.removeItem('agencySetup')
         localStorage.removeItem('firstClient')
+        localStorage.removeItem('clientsBatch')
+        localStorage.removeItem('recommendedTier')
+        localStorage.removeItem('agencyRole')
+        localStorage.removeItem('clientCount')
         localStorage.removeItem('onboardingStep')
 
         // Redirect to dashboard
         setStep('Taking you to your dashboard...')
         setTimeout(() => {
-          const redirectUrl = clientData 
-            ? '/dashboard/clients?onboarding=complete&first_client=true'
-            : '/dashboard/clients?onboarding=complete'
+          let redirectUrl = '/dashboard/clients?onboarding=complete'
+          
+          if (recommendedTier !== 'FREE') {
+            redirectUrl += `&trial=${recommendedTier.toLowerCase()}`
+          }
+          
+          if (clientsCreated > 0) {
+            redirectUrl += `&clients_added=${clientsCreated}`
+          }
+          
           router.push(redirectUrl)
         }, 1000)
 

@@ -7,7 +7,7 @@ export async function PATCH(request: NextRequest) {
     const user = await requireUser();
     const body = await request.json();
 
-    const { companyName, website, primaryColor, logo } = body;
+    const { companyName, website, primaryColor, logo, plan, planExpires } = body;
 
     // Update user profile
     const updatedUser = await prisma.user.update({
@@ -17,6 +17,8 @@ export async function PATCH(request: NextRequest) {
         ...(website && { website }),
         ...(primaryColor && { primaryColor }),
         ...(logo && { logo }),
+        ...(plan && { plan }),
+        ...(planExpires !== undefined && { planExpires: planExpires ? new Date(planExpires) : null }),
       },
     });
 

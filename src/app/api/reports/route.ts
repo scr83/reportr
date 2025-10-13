@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
+import { checkTrialExpiry } from '@/lib/check-trial'
 
 const createReportSchema = z.object({
   clientId: z.string().min(1, 'Client ID is required'),
@@ -87,9 +88,52 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireUser()
+    let user = await requireUser()
     const body = await request.json()
     const validatedData = createReportSchema.parse(body)
+    
+    // Check trial expiry and possibly downgrade user
+    const trialStatus = await checkTrialExpiry(user.id);
+    if (trialStatus.expired) {
+      // Refetch user data after potential downgrade
+      user = await requireUser();
+    }
+    
+    // Check monthly report limits
+    const startOfMonth = new Date()
+    startOfMonth.setDate(1)
+    startOfMonth.setHours(0, 0, 0, 0)
+    
+    const reportCount = await prisma.report.count({
+      where: {
+        userId: user.id,
+        createdAt: {
+          gte: startOfMonth
+        }
+      }
+    })
+
+    // Define tier limits
+    const limits = {
+      FREE: 5,
+      STARTER: 20,
+      PROFESSIONAL: 75,
+      ENTERPRISE: 250
+    } as const
+
+    const userPlan = user.plan as keyof typeof limits
+    const limit = limits[userPlan] || limits.FREE
+    
+    if (reportCount >= limit) {
+      return NextResponse.json({
+        error: 'Report limit reached',
+        message: `${user.plan} plan allows ${limit} reports per month. You have used ${reportCount}/${limit} reports.`,
+        upgrade: true,
+        currentUsage: reportCount,
+        limit: limit,
+        plan: user.plan
+      }, { status: 403 })
+    }
     
     // Check if client exists AND belongs to the user
     const client = await prisma.client.findFirst({
