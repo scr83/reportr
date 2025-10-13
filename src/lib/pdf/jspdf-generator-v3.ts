@@ -28,6 +28,33 @@ interface ReportData {
     bounceRate: number
     conversions: number
   }
+  // Extended metrics for custom reports (all 24 available metrics)
+  metrics?: {
+    users?: number
+    newUsers?: number
+    sessions?: number
+    engagedSessions?: number
+    engagementRate?: number
+    bounceRate?: number
+    conversions?: number
+    conversionRate?: number
+    pagesPerSession?: number
+    avgSessionDuration?: number
+    organicTraffic?: number
+    directTraffic?: number
+    referralTraffic?: number
+    socialTraffic?: number
+    emailTraffic?: number
+    paidTraffic?: number
+    mobileUsers?: number
+    desktopUsers?: number
+    tabletUsers?: number
+    returningUsers?: number
+    pageViews?: number
+    uniquePageViews?: number
+    averageTimeOnPage?: number
+    exitRate?: number
+  }
 }
 
 interface CustomFieldData {
@@ -70,6 +97,180 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   const agencyWebsite = 'https://digitalfrog.co'
   const agencyEmail = 'jump@digitalfrog.co'
   const agencyPhone = '+56 9 9073 0352'
+
+  // Complete mapping of all 24 available metrics
+  const AVAILABLE_METRICS: Record<string, {
+    title: string
+    getValue: (data: ReportData) => any
+    desc: string
+    format: (val: any) => string
+  }> = {
+    // Audience Metrics (7)
+    users: {
+      title: 'Total Users',
+      getValue: (data: ReportData) => data.metrics?.users || data.ga4Data?.users,
+      desc: 'Unique website visitors',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    newUsers: {
+      title: 'New Users',
+      getValue: (data: ReportData) => data.metrics?.newUsers,
+      desc: 'First-time visitors',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    returningUsers: {
+      title: 'Returning Users',
+      getValue: (data: ReportData) => data.metrics?.returningUsers,
+      desc: 'Repeat visitors',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    sessions: {
+      title: 'Total Sessions',
+      getValue: (data: ReportData) => data.metrics?.sessions || data.ga4Data?.sessions,
+      desc: 'Website visits',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    engagedSessions: {
+      title: 'Engaged Sessions',
+      getValue: (data: ReportData) => data.metrics?.engagedSessions,
+      desc: 'Sessions with engagement',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    engagementRate: {
+      title: 'Engagement Rate',
+      getValue: (data: ReportData) => data.metrics?.engagementRate,
+      desc: '% of engaged sessions',
+      format: (val: any) => `${val?.toFixed(2) || 0}%`
+    },
+    bounceRate: {
+      title: 'Bounce Rate',
+      getValue: (data: ReportData) => data.metrics?.bounceRate || data.ga4Data?.bounceRate,
+      desc: 'Single-page sessions (%)',
+      format: (val: any) => `${val?.toFixed(2) || 0}%`
+    },
+
+    // Behavior Metrics (4)
+    pagesPerSession: {
+      title: 'Pages Per Session',
+      getValue: (data: ReportData) => data.metrics?.pagesPerSession,
+      desc: 'Avg pages viewed',
+      format: (val: any) => val?.toFixed(2) || '0'
+    },
+    avgSessionDuration: {
+      title: 'Session Duration',
+      getValue: (data: ReportData) => data.metrics?.avgSessionDuration,
+      desc: 'Average time on site',
+      format: (val: any) => {
+        const seconds = val || 0
+        const mins = Math.floor(seconds / 60)
+        const secs = Math.floor(seconds % 60)
+        return `${mins}m ${secs}s`
+      }
+    },
+    pageViews: {
+      title: 'Page Views',
+      getValue: (data: ReportData) => data.metrics?.pageViews,
+      desc: 'Total page views',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    uniquePageViews: {
+      title: 'Unique Page Views',
+      getValue: (data: ReportData) => data.metrics?.uniquePageViews,
+      desc: 'Unique page views',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+
+    // Conversion Metrics (3)
+    conversions: {
+      title: 'Conversions',
+      getValue: (data: ReportData) => data.metrics?.conversions || data.ga4Data?.conversions,
+      desc: 'Goal completions',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    conversionRate: {
+      title: 'Conversion Rate',
+      getValue: (data: ReportData) => data.metrics?.conversionRate,
+      desc: '% of sessions converting',
+      format: (val: any) => `${val?.toFixed(2) || 0}%`
+    },
+    averageTimeOnPage: {
+      title: 'Avg Time On Page',
+      getValue: (data: ReportData) => data.metrics?.averageTimeOnPage,
+      desc: 'Average page duration',
+      format: (val: any) => {
+        const seconds = val || 0
+        const mins = Math.floor(seconds / 60)
+        const secs = Math.floor(seconds % 60)
+        return `${mins}m ${secs}s`
+      }
+    },
+
+    // Traffic Source Metrics (6)
+    organicTraffic: {
+      title: 'Organic Traffic',
+      getValue: (data: ReportData) => data.metrics?.organicTraffic,
+      desc: 'Search engine traffic',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    directTraffic: {
+      title: 'Direct Traffic',
+      getValue: (data: ReportData) => data.metrics?.directTraffic,
+      desc: 'Direct visits',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    referralTraffic: {
+      title: 'Referral Traffic',
+      getValue: (data: ReportData) => data.metrics?.referralTraffic,
+      desc: 'Traffic from other sites',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    socialTraffic: {
+      title: 'Social Traffic',
+      getValue: (data: ReportData) => data.metrics?.socialTraffic,
+      desc: 'Social media traffic',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    emailTraffic: {
+      title: 'Email Traffic',
+      getValue: (data: ReportData) => data.metrics?.emailTraffic,
+      desc: 'Email campaign traffic',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    paidTraffic: {
+      title: 'Paid Traffic',
+      getValue: (data: ReportData) => data.metrics?.paidTraffic,
+      desc: 'Paid advertising traffic',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+
+    // Device Metrics (3)
+    mobileUsers: {
+      title: 'Mobile Users',
+      getValue: (data: ReportData) => data.metrics?.mobileUsers,
+      desc: 'Mobile device users',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    desktopUsers: {
+      title: 'Desktop Users',
+      getValue: (data: ReportData) => data.metrics?.desktopUsers,
+      desc: 'Desktop computer users',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+    tabletUsers: {
+      title: 'Tablet Users',
+      getValue: (data: ReportData) => data.metrics?.tabletUsers,
+      desc: 'Tablet device users',
+      format: (val: any) => val?.toLocaleString() || '0'
+    },
+
+    // Additional Metric (1)
+    exitRate: {
+      title: 'Exit Rate',
+      getValue: (data: ReportData) => data.metrics?.exitRate,
+      desc: '% exits from pages',
+      format: (val: any) => `${val?.toFixed(2) || 0}%`
+    }
+  }
 
   // Generate dynamic content based on report type
   const generateInsights = (): Array<{
@@ -178,6 +379,104 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     }
   }
 
+  // Custom Metrics Page Generator
+  const generateCustomMetricsPage = (): { pageCount: number } => {
+    if (!data.selectedMetrics || data.selectedMetrics.length === 0) {
+      return { pageCount: 0 }
+    }
+
+    // Filter to only show selected metrics with data
+    const metricsToShow = data.selectedMetrics
+      .filter(metricKey => AVAILABLE_METRICS[metricKey])
+      .map(metricKey => {
+        const metric = AVAILABLE_METRICS[metricKey]
+        if (!metric) return null
+        const value = metric.getValue(data)
+        return {
+          title: metric.title,
+          value: metric.format(value),
+          desc: metric.desc,
+          hasData: value !== undefined && value !== null
+        }
+      })
+      .filter((m): m is NonNullable<typeof m> => m !== null && m.hasData)
+
+    if (metricsToShow.length === 0) {
+      return { pageCount: 0 }
+    }
+
+    doc.addPage()
+    addPageHeader()
+    
+    // Page title
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...primaryPurple)
+    doc.text('Custom Analytics Report', margin, 40)
+    
+    // Underline
+    doc.setDrawColor(...teal)
+    doc.setLineWidth(1.5)
+    doc.line(margin, 45, margin + 70, 45)
+
+    // Adaptive grid layout based on metric count
+    const metricCount = metricsToShow.length
+    const columns = metricCount <= 4 ? 2 : metricCount <= 9 ? 3 : 4
+    const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
+    const cardHeight = 45
+    
+    let x = margin
+    let y = 60
+    let col = 0
+    let currentPageNum = 2
+
+    metricsToShow.forEach((metric, index) => {
+      // Draw metric card
+      doc.setFillColor(...lightPurple)
+      doc.setDrawColor(...primaryPurple)
+      doc.setLineWidth(1)
+      doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
+      
+      // Metric content
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...primaryPurple)
+      doc.text(metric.title, x + 8, y + 15)
+      
+      doc.setFontSize(18)
+      doc.setTextColor(...darkGray)
+      doc.text(metric.value, x + 8, y + 28)
+      
+      doc.setFontSize(8)
+      doc.setTextColor(...mediumGray)
+      doc.text(metric.desc, x + 8, y + 36)
+      
+      // Grid positioning
+      col++
+      if (col >= columns) {
+        col = 0
+        x = margin
+        y += cardHeight + 10
+      } else {
+        x += cardWidth + 10
+      }
+      
+      // Handle page overflow
+      if (y > pageHeight - 80 && index < metricsToShow.length - 1) {
+        addFooter(currentPageNum, 4)
+        doc.addPage()
+        addPageHeader()
+        currentPageNum++
+        x = margin
+        y = 60
+        col = 0
+      }
+    })
+    
+    addFooter(currentPageNum, 4)
+    return { pageCount: currentPageNum }
+  }
+
   // Helper: Add footer with proper spacing
   const addFooter = (pageNum?: number, totalPages?: number) => {
     doc.setDrawColor(...mediumGray)
@@ -228,183 +527,6 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.line(margin, 28, pageWidth - margin, 28)
   }
 
-  // Helper: Draw simple line chart
-  const drawLineChart = (
-    x: number, 
-    y: number, 
-    width: number, 
-    height: number, 
-    dataPoints: number[] | undefined,
-    label: string,
-    color: [number, number, number]
-  ) => {
-    // Chart background
-    doc.setFillColor(250, 250, 255) // Very light purple background
-    doc.roundedRect(x, y, width, height, 3, 3, 'F')
-
-    // Border
-    doc.setDrawColor(...lightPurple)
-    doc.setLineWidth(1)
-    doc.roundedRect(x, y, width, height, 3, 3, 'S')
-
-    // Title
-    doc.setFontSize(11)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(...primaryPurple)
-    doc.text(label, x + 5, y + 10)
-
-    // Calculate chart area (leaving space for title, Y-axis label, and X-axis label)
-    const chartX = x + 40  // More space for vertical Y-axis label
-    const chartY = y + 20
-    const chartWidth = width - 50  // Adjust for left margin
-    const chartHeight = height - 45  // More space for X-axis label
-
-    if (!dataPoints || dataPoints.length === 0) {
-      doc.setFontSize(9)
-      doc.setTextColor(...mediumGray)
-      doc.text('No data available', x + width / 2, y + height / 2, { align: 'center' })
-      return
-    }
-
-    // Find min and max for scaling
-    const maxValue = Math.max(...dataPoints)
-    const minValue = Math.min(...dataPoints)
-    const range = maxValue - minValue || 1
-
-    // Draw grid lines (horizontal)
-    doc.setDrawColor(230, 230, 240)
-    doc.setLineWidth(0.3)
-    for (let i = 0; i <= 4; i++) {
-      const gridY = chartY + (chartHeight / 4) * i
-      doc.line(chartX, gridY, chartX + chartWidth, gridY)
-    }
-
-    // Draw line chart
-    doc.setDrawColor(...color)
-    doc.setLineWidth(1)
-
-    const stepX = chartWidth / (dataPoints.length - 1 || 1)
-    
-    for (let i = 0; i < dataPoints.length - 1; i++) {
-      const currentPoint = dataPoints[i]
-      const nextPoint = dataPoints[i + 1]
-      
-      if (currentPoint === undefined || nextPoint === undefined) continue
-      
-      const x1 = chartX + stepX * i
-      const y1 = chartY + chartHeight - ((currentPoint - minValue) / range) * chartHeight
-      const x2 = chartX + stepX * (i + 1)
-      const y2 = chartY + chartHeight - ((nextPoint - minValue) / range) * chartHeight
-      
-      doc.line(x1, y1, x2, y2)
-      
-      // Draw data points
-      doc.setFillColor(...color)
-      doc.circle(x1, y1, 1.5, 'F')
-    }
-
-    // Draw last point
-    const lastPoint = dataPoints[dataPoints.length - 1]
-    if (lastPoint !== undefined) {
-      const lastX = chartX + stepX * (dataPoints.length - 1)
-      const lastY = chartY + chartHeight - ((lastPoint - minValue) / range) * chartHeight
-      doc.setFillColor(...color)
-      doc.circle(lastX, lastY, 1.5, 'F')
-    }
-
-    // Add min/max labels on Y-axis
-    doc.setFontSize(8)
-    doc.setTextColor(...mediumGray)
-    doc.text(formatNumber(maxValue), chartX - 5, chartY + 5, { align: 'right' })
-    doc.text(formatNumber(minValue), chartX - 5, chartY + chartHeight - 2, { align: 'right' })
-    
-    // Vertical Y-axis label (rotated)
-    doc.setFontSize(8)
-    doc.setTextColor(...mediumGray)
-    doc.text('Count', x + 12, y + (height / 2), {
-      angle: 90,  // 90° counter-clockwise (reads bottom-to-top)
-      align: 'center'
-    })
-    
-    // X-axis label at bottom
-    doc.setFontSize(8)
-    doc.setTextColor(...mediumGray)
-    doc.text('Time Period', x + (width / 2), y + height - 8, { align: 'center' })
-  }
-
-  // Helper: Draw horizontal bar chart
-  const drawBarChart = (
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    data: Array<{ label: string; value: number }>,
-    title: string
-  ) => {
-    // Chart background
-    doc.setFillColor(250, 250, 255)
-    doc.roundedRect(x, y, width, height, 3, 3, 'F')
-
-    // Border
-    doc.setDrawColor(...lightPurple)
-    doc.setLineWidth(1)
-    doc.roundedRect(x, y, width, height, 3, 3, 'S')
-
-    // Title
-    doc.setFontSize(11)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(...primaryPurple)
-    doc.text(title, x + 5, y + 10)
-
-    if (!data || data.length === 0) {
-      doc.setFontSize(9)
-      doc.setTextColor(...mediumGray)
-      doc.text('No data available', x + width / 2, y + height / 2, { align: 'center' })
-      return
-    }
-
-    const chartX = x + 10
-    const chartY = y + 18
-    const chartWidth = width - 20
-    const barHeight = 12
-    const barSpacing = 6
-
-    const maxValue = Math.max(...data.map(d => d.value))
-
-    data.slice(0, 5).forEach((item, index) => {
-      const barY = chartY + index * (barHeight + barSpacing)
-      const maxBarWidth = chartWidth - 80 // Reserve space for labels and values
-      const barWidth = Math.max((item.value / maxValue) * maxBarWidth, 2) // Minimum 2px width
-
-      // Label - Better alignment
-      doc.setFontSize(8)
-      doc.setTextColor(...darkGray)
-      doc.setFont('helvetica', 'normal')
-      const truncatedLabel = item.label.length > 18 ? item.label.substring(0, 18) + '...' : item.label
-      doc.text(truncatedLabel, chartX, barY + 8, { align: 'left' })
-
-      // Bar background - aligned properly
-      doc.setFillColor(...lightPurple)
-      doc.roundedRect(chartX + 70, barY + 1, maxBarWidth, barHeight - 2, 2, 2, 'F')
-
-      // Bar foreground - aligned properly
-      doc.setFillColor(...primaryPurple)
-      doc.roundedRect(chartX + 70, barY + 1, barWidth, barHeight - 2, 2, 2, 'F')
-
-      // Value - Better positioning
-      doc.setFontSize(8)
-      doc.setTextColor(...darkGray)
-      doc.setFont('helvetica', 'bold')
-      // Position value at end of actual bar, not background
-      const valueX = Math.min(chartX + 70 + barWidth + 5, chartX + chartWidth - 25)
-      doc.text(formatNumber(item.value), valueX, barY + 8)
-    })
-
-    // X-axis label at bottom center
-    doc.setFontSize(8)
-    doc.setTextColor(...mediumGray)
-    doc.text('Clicks', x + (width / 2), y + height - 8, { align: 'center' })
-  }
 
   // ======================
   // PAGE 1: COVER PAGE
@@ -567,10 +689,100 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   yPosition = cardY + cardHeight + 18 // Reduced spacing
 
   // Executive Summary now ends here - Key Insights moved to Page 3
-  addFooter(1, 5)
+  addFooter(1, 4)
 
   // ======================
-  // PAGE 2: KEY INSIGHTS
+  // PAGE 2: METRICS (Different by report type)
+  // ======================
+  
+  let currentPageNumber = 2
+
+  if (data.reportType === 'executive') {
+    // Executive report: same as current page 1 summary, no additional metrics page needed
+    // Skip metrics page for executive reports
+  } else if (data.reportType === 'standard') {
+    // Standard report: show standard metrics set (~10 metrics)
+    doc.addPage()
+    addPageHeader()
+    
+    // Page title
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(...primaryPurple)
+    doc.text('Standard Analytics Report', margin, 40)
+    
+    // Underline
+    doc.setDrawColor(...teal)
+    doc.setLineWidth(1.5)
+    doc.line(margin, 45, margin + 70, 45)
+
+    // Standard metrics (2x5 grid)
+    const standardMetrics = ['users', 'sessions', 'bounceRate', 'conversions', 'pagesPerSession', 'avgSessionDuration', 'newUsers', 'organicTraffic', 'engagementRate', 'conversionRate']
+    const metricsToShow = standardMetrics
+      .filter(metricKey => AVAILABLE_METRICS[metricKey])
+      .map(metricKey => {
+        const metric = AVAILABLE_METRICS[metricKey]
+        if (!metric) return null
+        const value = metric.getValue(data)
+        return {
+          title: metric.title,
+          value: metric.format(value),
+          desc: metric.desc,
+          hasData: value !== undefined && value !== null
+        }
+      })
+      .filter((m): m is NonNullable<typeof m> => m !== null && m.hasData)
+      .slice(0, 10) // Limit to 10 for standard
+
+    const columns = 2
+    const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
+    const cardHeight = 45
+    
+    let x = margin
+    let y = 60
+    let col = 0
+
+    metricsToShow.forEach((metric, index) => {
+      // Draw metric card
+      doc.setFillColor(...lightPurple)
+      doc.setDrawColor(...primaryPurple)
+      doc.setLineWidth(1)
+      doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
+      
+      // Metric content
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...primaryPurple)
+      doc.text(metric.title, x + 8, y + 15)
+      
+      doc.setFontSize(18)
+      doc.setTextColor(...darkGray)
+      doc.text(metric.value, x + 8, y + 28)
+      
+      doc.setFontSize(8)
+      doc.setTextColor(...mediumGray)
+      doc.text(metric.desc, x + 8, y + 36)
+      
+      // Grid positioning
+      col++
+      if (col >= columns) {
+        col = 0
+        x = margin
+        y += cardHeight + 10
+      } else {
+        x += cardWidth + 10
+      }
+    })
+    
+    addFooter(2, 4)
+  } else if (data.reportType === 'custom') {
+    // Custom report: show only selected metrics
+    const customPageResult = generateCustomMetricsPage()
+    currentPageNumber = customPageResult.pageCount
+  }
+
+  // ======================
+  // PAGE 3: KEY INSIGHTS
   // ======================
   
   doc.addPage()
@@ -628,96 +840,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     yPosition += boxHeight + 12
   })
 
-  addFooter(2, 5)
+  const insightsPageNum = data.reportType === 'executive' ? 2 : (data.reportType === 'custom' && currentPageNumber > 2) ? currentPageNumber + 1 : 3
+  addFooter(insightsPageNum, 4)
 
-  // ======================
-  // PAGE 3: PERFORMANCE CHARTS
-  // ======================
-  
-  doc.addPage()
-  addPageHeader()
-  yPosition = 40
-
-  // Page title
-  doc.setFontSize(20)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(...primaryPurple)
-  doc.text('Performance Analytics', margin, yPosition)
-  yPosition += 5
-
-  doc.setDrawColor(...teal)
-  doc.setLineWidth(1.5)
-  doc.line(margin, yPosition, margin + 60, yPosition)
-  yPosition += 15
-
-  // Generate sample trend data (distributed over 7 days)
-  // In production, this would come from actual time-series GSC data
-  const clicksData: number[] = data.gscData.clicks > 0 ? [
-    Math.round(data.gscData.clicks * 0.7),
-    Math.round(data.gscData.clicks * 0.85),
-    Math.round(data.gscData.clicks * 0.9),
-    Math.round(data.gscData.clicks * 1.1),
-    Math.round(data.gscData.clicks),
-    Math.round(data.gscData.clicks * 1.05),
-    Math.round(data.gscData.clicks * 0.95)
-  ] : []
-
-  const impressionsData: number[] = data.gscData.impressions > 0 ? [
-    Math.round(data.gscData.impressions * 0.8),
-    Math.round(data.gscData.impressions * 0.9),
-    Math.round(data.gscData.impressions * 0.85),
-    Math.round(data.gscData.impressions * 1.05),
-    Math.round(data.gscData.impressions),
-    Math.round(data.gscData.impressions * 1.1),
-    Math.round(data.gscData.impressions * 1.02)
-  ] : []
-
-  // Draw Traffic Trend Chart
-  const chartWidth = pageWidth - 2 * margin
-  const chartHeight = 85
-
-  drawLineChart(
-    margin,
-    yPosition,
-    chartWidth / 2 - 5,
-    chartHeight,
-    clicksData,
-    'Clicks Trend',
-    primaryPurple
-  )
-
-  drawLineChart(
-    margin + chartWidth / 2 + 5,
-    yPosition,
-    chartWidth / 2 - 5,
-    chartHeight,
-    impressionsData,
-    'Impressions Trend',
-    teal
-  )
-
-  yPosition += chartHeight + 15
-
-  // Top Keywords Bar Chart
-  const topKeywords = data.gscData.topQueries?.slice(0, 5).map(q => ({
-    label: q.query,
-    value: q.clicks
-  })) || []
-
-  if (topKeywords.length > 0) {
-    drawBarChart(
-      margin,
-      yPosition,
-      pageWidth - 2 * margin,
-      100,
-      topKeywords,
-      'Top Performing Keywords'
-    )
-  }
-
-  yPosition += 100
-
-  addFooter(3, 5)
 
   // ======================
   // PAGE 4: STRATEGIC RECOMMENDATIONS  
@@ -822,72 +947,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setFont('helvetica', 'bold')
   doc.text(`${agencyEmail} • ${agencyPhone}`, pageWidth / 2, yPosition + 8, { align: 'center' })
 
-  addFooter(4, 5)
+  const finalPageNum = data.reportType === 'executive' ? 3 : 4
+  addFooter(finalPageNum, 4)
 
-  // ======================
-  // PAGE 5: NEXT STEPS & CONTACT
-  // ======================
-  
-  doc.addPage()
-  addPageHeader()
-  yPosition = 40
-
-  // Page title
-  doc.setFontSize(20)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(...primaryPurple)
-  doc.text('Next Steps', margin, yPosition)
-  yPosition += 5
-
-  doc.setDrawColor(...teal)
-  doc.setLineWidth(1.5)
-  doc.line(margin, yPosition, margin + 35, yPosition)
-  yPosition += 20
-
-  // Action Items
-  const actionItems = [
-    'Review and implement priority recommendations outlined in this report',
-    'Schedule monthly performance reviews to track progress and trends',
-    'Set up automated monitoring alerts for key performance indicators',
-    'Plan quarterly strategy adjustments based on data insights',
-    'Implement conversion tracking if not already in place'
-  ]
-
-  doc.setFontSize(12)
-  doc.setTextColor(...darkGray)
-  doc.setFont('helvetica', 'normal')
-  actionItems.forEach((item, index) => {
-    doc.text(`${index + 1}. ${item}`, margin, yPosition)
-    yPosition += 15
-  })
-
-  yPosition += 20
-
-  // Contact section
-  doc.setFillColor(...veryLightPurple)
-  doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 80, 5, 5, 'F')
-  
-  doc.setDrawColor(...lightPurple)
-  doc.setLineWidth(1)
-  doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 80, 5, 5, 'S')
-
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(...primaryPurple)
-  doc.text('Questions About This Report?', margin + 10, yPosition + 20)
-
-  doc.setFontSize(11)
-  doc.setTextColor(...darkGray)
-  doc.setFont('helvetica', 'normal')
-  doc.text('Our team is here to help you implement these recommendations', margin + 10, yPosition + 35)
-  doc.text('and achieve your digital marketing goals.', margin + 10, yPosition + 45)
-
-  doc.setFontSize(12)
-  doc.setTextColor(...primaryPurple)
-  doc.setFont('helvetica', 'bold')
-  doc.text(`Contact: ${agencyEmail} • ${agencyPhone}`, margin + 10, yPosition + 65)
-
-  addFooter(5, 5)
 
   return doc.output('arraybuffer')
 }

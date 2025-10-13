@@ -38,7 +38,33 @@ const generatePdfSchema = z.object({
     sessions: z.number().min(0),
     bounceRate: z.number().min(0),
     conversions: z.number().min(0)
-  })
+  }),
+  metrics: z.object({
+    users: z.number().optional(),
+    newUsers: z.number().optional(),
+    sessions: z.number().optional(),
+    engagedSessions: z.number().optional(),
+    engagementRate: z.number().optional(),
+    bounceRate: z.number().optional(),
+    conversions: z.number().optional(),
+    conversionRate: z.number().optional(),
+    pagesPerSession: z.number().optional(),
+    avgSessionDuration: z.number().optional(),
+    organicTraffic: z.number().optional(),
+    directTraffic: z.number().optional(),
+    referralTraffic: z.number().optional(),
+    socialTraffic: z.number().optional(),
+    emailTraffic: z.number().optional(),
+    paidTraffic: z.number().optional(),
+    mobileUsers: z.number().optional(),
+    desktopUsers: z.number().optional(),
+    tabletUsers: z.number().optional(),
+    returningUsers: z.number().optional(),
+    pageViews: z.number().optional(),
+    uniquePageViews: z.number().optional(),
+    averageTimeOnPage: z.number().optional(),
+    exitRate: z.number().optional()
+  }).optional()
 })
 
 export async function POST(request: NextRequest) {
@@ -100,7 +126,8 @@ export async function POST(request: NextRequest) {
       agencyName: validatedData.agencyName,
       agencyLogo: validatedData.agencyLogo,
       gscData: validatedData.gscData,
-      ga4Data: validatedData.ga4Data
+      ga4Data: validatedData.ga4Data,
+      metrics: validatedData.metrics
     })
     const pdfBuffer = Buffer.from(pdfArrayBuffer)
     console.log('10. PDF generated:', {
@@ -143,7 +170,8 @@ export async function POST(request: NextRequest) {
           agencyName: validatedData.agencyName,
           agencyLogo: validatedData.agencyLogo,
           gscData: validatedData.gscData,
-          ga4Data: validatedData.ga4Data
+          ga4Data: validatedData.ga4Data,
+          metrics: validatedData.metrics
         },
         pdfUrl: pdfBase64,
         pdfSize: pdfBuffer.length,
