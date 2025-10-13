@@ -464,7 +464,13 @@ export default function GenerateReportPage() {
             impressions: Number(pdfReportData.gscData?.totalImpressions) || 0,
             ctr: Number(pdfReportData.gscData?.averageCTR) || 0,
             position: Number(pdfReportData.gscData?.averagePosition) || 0,
-            topQueries: pdfReportData.gscData?.topQueries
+            topQueries: pdfReportData.gscData?.topQueries?.map(q => ({
+              query: String(q.query || ''),
+              clicks: Number(q.clicks) || 0,
+              impressions: Number(q.impressions) || 0,
+              ctr: Number(q.ctr) || 0,
+              position: Number(q.position) || 0
+            })) || []
           },
           ga4Data: {
             users: Number(pdfReportData.ga4Data?.users) || 0,
