@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator'
+import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator-v2'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
