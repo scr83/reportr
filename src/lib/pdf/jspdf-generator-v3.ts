@@ -319,13 +319,12 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.text(formatNumber(minValue), chartX - 5, chartY + chartHeight - 2, { align: 'right' })
     
     // Vertical Y-axis label (rotated)
-    doc.save()
-    doc.translate(x + 12, y + (height / 2))  // Left side, center of chart
-    doc.rotate(270)  // 90° counter-clockwise (-90°)
     doc.setFontSize(8)
     doc.setTextColor(...mediumGray)
-    doc.text('Count', 0, 0, { align: 'center' })
-    doc.restore()
+    doc.text('Count', x + 12, y + (height / 2), {
+      angle: 90,  // 90° counter-clockwise (reads bottom-to-top)
+      align: 'center'
+    })
     
     // X-axis label at bottom
     doc.setFontSize(8)
