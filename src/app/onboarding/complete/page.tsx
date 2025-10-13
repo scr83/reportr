@@ -129,17 +129,18 @@ export default function CompleteOnboardingPage() {
         // Redirect to dashboard
         setStep('Taking you to your dashboard...')
         setTimeout(() => {
-          let redirectUrl = '/dashboard/clients?onboarding=complete'
+          // Build query params
+          const params = new URLSearchParams({ onboarding: 'complete' })
           
           if (recommendedTier !== 'FREE') {
-            redirectUrl += `&trial=${recommendedTier.toLowerCase()}`
+            params.append('trial', recommendedTier.toLowerCase())
           }
           
           if (clientsCreated > 0) {
-            redirectUrl += `&clients_added=${clientsCreated}`
+            params.append('clients_added', clientsCreated.toString())
           }
           
-          router.push(redirectUrl)
+          router.push(`/dashboard/clients?${params.toString()}`)
         }, 1000)
 
       } catch (err) {
