@@ -25,8 +25,9 @@ export default function CompleteOnboardingPage() {
 
         // Get onboarding data from localStorage
         const agencyData = localStorage.getItem('agencySetup')
+        const clientData = localStorage.getItem('firstClient')
 
-        // Update user profile with agency info
+        // Step 1: Update user profile with agency info
         if (agencyData) {
           setStep('Setting up your agency profile...')
           const agency = JSON.parse(agencyData)
@@ -46,20 +47,46 @@ export default function CompleteOnboardingPage() {
           }
         }
 
+        // Step 2: Create first client if provided
+        if (clientData) {
+          setStep('Adding your first client...')
+          const client = JSON.parse(clientData)
+          
+          const response = await fetch('/api/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              name: client.name,
+              domain: client.domain,
+              contactEmail: client.contactEmail,
+            }),
+          })
+
+          if (!response.ok) {
+            const data = await response.json()
+            throw new Error(data.error || 'Failed to create client')
+          }
+        }
+
         // Clear localStorage
         localStorage.removeItem('agencySetup')
+        localStorage.removeItem('firstClient')
         localStorage.removeItem('onboardingStep')
 
         // Redirect to dashboard
         setStep('Taking you to your dashboard...')
         setTimeout(() => {
-          router.push('/dashboard/clients?onboarding=complete')
+          const redirectUrl = clientData 
+            ? '/dashboard/clients?onboarding=complete&first_client=true'
+            : '/dashboard/clients?onboarding=complete'
+          router.push(redirectUrl)
         }, 1000)
 
       } catch (err) {
         console.error('Onboarding completion error:', err)
         setError(err instanceof Error ? err.message : 'Failed to complete setup')
-        // Even if profile update fails, still redirect to dashboard
+        // Even if something fails, still redirect to dashboard after delay
         setTimeout(() => {
           router.push('/dashboard/clients')
         }, 2000)

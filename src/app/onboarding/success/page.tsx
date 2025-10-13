@@ -11,17 +11,17 @@ export default function SignInPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
 
-  // If already authenticated, redirect to complete onboarding
+  // If already authenticated, redirect to add client step
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      // User just signed in, complete onboarding
-      router.push('/onboarding/complete')
+      // User just signed in, go to add client
+      router.push('/onboarding/add-client')
     }
   }, [status, session, router])
 
   const handleSignIn = async () => {
     await signIn('google', {
-      callbackUrl: '/onboarding/complete'
+      callbackUrl: '/onboarding/add-client'
     })
   }
 
