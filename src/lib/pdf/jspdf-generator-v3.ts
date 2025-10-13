@@ -6,6 +6,9 @@ interface ReportData {
   endDate: string
   agencyName?: string
   agencyLogo?: string
+  reportType?: 'standard' | 'custom' | 'executive'
+  customFields?: CustomFieldData[]
+  selectedMetrics?: string[]
   gscData: {
     clicks: number
     impressions: number
@@ -25,6 +28,12 @@ interface ReportData {
     bounceRate: number
     conversions: number
   }
+}
+
+interface CustomFieldData {
+  title: string
+  content: string
+  type: 'insight' | 'recommendation' | 'metric'
 }
 
 export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
@@ -61,6 +70,113 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   const agencyWebsite = 'https://digitalfrog.co'
   const agencyEmail = 'jump@digitalfrog.co'
   const agencyPhone = '+56 9 9073 0352'
+
+  // Generate dynamic content based on report type
+  const generateInsights = (): Array<{
+    title: string
+    text: string
+    bgColor: [number, number, number]
+    borderColor: [number, number, number]
+  }> => {
+    // Use custom insights if provided
+    const customInsights = data.customFields?.filter(f => f.type === 'insight')
+    if (customInsights && customInsights.length > 0) {
+      return customInsights.map(insight => ({
+        title: insight.title,
+        text: insight.content,
+        bgColor: veryLightPurple,
+        borderColor: lightPurple
+      }))
+    }
+
+    // Generate standard insights based on report type
+    const standardInsights = [
+      {
+        title: 'Traffic Overview',
+        text: `Your website received ${formatNumber(data.ga4Data.users)} unique visitors across ${formatNumber(data.ga4Data.sessions)} sessions. Visitors are returning to your site, indicating good content quality and user experience.`,
+        bgColor: veryLightPurple,
+        borderColor: lightPurple
+      },
+      {
+        title: 'User Engagement Analysis',
+        text: `${data.ga4Data.bounceRate < 40 ? 'Excellent' : data.ga4Data.bounceRate < 60 ? 'Good' : 'Moderate'} engagement with ${data.ga4Data.bounceRate.toFixed(1)}% bounce rate. This indicates ${data.ga4Data.bounceRate < 50 ? 'strong content relevance and user satisfaction' : 'room for improvement in content relevance or page loading speed'}.`,
+        bgColor: [240, 253, 250] as [number, number, number],
+        borderColor: lightTeal
+      }
+    ]
+
+    if (data.reportType === 'executive') {
+      return standardInsights.slice(0, 2) // Shorter for executive
+    }
+
+    standardInsights.push({
+      title: 'Conversion Performance',
+      text: `${data.ga4Data.conversions > 0 ? `Achieved ${formatNumber(data.ga4Data.conversions)} conversions during this period. Focus on scaling successful campaigns and optimizing conversion funnels.` : 'No conversions tracked. Implementing proper conversion tracking is crucial for measuring ROI and optimizing marketing efforts.'}`,
+      bgColor: [240, 253, 250] as [number, number, number],
+      borderColor: lightTeal
+    })
+
+    return standardInsights
+  }
+
+  const generateRecommendations = (): Array<{
+    number: string
+    title: string
+    description: string
+  }> => {
+    // Use custom recommendations if provided
+    const customRecs = data.customFields?.filter(f => f.type === 'recommendation')
+    if (customRecs && customRecs.length > 0) {
+      return customRecs.map((rec, index) => ({
+        number: (index + 1).toString(),
+        title: rec.title,
+        description: rec.content
+      }))
+    }
+
+    // Generate standard recommendations based on data
+    const recommendations = [
+      {
+        number: '1',
+        title: 'Enhance Conversion Tracking',
+        description: 'Set up detailed conversion tracking to measure the effectiveness of your marketing efforts.'
+      },
+      {
+        number: '2',
+        title: 'Optimize Conversion Funnel',
+        description: 'Focus on improving the user journey and conversion funnel to maximize results from existing traffic.'
+      }
+    ]
+
+    // Add different recommendations based on report type
+    if (data.reportType === 'custom' && data.selectedMetrics?.includes('bounceRate') && data.ga4Data.bounceRate > 60) {
+      recommendations.push({
+        number: '3',
+        title: 'Reduce Bounce Rate',
+        description: 'Your bounce rate is above 60%. Focus on improving page loading speed and content relevance to keep visitors engaged.'
+      })
+    } else {
+      recommendations.push({
+        number: '3',
+        title: 'Regular Monitoring',
+        description: 'Establish monthly reporting to track progress and identify trends early. Monitor key metrics consistently.'
+      })
+    }
+
+    return recommendations
+  }
+
+  const getReportTitle = (): string => {
+    switch (data.reportType) {
+      case 'executive':
+        return 'Executive Summary Report'
+      case 'custom':
+        return 'Custom Analytics Report'
+      case 'standard':
+      default:
+        return 'SEO Standard Report'
+    }
+  }
 
   // Helper: Add footer with proper spacing
   const addFooter = (pageNum?: number, totalPages?: number) => {
@@ -137,11 +253,11 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.setTextColor(...primaryPurple)
     doc.text(label, x + 5, y + 10)
 
-    // Calculate chart area (leaving space for title and padding)
-    const chartX = x + 10
+    // Calculate chart area (leaving space for title, Y-axis label, and X-axis label)
+    const chartX = x + 40  // More space for vertical Y-axis label
     const chartY = y + 20
-    const chartWidth = width - 20
-    const chartHeight = height - 30
+    const chartWidth = width - 50  // Adjust for left margin
+    const chartHeight = height - 45  // More space for X-axis label
 
     if (!dataPoints || dataPoints.length === 0) {
       doc.setFontSize(9)
@@ -196,17 +312,25 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       doc.circle(lastX, lastY, 1.5, 'F')
     }
 
-    // Add min/max labels inside chart area
+    // Add min/max labels on Y-axis
     doc.setFontSize(8)
     doc.setTextColor(...mediumGray)
-    doc.text(formatNumber(maxValue), chartX + 5, chartY + 5)
-    doc.text(formatNumber(minValue), chartX + 5, chartY + chartHeight - 2)
+    doc.text(formatNumber(maxValue), chartX - 5, chartY + 5, { align: 'right' })
+    doc.text(formatNumber(minValue), chartX - 5, chartY + chartHeight - 2, { align: 'right' })
     
-    // Y-axis label inside chart area
-    doc.text('Count', chartX + 8, chartY + 15)
+    // Vertical Y-axis label (rotated)
+    doc.save()
+    doc.translate(x + 12, y + (height / 2))  // Left side, center of chart
+    doc.rotate(270)  // 90° counter-clockwise (-90°)
+    doc.setFontSize(8)
+    doc.setTextColor(...mediumGray)
+    doc.text('Count', 0, 0, { align: 'center' })
+    doc.restore()
     
-    // X-axis label inside chart area  
-    doc.text('Time Period', chartX + chartWidth / 2, chartY + chartHeight - 5, { align: 'center' })
+    // X-axis label at bottom
+    doc.setFontSize(8)
+    doc.setTextColor(...mediumGray)
+    doc.text('Time Period', x + (width / 2), y + height - 8, { align: 'center' })
   }
 
   // Helper: Draw horizontal bar chart
@@ -277,11 +401,10 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       doc.text(formatNumber(item.value), valueX, barY + 8)
     })
 
-    // X-axis label inside chart area
+    // X-axis label at bottom center
     doc.setFontSize(8)
     doc.setTextColor(...mediumGray)
-    const labelY = Math.min(chartY + (data.length * (barHeight + barSpacing)) + 10, y + height - 8)
-    doc.text('Clicks', chartX + chartWidth / 2, labelY, { align: 'center' })
+    doc.text('Clicks', x + (width / 2), y + height - 8, { align: 'center' })
   }
 
   // ======================
@@ -302,7 +425,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   
   // Bold purple border on top
   doc.setDrawColor(...primaryPurple)
-  doc.setLineWidth(3)
+  doc.setLineWidth(2)
   doc.roundedRect(margin, contentY, pageWidth - 2 * margin, contentHeight, 15, 15, 'S')
 
   // Agency name above purple card
@@ -315,7 +438,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setTextColor(...primaryPurple)
   doc.setFontSize(28)
   doc.setFont('helvetica', 'bold')
-  doc.text('Executive Summary Report', pageWidth / 2, contentY + 40, { align: 'center' })
+  doc.text(getReportTitle(), pageWidth / 2, contentY + 40, { align: 'center' })
 
   // Client name (dark text)
   doc.setTextColor(...darkGray)
@@ -475,32 +598,8 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.text('AI-powered insights based on your data analysis', margin, yPosition)
   yPosition += 20
 
-  // Insight boxes with full page space
-  const insights: Array<{
-    title: string
-    text: string
-    bgColor: [number, number, number]
-    borderColor: [number, number, number]
-  }> = [
-    {
-      title: 'Traffic Overview',
-      text: `Your website received ${formatNumber(data.ga4Data.users)} unique visitors across ${formatNumber(data.ga4Data.sessions)} sessions. Visitors are returning to your site, indicating good content quality and user experience.`,
-      bgColor: veryLightPurple,
-      borderColor: lightPurple
-    },
-    {
-      title: 'User Engagement Analysis',
-      text: `${data.ga4Data.bounceRate < 40 ? 'Excellent' : data.ga4Data.bounceRate < 60 ? 'Good' : 'Moderate'} engagement with ${data.ga4Data.bounceRate.toFixed(1)}% bounce rate. This indicates ${data.ga4Data.bounceRate < 50 ? 'strong content relevance and user satisfaction' : 'room for improvement in content relevance or page loading speed'}.`,
-      bgColor: [240, 253, 250] as [number, number, number],
-      borderColor: lightTeal
-    },
-    {
-      title: 'Conversion Performance',
-      text: `${data.ga4Data.conversions > 0 ? `Achieved ${formatNumber(data.ga4Data.conversions)} conversions during this period. Focus on scaling successful campaigns and optimizing conversion funnels.` : 'No conversions tracked. Implementing proper conversion tracking is crucial for measuring ROI and optimizing marketing efforts.'}`,
-      bgColor: [240, 253, 250] as [number, number, number],
-      borderColor: lightTeal
-    }
-  ]
+  // Get dynamic insights based on report type
+  const insights = generateInsights()
 
   insights.forEach(insight => {
     const boxHeight = 50 // Increased height for more content
@@ -576,7 +675,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
 
   // Draw Traffic Trend Chart
   const chartWidth = pageWidth - 2 * margin
-  const chartHeight = 70
+  const chartHeight = 85
 
   drawLineChart(
     margin,
@@ -611,7 +710,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       margin,
       yPosition,
       pageWidth - 2 * margin,
-      85,
+      100,
       topKeywords,
       'Top Performing Keywords'
     )
@@ -655,24 +754,8 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.text('Priority Actions', margin, yPosition)
   yPosition += 15
 
-  // Recommendations
-  const recommendations = [
-    {
-      number: '1',
-      title: 'Enhance Conversion Tracking',
-      description: 'Set up detailed conversion tracking to measure the effectiveness of your marketing efforts.'
-    },
-    {
-      number: '2',
-      title: 'Optimize Conversion Funnel',
-      description: 'Focus on improving the user journey and conversion funnel to maximize results from existing traffic.'
-    },
-    {
-      number: '3',
-      title: 'Regular Monitoring',
-      description: 'Establish monthly reporting to track progress and identify trends early. Monitor key metrics consistently.'
-    }
-  ]
+  // Get dynamic recommendations based on report type
+  const recommendations = generateRecommendations()
 
   recommendations.forEach(rec => {
     // Number badge

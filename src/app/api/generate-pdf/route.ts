@@ -17,6 +17,13 @@ const generatePdfSchema = z.object({
   clientName: z.string().min(1, 'Client name is required'),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
+  reportType: z.enum(['standard', 'custom', 'executive']).optional().default('standard'),
+  customFields: z.array(z.object({
+    title: z.string(),
+    content: z.string(),
+    type: z.enum(['insight', 'recommendation', 'metric'])
+  })).optional(),
+  selectedMetrics: z.array(z.string()).optional(),
   agencyName: z.string().optional(),
   agencyLogo: z.string().optional(),
   gscData: z.object({
@@ -83,7 +90,18 @@ export async function POST(request: NextRequest) {
     })
     
     console.log('9. Generating PDF...')
-    const pdfArrayBuffer = generatePDFWithJsPDF(validatedData)
+    const pdfArrayBuffer = generatePDFWithJsPDF({
+      clientName: validatedData.clientName,
+      startDate: validatedData.startDate,
+      endDate: validatedData.endDate,
+      reportType: validatedData.reportType,
+      customFields: validatedData.customFields,
+      selectedMetrics: validatedData.selectedMetrics,
+      agencyName: validatedData.agencyName,
+      agencyLogo: validatedData.agencyLogo,
+      gscData: validatedData.gscData,
+      ga4Data: validatedData.ga4Data
+    })
     const pdfBuffer = Buffer.from(pdfArrayBuffer)
     console.log('10. PDF generated:', {
       bufferSize: pdfBuffer.length,
@@ -119,6 +137,9 @@ export async function POST(request: NextRequest) {
           clientName: validatedData.clientName,
           startDate: validatedData.startDate,
           endDate: validatedData.endDate,
+          reportType: validatedData.reportType,
+          customFields: validatedData.customFields,
+          selectedMetrics: validatedData.selectedMetrics,
           agencyName: validatedData.agencyName,
           agencyLogo: validatedData.agencyLogo,
           gscData: validatedData.gscData,

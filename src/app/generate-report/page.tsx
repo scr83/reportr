@@ -457,6 +457,8 @@ export default function GenerateReportPage() {
           clientName: pdfReportData.clientName,
           startDate: pdfReportData.startDate,
           endDate: pdfReportData.endDate,
+          reportType: reportType, // Pass the report type
+          selectedMetrics: reportType === 'custom' ? selectedMetrics : undefined,
           agencyName: pdfReportData.branding?.name,
           agencyLogo: pdfReportData.branding?.logo,
           gscData: {
