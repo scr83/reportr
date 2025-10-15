@@ -10,3 +10,4 @@ build/
 coverage/
 .turbo/
 .env*.local
+chromium/
