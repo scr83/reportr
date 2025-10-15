@@ -133,17 +133,29 @@ const formatMetricValue = (key: string, value: any): string => {
       if (total === 0) return 'No data'
       const mobile = Math.round(((value.mobile || 0) / total) * 100)
       const desktop = Math.round(((value.desktop || 0) / total) * 100)
-      return `${mobile}% mobile, ${desktop}% desktop`
+      const tablet = Math.round(((value.tablet || 0) / total) * 100)
+      
+      const parts = []
+      if (mobile > 0) parts.push(`${mobile}% mobile`)
+      if (desktop > 0) parts.push(`${desktop}% desktop`)
+      if (tablet > 0) parts.push(`${tablet}% tablet`)
+      
+      return parts.join(', ') || 'No data'
     }
     
     // Top landing pages array
     if (key === 'topLandingPages' && Array.isArray(value)) {
       if (value.length === 0) return 'No data'
-      const topPage = value[0]
-      if (topPage && topPage.page) {
-        return `${value.length} pages (top: ${topPage.page})`
+      
+      const topThree = value.slice(0, 3).map(page => 
+        `${page.page} (${page.sessions} sessions)`
+      )
+      
+      if (value.length > 3) {
+        return `${topThree.join(', ')}, +${value.length - 3} more`
       }
-      return `${value.length} pages`
+      
+      return topThree.join(', ')
     }
     
     // Generic array handling
@@ -599,13 +611,11 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     
   } else if (data.reportType === 'custom' && data.selectedMetrics) {
     // Custom: 4 GSC + N GA4 = (4 + N) total metrics
-    const ga4Metrics = data.selectedMetrics
-      .filter(key => data.ga4Data[key] !== undefined && data.ga4Data[key] !== null)
-      .map(key => ({
-        title: getMetricDisplayName(key),
-        value: formatMetricValue(key, data.ga4Data[key]),
-        description: `Selected: ${key}`
-      }))
+    const ga4Metrics = data.selectedMetrics.map(key => ({
+      title: getMetricDisplayName(key),
+      value: formatMetricValue(key, data.ga4Data[key] || 0),
+      description: `Selected`
+    }))
     metricsToShow = [...metricsToShow, ...ga4Metrics]
     
     console.log('📊 CUSTOM METRICS:', {
@@ -662,10 +672,67 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
       col = 0
     }
 
-    // Draw metric card with enhanced styling
+    // Add section headers for visual separation
+    if (index === 0) {
+      // Search Console Performance Section
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...primaryPurple)
+      doc.text('Search Console Performance', margin, y - 5)
+      
+      // Cyan underline
+      doc.setDrawColor(...cyan)
+      doc.setLineWidth(2)
+      doc.line(margin, y, margin + 90, y)
+      
+      y += 15
+    } else if (index === 4 && data.reportType !== 'executive') {
+      // Website Analytics Section (after first 4 GSC metrics)
+      // Reset position if we're not at start of new row
+      if (col !== 0) {
+        col = 0
+        x = margin
+        y += cardHeight + 10
+      }
+      
+      y += 10 // Extra spacing before section
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...primaryPurple)
+      doc.text('Website Analytics', margin, y - 5)
+      
+      // Cyan underline
+      doc.setDrawColor(...cyan)
+      doc.setLineWidth(2)
+      doc.line(margin, y, margin + 70, y)
+      
+      y += 15
+    } else if (index === 4 && data.reportType === 'executive') {
+      // For executive reports, add section header for GA4 metrics
+      if (col !== 0) {
+        col = 0
+        x = margin
+        y += cardHeight + 10
+      }
+      
+      y += 10
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(...primaryPurple)
+      doc.text('Website Analytics', margin, y - 5)
+      
+      // Cyan underline
+      doc.setDrawColor(...cyan)
+      doc.setLineWidth(2)
+      doc.line(margin, y, margin + 70, y)
+      
+      y += 15
+    }
+
+    // Draw metric card with enhanced styling (thinner borders)
     doc.setFillColor(...lightPurple)
     doc.setDrawColor(...primaryPurple)
-    doc.setLineWidth(1)
+    doc.setLineWidth(0.5) // Thinner border as requested
     doc.roundedRect(x, y, cardWidth, cardHeight, 8, 8, 'FD')
     
     // Metric content

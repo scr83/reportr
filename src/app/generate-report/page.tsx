@@ -7,7 +7,7 @@ import { MetricSelectorModal } from '@/components/organisms'
 import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
 import { checkPDFSupport, getReportTypeDescription, estimatePDFSize } from '@/lib/pdf-generator'
 import { MOCK_BRANDING, MOCK_EXECUTIVE_REPORT, MOCK_STANDARD_REPORT, MOCK_CUSTOM_REPORT } from '@/lib/mock-report-data'
-import { ReportData } from '@/types/report'
+import { ReportData, GA4Data } from '@/types/report'
 
 interface LegacyReportData {
   clientId: string
@@ -385,27 +385,43 @@ export default function GenerateReportPage() {
         selectedMetrics: reportType === 'custom' ? selectedMetrics : undefined
       }
 
+      // Add GSC data for ALL report types (including executive)
+      if (reportData.gscData.totalClicks || reportData.gscData.totalImpressions || formData.totalClicks || formData.totalImpressions) {
+        let topQueries = []
+        try {
+          if (reportData.gscData.topQueries && reportData.gscData.topQueries.trim()) {
+            topQueries = JSON.parse(reportData.gscData.topQueries)
+          }
+        } catch (e) {
+          console.warn('Failed to parse topQueries JSON:', e)
+        }
+        
+        pdfReportData.gscData = {
+          totalClicks: parseFloat((formData.totalClicks || reportData.gscData.totalClicks || '0').toString().replace(/,/g, '')) || 0,
+          totalImpressions: parseFloat((formData.totalImpressions || reportData.gscData.totalImpressions || '0').toString().replace(/,/g, '')) || 0,
+          averageCTR: parseFloat((formData.averageCTR || reportData.gscData.averageCTR || '0').toString().replace(/[,%]/g, '')) || 0,
+          averagePosition: parseFloat((formData.averagePosition || reportData.gscData.averagePosition || '0').toString().replace(/,/g, '')) || 0,
+          topQueries: topQueries
+        }
+      }
+
       // Add metrics based on report type
       if (reportType === 'executive') {
-        pdfReportData.metrics = {
-          users: parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0,
-          sessions: parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0,
-          bounceRate: parseFloat(reportData.ga4Data.bounceRate) || 0,
-          conversions: parseFloat(reportData.ga4Data.conversions.replace(/,/g, '')) || 0
-        }
+        // For executive specifically, also add ga4Data with minimal required fields
+        pdfReportData.ga4Data = {
+          users: parseFloat((formData.users || reportData.ga4Data.users || '0').toString().replace(/,/g, '')) || 0,
+          sessions: parseFloat((formData.sessions || reportData.ga4Data.sessions || '0').toString().replace(/,/g, '')) || 0,
+          bounceRate: parseFloat((formData.bounceRate || reportData.ga4Data.bounceRate || '0').toString().replace(/[,%]/g, '')) || 0,
+          conversions: parseFloat((formData.conversions || reportData.ga4Data.conversions || '0').toString().replace(/,/g, '')) || 0,
+          avgSessionDuration: 0,
+          pagesPerSession: 0,
+          newUsers: 0,
+          organicTraffic: 0,
+          topLandingPages: [],
+          deviceBreakdown: { desktop: 0, mobile: 0, tablet: 0 }
+        } as GA4Data
       } else {
         // For standard and custom reports, include full data
-        if (reportData.gscData.totalClicks || reportData.gscData.totalImpressions) {
-          pdfReportData.gscData = {
-            totalClicks: parseFloat(reportData.gscData.totalClicks.replace(/,/g, '')) || 0,
-            totalImpressions: parseFloat(reportData.gscData.totalImpressions.replace(/,/g, '')) || 0,
-            averageCTR: parseFloat(reportData.gscData.averageCTR) || 0,
-            averagePosition: parseFloat(reportData.gscData.averagePosition) || 0,
-            topQueries: reportData.gscData.topQueries ? 
-              JSON.parse(reportData.gscData.topQueries) : []
-          }
-        }
-
         if (reportData.ga4Data.users || reportData.ga4Data.sessions || Object.keys(formData).length > 0) {
           // Build GA4 data from formData (which contains all collected metrics)
           const dynamicGA4Data: any = {}
@@ -416,17 +432,21 @@ export default function GenerateReportPage() {
           // Add data from formData for all fields
           fieldsToInclude.forEach(field => {
             const value = formData[field.id]
-            if (value !== undefined && value !== '') {
-              // Parse numbers appropriately
+            
+            // Always add the field to maintain count
+            if (value === undefined || value === '') {
+              dynamicGA4Data[field.id] = 0 // Default to 0 instead of excluding
+            } else {
+              // Existing parsing logic...
               if (['users', 'sessions', 'conversions', 'newUsers', 'engagedSessions'].includes(field.id)) {
                 dynamicGA4Data[field.id] = parseInt(value.toString().replace(/,/g, '')) || 0
               } else if (['bounceRate', 'engagementRate', 'pagesPerSession', 'avgSessionDuration', 'organicTraffic'].includes(field.id)) {
                 dynamicGA4Data[field.id] = parseFloat(value.toString().replace(/[,%]/g, '')) || 0
-              } else if (field.id.includes('JSON') || ['topLandingPages', 'deviceBreakdown'].includes(field.id)) {
+              } else if (['topLandingPages', 'deviceBreakdown'].includes(field.id)) {
                 try {
                   dynamicGA4Data[field.id] = typeof value === 'string' ? JSON.parse(value) : value
                 } catch {
-                  dynamicGA4Data[field.id] = value
+                  dynamicGA4Data[field.id] = null
                 }
               } else {
                 dynamicGA4Data[field.id] = value
