@@ -198,6 +198,15 @@ const getMetricDisplayName = (key: string): string => {
 }
 
 export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
+  // CRITICAL DEBUGGING: Log what PDF generator receives
+  console.log('🎨 PDF GENERATOR RECEIVED:', {
+    reportType: data.reportType,
+    gscDataKeys: Object.keys(data.gscData || {}), // Always 4
+    ga4DataKeys: Object.keys(data.ga4Data || {}), // Should vary
+    selectedMetrics: data.selectedMetrics,
+    ga4DataSample: data.ga4Data
+  })
+  
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.width
   const pageHeight = doc.internal.pageSize.height
@@ -478,11 +487,11 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.text('Executive Summary', margin, 40)
     
   } else if (data.reportType === 'standard') {
-    // Standard: ALL available data fields that have values
+    // Standard: ALL available data fields that have values (including zeros)
     const allDataKeys = Object.keys(data.ga4Data).filter(key => 
       data.ga4Data[key] !== undefined && 
-      data.ga4Data[key] !== null && 
-      data.ga4Data[key] !== 0
+      data.ga4Data[key] !== null
+      // ✅ REMOVED !== 0 condition - zero is valid for metrics like conversions
     )
     
     metricsToShow = allDataKeys.map(key => ({

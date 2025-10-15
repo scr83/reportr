@@ -406,32 +406,61 @@ export default function GenerateReportPage() {
           }
         }
 
-        if (reportData.ga4Data.users || reportData.ga4Data.sessions) {
-          pdfReportData.ga4Data = {
-            users: parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0,
-            sessions: parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0,
-            bounceRate: parseFloat(reportData.ga4Data.bounceRate) || 0,
-            conversions: parseFloat(reportData.ga4Data.conversions.replace(/,/g, '')) || 0,
-            avgSessionDuration: 240, // Default value
-            pagesPerSession: 2.5, // Default value
-            newUsers: Math.floor((parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0) * 0.7),
-            organicTraffic: 65.5, // Default value
-            topLandingPages: [
-              { page: '/', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.4)), users: Math.floor(((parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0) * 0.4)), bounceRate: 25.3 },
-              { page: '/services', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.3)), users: Math.floor(((parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0) * 0.3)), bounceRate: 45.2 },
-              { page: '/about', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.2)), users: Math.floor(((parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0) * 0.2)), bounceRate: 55.8 }
-            ],
-            deviceBreakdown: {
-              desktop: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.6)),
-              mobile: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.35)),
-              tablet: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.05))
-            },
-            trafficSources: [
-              { source: 'Organic Search', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.65)), percentage: 65.5 },
-              { source: 'Direct', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.25)), percentage: 25.0 },
-              { source: 'Social', sessions: Math.floor(((parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0) * 0.10)), percentage: 9.5 }
-            ]
+        if (reportData.ga4Data.users || reportData.ga4Data.sessions || Object.keys(formData).length > 0) {
+          // Build GA4 data from formData (which contains all collected metrics)
+          const dynamicGA4Data: any = {}
+          
+          // Get fields that should be included for this report type
+          const fieldsToInclude = getFieldsForReportType()
+          
+          // Add data from formData for all fields
+          fieldsToInclude.forEach(field => {
+            const value = formData[field.id]
+            if (value !== undefined && value !== '') {
+              // Parse numbers appropriately
+              if (['users', 'sessions', 'conversions', 'newUsers', 'engagedSessions'].includes(field.id)) {
+                dynamicGA4Data[field.id] = parseInt(value.toString().replace(/,/g, '')) || 0
+              } else if (['bounceRate', 'engagementRate', 'pagesPerSession', 'avgSessionDuration', 'organicTraffic'].includes(field.id)) {
+                dynamicGA4Data[field.id] = parseFloat(value.toString().replace(/[,%]/g, '')) || 0
+              } else if (field.id.includes('JSON') || ['topLandingPages', 'deviceBreakdown'].includes(field.id)) {
+                try {
+                  dynamicGA4Data[field.id] = typeof value === 'string' ? JSON.parse(value) : value
+                } catch {
+                  dynamicGA4Data[field.id] = value
+                }
+              } else {
+                dynamicGA4Data[field.id] = value
+              }
+            }
+          })
+          
+          // Fallback to legacy reportData if formData is empty
+          if (Object.keys(dynamicGA4Data).length === 0) {
+            dynamicGA4Data.users = parseFloat(reportData.ga4Data.users.replace(/,/g, '')) || 0
+            dynamicGA4Data.sessions = parseFloat(reportData.ga4Data.sessions.replace(/,/g, '')) || 0
+            dynamicGA4Data.bounceRate = parseFloat(reportData.ga4Data.bounceRate) || 0
+            dynamicGA4Data.conversions = parseFloat(reportData.ga4Data.conversions.replace(/,/g, '')) || 0
           }
+          
+          // Add mock extended data for Standard reports if not provided
+          if (reportType === 'standard' && !dynamicGA4Data.avgSessionDuration) {
+            dynamicGA4Data.avgSessionDuration = 240
+            dynamicGA4Data.pagesPerSession = 2.5
+            dynamicGA4Data.newUsers = Math.floor((dynamicGA4Data.users || 0) * 0.7)
+            dynamicGA4Data.organicTraffic = 65.5
+            dynamicGA4Data.topLandingPages = [
+              { page: '/', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.4), users: Math.floor((dynamicGA4Data.users || 0) * 0.4), bounceRate: 25.3 },
+              { page: '/services', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.3), users: Math.floor((dynamicGA4Data.users || 0) * 0.3), bounceRate: 45.2 },
+              { page: '/about', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.2), users: Math.floor((dynamicGA4Data.users || 0) * 0.2), bounceRate: 55.8 }
+            ]
+            dynamicGA4Data.deviceBreakdown = {
+              desktop: Math.floor((dynamicGA4Data.sessions || 0) * 0.6),
+              mobile: Math.floor((dynamicGA4Data.sessions || 0) * 0.35),
+              tablet: Math.floor((dynamicGA4Data.sessions || 0) * 0.05)
+            }
+          }
+          
+          pdfReportData.ga4Data = dynamicGA4Data
         }
       }
 
@@ -447,6 +476,18 @@ export default function GenerateReportPage() {
       
       // Generate and download PDF via server API (saves to database)
       console.log('🚀 Calling server-side PDF generation API...')
+      
+      // CRITICAL DEBUGGING: Log what we're sending to API
+      console.log('🔍 SENDING TO API:', {
+        reportType: reportType,
+        selectedMetrics: selectedMetrics,
+        gscDataKeys: Object.keys(pdfReportData.gscData || {}), // Should always be 4
+        ga4DataKeys: Object.keys(pdfReportData.ga4Data || {}), // Should vary: 4, 10+, or custom
+        ga4Data: pdfReportData.ga4Data,
+        formDataKeys: Object.keys(formData), // Check if form collected extra fields
+        formData: formData
+      })
+      
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: {
@@ -474,11 +515,11 @@ export default function GenerateReportPage() {
               position: Number(q.position) || 0
             })) || []
           },
-          ga4Data: {
-            users: Number(pdfReportData.ga4Data?.users) || 0,
-            sessions: Number(pdfReportData.ga4Data?.sessions) || 0,
-            bounceRate: Number(pdfReportData.ga4Data?.bounceRate) || 0,
-            conversions: Number(pdfReportData.ga4Data?.conversions) || 0
+          ga4Data: pdfReportData.ga4Data || {
+            users: 0,
+            sessions: 0,
+            bounceRate: 0,
+            conversions: 0
           }
         })
       })
