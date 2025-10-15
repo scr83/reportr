@@ -869,6 +869,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   let cardY = contentY
   
   for (let i = 0; i < 4 && i < metricsToShow.length; i++) {
+    const metric = metricsToShow[i]
+    if (!metric) continue // Skip if undefined
+    
     // Calculate position in 2-column grid
     const col = i % 2 // 0 or 1
     const row = Math.floor(i / 2)
@@ -879,9 +882,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     // Y position: start + (row * (card height + gap))
     const currentY = contentY + (row * (cardHeight + layout.cardGap))
     
-    console.log(`Card ${i} (${metricsToShow[i].title}): x=${currentX}, y=${currentY}`)
+    console.log(`Card ${i} (${metric.title}): x=${currentX}, y=${currentY}`)
     
-    createMetricCard(metricsToShow[i], currentX, currentY, cardWidth)
+    createMetricCard(metric, currentX, currentY, cardWidth)
   }
   
   // Calculate Y position after all GSC cards
@@ -911,6 +914,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
 
     // Display remaining GA4 metrics in 2-column grid - FIXED
     for (let i = 4; i < metricsToShow.length; i++) {
+      const metric = metricsToShow[i]
+      if (!metric) continue // Skip if undefined
+      
       const relativeIndex = i - 4
       const col = relativeIndex % 2 // 0 or 1
       const row = Math.floor(relativeIndex / 2)
@@ -930,9 +936,9 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
         cardY = layout.margins.top + 15
         // Recalculate Y position for new page
         const newCurrentY = cardY + (row * (cardHeight + layout.cardGap))
-        createMetricCard(metricsToShow[i], currentX, newCurrentY, cardWidth)
+        createMetricCard(metric, currentX, newCurrentY, cardWidth)
       } else {
-        createMetricCard(metricsToShow[i], currentX, currentY, cardWidth)
+        createMetricCard(metric, currentX, currentY, cardWidth)
       }
     }
   }
