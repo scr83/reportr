@@ -676,7 +676,7 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   // ======================
   
   // Create gradient background using color steps
-  const gradientColors = [
+  const gradientColors: Array<{ r: number; g: number; b: number }> = [
     { r: 139, g: 92, b: 246 },   // #8B5CF6 (top)
     { r: 124, g: 58, b: 237 },   // #7C3AED (middle)
     { r: 109, g: 40, b: 217 }    // #6D28D9 (bottom)
@@ -689,19 +689,23 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     const ratio = i / steps
     
     // Interpolate between colors
-    let r, g, b
+    let r: number, g: number, b: number
     if (ratio < 0.5) {
       // Top to middle
       const localRatio = ratio * 2
-      r = gradientColors[0].r + (gradientColors[1].r - gradientColors[0].r) * localRatio
-      g = gradientColors[0].g + (gradientColors[1].g - gradientColors[0].g) * localRatio
-      b = gradientColors[0].b + (gradientColors[1].b - gradientColors[0].b) * localRatio
+      const color1 = gradientColors[0]!
+      const color2 = gradientColors[1]!
+      r = color1.r + (color2.r - color1.r) * localRatio
+      g = color1.g + (color2.g - color1.g) * localRatio
+      b = color1.b + (color2.b - color1.b) * localRatio
     } else {
       // Middle to bottom
       const localRatio = (ratio - 0.5) * 2
-      r = gradientColors[1].r + (gradientColors[2].r - gradientColors[1].r) * localRatio
-      g = gradientColors[1].g + (gradientColors[2].g - gradientColors[1].g) * localRatio
-      b = gradientColors[1].b + (gradientColors[2].b - gradientColors[1].b) * localRatio
+      const color1 = gradientColors[1]!
+      const color2 = gradientColors[2]!
+      r = color1.r + (color2.r - color1.r) * localRatio
+      g = color1.g + (color2.g - color1.g) * localRatio
+      b = color1.b + (color2.b - color1.b) * localRatio
     }
     
     doc.setFillColor(Math.round(r), Math.round(g), Math.round(b))
