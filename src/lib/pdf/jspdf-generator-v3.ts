@@ -14,6 +14,11 @@ interface ReportData {
     impressions: number
     ctr: number
     position: number
+    // Support alternative field names from frontend
+    totalClicks?: number
+    totalImpressions?: number
+    averageCTR?: number
+    averagePosition?: number
     topQueries?: Array<{
       query: string
       clicks: number
@@ -120,11 +125,33 @@ const formatMetricValue = (key: string, value: any): string => {
     }
   }
   
-  // Handle arrays and objects
-  if (Array.isArray(value)) {
-    return `${value.length} items`
-  }
+  // Handle specific object types first
   if (typeof value === 'object' && value !== null) {
+    // Device breakdown object
+    if (key === 'deviceBreakdown' && value.desktop !== undefined) {
+      const total = (value.desktop || 0) + (value.mobile || 0) + (value.tablet || 0)
+      if (total === 0) return 'No data'
+      const mobile = Math.round(((value.mobile || 0) / total) * 100)
+      const desktop = Math.round(((value.desktop || 0) / total) * 100)
+      return `${mobile}% mobile, ${desktop}% desktop`
+    }
+    
+    // Top landing pages array
+    if (key === 'topLandingPages' && Array.isArray(value)) {
+      if (value.length === 0) return 'No data'
+      const topPage = value[0]
+      if (topPage && topPage.page) {
+        return `${value.length} pages (top: ${topPage.page})`
+      }
+      return `${value.length} pages`
+    }
+    
+    // Generic array handling
+    if (Array.isArray(value)) {
+      return `${value.length} items`
+    }
+    
+    // Generic object handling
     return `${Object.keys(value).length} categories`
   }
   
@@ -201,11 +228,26 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   // CRITICAL DEBUGGING: Log what PDF generator receives
   console.log('🎨 PDF GENERATOR RECEIVED:', {
     reportType: data.reportType,
-    gscDataKeys: Object.keys(data.gscData || {}), // Always 4
-    ga4DataKeys: Object.keys(data.ga4Data || {}), // Should vary
+    gscDataKeys: Object.keys(data.gscData || {}), // Should always be 4
+    ga4DataKeys: Object.keys(data.ga4Data || {}), // Should vary by report type
     selectedMetrics: data.selectedMetrics,
-    ga4DataSample: data.ga4Data
+    selectedMetricsLength: data.selectedMetrics?.length || 0,
+    gscData: data.gscData,
+    ga4DataSample: data.ga4Data,
+    hasGscData: !!data.gscData,
+    hasGa4Data: !!data.ga4Data
   })
+  
+  // Validate critical data
+  if (!data.gscData) {
+    console.error('❌ MISSING GSC DATA - GSC metrics will show as 0')
+  }
+  if (!data.ga4Data) {
+    console.error('❌ MISSING GA4 DATA - GA4 metrics will show as 0')
+  }
+  if (data.reportType === 'custom' && (!data.selectedMetrics || data.selectedMetrics.length === 0)) {
+    console.error('❌ CUSTOM REPORT WITHOUT SELECTED METRICS')
+  }
   
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.width
@@ -468,10 +510,43 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     description: string
   }> = []
 
+  // ALWAYS ADD GSC METRICS FIRST (4 metrics for all report types)
+  // Handle both field naming conventions: totalClicks/clicks, totalImpressions/impressions, etc.
+  const gscMetrics = [
+    {
+      title: 'Total Clicks',
+      value: formatMetricValue('clicks', data.gscData.clicks || data.gscData.totalClicks),
+      description: 'Clicks from Google Search'
+    },
+    {
+      title: 'Total Impressions', 
+      value: formatMetricValue('impressions', data.gscData.impressions || data.gscData.totalImpressions),
+      description: 'Times shown in search results'
+    },
+    {
+      title: 'Average CTR',
+      value: formatMetricValue('ctr', data.gscData.ctr || data.gscData.averageCTR),
+      description: 'Click-through rate'
+    },
+    {
+      title: 'Average Position',
+      value: formatMetricValue('position', data.gscData.position || data.gscData.averagePosition),
+      description: 'Average ranking position'
+    }
+  ]
+
+  // Add GSC metrics to all reports
+  metricsToShow = [...gscMetrics]
+  
+  console.log('📊 GSC METRICS ADDED:', {
+    gscMetricsCount: gscMetrics.length,
+    gscMetrics: gscMetrics.map(m => ({ title: m.title, value: m.value }))
+  })
+
   if (data.reportType === 'executive') {
-    // Executive: EXACTLY 4 core metrics
-    const coreMetrics = ['users', 'sessions', 'bounceRate', 'conversions']
-    metricsToShow = coreMetrics.map(key => ({
+    // Executive: 4 GSC + 4 GA4 = 8 total metrics
+    const coreGA4Metrics = ['users', 'sessions', 'bounceRate', 'conversions']
+    const ga4Metrics = coreGA4Metrics.map(key => ({
       title: getMetricDisplayName(key),
       value: formatMetricValue(key, data.ga4Data[key]),
       description: key === 'users' ? 'Unique website visitors' :
@@ -479,6 +554,14 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
                   key === 'bounceRate' ? 'Single-page sessions' :
                   'Goal completions'
     }))
+    metricsToShow = [...metricsToShow, ...ga4Metrics]
+    
+    console.log('📊 EXECUTIVE METRICS:', {
+      totalMetrics: metricsToShow.length,
+      expectedTotal: 8, // 4 GSC + 4 GA4
+      ga4MetricsAdded: ga4Metrics.length,
+      ga4Values: ga4Metrics.map(m => ({ title: m.title, value: m.value }))
+    })
     
     // Page title
     doc.setFontSize(20)
@@ -487,18 +570,26 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.text('Executive Summary', margin, 40)
     
   } else if (data.reportType === 'standard') {
-    // Standard: ALL available data fields that have values (including zeros)
+    // Standard: 4 GSC + 10 GA4 = 14 total metrics
     const allDataKeys = Object.keys(data.ga4Data).filter(key => 
       data.ga4Data[key] !== undefined && 
       data.ga4Data[key] !== null
-      // ✅ REMOVED !== 0 condition - zero is valid for metrics like conversions
     )
     
-    metricsToShow = allDataKeys.map(key => ({
+    const ga4Metrics = allDataKeys.map(key => ({
       title: getMetricDisplayName(key),
       value: formatMetricValue(key, data.ga4Data[key]),
       description: `${key} metric data`
     }))
+    metricsToShow = [...metricsToShow, ...ga4Metrics]
+    
+    console.log('📊 STANDARD METRICS:', {
+      totalMetrics: metricsToShow.length,
+      expectedTotal: 14, // 4 GSC + 10 GA4
+      ga4MetricsAdded: ga4Metrics.length,
+      ga4DataKeys: allDataKeys,
+      ga4Values: ga4Metrics.slice(0, 3).map(m => ({ title: m.title, value: m.value })) // First 3 only
+    })
     
     // Page title
     doc.setFontSize(20)
@@ -507,14 +598,23 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.text('Standard Analytics Report', margin, 40)
     
   } else if (data.reportType === 'custom' && data.selectedMetrics) {
-    // Custom: ONLY user-selected metrics
-    metricsToShow = data.selectedMetrics
+    // Custom: 4 GSC + N GA4 = (4 + N) total metrics
+    const ga4Metrics = data.selectedMetrics
       .filter(key => data.ga4Data[key] !== undefined && data.ga4Data[key] !== null)
       .map(key => ({
         title: getMetricDisplayName(key),
         value: formatMetricValue(key, data.ga4Data[key]),
         description: `Selected: ${key}`
       }))
+    metricsToShow = [...metricsToShow, ...ga4Metrics]
+    
+    console.log('📊 CUSTOM METRICS:', {
+      totalMetrics: metricsToShow.length,
+      expectedTotal: 4 + (data.selectedMetrics?.length || 0), // 4 GSC + N GA4
+      ga4MetricsAdded: ga4Metrics.length,
+      selectedMetrics: data.selectedMetrics,
+      ga4Values: ga4Metrics.map(m => ({ title: m.title, value: m.value }))
+    })
     
     // Page title
     doc.setFontSize(20)
@@ -522,6 +622,13 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
     doc.setTextColor(...primaryPurple)
     doc.text('Custom Analytics Report', margin, 40)
   }
+  
+  // FINAL METRICS SUMMARY
+  console.log('📋 FINAL METRICS SUMMARY:', {
+    reportType: data.reportType,
+    totalMetricsToShow: metricsToShow.length,
+    metricsBreakdown: metricsToShow.map(m => ({ title: m.title, value: m.value }))
+  })
 
   // Underline
   doc.setDrawColor(...cyan)
@@ -534,9 +641,8 @@ export function generatePDFWithJsPDF(data: ReportData): ArrayBuffer {
   doc.setFont('helvetica', 'normal')
   doc.text(`Performance data for ${formatDate(data.startDate)} to ${formatDate(data.endDate)}`, margin, 57)
 
-  // Adaptive grid layout based on metric count
-  const metricCount = metricsToShow.length
-  const columns = metricCount <= 4 ? 2 : metricCount <= 9 ? 3 : 4
+  // Fixed 3-column layout for consistent appearance
+  const columns = 3
   const cardWidth = (pageWidth - (2 * margin) - ((columns - 1) * 10)) / columns
   const cardHeight = 45
   
