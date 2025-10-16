@@ -139,6 +139,47 @@ export default function GenerateReportPage() {
     }
   }
 
+  /**
+   * Ensures all GA4 data fields are properly typed as numbers
+   * Converts string numbers to actual numbers for API validation
+   */
+  const ensureNumericGA4Types = (ga4Data: any): any => {
+    if (!ga4Data) return null
+    
+    const result: any = {}
+    
+    // Fields that should be numbers
+    const numericFields = [
+      'users', 'sessions', 'bounceRate', 'conversions',
+      'avgSessionDuration', 'pagesPerSession', 'newUsers', 'organicTraffic',
+      'engagedSessions', 'engagementRate', 'directTraffic', 'referralTraffic',
+      'socialTraffic', 'emailTraffic', 'paidTraffic', 'mobileUsers',
+      'desktopUsers', 'tabletUsers', 'returningUsers', 'pageViews',
+      'uniquePageViews', 'averageTimeOnPage', 'exitRate', 'conversionRate'
+    ]
+    
+    Object.keys(ga4Data).forEach(key => {
+      const value = ga4Data[key]
+      
+      if (numericFields.includes(key)) {
+        // Convert to number, handle string numbers and commas
+        if (typeof value === 'string') {
+          const cleaned = value.replace(/[,%]/g, '').trim()
+          result[key] = parseFloat(cleaned) || 0
+        } else if (typeof value === 'number') {
+          result[key] = value
+        } else {
+          result[key] = 0
+        }
+      } else {
+        // Keep non-numeric fields as-is (topLandingPages, deviceBreakdown)
+        result[key] = value
+      }
+    })
+    
+    return result
+  }
+
   // Determine which fields to show
   const getFieldsForReportType = () => {
     if (reportType === 'custom') {
@@ -535,7 +576,8 @@ export default function GenerateReportPage() {
             position: Number(q.position) || 0
           })) || []
         },
-        ga4Data: pdfReportData.ga4Data || {
+        // FIX: Apply type conversion to ensure all GA4 fields are numbers
+        ga4Data: ensureNumericGA4Types(pdfReportData.ga4Data) || {
           users: 0,
           sessions: 0,
           bounceRate: 0,
@@ -544,6 +586,8 @@ export default function GenerateReportPage() {
       }
       
       console.log('Request Body:', JSON.stringify(requestBody, null, 2));
+      console.log('🔍 Type Check - organicTraffic type:', typeof requestBody.ga4Data?.organicTraffic);
+      console.log('🔍 Type Check - organicTraffic value:', requestBody.ga4Data?.organicTraffic);
       
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
