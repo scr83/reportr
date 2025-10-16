@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePDFWithJsPDF } from '@/lib/pdf/jspdf-generator-v3'
+import { pdfGenerator } from '@/lib/pdf/react-pdf-generator'
 import { prisma } from '@/lib/prisma'
 import { put } from '@vercel/blob'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
+import { randomUUID } from 'crypto'
 
 // Enhanced validation schemas for flexible data handling
 const topQuerySchema = z.object({
@@ -81,7 +82,7 @@ const generatePdfSchema = z.object({
   agencyName: z.string().optional(),
   agencyLogo: z.string().optional(),
   
-  // Google Search Console data
+  // Google Search Console data - REQUIRED
   gscData: z.object({
     clicks: z.number().min(0),
     impressions: z.number().min(0),
@@ -90,8 +91,8 @@ const generatePdfSchema = z.object({
     topQueries: z.array(topQuerySchema).optional()
   }),
   
-  // Flexible GA4 data - now accepts dynamic fields
-  ga4Data: flexibleGA4Schema.optional(),
+  // Flexible GA4 data - REQUIRED for all report types
+  ga4Data: flexibleGA4Schema,
   
   // Legacy metrics object (for backward compatibility)
   metrics: z.object({
@@ -125,7 +126,7 @@ const generatePdfSchema = z.object({
 // Configure route for serverless function optimization
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60 // 60 seconds max duration
+export const maxDuration = 60 // Extended for React-PDF processing and Vercel Blob upload
 
 /**
  * Enhanced PDF Generation API Route
@@ -134,8 +135,12 @@ export const maxDuration = 60 // 60 seconds max duration
  * Supports complex report data with full metrics and custom fields
  */
 export async function POST(request: NextRequest) {
+  const requestId = randomUUID()
   const processingStarted = new Date()
-  console.log('========== ENHANCED PDF GENERATION START ==========')
+  const startTime = Date.now()
+  
+  console.log('========== REACT-PDF GENERATION START ==========')
+  console.log(`[${requestId}] PDF generation started (React-PDF)`)
   console.log('Timestamp:', processingStarted.toISOString())
   
   try {
@@ -152,7 +157,12 @@ export async function POST(request: NextRequest) {
     console.log('3. Parsing request body...')
     const body = await request.json()
     
-    // Log data structure for debugging
+    // PHASE 2 DIAGNOSTIC LOGGING: Enhanced request data analysis
+    console.log('🟢 API: Received request');
+    console.log('Request body keys:', Object.keys(body));
+    console.log('Report Type:', body.reportType);
+    console.log('Full body:', JSON.stringify(body, null, 2));
+    
     console.log('4. Request data structure:', {
       clientId: body.clientId,
       clientName: body.clientName,
@@ -164,15 +174,38 @@ export async function POST(request: NextRequest) {
       hasCustomFields: !!body.customFields,
       ga4DataKeys: body.ga4Data ? Object.keys(body.ga4Data) : [],
       hasTopLandingPages: !!body.ga4Data?.topLandingPages,
-      hasDeviceBreakdown: !!body.ga4Data?.deviceBreakdown
+      hasDeviceBreakdown: !!body.ga4Data?.deviceBreakdown,
+      // PHASE 2: Count data fields for different report types
+      gscDataFieldCount: body.gscData ? Object.keys(body.gscData).length : 0,
+      ga4DataFieldCount: body.ga4Data ? Object.keys(body.ga4Data).length : 0,
+      totalDataFields: (body.gscData ? Object.keys(body.gscData).length : 0) + (body.ga4Data ? Object.keys(body.ga4Data).length : 0)
     })
     
     console.log('5. Validating request data...')
     const validatedData = generatePdfSchema.parse(body)
     console.log('6. Data validation successful')
     
+    // Additional validation based on reportType
+    console.log('7. Performing report type-specific validation...')
+    if (validatedData.reportType === 'standard') {
+      if (!validatedData.ga4Data.avgSessionDuration ||
+          !validatedData.ga4Data.pagesPerSession ||
+          !validatedData.ga4Data.newUsers ||
+          !validatedData.ga4Data.organicTraffic) {
+        return NextResponse.json(
+          { 
+            error: 'Standard report requires extended GA4 metrics',
+            details: 'avgSessionDuration, pagesPerSession, newUsers, and organicTraffic are required for standard reports'
+          },
+          { status: 400 }
+        )
+      }
+    }
+    
+    console.log('8. Report type validation successful')
+    
     // Step 3: Verify client ownership
-    console.log('7. Verifying client ownership...')
+    console.log('9. Verifying client ownership...')
     const client = await prisma.client.findFirst({
       where: { 
         id: validatedData.clientId,
@@ -182,7 +215,7 @@ export async function POST(request: NextRequest) {
     })
     
     if (!client) {
-      console.error('8. CLIENT ACCESS DENIED:', {
+      console.error('10. CLIENT ACCESS DENIED:', {
         requestedClientId: validatedData.clientId,
         userId: user.id
       })
@@ -192,14 +225,14 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('8. Client ownership verified:', {
+    console.log('11. Client ownership verified:', {
       clientId: client.id,
       clientName: client.name,
       domain: client.domain
     })
     
     // Step 4: Merge GA4 data intelligently
-    console.log('9. Processing GA4 data...')
+    console.log('12. Processing GA4 data...')
     
     // Ensure required fields are present with defaults
     const baseGA4Data = {
@@ -216,41 +249,82 @@ export async function POST(request: NextRequest) {
       ...validatedData.ga4Data, // New GA4 data takes priority
     }
     
-    console.log('10. Merged GA4 data keys:', Object.keys(mergedGA4Data))
-    console.log('11. Required fields check:', {
+    console.log('13. Merged GA4 data keys:', Object.keys(mergedGA4Data))
+    console.log('14. Required fields check:', {
       users: mergedGA4Data.users,
       sessions: mergedGA4Data.sessions,
       bounceRate: mergedGA4Data.bounceRate,
       conversions: mergedGA4Data.conversions
     })
     
-    // Step 5: Generate PDF with all data
-    console.log('12. Generating PDF with enhanced data...')
-    const pdfGenerationData = {
-      clientName: validatedData.clientName,
-      startDate: validatedData.startDate,
-      endDate: validatedData.endDate,
+    // Step 5: Generate PDF with React-PDF
+    console.log(`[${requestId}] 15. Generating PDF with React-PDF...`)
+    
+    // Prepare report data for new React-PDF template interface
+    const reactPDFReportData = {
       reportType: validatedData.reportType,
-      customFields: validatedData.customFields,
-      selectedMetrics: validatedData.selectedMetrics,
-      agencyName: validatedData.agencyName || user.companyName || 'Digital Frog Agency',
-      agencyLogo: validatedData.agencyLogo,
-      gscData: validatedData.gscData,
-      ga4Data: mergedGA4Data, // Use merged data with guaranteed required fields
-      metrics: mergedGA4Data // Also pass as metrics for backward compatibility
+      clientName: validatedData.clientName,
+      clientDomain: validatedData.clientName + '.com',
+      
+      reportPeriod: {
+        startDate: validatedData.startDate,
+        endDate: validatedData.endDate,
+      },
+      
+      branding: {
+        companyName: validatedData.agencyName || user.companyName || 'Digital Frog Agency',
+        website: 'https://reportr.app',
+        email: user.email,
+        phone: '',
+        logo: validatedData.agencyLogo,
+        primaryColor: '#8B5CF6', // Purple branding
+      },
+      
+      // GSC Metrics - ALWAYS REQUIRED (4 metrics)
+      gscMetrics: {
+        clicks: validatedData.gscData?.clicks || 0,
+        impressions: validatedData.gscData?.impressions || 0,
+        ctr: validatedData.gscData?.ctr || 0,
+        position: validatedData.gscData?.position || 0,
+      },
+      
+      // GA4 Metrics - Structure varies by report type
+      ga4Metrics: {
+        // Core required metrics
+        users: mergedGA4Data.users || 0,
+        sessions: mergedGA4Data.sessions || 0,
+        bounceRate: mergedGA4Data.bounceRate || 0,
+        conversions: mergedGA4Data.conversions || 0,
+        
+        // Optional metrics for Standard/Custom reports
+        ...(mergedGA4Data.avgSessionDuration !== undefined && { avgSessionDuration: mergedGA4Data.avgSessionDuration }),
+        ...(mergedGA4Data.pagesPerSession !== undefined && { pagesPerSession: mergedGA4Data.pagesPerSession }),
+        ...(mergedGA4Data.newUsers !== undefined && { newUsers: mergedGA4Data.newUsers }),
+        ...(mergedGA4Data.organicTraffic !== undefined && { organicTraffic: mergedGA4Data.organicTraffic }),
+        ...((mergedGA4Data as any).topLandingPages && { topLandingPages: (mergedGA4Data as any).topLandingPages }),
+        ...((mergedGA4Data as any).deviceBreakdown && { deviceBreakdown: (mergedGA4Data as any).deviceBreakdown }),
+      },
     }
     
-    const pdfArrayBuffer = generatePDFWithJsPDF(pdfGenerationData)
-    const pdfBuffer = Buffer.from(pdfArrayBuffer)
+    // Generate PDF using React-PDF
+    const result = await pdfGenerator.generateReport(reactPDFReportData)
     
-    console.log('13. PDF generated successfully:', {
+    if (!result.success) {
+      throw new Error(`React-PDF generation failed: ${result.error}`)
+    }
+    
+    const pdfBuffer = result.pdfBuffer!
+    
+    const pdfGenerationTime = Date.now() - startTime
+    console.log(`[${requestId}] 16. PDF generated successfully:`, {
       bufferSize: pdfBuffer.length,
       sizeMB: (pdfBuffer.length / 1024 / 1024).toFixed(2),
-      reportType: validatedData.reportType
+      reportType: validatedData.reportType,
+      generationTime: pdfGenerationTime + 'ms'
     })
     
     // Step 6: Upload to Vercel Blob storage
-    console.log('14. Uploading PDF to Vercel Blob storage...')
+    console.log('17. Uploading PDF to Vercel Blob storage...')
     
     const startDate = new Date(validatedData.startDate).toISOString().split('T')[0]
     const endDate = new Date(validatedData.endDate).toISOString().split('T')[0]
@@ -264,14 +338,14 @@ export async function POST(request: NextRequest) {
       contentType: 'application/pdf'
     })
     
-    console.log('15. PDF uploaded to blob storage:', {
+    console.log('18. PDF uploaded to blob storage:', {
       url: blob.url,
       size: pdfBuffer.length,
       filename: filename
     })
     
     // Step 7: Save complete report data to database
-    console.log('16. Saving report to database...')
+    console.log('19. Saving report to database...')
     
     const reportTitle = `${validatedData.reportType.charAt(0).toUpperCase() + validatedData.reportType.slice(1)} Report - ${validatedData.clientName} (${startDate} to ${endDate})`
     
@@ -288,7 +362,7 @@ export async function POST(request: NextRequest) {
       selectedMetrics: validatedData.selectedMetrics,
       
       // Agency branding
-      agencyName: pdfGenerationData.agencyName,
+      agencyName: validatedData.agencyName || user.companyName || 'Digital Frog Agency',
       agencyLogo: validatedData.agencyLogo,
       
       // SEO data
@@ -323,7 +397,7 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('17. Report saved to database:', {
+    console.log('20. Report saved to database:', {
       reportId: report.id,
       title: report.title,
       pdfUrl: report.pdfUrl,
@@ -331,7 +405,7 @@ export async function POST(request: NextRequest) {
     })
     
     // Step 8: Update client statistics
-    console.log('18. Updating client statistics...')
+    console.log('21. Updating client statistics...')
     await prisma.client.update({
       where: { id: validatedData.clientId },
       data: {
@@ -342,15 +416,15 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    const processingTime = Date.now() - processingStarted.getTime()
-    console.log('19. Client statistics updated')
-    console.log('========== PDF GENERATION SUCCESS ==========')
-    console.log('Total processing time:', processingTime, 'ms')
+    const processingTime = Date.now() - startTime
+    console.log(`[${requestId}] 22. Client statistics updated`)
+    console.log('========== REACT-PDF GENERATION SUCCESS ==========')
+    console.log(`[${requestId}] Total processing time: ${processingTime}ms`)
     
-    // Step 9: Return PDF response with download
+    // Step 9: Return enhanced response with performance tracking
     const downloadFilename = `${sanitizedClientName}_${validatedData.reportType}_Report_${startDate}_to_${endDate}.pdf`
     
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -358,17 +432,27 @@ export async function POST(request: NextRequest) {
         'Content-Length': pdfBuffer.length.toString(),
         'X-Report-ID': report.id,
         'X-Blob-URL': blob.url,
-        'X-Processing-Time': processingTime.toString()
+        'X-Processing-Time': processingTime.toString(),
+        'X-Generator': 'react-pdf',
+        'X-Request-ID': requestId
       },
     })
     
   } catch (error: any) {
-    const processingTime = Date.now() - processingStarted.getTime()
+    const processingTime = Date.now() - startTime
     
-    console.error('========== PDF GENERATION ERROR ==========')
-    console.error('Processing time before error:', processingTime, 'ms')
-    console.error('Error type:', error.constructor.name)
-    console.error('Error message:', error.message)
+    console.error('========== REACT-PDF GENERATION ERROR ==========')
+    console.error(`[${requestId}] Processing time before error: ${processingTime}ms`)
+    console.error(`[${requestId}] Error type:`, error.constructor.name)
+    console.error(`[${requestId}] Error message:`, error.message)
+    console.error(`[${requestId}] Error details:`, {
+      message: error.message,
+      stack: error.stack,
+      userId: undefined, // Will be set below if auth succeeds
+      stage: error.stage || 'unknown',
+      duration: error.duration || processingTime,
+      requestId
+    })
     
     // Enhanced error logging
     if (error instanceof z.ZodError) {
@@ -409,13 +493,46 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Handle PDF generation errors
-    if (error.message?.includes('PDF') || error.message?.includes('jsPDF')) {
-      console.error('PDF generation error:', error.message)
+    // Handle React-PDF specific errors
+    if (error.message?.includes('React-PDF') || error.message?.includes('renderToBuffer') || error.stage) {
+      console.error(`[${requestId}] React-PDF error:`, {
+        stage: error.stage,
+        duration: error.duration,
+        originalError: error.originalError?.message
+      })
+      
+      // Return different status codes based on error type
+      if (error.message.includes('timeout') || error.stage === 'rendering') {
+        return NextResponse.json(
+          { 
+            error: 'PDF generation service temporarily unavailable',
+            details: 'Please try again in a few moments',
+            requestId,
+            stage: error.stage || 'timeout'
+          },
+          { status: 503 }
+        )
+      }
+      
       return NextResponse.json(
         { 
           error: 'PDF generation failed',
-          message: 'Unable to create PDF from provided data'
+          details: 'Unable to create PDF using React-PDF engine',
+          requestId,
+          stage: error.stage || 'unknown'
+        },
+        { status: 500 }
+      )
+    }
+    
+    // Handle legacy PDF generation errors (jsPDF)
+    if (error.message?.includes('PDF') || error.message?.includes('jsPDF')) {
+      console.error(`[${requestId}] PDF generation error:`, error.message)
+      return NextResponse.json(
+        { 
+          error: 'PDF generation failed',
+          message: 'Unable to create PDF from provided data',
+          requestId
         }, 
         { status: 500 }
       )
@@ -434,12 +551,13 @@ export async function POST(request: NextRequest) {
     }
     
     // Generic error handling
-    console.error('Unexpected error:', error.stack)
+    console.error(`[${requestId}] Unexpected error:`, error.stack)
     return NextResponse.json(
       { 
         error: 'PDF generation failed',
         message: 'An unexpected error occurred during PDF generation',
-        code: error.code || 'UNKNOWN_ERROR'
+        code: error.code || 'UNKNOWN_ERROR',
+        requestId
       }, 
       { status: 500 }
     )

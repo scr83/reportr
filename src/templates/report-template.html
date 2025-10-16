@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Performance Report - {{CLIENT_NAME}}</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Page structure */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 40px;
+            page-break-after: always;
+            position: relative;
+            background: white;
+        }
+        
+        .page:last-child {
+            page-break-after: auto;
+        }
+        
+        /* Cover page styles */
+        .cover-page {
+            background: {{PRIMARY_COLOR}};
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 297mm;
+            padding: 40px;
+        }
+        
+        .cover-logo {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            width: 120px;
+            height: 40px;
+        }
+        
+        .cover-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .report-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .client-name {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #22d3ee;
+        }
+        
+        .report-period {
+            font-size: 20px;
+            margin-bottom: 60px;
+            opacity: 0.9;
+        }
+        
+        .generated-date {
+            position: absolute;
+            bottom: 40px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* Header styles */
+        .header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid {{PRIMARY_COLOR}};
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: {{PRIMARY_COLOR}};
+            margin-bottom: 10px;
+        }
+        
+        /* Layout styles */
+        .row {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 20px;
+        }
+        
+        .column {
+            flex: 1;
+            padding-right: 20px;
+        }
+        
+        .column-last {
+            flex: 1;
+            padding-right: 0;
+        }
+        
+        /* Metrics styles */
+        .metrics-grid {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            width: 48%;
+            margin: 1%;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid {{PRIMARY_COLOR}};
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .metric-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .positive {
+            color: #059669;
+        }
+        
+        .negative {
+            color: #dc2626;
+        }
+        
+        /* Table styles */
+        .table {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .table-header {
+            display: flex;
+            flex-direction: row;
+            background-color: {{PRIMARY_COLOR}};
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: flex;
+            flex-direction: row;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px;
+            background-color: white;
+        }
+        
+        .table-row-alt {
+            display: flex;
+            flex-direction: row;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px;
+            background-color: #f8fafc;
+        }
+        
+        .table-cell {
+            flex: 1;
+            font-size: 10px;
+            text-align: left;
+        }
+        
+        .table-cell-center {
+            flex: 1;
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .table-cell-right {
+            flex: 1;
+            font-size: 10px;
+            text-align: right;
+        }
+        
+        .table-cell-wide {
+            flex: 2;
+            font-size: 10px;
+            text-align: left;
+        }
+        
+        /* Summary styles */
+        .summary-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #374151;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #22d3ee;
+        }
+        
+        /* Chart placeholder styles */
+        .chart-placeholder {
+            height: 200px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        
+        .chart-placeholder-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        /* Footer styles */
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            right: 40px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+        
+        .page-number {
+            font-size: 10px;
+            color: #64748b;
+        }
+        
+        /* Individual metric containers */
+        .metric-container {
+            margin-bottom: 10px;
+        }
+        
+        /* Section labels */
+        .section-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        /* Print optimization */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .page {
+                page-break-after: always;
+            }
+            
+            .page:last-child {
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PAGE 1 - COVER PAGE -->
+    <div class="page cover-page">
+        {{#if AGENCY_LOGO}}
+        <div class="cover-logo">
+            <img src="{{AGENCY_LOGO}}" alt="{{AGENCY_NAME}} Logo" />
+        </div>
+        {{/if}}
+        
+        <div class="report-title">SEO Performance Report</div>
+        <div class="client-name">{{CLIENT_NAME}}</div>
+        <div class="report-period">{{DATE_RANGE}}</div>
+        
+        <div class="generated-date">
+            Generated on {{REPORT_DATE}}
+        </div>
+    </div>
+
+    <!-- PAGE 2 - EXECUTIVE SUMMARY -->
+    <div class="page">
+        <div class="header">
+            <div class="page-title">Executive Summary</div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Clicks</div>
+                <div class="metric-value">{{TOTAL_CLICKS}}</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Total Impressions</div>
+                <div class="metric-value">{{TOTAL_IMPRESSIONS}}</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Average Position</div>
+                <div class="metric-value">{{AVERAGE_POSITION}}</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Total Users</div>
+                <div class="metric-value">{{TOTAL_USERS}}</div>
+            </div>
+        </div>
+
+        <div class="summary-text">
+            {{SUMMARY_TEXT}}
+        </div>
+
+        <div class="footer">
+            <div>{{AGENCY_NAME}}</div>
+            <div class="page-number">Page 2</div>
+        </div>
+    </div>
+
+    <!-- PAGE 3 - GOOGLE SEARCH CONSOLE -->
+    <div class="page">
+        <div class="header">
+            <div class="page-title">Google Search Console Performance</div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <div class="section-label">Key Metrics</div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Total Clicks</div>
+                    <div class="metric-value">{{TOTAL_CLICKS}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Total Impressions</div>
+                    <div class="metric-value">{{TOTAL_IMPRESSIONS}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Average CTR</div>
+                    <div class="metric-value">{{AVERAGE_CTR}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Average Position</div>
+                    <div class="metric-value">{{AVERAGE_POSITION}}</div>
+                </div>
+            </div>
+
+            <div class="column-last">
+                <div class="section-label">Performance Overview</div>
+                <div class="chart-placeholder">
+                    <div class="chart-placeholder-text">
+                        Chart Placeholder<br/>
+                        Clicks: {{TOTAL_CLICKS}}<br/>
+                        Impressions: {{TOTAL_IMPRESSIONS}}<br/>
+                        CTR: {{AVERAGE_CTR}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Keywords Table -->
+        {{#if TOP_KEYWORDS}}
+        <div class="table">
+            <div class="section-label">Top Performing Keywords</div>
+            
+            <div class="table-header">
+                <div class="table-cell-wide">Keyword</div>
+                <div class="table-cell-center">Clicks</div>
+                <div class="table-cell-center">Impressions</div>
+                <div class="table-cell-center">CTR</div>
+                <div class="table-cell-center">Position</div>
+            </div>
+            
+            {{TOP_KEYWORDS}}
+        </div>
+        {{/if}}
+
+        <div class="footer">
+            <div>{{AGENCY_NAME}}</div>
+            <div class="page-number">Page 3</div>
+        </div>
+    </div>
+
+    <!-- PAGE 4 - GOOGLE ANALYTICS 4 -->
+    <div class="page">
+        <div class="header">
+            <div class="page-title">Google Analytics 4 Insights</div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <div class="section-label">Key Metrics</div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Total Users</div>
+                    <div class="metric-value">{{TOTAL_USERS}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Total Sessions</div>
+                    <div class="metric-value">{{TOTAL_SESSIONS}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Bounce Rate</div>
+                    <div class="metric-value">{{BOUNCE_RATE}}</div>
+                </div>
+                
+                <div class="metric-container">
+                    <div class="metric-label">Conversions</div>
+                    <div class="metric-value">{{TOTAL_CONVERSIONS}}</div>
+                </div>
+            </div>
+
+            <div class="column-last">
+                <div class="section-label">Traffic Overview</div>
+                <div class="chart-placeholder">
+                    <div class="chart-placeholder-text">
+                        Chart Placeholder<br/>
+                        Users: {{TOTAL_USERS}}<br/>
+                        Sessions: {{TOTAL_SESSIONS}}<br/>
+                        Conversions: {{TOTAL_CONVERSIONS}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement Summary -->
+        <div class="summary-text">
+            {{GA4_SUMMARY_TEXT}}
+        </div>
+
+        <div class="footer">
+            <div>{{AGENCY_NAME}}</div>
+            <div class="page-number">Page 4</div>
+        </div>
+    </div>
+</body>
+</html>

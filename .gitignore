@@ -1,12 +1,49 @@
-node_modules/
-.next/
-.env
-.env.local
-dist/
-build/
-*.log
-.vercel
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-coverage/
-.turbo/
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
 .env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# PDFs and large files
+*.pdf
+/public/reports/
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# Puppeteer Chromium
+chromium/
+.cache/
+**/chrome-mac/
+**/.local-chromium/

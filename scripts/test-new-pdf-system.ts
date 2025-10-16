@@ -17,20 +17,30 @@
 
 import fs from 'fs'
 import path from 'path'
-import { generatePDFWithJsPDF } from '../src/lib/pdf/jspdf-generator-v3'
+import { pdfGenerator } from '../src/lib/pdf/react-pdf-generator'
 
-// Sample data matching the new structure
+// Sample data matching the React-PDF structure
 const baseSampleData = {
   clientName: "Acme Corporation",
   startDate: "2024-09-01",
   endDate: "2024-09-30",
-  agencyName: "Digital Frog Agency",
   reportType: "executive" as const,
+  timestamp: new Date().toISOString(),
+  reportId: "test-" + Date.now(),
+  branding: {
+    name: "Digital Frog Agency",
+    website: "https://reportr.app",
+    logo: undefined,
+    primaryColor: "#9333EA",
+    accentColor: "#6366F1",
+    email: "hello@digitalfrog.agency",
+    phone: "+1 (555) 123-4567"
+  },
   gscData: {
-    clicks: 15420,
-    impressions: 456789,
-    ctr: 3.37,
-    position: 14.2,
+    totalClicks: 15420,
+    totalImpressions: 456789,
+    averageCTR: 3.37,
+    averagePosition: 14.2,
     topQueries: [
       { query: "digital marketing", clicks: 2145, impressions: 87432, ctr: 2.45, position: 8.3 },
       { query: "seo services", clicks: 1876, impressions: 76543, ctr: 2.45, position: 12.1 },
@@ -43,7 +53,18 @@ const baseSampleData = {
     users: 12450,
     sessions: 18760,
     bounceRate: 42.3,
-    conversions: 187
+    conversions: 187,
+    avgSessionDuration: 185,
+    pagesPerSession: 3.2,
+    newUsers: 9876,
+    organicTraffic: 8432,
+    topLandingPages: [],
+    deviceBreakdown: {
+      desktop: 7470,
+      mobile: 4356,
+      tablet: 624
+    },
+    trafficSources: []
   }
 }
 
@@ -97,13 +118,17 @@ async function testExecutiveReport() {
   }
 
   try {
-    const pdfBuffer = generatePDFWithJsPDF(data)
+    const result = await pdfGenerator.generateReport(data)
+    if (!result.success) {
+      throw new Error(result.error)
+    }
+    const pdfBuffer = result.pdfBuffer!
     const filename = 'test-executive-report.pdf'
     const filepath = path.join(process.cwd(), filename)
     
-    fs.writeFileSync(filepath, Buffer.from(pdfBuffer))
+    fs.writeFileSync(filepath, pdfBuffer)
     
-    const fileSizeKB = Math.round(pdfBuffer.byteLength / 1024)
+    const fileSizeKB = Math.round(pdfBuffer.length / 1024)
     
     console.log(`✅ Executive Report Generated Successfully!`)
     console.log(`   📄 File: ${filename}`)
@@ -127,13 +152,17 @@ async function testStandardReport() {
   }
 
   try {
-    const pdfBuffer = generatePDFWithJsPDF(data)
+    const result = await pdfGenerator.generateReport(data)
+    if (!result.success) {
+      throw new Error(result.error)
+    }
+    const pdfBuffer = result.pdfBuffer!
     const filename = 'test-standard-report.pdf'
     const filepath = path.join(process.cwd(), filename)
     
-    fs.writeFileSync(filepath, Buffer.from(pdfBuffer))
+    fs.writeFileSync(filepath, pdfBuffer)
     
-    const fileSizeKB = Math.round(pdfBuffer.byteLength / 1024)
+    const fileSizeKB = Math.round(pdfBuffer.length / 1024)
     
     console.log(`✅ Standard Report Generated Successfully!`)
     console.log(`   📄 File: ${filename}`)
@@ -158,13 +187,17 @@ async function testCustomReport(metrics: string[], description: string) {
   }
 
   try {
-    const pdfBuffer = generatePDFWithJsPDF(data)
+    const result = await pdfGenerator.generateReport(data)
+    if (!result.success) {
+      throw new Error(result.error)
+    }
+    const pdfBuffer = result.pdfBuffer!
     const filename = `test-custom-report-${metrics.length}-metrics.pdf`
     const filepath = path.join(process.cwd(), filename)
     
-    fs.writeFileSync(filepath, Buffer.from(pdfBuffer))
+    fs.writeFileSync(filepath, pdfBuffer)
     
-    const fileSizeKB = Math.round(pdfBuffer.byteLength / 1024)
+    const fileSizeKB = Math.round(pdfBuffer.length / 1024)
     
     const expectedColumns = metrics.length <= 4 ? 2 : metrics.length <= 9 ? 3 : 4
     

@@ -15,10 +15,26 @@ export interface MetricData {
   sessions?: number
   bounceRate?: number
   conversions?: number
+  conversionRate?: number
   avgSessionDuration?: number
   pagesPerSession?: number
   newUsers?: number
   organicTraffic?: number
+  engagedSessions?: number
+  engagementRate?: number
+  directTraffic?: number
+  referralTraffic?: number
+  socialTraffic?: number
+  emailTraffic?: number
+  paidTraffic?: number
+  mobileUsers?: number
+  desktopUsers?: number
+  tabletUsers?: number
+  returningUsers?: number
+  pageViews?: number
+  uniquePageViews?: number
+  averageTimeOnPage?: number
+  exitRate?: number
 }
 
 export interface GSCData {
@@ -49,6 +65,7 @@ export interface GA4Data {
     sessions: number
     users: number
     bounceRate: number
+    conversions?: number
   }>
   deviceBreakdown: {
     desktop: number
@@ -113,6 +130,11 @@ export interface ReportData {
   
   // For custom reports (variable metrics)
   selectedMetrics?: string[]
+  customFields?: Array<{
+    title: string
+    content: string
+    type: 'insight' | 'recommendation' | 'metric'
+  }>
 }
 
 // PDF Generation Props

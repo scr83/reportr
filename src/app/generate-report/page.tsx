@@ -497,6 +497,10 @@ export default function GenerateReportPage() {
       // Generate and download PDF via server API (saves to database)
       console.log('🚀 Calling server-side PDF generation API...')
       
+      // PHASE 2 DIAGNOSTIC LOGGING: Frontend analysis
+      console.log('🔵 FRONTEND: Initiating report generation');
+      console.log('Report Type:', reportType);
+      
       // CRITICAL DEBUGGING: Log what we're sending to API
       console.log('🔍 SENDING TO API:', {
         reportType: reportType,
@@ -508,40 +512,45 @@ export default function GenerateReportPage() {
         formData: formData
       })
       
+      // PHASE 2 DIAGNOSTIC LOGGING: Build request body
+      const requestBody = {
+        clientId: reportData.clientId,
+        clientName: pdfReportData.clientName,
+        startDate: pdfReportData.startDate,
+        endDate: pdfReportData.endDate,
+        reportType: reportType, // Pass the report type
+        selectedMetrics: reportType === 'custom' ? selectedMetrics : undefined,
+        agencyName: pdfReportData.branding?.name,
+        agencyLogo: pdfReportData.branding?.logo,
+        gscData: {
+          clicks: Number(pdfReportData.gscData?.totalClicks) || 0,
+          impressions: Number(pdfReportData.gscData?.totalImpressions) || 0,
+          ctr: Number(pdfReportData.gscData?.averageCTR) || 0,
+          position: Number(pdfReportData.gscData?.averagePosition) || 0,
+          topQueries: pdfReportData.gscData?.topQueries?.map(q => ({
+            query: String(q.query || ''),
+            clicks: Number(q.clicks) || 0,
+            impressions: Number(q.impressions) || 0,
+            ctr: Number(q.ctr) || 0,
+            position: Number(q.position) || 0
+          })) || []
+        },
+        ga4Data: pdfReportData.ga4Data || {
+          users: 0,
+          sessions: 0,
+          bounceRate: 0,
+          conversions: 0
+        }
+      }
+      
+      console.log('Request Body:', JSON.stringify(requestBody, null, 2));
+      
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          clientId: reportData.clientId,
-          clientName: pdfReportData.clientName,
-          startDate: pdfReportData.startDate,
-          endDate: pdfReportData.endDate,
-          reportType: reportType, // Pass the report type
-          selectedMetrics: reportType === 'custom' ? selectedMetrics : undefined,
-          agencyName: pdfReportData.branding?.name,
-          agencyLogo: pdfReportData.branding?.logo,
-          gscData: {
-            clicks: Number(pdfReportData.gscData?.totalClicks) || 0,
-            impressions: Number(pdfReportData.gscData?.totalImpressions) || 0,
-            ctr: Number(pdfReportData.gscData?.averageCTR) || 0,
-            position: Number(pdfReportData.gscData?.averagePosition) || 0,
-            topQueries: pdfReportData.gscData?.topQueries?.map(q => ({
-              query: String(q.query || ''),
-              clicks: Number(q.clicks) || 0,
-              impressions: Number(q.impressions) || 0,
-              ctr: Number(q.ctr) || 0,
-              position: Number(q.position) || 0
-            })) || []
-          },
-          ga4Data: pdfReportData.ga4Data || {
-            users: 0,
-            sessions: 0,
-            bounceRate: 0,
-            conversions: 0
-          }
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (response.ok) {

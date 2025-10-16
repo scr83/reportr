@@ -1,0 +1,111 @@
+// PRODUCTION-READY PDF TYPES - Phase 1 Implementation
+
+export interface ReportData {
+  reportType: 'executive' | 'standard' | 'custom';
+  clientName: string;
+  clientDomain: string;
+  
+  reportPeriod: {
+    startDate: string;
+    endDate: string;
+  };
+  
+  branding: {
+    companyName: string;
+    website: string;
+    email: string;
+    phone?: string;
+    logo?: string;
+    primaryColor?: string;
+  };
+  
+  // GSC Data - ALWAYS REQUIRED (4 metrics)
+  gscMetrics: {
+    clicks: number;
+    impressions: number;
+    ctr: number;
+    position: number;
+  };
+  
+  // GA4 Data - Structure varies by report type
+  ga4Metrics: GA4Metrics;
+  
+  insights?: {
+    traffic?: string;
+    engagement?: string;
+    search?: string;
+  };
+  
+  recommendations?: Array<{
+    title: string;
+    description: string;
+    priority?: 'high' | 'medium' | 'low';
+  }>;
+}
+
+export interface GA4Metrics {
+  // Executive & Standard - REQUIRED
+  users: number;
+  sessions: number;
+  bounceRate: number;
+  conversions: number;
+  
+  // Standard only - REQUIRED for Standard
+  avgSessionDuration?: number;
+  pagesPerSession?: number;
+  newUsers?: number;
+  organicTraffic?: number;
+  topLandingPages?: Array<{
+    page: string;
+    sessions: number;
+    users: number;
+    bounceRate: number;
+  }>;
+  deviceBreakdown?: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
+  };
+  
+  // Custom - any combination of available metrics
+  [key: string]: any;
+}
+
+// Legacy BrandingConfig interface for backward compatibility
+export interface BrandingConfig {
+  name: string;
+  website: string;
+  logo?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  email?: string;
+  phone?: string;
+}
+
+// React-PDF specific interfaces
+export interface ReactPDFGenerationOptions {
+  timeout?: number;
+  debug?: boolean;
+  compressionLevel?: number;
+}
+
+export interface PDFGenerationResult {
+  buffer: Buffer;
+  filename: string;
+  processingTime: number;
+  reportId?: string;
+}
+
+export interface PDFGeneratorResult {
+  success: boolean;
+  pdfBuffer?: Buffer;
+  error?: string;
+  processingTime?: number;
+}
+
+export interface ReactPDFError extends Error {
+  stage: 'initialization' | 'rendering' | 'buffer_generation' | 'cleanup';
+  duration: number;
+  originalError?: Error;
+}
+

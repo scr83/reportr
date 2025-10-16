@@ -1,21 +1,20 @@
-# Test scripts
-scripts/
-documentation/
-
-# Development files
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
-
-# Environment files
-.env.local
-.env.development
-
-# IDE files
-.vscode/
-.idea/
-
-# OS files
+node_modules
+.next
+.git
+*.pdf
+test-*.pdf
+*.log
 .DS_Store
-Thumbs.db
+.env.local
+.vercel
+dist
+coverage
+.turbo
+*.zip
+*.tar.gz
+documentation
+scripts
+public/test-*
+*.pdf
+test-*.pdf
+*.log
