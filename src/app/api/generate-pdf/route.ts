@@ -185,25 +185,8 @@ export async function POST(request: NextRequest) {
     const validatedData = generatePdfSchema.parse(body)
     console.log('6. Data validation successful')
     
-    // Additional validation based on reportType
-    console.log('7. Performing report type-specific validation...')
-    if (validatedData.reportType === 'standard') {
-      // Check if fields exist (not undefined), allow zero values
-      if (validatedData.ga4Data.avgSessionDuration === undefined ||
-          validatedData.ga4Data.pagesPerSession === undefined ||
-          validatedData.ga4Data.newUsers === undefined ||
-          validatedData.ga4Data.organicTraffic === undefined) {
-        return NextResponse.json(
-          { 
-            error: 'Standard report requires extended GA4 metrics',
-            details: 'avgSessionDuration, pagesPerSession, newUsers, and organicTraffic are required for standard reports'
-          },
-          { status: 400 }
-        )
-      }
-    }
-    
-    console.log('8. Report type validation successful')
+    // Validation passed - all report types use the same Zod schema
+    console.log('7. All validation checks passed')
     
     // Step 3: Verify client ownership
     console.log('9. Verifying client ownership...')
