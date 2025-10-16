@@ -188,10 +188,11 @@ export async function POST(request: NextRequest) {
     // Additional validation based on reportType
     console.log('7. Performing report type-specific validation...')
     if (validatedData.reportType === 'standard') {
-      if (!validatedData.ga4Data.avgSessionDuration ||
-          !validatedData.ga4Data.pagesPerSession ||
-          !validatedData.ga4Data.newUsers ||
-          !validatedData.ga4Data.organicTraffic) {
+      // Check if fields exist (not undefined), allow zero values
+      if (validatedData.ga4Data.avgSessionDuration === undefined ||
+          validatedData.ga4Data.pagesPerSession === undefined ||
+          validatedData.ga4Data.newUsers === undefined ||
+          validatedData.ga4Data.organicTraffic === undefined) {
         return NextResponse.json(
           { 
             error: 'Standard report requires extended GA4 metrics',
