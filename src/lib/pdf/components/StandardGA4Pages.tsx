@@ -248,17 +248,35 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           <View style={styles.metricCard3}>
             <Text style={styles.metricLabelSmall}>Device Breakdown</Text>
             {data.ga4Metrics.deviceBreakdown ? (
-              <>
-                <Text style={styles.metricDescriptionSmall}>
-                  Desktop: {formatPercentage(data.ga4Metrics.deviceBreakdown.desktop)}
-                </Text>
-                <Text style={styles.metricDescriptionSmall}>
-                  Mobile: {formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)}
-                </Text>
-                <Text style={styles.metricDescriptionSmall}>
-                  Tablet: {formatPercentage(data.ga4Metrics.deviceBreakdown.tablet)}
-                </Text>
-              </>
+              (() => {
+                // Normalize percentages to ensure they add up to 100%
+                const breakdown = data.ga4Metrics.deviceBreakdown;
+                const rawTotal = (breakdown.desktop || 0) + (breakdown.mobile || 0) + (breakdown.tablet || 0);
+                
+                if (rawTotal > 0) {
+                  const normalizedDesktop = ((breakdown.desktop || 0) / rawTotal) * 100;
+                  const normalizedMobile = ((breakdown.mobile || 0) / rawTotal) * 100;
+                  const normalizedTablet = ((breakdown.tablet || 0) / rawTotal) * 100;
+                  
+                  return (
+                    <>
+                      <Text style={styles.metricDescriptionSmall}>
+                        Desktop: {normalizedDesktop.toFixed(1)}%
+                      </Text>
+                      <Text style={styles.metricDescriptionSmall}>
+                        Mobile: {normalizedMobile.toFixed(1)}%
+                      </Text>
+                      <Text style={styles.metricDescriptionSmall}>
+                        Tablet: {normalizedTablet.toFixed(1)}%
+                      </Text>
+                    </>
+                  );
+                } else {
+                  return (
+                    <Text style={styles.metricDescriptionSmall}>No device data available</Text>
+                  );
+                }
+              })()
             ) : (
               <Text style={styles.metricDescriptionSmall}>No device data available</Text>
             )}

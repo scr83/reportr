@@ -92,14 +92,6 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
       padding: 20,
       borderRadius: 8,
       marginTop: 30,
-      // CRITICAL FIX: Force Next Steps to start on a new page
-      breakBefore: 'page',
-      // CRITICAL FIX: Prevent page breaks inside the Next Steps box
-      breakInside: 'avoid',
-      pageBreakInside: 'avoid',
-      orphans: 3,
-      widows: 3,
-      minPresenceAhead: 120, // Require at least 120pt space ahead
     },
     nextStepsTitle: {
       fontSize: 16,
@@ -155,125 +147,153 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
   });
 
   return (
-    <Page style={styles.page}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.title}>Strategic Recommendations</Text>
-          <Text style={styles.subtitle}>Next steps to improve your digital performance</Text>
+    <>
+      {/* Page 1: Strategic Recommendations */}
+      <Page style={styles.page}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Strategic Recommendations</Text>
+            <Text style={styles.subtitle}>Next steps to improve your digital performance</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <Text style={styles.clientName}>{data.clientName}</Text>
+          </View>
         </View>
-        <View style={styles.headerRight}>
-          <Text style={styles.clientName}>{data.clientName}</Text>
-        </View>
-      </View>
 
-      <Text style={styles.sectionTitle}>Priority Actions</Text>
+        <Text style={styles.sectionTitle}>Priority Actions</Text>
 
-      {/* Action 1 */}
-      <View style={styles.actionItem}>
-        <View style={styles.actionNumber}>
-          <Text style={styles.actionNumberText}>1</Text>
+        {/* Action 1 */}
+        <View style={styles.actionItem}>
+          <View style={styles.actionNumber}>
+            <Text style={styles.actionNumberText}>1</Text>
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Enhance Conversion Tracking</Text>
+            <Text style={styles.actionDescription}>
+              Set up detailed conversion tracking to measure the effectiveness of your marketing 
+              efforts. Implement event tracking for key user actions and establish conversion 
+              funnels to identify drop-off points.
+            </Text>
+          </View>
         </View>
-        <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>Enhance Conversion Tracking</Text>
-          <Text style={styles.actionDescription}>
-            Set up detailed conversion tracking to measure the effectiveness of your marketing 
-            efforts. Implement event tracking for key user actions and establish conversion 
-            funnels to identify drop-off points.
+
+        {/* Action 2 */}
+        <View style={styles.actionItem}>
+          <View style={styles.actionNumber}>
+            <Text style={styles.actionNumberText}>2</Text>
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Optimize Conversion Funnel</Text>
+            <Text style={styles.actionDescription}>
+              Focus on improving the user journey and conversion funnel to maximize results from 
+              existing traffic. Conduct A/B testing on landing pages and CTAs to improve 
+              conversion rates across high-traffic pages.
+            </Text>
+          </View>
+        </View>
+
+        {/* Action 3 */}
+        <View style={styles.actionItem}>
+          <View style={styles.actionNumber}>
+            <Text style={styles.actionNumberText}>3</Text>
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Improve Search Visibility</Text>
+            <Text style={styles.actionDescription}>
+              Based on your current average position of {data.gscMetrics.position.toFixed(1)}, 
+              focus on optimizing content for target keywords. Implement technical SEO improvements 
+              and content optimization to move rankings from page 2 to page 1.
+            </Text>
+          </View>
+        </View>
+
+        {/* Action 4 */}
+        <View style={styles.actionItem}>
+          <View style={styles.actionNumber}>
+            <Text style={styles.actionNumberText}>4</Text>
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Enhance User Experience</Text>
+            <Text style={styles.actionDescription}>
+              With a bounce rate of {formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving 
+              page load speeds, mobile responsiveness, and content relevance. Consider implementing 
+              personalization features to increase engagement and session duration.
+            </Text>
+          </View>
+        </View>
+
+        {/* Action 5 */}
+        <View style={styles.actionItem}>
+          <View style={styles.actionNumber}>
+            <Text style={styles.actionNumberText}>5</Text>
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Expand Content Strategy</Text>
+            <Text style={styles.actionDescription}>
+              Develop a comprehensive content strategy targeting long-tail keywords and user intent. 
+              Create valuable resources that address your audience&apos;s pain points and establish 
+              thought leadership in your industry.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}></Text>
+          <Text style={styles.footerCenter}>
+            Generated by Reportr • {new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', month: 'long', day: 'numeric' 
+            })}
           </Text>
+          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+            `Page ${pageNumber} of ${totalPages}`
+          } />
         </View>
-      </View>
+      </Page>
 
-      {/* Action 2 */}
-      <View style={styles.actionItem}>
-        <View style={styles.actionNumber}>
-          <Text style={styles.actionNumberText}>2</Text>
+      {/* Page 2: Next Steps */}
+      <Page style={styles.page}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Strategic Recommendations</Text>
+            <Text style={styles.subtitle}>Implementation plan and next steps</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <Text style={styles.clientName}>{data.clientName}</Text>
+          </View>
         </View>
-        <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>Optimize Conversion Funnel</Text>
-          <Text style={styles.actionDescription}>
-            Focus on improving the user journey and conversion funnel to maximize results from 
-            existing traffic. Conduct A/B testing on landing pages and CTAs to improve 
-            conversion rates across high-traffic pages.
-          </Text>
-        </View>
-      </View>
 
-      {/* Action 3 */}
-      <View style={styles.actionItem}>
-        <View style={styles.actionNumber}>
-          <Text style={styles.actionNumberText}>3</Text>
+        {/* Next Steps Box - Now guaranteed to start at top of new page */}
+        <View style={[styles.nextStepsBox, {backgroundColor: '#D1FAE5', borderColor: '#10B981', marginTop: 20}]}>
+          <Text style={[styles.nextStepsTitle, {color: '#065F46'}]}>Next Steps</Text>
+          <View style={styles.bulletList}>
+            <Text style={styles.bulletItem}>• Schedule monthly performance reviews</Text>
+            <Text style={styles.bulletItem}>• Implement recommended optimizations</Text>
+            <Text style={styles.bulletItem}>• Set up automated monitoring alerts</Text>
+            <Text style={styles.bulletItem}>• Plan quarterly strategy adjustments</Text>
+            <Text style={styles.bulletItem}>• Monitor competitor performance and trends</Text>
+          </View>
         </View>
-        <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>Improve Search Visibility</Text>
-          <Text style={styles.actionDescription}>
-            Based on your current average position of {data.gscMetrics.position.toFixed(1)}, 
-            focus on optimizing content for target keywords. Implement technical SEO improvements 
-            and content optimization to move rankings from page 2 to page 1.
-          </Text>
-        </View>
-      </View>
 
-      {/* Action 4 */}
-      <View style={styles.actionItem}>
-        <View style={styles.actionNumber}>
-          <Text style={styles.actionNumberText}>4</Text>
-        </View>
-        <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>Enhance User Experience</Text>
-          <Text style={styles.actionDescription}>
-            With a bounce rate of {formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving 
-            page load speeds, mobile responsiveness, and content relevance. Consider implementing 
-            personalization features to increase engagement and session duration.
-          </Text>
-        </View>
-      </View>
-
-      {/* Action 5 */}
-      <View style={styles.actionItem}>
-        <View style={styles.actionNumber}>
-          <Text style={styles.actionNumberText}>5</Text>
-        </View>
-        <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>Expand Content Strategy</Text>
-          <Text style={styles.actionDescription}>
-            Develop a comprehensive content strategy targeting long-tail keywords and user intent. 
-            Create valuable resources that address your audience&apos;s pain points and establish 
-            thought leadership in your industry.
-          </Text>
-        </View>
-      </View>
-
-      {/* Next Steps Box */}
-      <View style={[styles.nextStepsBox, {backgroundColor: '#D1FAE5', borderColor: '#10B981'}]}>
-        <Text style={[styles.nextStepsTitle, {color: '#065F46'}]}>Next Steps</Text>
-        <View style={styles.bulletList}>
-          <Text style={styles.bulletItem}>• Schedule monthly performance reviews</Text>
-          <Text style={styles.bulletItem}>• Implement recommended optimizations</Text>
-          <Text style={styles.bulletItem}>• Set up automated monitoring alerts</Text>
-          <Text style={styles.bulletItem}>• Plan quarterly strategy adjustments</Text>
-          <Text style={styles.bulletItem}>• Monitor competitor performance and trends</Text>
-        </View>
-      </View>
-
-      {/* Footer Question */}
-      <Text style={styles.contactQuestion}>
-        Questions about this report? Contact {data.branding.companyName || 'your agency'}
-      </Text>
-      <Text style={[styles.contactInfo, {color: primaryColor}]}>
-        {data.branding.email || data.branding.website}
-      </Text>
-
-      <View style={styles.footer} fixed>
-        <Text style={styles.footerLeft}></Text>
-        <Text style={styles.footerCenter}>
-          Generated by Reportr • {new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', month: 'long', day: 'numeric' 
-          })}
+        {/* Footer Question */}
+        <Text style={styles.contactQuestion}>
+          Questions about this report? Contact {data.branding.companyName || 'your agency'}
         </Text>
-        <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
-          `Page ${pageNumber} of ${totalPages}`
-        } />
-      </View>
-    </Page>
+        <Text style={[styles.contactInfo, {color: primaryColor}]}>
+          {data.branding.email || data.branding.website}
+        </Text>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}></Text>
+          <Text style={styles.footerCenter}>
+            Generated by Reportr • {new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', month: 'long', day: 'numeric' 
+            })}
+          </Text>
+          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+            `Page ${pageNumber} of ${totalPages}`
+          } />
+        </View>
+      </Page>
+    </>
   );
 };

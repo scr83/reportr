@@ -403,37 +403,70 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
         {hasDeviceBreakdown && (
           <>
             <Text style={styles.sectionTitle}>Device Breakdown</Text>
-            <View style={styles.metricsGrid}>
-              <View style={styles.metricCard}>
-                <Text style={styles.metricValue}>
-                  {formatPercentage(data.ga4Metrics.deviceBreakdown?.desktop)}
-                </Text>
-                <Text style={styles.metricLabel}>Desktop</Text>
-                <Text style={styles.metricDescription}>
-                  Percentage of sessions from desktop devices
-                </Text>
-              </View>
-              <View style={styles.metricCard}>
-                <Text style={styles.metricValue}>
-                  {formatPercentage(data.ga4Metrics.deviceBreakdown?.mobile)}
-                </Text>
-                <Text style={styles.metricLabel}>Mobile</Text>
-                <Text style={styles.metricDescription}>
-                  Percentage of sessions from mobile devices
-                </Text>
-              </View>
-              {data.ga4Metrics.deviceBreakdown?.tablet !== undefined && (
-                <View style={styles.metricCard}>
-                  <Text style={styles.metricValue}>
-                    {formatPercentage(data.ga4Metrics.deviceBreakdown?.tablet)}
-                  </Text>
-                  <Text style={styles.metricLabel}>Tablet</Text>
-                  <Text style={styles.metricDescription}>
-                    Percentage of sessions from tablet devices
+            {(() => {
+              // Normalize percentages to ensure they add up to 100%
+              const breakdown = data.ga4Metrics.deviceBreakdown;
+              const rawTotal = (breakdown?.desktop || 0) + (breakdown?.mobile || 0) + (breakdown?.tablet || 0);
+              
+              let normalizedDesktop = 0;
+              let normalizedMobile = 0;
+              let normalizedTablet = 0;
+              
+              if (rawTotal > 0) {
+                normalizedDesktop = ((breakdown?.desktop || 0) / rawTotal) * 100;
+                normalizedMobile = ((breakdown?.mobile || 0) / rawTotal) * 100;
+                normalizedTablet = ((breakdown?.tablet || 0) / rawTotal) * 100;
+              }
+              
+              return (
+                <View style={{
+                  backgroundColor: '#F9FAFB',
+                  borderWidth: 1,
+                  borderColor: '#E5E7EB',
+                  borderRadius: 8,
+                  padding: 20,
+                  marginTop: 10,
+                }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 10 }}>
+                      <Text style={[styles.metricValue, { fontSize: 24 }]}>
+                        {normalizedDesktop.toFixed(1)}%
+                      </Text>
+                      <Text style={[styles.metricLabel, { fontSize: 12, textAlign: 'center' }]}>
+                        Desktop
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 10 }}>
+                      <Text style={[styles.metricValue, { fontSize: 24 }]}>
+                        {normalizedMobile.toFixed(1)}%
+                      </Text>
+                      <Text style={[styles.metricLabel, { fontSize: 12, textAlign: 'center' }]}>
+                        Mobile
+                      </Text>
+                    </View>
+                    {breakdown?.tablet !== undefined && (
+                      <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 10 }}>
+                        <Text style={[styles.metricValue, { fontSize: 24 }]}>
+                          {normalizedTablet.toFixed(1)}%
+                        </Text>
+                        <Text style={[styles.metricLabel, { fontSize: 12, textAlign: 'center' }]}>
+                          Tablet
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={{
+                    fontSize: 10,
+                    color: '#6B7280',
+                    textAlign: 'center',
+                    marginTop: 12,
+                    lineHeight: 1.4
+                  }}>
+                    Distribution of website sessions by device type
                   </Text>
                 </View>
-              )}
-            </View>
+              );
+            })()}
           </>
         )}
 
