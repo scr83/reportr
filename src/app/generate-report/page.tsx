@@ -991,7 +991,7 @@ export default function GenerateReportPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Top Queries (JSON format)
+              Top Queries
             </label>
             <textarea
               className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
@@ -1000,8 +1000,16 @@ export default function GenerateReportPage() {
                 ...prev,
                 gscData: { ...prev.gscData, topQueries: e.target.value }
               }))}
-              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567}, ...]'
+              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567, "ctr": 2.69, "position": 12.5}, ...]'
             />
+            
+            {/* Top Queries Preview Table */}
+            {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
+              <div className="mt-3">
+                <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
+                {renderTopQueries(reportData.gscData.topQueries)}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1160,6 +1168,67 @@ export default function GenerateReportPage() {
     }
   }
 
+  // Helper function to parse and display Top Queries
+  const renderTopQueries = (value: string) => {
+    try {
+      const queries = JSON.parse(value)
+      if (!Array.isArray(queries) || queries.length === 0) {
+        return <span className="text-gray-500 text-sm">No data available</span>
+      }
+      
+      return (
+        <div className="mt-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-purple-50">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Query</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Clicks</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Impressions</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">CTR</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Position</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {queries.slice(0, 10).map((query: any, index: number) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 text-sm text-gray-900 max-w-[200px] truncate" title={query.query}>
+                      {query.query || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof query.clicks === 'number' ? query.clicks.toLocaleString() : query.clicks || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof query.impressions === 'number' ? query.impressions.toLocaleString() : query.impressions || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof query.ctr === 'number' ? `${query.ctr.toFixed(2)}%` : query.ctr || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof query.position === 'number' ? query.position.toFixed(1) : query.position || '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {queries.length > 10 && (
+            <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500 text-center">
+              Showing top 10 of {queries.length} queries
+            </div>
+          )}
+        </div>
+      )
+    } catch (error) {
+      return (
+        <div className="mt-1 text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+          <div className="text-red-600 mb-1">⚠️ JSON Preview unavailable</div>
+          <div className="font-mono text-xs truncate">{value}</div>
+        </div>
+      )
+    }
+  }
+
   const renderStep3 = () => (
     <Card className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
@@ -1201,6 +1270,14 @@ export default function GenerateReportPage() {
               <span className="text-gray-600">Average Position</span>
               <span className="font-medium">{reportData.gscData.averagePosition || '—'}</span>
             </div>
+            
+            {/* Top Queries Table Preview */}
+            {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
+              <div className="mt-4">
+                <div className="text-sm font-medium text-gray-700 mb-2">Top Search Queries:</div>
+                {renderTopQueries(reportData.gscData.topQueries)}
+              </div>
+            )}
           </div>
         </div>
 
