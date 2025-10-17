@@ -21,10 +21,10 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
   const { data: session, status } = useSession()
 
   return (
-    <section className={cn(
-      'py-20 bg-gradient-to-br from-[#9810f9] to-[#7c0fd4]',
-      className
-    )}>
+    <section 
+      className={cn('py-20', className)}
+      style={{ backgroundColor: '#9810f9' }}
+    >
       <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-4xl font-bold text-white mb-6">
           Ready to Transform Your SEO Reporting?
