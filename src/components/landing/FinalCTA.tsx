@@ -23,7 +23,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
   return (
     <section 
       className={cn('py-20', className)}
-      style={{ backgroundColor: '#9810f9' }}
+      style={{ backgroundColor: '#7e23ce' }}
     >
       <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-4xl font-bold text-white mb-6">

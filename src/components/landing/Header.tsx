@@ -152,15 +152,6 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                   <Button variant="ghost" size="sm" disabled>
                     Loading...
                   </Button>
-                ) : session ? (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => router.push('/dashboard')}
-                    className="justify-start"
-                  >
-                    Dashboard
-                  </Button>
                 ) : (
                   <>
                     <Button 
