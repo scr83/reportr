@@ -158,21 +158,42 @@ export default function GenerateReportPage() {
       'uniquePageViews', 'averageTimeOnPage', 'exitRate', 'conversionRate'
     ]
     
+    // Helper function to convert string numbers to actual numbers
+    const convertToNumber = (value: any): number => {
+      if (typeof value === 'string') {
+        const cleaned = value.replace(/[,%]/g, '').trim()
+        return parseFloat(cleaned) || 0
+      } else if (typeof value === 'number') {
+        return value
+      } else {
+        return 0
+      }
+    }
+    
     Object.keys(ga4Data).forEach(key => {
       const value = ga4Data[key]
       
       if (numericFields.includes(key)) {
         // Convert to number, handle string numbers and commas
-        if (typeof value === 'string') {
-          const cleaned = value.replace(/[,%]/g, '').trim()
-          result[key] = parseFloat(cleaned) || 0
-        } else if (typeof value === 'number') {
-          result[key] = value
-        } else {
-          result[key] = 0
+        result[key] = convertToNumber(value)
+      } else if (key === 'topLandingPages' && Array.isArray(value)) {
+        // Handle topLandingPages array - convert numeric fields in each object
+        result[key] = value.map((page: any) => ({
+          page: page.page || '',
+          sessions: convertToNumber(page.sessions),
+          users: convertToNumber(page.users),
+          bounceRate: convertToNumber(page.bounceRate),
+          conversions: convertToNumber(page.conversions)
+        }))
+      } else if (key === 'deviceBreakdown' && typeof value === 'object' && value !== null) {
+        // Handle deviceBreakdown object - convert numeric fields
+        result[key] = {
+          desktop: convertToNumber(value.desktop),
+          mobile: convertToNumber(value.mobile),
+          tablet: convertToNumber(value.tablet)
         }
       } else {
-        // Keep non-numeric fields as-is (topLandingPages, deviceBreakdown)
+        // Keep other non-numeric fields as-is
         result[key] = value
       }
     })
