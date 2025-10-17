@@ -10,40 +10,162 @@ interface CustomGA4PagesProps {
 export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
 
-  // CRITICAL FIX: Get ALL available metrics - show them regardless of value
-  // This function must NEVER filter out metrics based on their values
-  const getAvailableMetrics = () => {
+  // CRITICAL FIX: Only show metrics that are in selectedMetrics array
+  // This ensures custom reports only show user-selected metrics
+  const getSelectedMetrics = () => {
     const metrics = [];
     const ga4 = data.ga4Metrics;
+    const selectedMetrics = data.selectedMetrics || [];
 
-    // ALWAYS include core metrics - use formatNumber which handles null/undefined/zero properly
-    metrics.push({ key: 'users', label: 'Total Users', value: formatNumber(ga4.users), description: 'Number of unique visitors to your website' });
-    metrics.push({ key: 'sessions', label: 'Total Sessions', value: formatNumber(ga4.sessions), description: 'Total number of visits to your website' });
-    metrics.push({ key: 'bounceRate', label: 'Bounce Rate', value: formatPercentage(ga4.bounceRate), description: 'Percentage of single-page sessions' });
-    metrics.push({ key: 'conversions', label: 'Conversions', value: formatNumber(ga4.conversions), description: 'Number of completed conversion events' });
-    metrics.push({ key: 'avgSessionDuration', label: 'Avg Session Duration', value: formatDuration(ga4.avgSessionDuration), description: 'Average time users spend on your website' });
-    metrics.push({ key: 'pagesPerSession', label: 'Pages Per Session', value: formatDecimal(ga4.pagesPerSession), description: 'Average number of pages viewed per session' });
-    metrics.push({ key: 'newUsers', label: 'New Users', value: formatNumber(ga4.newUsers), description: 'First-time visitors to your website' });
-    metrics.push({ key: 'organicTraffic', label: 'Organic Traffic', value: formatNumber(ga4.organicTraffic), description: 'Sessions from search engines' });
+    // Create mapping of metric keys to their display information
+    const metricMapping: Record<string, { label: string; getValue: () => string; description: string }> = {
+      users: {
+        label: 'Total Users',
+        getValue: () => formatNumber(ga4.users),
+        description: 'Number of unique visitors to your website'
+      },
+      sessions: {
+        label: 'Total Sessions',
+        getValue: () => formatNumber(ga4.sessions),
+        description: 'Total number of visits to your website'
+      },
+      bounceRate: {
+        label: 'Bounce Rate',
+        getValue: () => formatPercentage(ga4.bounceRate),
+        description: 'Percentage of single-page sessions'
+      },
+      conversions: {
+        label: 'Conversions',
+        getValue: () => formatNumber(ga4.conversions),
+        description: 'Number of completed conversion events'
+      },
+      avgSessionDuration: {
+        label: 'Avg Session Duration',
+        getValue: () => formatDuration(ga4.avgSessionDuration),
+        description: 'Average time users spend on your website'
+      },
+      pagesPerSession: {
+        label: 'Pages Per Session',
+        getValue: () => formatDecimal(ga4.pagesPerSession, 1),
+        description: 'Average number of pages viewed per session'
+      },
+      newUsers: {
+        label: 'New Users',
+        getValue: () => formatNumber(ga4.newUsers),
+        description: 'First-time visitors to your website'
+      },
+      organicTraffic: {
+        label: 'Organic Traffic',
+        getValue: () => formatNumber(ga4.organicTraffic),
+        description: 'Sessions from search engines'
+      },
+      engagedSessions: {
+        label: 'Engaged Sessions',
+        getValue: () => formatNumber(ga4.engagedSessions),
+        description: 'Sessions with meaningful interaction'
+      },
+      pageViews: {
+        label: 'Page Views',
+        getValue: () => formatNumber(ga4.pageViews),
+        description: 'Total number of pages viewed'
+      },
+      engagementRate: {
+        label: 'Engagement Rate',
+        getValue: () => formatPercentage(ga4.engagementRate),
+        description: 'Percentage of engaged sessions'
+      },
+      conversionRate: {
+        label: 'Conversion Rate',
+        getValue: () => formatPercentage(ga4.conversionRate),
+        description: 'Percentage of sessions with conversions'
+      },
+      sessionsPerUser: {
+        label: 'Sessions Per User',
+        getValue: () => formatDecimal(ga4.sessionsPerUser, 1),
+        description: 'Average number of sessions per user'
+      },
+      directTraffic: {
+        label: 'Direct Traffic',
+        getValue: () => formatNumber(ga4.directTraffic),
+        description: 'Sessions from direct visits'
+      },
+      referralTraffic: {
+        label: 'Referral Traffic',
+        getValue: () => formatNumber(ga4.referralTraffic),
+        description: 'Sessions from referring websites'
+      },
+      socialTraffic: {
+        label: 'Social Traffic',
+        getValue: () => formatNumber(ga4.socialTraffic),
+        description: 'Sessions from social media'
+      },
+      paidTraffic: {
+        label: 'Paid Traffic',
+        getValue: () => formatNumber(ga4.paidTraffic),
+        description: 'Sessions from paid advertising'
+      }
+    };
 
-    // Add any additional custom metrics - NO filtering based on undefined
-    Object.keys(ga4).forEach(key => {
-      if (!['users', 'sessions', 'bounceRate', 'conversions', 'avgSessionDuration', 'pagesPerSession', 'newUsers', 'organicTraffic', 'topLandingPages', 'deviceBreakdown'].includes(key)) {
-        const value = ga4[key];
-        // Don't filter by type - include everything and let formatNumber handle it
+    // Only include metrics that are in selectedMetrics array
+    selectedMetrics.forEach(metricKey => {
+      if (metricMapping[metricKey]) {
+        const mapping = metricMapping[metricKey];
         metrics.push({
-          key,
-          label: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-          value: typeof value === 'number' ? formatNumber(value) : (value ? String(value) : 'N/A'),
-          description: 'Custom metric value'
+          key: metricKey,
+          label: mapping.label,
+          value: mapping.getValue(),
+          description: mapping.description
         });
+      } else {
+        // Handle unknown metrics from ga4Metrics object
+        const value = ga4[metricKey];
+        if (value !== undefined) {
+          metrics.push({
+            key: metricKey,
+            label: metricKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+            value: typeof value === 'number' ? formatNumber(value) : String(value),
+            description: 'Custom metric value'
+          });
+        }
       }
     });
 
     return metrics;
   };
 
-  const availableMetrics = getAvailableMetrics();
+  const selectedMetricsData = getSelectedMetrics();
+
+  // Handle case where no metrics are selected
+  if (selectedMetricsData.length === 0) {
+    return (
+      <Page style={{ padding: 40, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' }}>
+        <View style={{ marginBottom: 30, paddingBottom: 15, borderBottomWidth: 2, borderBottomColor: primaryColor }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1F2937', marginBottom: 5 }}>
+            Custom Analytics Report
+          </Text>
+          <Text style={{ fontSize: 12, color: '#6B7280' }}>
+            No metrics selected for {data.clientDomain} | {data.reportPeriod.startDate} - {data.reportPeriod.endDate}
+          </Text>
+        </View>
+        <View style={{ 
+          backgroundColor: '#FEF3C7', 
+          borderWidth: 1, 
+          borderColor: '#F59E0B', 
+          borderRadius: 8, 
+          padding: 20, 
+          marginTop: 40 
+        }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#92400E', marginBottom: 8 }}>
+            No Metrics Selected
+          </Text>
+          <Text style={{ fontSize: 12, color: '#78350F', lineHeight: 1.4 }}>
+            Please select at least one metric to include in your custom report. You can choose from various GA4 metrics 
+            such as users, sessions, bounce rate, conversions, and more to create a personalized analytics overview.
+          </Text>
+        </View>
+      </Page>
+    );
+  }
 
   const styles = StyleSheet.create({
     page: {
@@ -144,12 +266,12 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
 
   // Split metrics into pages (8 metrics per page maximum)
   const metricsPerPage = 8;
-  const totalPages = Math.ceil(availableMetrics.length / metricsPerPage);
+  const totalPages = Math.ceil(selectedMetricsData.length / metricsPerPage);
 
   const renderMetricsPage = (pageIndex: number) => {
     const startIndex = pageIndex * metricsPerPage;
-    const endIndex = Math.min(startIndex + metricsPerPage, availableMetrics.length);
-    const pageMetrics = availableMetrics.slice(startIndex, endIndex);
+    const endIndex = Math.min(startIndex + metricsPerPage, selectedMetricsData.length);
+    const pageMetrics = selectedMetricsData.slice(startIndex, endIndex);
 
     return (
       <Page key={pageIndex} style={styles.page}>
@@ -172,11 +294,13 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
           ))}
         </View>
 
-        {/* Show tables on the last page if there's space */}
+        {/* Show complex metrics if selected and on last page with space */}
         {pageIndex === totalPages - 1 && pageMetrics.length <= 4 && (
           <>
-            {/* Top Landing Pages Table */}
-            {data.ga4Metrics.topLandingPages && data.ga4Metrics.topLandingPages.length > 0 && (
+            {/* Top Landing Pages Table - only if topLandingPages in selectedMetrics */}
+            {data.selectedMetrics?.includes('topLandingPages') && 
+             data.ga4Metrics.topLandingPages && 
+             data.ga4Metrics.topLandingPages.length > 0 && (
               <>
                 <Text style={styles.sectionTitle}>Top Landing Pages</Text>
                 <View style={styles.tableContainer}>
@@ -196,6 +320,34 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
                       <Text style={styles.tableCell}>{formatPercentage(page.bounceRate)}</Text>
                     </View>
                   ))}
+                </View>
+              </>
+            )}
+
+            {/* Device Breakdown - only if deviceBreakdown in selectedMetrics */}
+            {data.selectedMetrics?.includes('deviceBreakdown') && 
+             data.ga4Metrics.deviceBreakdown && (
+              <>
+                <Text style={styles.sectionTitle}>Device Breakdown</Text>
+                <View style={styles.metricsGrid}>
+                  <View style={styles.metricCard}>
+                    <Text style={styles.metricValue}>
+                      {formatPercentage(data.ga4Metrics.deviceBreakdown.desktop)}
+                    </Text>
+                    <Text style={styles.metricLabel}>Desktop</Text>
+                    <Text style={styles.metricDescription}>
+                      Percentage of sessions from desktop devices
+                    </Text>
+                  </View>
+                  <View style={styles.metricCard}>
+                    <Text style={styles.metricValue}>
+                      {formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)}
+                    </Text>
+                    <Text style={styles.metricLabel}>Mobile</Text>
+                    <Text style={styles.metricDescription}>
+                      Percentage of sessions from mobile devices
+                    </Text>
+                  </View>
                 </View>
               </>
             )}

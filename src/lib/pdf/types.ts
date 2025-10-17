@@ -30,6 +30,9 @@ export interface ReportData {
   // GA4 Data - Structure varies by report type
   ga4Metrics: GA4Metrics;
   
+  // Custom report selected metrics - only used for custom report type
+  selectedMetrics?: string[];
+  
   insights?: {
     traffic?: string;
     engagement?: string;

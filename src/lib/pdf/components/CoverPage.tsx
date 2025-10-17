@@ -27,7 +27,7 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
   const reportTypeTitle = data.reportType === 'executive' 
     ? 'Executive SEO Report' 
     : data.reportType === 'standard'
-    ? 'Comprehensive SEO Report'
+    ? 'Standard SEO Report'
     : 'Custom SEO Report';
 
   return (
