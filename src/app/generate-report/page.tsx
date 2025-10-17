@@ -1055,6 +1055,111 @@ export default function GenerateReportPage() {
     </Card>
   )
 
+  // Helper function to parse and display Top Landing Pages
+  const renderTopLandingPages = (value: string) => {
+    try {
+      const pages = JSON.parse(value)
+      if (!Array.isArray(pages) || pages.length === 0) {
+        return <span className="text-gray-500 text-sm">No data available</span>
+      }
+      
+      return (
+        <div className="mt-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-purple-50">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Page</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Sessions</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Users</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Bounce Rate</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {pages.slice(0, 5).map((page: any, index: number) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 text-sm text-gray-900 max-w-[200px] truncate" title={page.page}>
+                      {page.page || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof page.sessions === 'number' ? page.sessions.toLocaleString() : page.sessions || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof page.users === 'number' ? page.users.toLocaleString() : page.users || '—'}
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-900">
+                      {typeof page.bounceRate === 'number' ? `${page.bounceRate.toFixed(1)}%` : page.bounceRate || '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {pages.length > 5 && (
+            <div className="px-3 py-2 bg-gray-50 text-xs text-gray-500 text-center">
+              Showing top 5 of {pages.length} pages
+            </div>
+          )}
+        </div>
+      )
+    } catch (error) {
+      return (
+        <div className="mt-1 text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+          <div className="text-red-600 mb-1">⚠️ JSON Preview unavailable</div>
+          <div className="font-mono text-xs truncate">{value}</div>
+        </div>
+      )
+    }
+  }
+
+  // Helper function to parse and display Device Breakdown
+  const renderDeviceBreakdown = (value: string) => {
+    try {
+      const devices = JSON.parse(value)
+      if (!devices || typeof devices !== 'object') {
+        return <span className="text-gray-500 text-sm">No data available</span>
+      }
+      
+      const deviceEntries = Object.entries(devices).filter(([_, count]) => count !== undefined && count !== null)
+      
+      if (deviceEntries.length === 0) {
+        return <span className="text-gray-500 text-sm">No data available</span>
+      }
+      
+      return (
+        <div className="mt-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-purple-50">
+              <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Device</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-purple-900 uppercase tracking-wider">Sessions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {deviceEntries.map(([device, count]: [string, any], index: number) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-3 py-2 text-sm text-gray-900 capitalize">
+                    {device}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-900">
+                    {typeof count === 'number' ? count.toLocaleString() : count || '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    } catch (error) {
+      return (
+        <div className="mt-1 text-xs text-gray-500 bg-gray-50 p-2 rounded border">
+          <div className="text-red-600 mb-1">⚠️ JSON Preview unavailable</div>
+          <div className="font-mono text-xs truncate">{value}</div>
+        </div>
+      )
+    }
+  }
+
   const renderStep3 = () => (
     <Card className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <Typography variant="h2" className="text-2xl font-bold text-gray-900 mb-6">
@@ -1121,13 +1226,36 @@ export default function GenerateReportPage() {
                 const isLast = index === fieldsToShow.length - 1
                 
                 return (
-                  <div key={field.id} className={`flex justify-between py-2 ${!isLast ? 'border-b border-gray-200' : ''}`}>
-                    <span className="text-gray-600">{field.label}</span>
-                    <span className="font-medium">
-                      {value ? (
-                        typeof value === 'object' ? JSON.stringify(value) : value
-                      ) : '—'}
-                    </span>
+                  <div key={field.id} className={`${!isLast ? 'border-b border-gray-200 pb-3 mb-3' : ''}`}>
+                    <div className="flex justify-between items-start py-2">
+                      <span className="text-gray-600">{field.label}</span>
+                      <span className="font-medium">
+                        {value ? (
+                          // Special handling for JSON fields
+                          field.id === 'topLandingPages' && typeof value === 'string' ? (
+                            <div className="text-right">
+                              <span className="text-purple-600 text-sm">View table below ↓</span>
+                            </div>
+                          ) : field.id === 'deviceBreakdown' && typeof value === 'string' ? (
+                            <div className="text-right">
+                              <span className="text-purple-600 text-sm">View table below ↓</span>
+                            </div>
+                          ) : typeof value === 'object' ? (
+                            JSON.stringify(value)
+                          ) : (
+                            value
+                          )
+                        ) : '—'}
+                      </span>
+                    </div>
+                    
+                    {/* Render special tables for complex data */}
+                    {field.id === 'topLandingPages' && value && typeof value === 'string' && (
+                      renderTopLandingPages(value)
+                    )}
+                    {field.id === 'deviceBreakdown' && value && typeof value === 'string' && (
+                      renderDeviceBreakdown(value)
+                    )}
                   </div>
                 )
               })
