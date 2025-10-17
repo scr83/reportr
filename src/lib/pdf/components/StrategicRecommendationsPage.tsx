@@ -92,6 +92,8 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
       padding: 20,
       borderRadius: 8,
       marginTop: 30,
+      // CRITICAL FIX: Force Next Steps to start on a new page
+      breakBefore: 'page',
       // CRITICAL FIX: Prevent page breaks inside the Next Steps box
       breakInside: 'avoid',
       pageBreakInside: 'avoid',
