@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Poppins font for logo and headings */
+.font-poppins {
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
 :root {
   /* Digital Frog Brand Colors (Purple Tech Palette) */
   --brand-50: 250 245 255;    /* Purple 50 */

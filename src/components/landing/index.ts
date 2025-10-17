@@ -1,0 +1,7 @@
+export { Header } from './Header'
+export { Footer } from './Footer'
+export { Hero } from './Hero'
+export { HowItWorks } from './HowItWorks'
+export { Features } from './Features'
+export { Pricing } from './Pricing'
+export { FinalCTA } from './FinalCTA'
