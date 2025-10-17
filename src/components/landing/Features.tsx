@@ -117,21 +117,13 @@ export const Features: React.FC<FeaturesProps> = ({ className }) => {
         {/* Bottom Stats */}
         <div className="mt-20">
           <div className="max-w-4xl mx-auto">
-            <Grid cols={1} gap="lg" className="sm:grid-cols-3">
+            <Grid cols={1} gap="lg" className="sm:grid-cols-2">
               <div className="text-center">
                 <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
                   10x
                 </Typography>
                 <Typography variant="body" className="text-neutral-600">
                   Faster than manual reporting
-                </Typography>
-              </div>
-              <div className="text-center">
-                <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
-                  500+
-                </Typography>
-                <Typography variant="body" className="text-neutral-600">
-                  Agencies trust Reportr
                 </Typography>
               </div>
               <div className="text-center">

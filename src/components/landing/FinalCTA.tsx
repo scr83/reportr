@@ -22,7 +22,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
 
   return (
     <section className={cn(
-      'py-20 bg-gradient-to-br from-purple-600 to-purple-800',
+      'py-20 bg-gradient-to-br from-[#9810f9] to-purple-800',
       className
     )}>
       <div className="max-w-4xl mx-auto px-6 text-center">
@@ -35,21 +35,21 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
         
         {status === 'loading' ? (
           <button 
-            className="bg-white text-purple-600 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg"
+            className="bg-white text-[#9810f9] px-8 py-4 rounded-lg font-semibold text-lg shadow-lg"
             disabled
           >
             Loading...
           </button>
         ) : session ? (
           <button 
-            className="bg-white text-purple-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-purple-50 hover:scale-105 transition-all duration-200 shadow-lg"
+            className="bg-white text-[#9810f9] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-purple-50 hover:scale-105 transition-all duration-200 shadow-lg"
             onClick={() => router.push('/dashboard')}
           >
             Go to Dashboard →
           </button>
         ) : (
           <button 
-            className="bg-white text-purple-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-purple-50 hover:scale-105 transition-all duration-200 shadow-lg"
+            className="bg-white text-[#9810f9] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-purple-50 hover:scale-105 transition-all duration-200 shadow-lg"
             onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
           >
             Start Free Trial Now →
