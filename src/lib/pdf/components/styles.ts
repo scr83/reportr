@@ -461,14 +461,9 @@ export const formatNumber = (num: number | undefined | null): string => {
   // Handle zero explicitly (don't hide it!)
   if (num === 0) return '0';
   
-  // Format large numbers
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  }
-  
-  return num.toLocaleString();
+  // UPDATED: Always use comma separators for readability
+  // Use toLocaleString for all numbers to ensure comma formatting
+  return Math.round(num).toLocaleString();
 };
 
 // Helper function to format percentages with proper N/A handling  
@@ -479,7 +474,11 @@ export const formatPercentage = (num: number | undefined | null): string => {
   // Handle zero explicitly (show as 0.0%)
   if (num === 0) return '0.0%';
   
-  return `${num.toFixed(1)}%`;
+  // CRITICAL FIX: Handle CTR values that are already percentages (> 1)
+  // If the value is > 1, it's likely already been multiplied by 100, so divide by 100
+  const normalizedValue = num > 1 ? num / 100 : num;
+  
+  return `${normalizedValue.toFixed(1)}%`;
 };
 
 // Helper function to format duration with proper N/A handling

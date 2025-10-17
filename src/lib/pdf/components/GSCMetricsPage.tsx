@@ -96,7 +96,7 @@ export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
 
         {/* Average CTR */}
         <View style={styles.metricCard}>
-          <Text style={styles.metricValue}>{formatPercentage(data.gscMetrics.ctr * 100)}</Text>
+          <Text style={styles.metricValue}>{formatPercentage(data.gscMetrics.ctr)}</Text>
           <Text style={styles.metricLabel}>Average CTR</Text>
           <Text style={styles.metricDescription}>
             Click-through rate - percentage of impressions that resulted in clicks

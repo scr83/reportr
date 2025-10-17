@@ -246,7 +246,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
                   </Text>
                   <Text style={styles.tableCell}>{formatNumber(keyword.clicks)}</Text>
                   <Text style={styles.tableCell}>{formatNumber(keyword.impressions)}</Text>
-                  <Text style={styles.tableCell}>{formatPercentage(keyword.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(keyword.ctr)}</Text>
                   <Text style={styles.tableCell}>{formatDecimal(keyword.position, 1)}</Text>
                 </View>
               ))}
@@ -273,7 +273,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
                   </Text>
                   <Text style={styles.tableCell}>{formatNumber(page.clicks)}</Text>
                   <Text style={styles.tableCell}>{formatNumber(page.impressions)}</Text>
-                  <Text style={styles.tableCell}>{formatPercentage(page.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(page.ctr)}</Text>
                   <Text style={styles.tableCell}>{formatDecimal(page.position, 1)}</Text>
                 </View>
               ))}
@@ -297,7 +297,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
                   <Text style={[styles.tableCell, {flex: 2}]}>{country.country}</Text>
                   <Text style={styles.tableCell}>{formatNumber(country.clicks)}</Text>
                   <Text style={styles.tableCell}>{formatNumber(country.impressions)}</Text>
-                  <Text style={styles.tableCell}>{formatPercentage(country.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(country.ctr)}</Text>
                 </View>
               ))}
             </View>
@@ -320,7 +320,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
                   <Text style={[styles.tableCell, {flex: 2}]}>{device.device}</Text>
                   <Text style={styles.tableCell}>{formatNumber(device.clicks)}</Text>
                   <Text style={styles.tableCell}>{formatNumber(device.impressions)}</Text>
-                  <Text style={styles.tableCell}>{formatPercentage(device.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(device.ctr)}</Text>
                 </View>
               ))}
             </View>

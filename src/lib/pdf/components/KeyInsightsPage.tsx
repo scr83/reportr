@@ -106,7 +106,7 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
         <Text style={styles.insightText}>
           Your website received {formatNumber(data.gscMetrics.clicks)} clicks from{' '}
           {formatNumber(data.gscMetrics.impressions)} impressions with an average CTR of{' '}
-          {formatPercentage(data.gscMetrics.ctr * 100)}. Your average position of{' '}
+          {formatPercentage(data.gscMetrics.ctr)}. Your average position of{' '}
           {formatDecimal(data.gscMetrics.position, 1)} indicates{' '}
           {data.gscMetrics.position < 10 ? 'strong visibility' : 'room for improvement'} in search results.
         </Text>
