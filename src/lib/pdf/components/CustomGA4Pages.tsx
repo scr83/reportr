@@ -16,6 +16,13 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
     const metrics: any[] = [];
     const ga4 = data.ga4Metrics;
     const selectedMetrics = data.selectedMetrics || [];
+    
+    // DEBUG: Log the data to identify the issue
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔵 CustomGA4Pages: selectedMetrics =', selectedMetrics);
+      console.log('🔵 CustomGA4Pages: selectedMetrics.length =', selectedMetrics.length);
+      console.log('🔵 CustomGA4Pages: typeof selectedMetrics =', typeof selectedMetrics);
+    }
 
     // Create mapping of metric keys to their display information
     const metricMapping: Record<string, { label: string; getValue: () => string; description: string }> = {
@@ -103,6 +110,16 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
         label: 'Paid Traffic',
         getValue: () => formatNumber(ga4.paidTraffic),
         description: 'Sessions from paid advertising'
+      },
+      topLandingPages: {
+        label: 'Top Landing Pages',
+        getValue: () => ga4.topLandingPages?.length ? `${ga4.topLandingPages.length} pages` : 'No data',
+        description: 'Most visited landing pages (see table below)'
+      },
+      deviceBreakdown: {
+        label: 'Device Breakdown',
+        getValue: () => ga4.deviceBreakdown ? 'Available' : 'No data',
+        description: 'Traffic distribution by device type (see details below)'
       }
     };
 
@@ -120,6 +137,12 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
         // Handle unknown metrics from ga4Metrics object
         const value = ga4[metricKey];
         if (value !== undefined) {
+          // Skip arrays and complex objects - these should be handled with special sections, not as metric cards
+          if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+            console.warn(`Skipping complex metric '${metricKey}' - arrays and objects should be handled with special sections`);
+            return;
+          }
+          
           metrics.push({
             key: metricKey,
             label: metricKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),

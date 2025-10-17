@@ -17,32 +17,29 @@ export default function TestPDFPage() {
       
       const testData = {
         clientName: `Test ${reportType} Client`,
-        startDate: '2024-01-01',
-        endDate: '2024-01-31',
+        clientDomain: 'example.com',
         reportType,
+        reportPeriod: {
+          startDate: '2024-01-01',
+          endDate: '2024-01-31'
+        },
         branding: {
-          name: 'Digital Frog Agency',
+          companyName: 'Digital Frog Agency',
           website: 'https://reportr.app',
           primaryColor: '#9333EA',
-          accentColor: '#6366F1',
           email: 'test@agency.com',
           phone: '(555) 123-4567'
         },
         ...(reportType === 'custom' && {
-          selectedMetrics: ['users', 'bounceRate', 'avgSessionDuration', 'organicTraffic']
+          selectedMetrics: ['users', 'sessions', 'bounceRate', 'conversions', 'avgSessionDuration', 'organicTraffic', 'topLandingPages']
         }),
-        gscData: {
-          totalClicks: 1500,
-          totalImpressions: 25000,
-          averageCTR: 6.0,
-          averagePosition: 15.2,
-          topQueries: [
-            { query: 'seo services', clicks: 450, impressions: 5000, ctr: 9.0, position: 8.5 },
-            { query: 'digital marketing', clicks: 320, impressions: 4200, ctr: 7.6, position: 12.3 },
-            { query: 'website optimization', clicks: 280, impressions: 3800, ctr: 7.4, position: 14.1 }
-          ]
+        gscMetrics: {
+          clicks: 1500,
+          impressions: 25000,
+          ctr: 0.06,
+          position: 15.2
         },
-        ga4Data: {
+        ga4Metrics: {
           users: 12450,
           sessions: 18760,
           bounceRate: 42.3,
@@ -50,39 +47,47 @@ export default function TestPDFPage() {
           avgSessionDuration: 185,
           pagesPerSession: 3.2,
           newUsers: 9876,
-          organicTraffic: 68.5,
+          organicTraffic: 12800,
+          engagedSessions: 10800,
+          pageViews: 60000,
+          engagementRate: 57.7,
+          conversionRate: 1.0,
+          sessionsPerUser: 1.5,
+          directTraffic: 3760,
+          referralTraffic: 1500,
+          socialTraffic: 700,
+          paidTraffic: 300,
           topLandingPages: [
             { page: '/', sessions: 500, users: 400, bounceRate: 30.5 },
             { page: '/services', sessions: 300, users: 250, bounceRate: 40.2 },
             { page: '/about', sessions: 200, users: 180, bounceRate: 35.8 }
           ],
           deviceBreakdown: {
-            mobile: 1000,
-            desktop: 1200,
-            tablet: 256
+            desktop: 48.0,
+            mobile: 40.0,
+            tablet: 12.0
           }
         },
-        insights: [
+        insights: {
+          traffic: 'Your organic traffic increased by 23% this month, driven primarily by improved rankings for key service pages.',
+          engagement: 'Session duration and pages per session both improved, indicating better content engagement and user experience.',
+          search: 'Your average search position improved from 9.2 to 8.7, with several high-value keywords moving into the top 5 positions.'
+        },
+        recommendations: [
           {
-            id: '1',
             title: 'High Mobile Traffic Opportunity',
             description: 'Mobile users represent 40% of your traffic but show higher engagement rates.',
-            priority: 'high' as const,
-            category: 'performance' as const,
-            recommendations: ['Optimize mobile page speed', 'Improve mobile user experience']
+            priority: 'high' as const
           },
           {
-            id: '2',
             title: 'Keyword Ranking Improvement',
             description: 'Several keywords are ranking on page 2 and can be optimized to reach page 1.',
-            priority: 'medium' as const,
-            category: 'keyword' as const,
-            recommendations: ['Create targeted content', 'Build quality backlinks']
+            priority: 'medium' as const
           }
         ]
       }
       
-      const generationResult = await pdfGenerator.generateReport(testData as any)
+      const generationResult = await pdfGenerator.generateReport(testData)
       
       if (!generationResult.success) {
         throw new Error(`PDF generation failed: ${generationResult.error}`)
