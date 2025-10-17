@@ -288,6 +288,9 @@ export async function POST(request: NextRequest) {
         ...((mergedGA4Data as any).topLandingPages && { topLandingPages: (mergedGA4Data as any).topLandingPages }),
         ...((mergedGA4Data as any).deviceBreakdown && { deviceBreakdown: (mergedGA4Data as any).deviceBreakdown }),
       },
+      
+      // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
+      selectedMetrics: validatedData.selectedMetrics || [],
     }
     
     // Generate PDF using React-PDF
