@@ -289,6 +289,118 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
             </View>
           </>
         )}
+
+        {/* GSC Performance Tables */}
+        
+        {/* Top Countries */}
+        {data.gscMetrics.topCountries && data.gscMetrics.topCountries.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Top Countries</Text>
+            <View style={styles.tableContainer}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderText, {flex: 2}]}>Country</Text>
+                <Text style={styles.tableHeaderText}>Clicks</Text>
+                <Text style={styles.tableHeaderText}>Impressions</Text>
+                <Text style={styles.tableHeaderText}>CTR (%)</Text>
+              </View>
+              {data.gscMetrics.topCountries.slice(0, 8).map((country, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, {flex: 2}]}>{country.country}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(country.clicks)}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(country.impressions)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(country.ctr * 100)}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </Page>
+
+      {/* Page 3: Additional GSC Performance Data */}
+      <Page style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Search Console Detailed Performance</Text>
+          <Text style={styles.subtitle}>
+            Additional search performance insights for {data.clientDomain}
+          </Text>
+        </View>
+
+        {/* Top Performing Keywords */}
+        {data.gscMetrics.topKeywords && data.gscMetrics.topKeywords.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Top Performing Keywords</Text>
+            <View style={styles.tableContainer}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderText, {flex: 2}]}>Query</Text>
+                <Text style={styles.tableHeaderText}>Clicks</Text>
+                <Text style={styles.tableHeaderText}>Impressions</Text>
+                <Text style={styles.tableHeaderText}>CTR (%)</Text>
+                <Text style={styles.tableHeaderText}>Position</Text>
+              </View>
+              {data.gscMetrics.topKeywords.slice(0, 10).map((keyword, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, {flex: 2}]}>
+                    {keyword.query.length > 50 ? `${keyword.query.substring(0, 50)}...` : keyword.query}
+                  </Text>
+                  <Text style={styles.tableCell}>{formatNumber(keyword.clicks)}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(keyword.impressions)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(keyword.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatDecimal(keyword.position, 1)}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
+        {/* Top Pages */}
+        {data.gscMetrics.topPages && data.gscMetrics.topPages.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Top Pages</Text>
+            <View style={styles.tableContainer}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderText, {flex: 2}]}>Page</Text>
+                <Text style={styles.tableHeaderText}>Clicks</Text>
+                <Text style={styles.tableHeaderText}>Impressions</Text>
+                <Text style={styles.tableHeaderText}>CTR (%)</Text>
+                <Text style={styles.tableHeaderText}>Position</Text>
+              </View>
+              {data.gscMetrics.topPages.slice(0, 10).map((page, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, {flex: 2}]}>
+                    {page.page.length > 50 ? `${page.page.substring(0, 50)}...` : page.page}
+                  </Text>
+                  <Text style={styles.tableCell}>{formatNumber(page.clicks)}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(page.impressions)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(page.ctr * 100)}</Text>
+                  <Text style={styles.tableCell}>{formatDecimal(page.position, 1)}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
+        {/* Device Breakdown (Table Format) */}
+        {data.gscMetrics.deviceBreakdown && data.gscMetrics.deviceBreakdown.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Device Breakdown</Text>
+            <View style={styles.tableContainer}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderText, {flex: 2}]}>Device</Text>
+                <Text style={styles.tableHeaderText}>Clicks</Text>
+                <Text style={styles.tableHeaderText}>Impressions</Text>
+                <Text style={styles.tableHeaderText}>CTR (%)</Text>
+              </View>
+              {data.gscMetrics.deviceBreakdown.map((device, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, {flex: 2}]}>{device.device}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(device.clicks)}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(device.impressions)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(device.ctr * 100)}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </Page>
     </>
   );

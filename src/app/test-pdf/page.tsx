@@ -37,7 +37,48 @@ export default function TestPDFPage() {
           clicks: 1500,
           impressions: 25000,
           ctr: 0.06,
-          position: 15.2
+          position: 15.2,
+          topKeywords: [
+            { query: "geological engineering courses", clicks: 125, impressions: 3200, ctr: 0.039, position: 8.5 },
+            { query: "mining geology training", clicks: 98, impressions: 2400, ctr: 0.041, position: 7.2 },
+            { query: "hazard geology certification", clicks: 87, impressions: 1950, ctr: 0.045, position: 6.8 },
+            { query: "earth science consulting", clicks: 76, impressions: 1800, ctr: 0.042, position: 9.1 },
+            { query: "geological risk assessment", clicks: 65, impressions: 1600, ctr: 0.041, position: 8.9 },
+            { query: "slope stability analysis", clicks: 54, impressions: 1350, ctr: 0.040, position: 10.2 },
+            { query: "hydrogeology services", clicks: 48, impressions: 1200, ctr: 0.040, position: 11.5 },
+            { query: "environmental geology", clicks: 42, impressions: 1100, ctr: 0.038, position: 12.3 },
+            { query: "geotechnical investigation", clicks: 39, impressions: 980, ctr: 0.040, position: 13.1 },
+            { query: "soil mechanics training", clicks: 36, impressions: 950, ctr: 0.038, position: 14.2 }
+          ],
+          topPages: [
+            { page: "/", clicks: 245, impressions: 5600, ctr: 0.044, position: 7.5 },
+            { page: "/product/curso-peligro-geologico", clicks: 189, impressions: 4200, ctr: 0.045, position: 6.9 },
+            { page: "/cursos", clicks: 142, impressions: 3800, ctr: 0.037, position: 9.2 },
+            { page: "/services/consulting", clicks: 98, impressions: 2800, ctr: 0.035, position: 11.1 },
+            { page: "/about", clicks: 87, impressions: 2400, ctr: 0.036, position: 10.8 },
+            { page: "/blog/geological-hazards", clicks: 76, impressions: 2100, ctr: 0.036, position: 12.5 },
+            { page: "/certification-programs", clicks: 65, impressions: 1900, ctr: 0.034, position: 13.2 },
+            { page: "/contact", clicks: 54, impressions: 1600, ctr: 0.034, position: 14.1 },
+            { page: "/resources", clicks: 48, impressions: 1400, ctr: 0.034, position: 15.3 },
+            { page: "/testimonials", clicks: 42, impressions: 1200, ctr: 0.035, position: 16.2 }
+          ],
+          topCountries: [
+            { country: "Chile", clicks: 312, impressions: 7200, ctr: 0.043 },
+            { country: "Peru", clicks: 156, impressions: 3400, ctr: 0.046 },
+            { country: "Colombia", clicks: 98, impressions: 2100, ctr: 0.047 },
+            { country: "Mexico", clicks: 87, impressions: 1950, ctr: 0.045 },
+            { country: "Argentina", clicks: 76, impressions: 1800, ctr: 0.042 },
+            { country: "Ecuador", clicks: 54, impressions: 1300, ctr: 0.042 },
+            { country: "Bolivia", clicks: 42, impressions: 1000, ctr: 0.042 },
+            { country: "Uruguay", clicks: 28, impressions: 700, ctr: 0.040 },
+            { country: "Paraguay", clicks: 18, impressions: 450, ctr: 0.040 },
+            { country: "Spain", clicks: 15, impressions: 380, ctr: 0.039 }
+          ],
+          deviceBreakdown: [
+            { device: "Desktop", clicks: 385, impressions: 8500, ctr: 0.045 },
+            { device: "Mobile", clicks: 245, impressions: 5200, ctr: 0.047 },
+            { device: "Tablet", clicks: 28, impressions: 650, ctr: 0.043 }
+          ]
         },
         ga4Metrics: {
           users: 12450,

@@ -7,6 +7,8 @@ import { ExecutiveGA4Page } from './ExecutiveGA4Page';
 import { StandardGA4Pages } from './StandardGA4Pages';
 import { CustomGA4Pages } from './CustomGA4Pages';
 import { RecommendationsPage } from './RecommendationsPage';
+import { KeyInsightsPage } from './KeyInsightsPage';
+import { StrategicRecommendationsPage } from './StrategicRecommendationsPage';
 
 interface ReportDocumentProps {
   data: ReportData;
@@ -47,7 +49,13 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
         <CustomGA4Pages data={data} />
       )}
 
-      {/* Recommendations Page - Include if we have insights or recommendations */}
+      {/* Key Insights Page - Always included after GA4 data */}
+      <KeyInsightsPage data={data} />
+
+      {/* Strategic Recommendations Page - Always included */}
+      <StrategicRecommendationsPage data={data} />
+
+      {/* Original Recommendations Page - Include if we have specific insights or recommendations */}
       {(data.insights || data.recommendations) && (
         <RecommendationsPage data={data} />
       )}

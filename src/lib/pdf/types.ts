@@ -1,5 +1,46 @@
 // PRODUCTION-READY PDF TYPES - Phase 1 Implementation
 
+export interface GSCKeyword {
+  query: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GSCPage {
+  page: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GSCCountry {
+  country: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+}
+
+export interface GSCDevice {
+  device: string; // "desktop" | "mobile" | "tablet"
+  clicks: number;
+  impressions: number;
+  ctr: number;
+}
+
+export interface GSCMetrics {
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+  topKeywords?: GSCKeyword[];
+  topPages?: GSCPage[];
+  topCountries?: GSCCountry[];
+  deviceBreakdown?: GSCDevice[];
+}
+
 export interface ReportData {
   reportType: 'executive' | 'standard' | 'custom';
   clientName: string;
@@ -19,13 +60,8 @@ export interface ReportData {
     primaryColor?: string;
   };
   
-  // GSC Data - ALWAYS REQUIRED (4 metrics)
-  gscMetrics: {
-    clicks: number;
-    impressions: number;
-    ctr: number;
-    position: number;
-  };
+  // GSC Data - ALWAYS REQUIRED (4 metrics + tables)
+  gscMetrics: GSCMetrics;
   
   // GA4 Data - Structure varies by report type
   ga4Metrics: GA4Metrics;
