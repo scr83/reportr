@@ -228,7 +228,7 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
           <Text style={styles.actionTitle}>Expand Content Strategy</Text>
           <Text style={styles.actionDescription}>
             Develop a comprehensive content strategy targeting long-tail keywords and user intent. 
-            Create valuable resources that address your audience's pain points and establish 
+            Create valuable resources that address your audience&apos;s pain points and establish 
             thought leadership in your industry.
           </Text>
         </View>
