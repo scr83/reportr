@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
       
       <header className={cn(
         'sticky top-0 z-50',
-        'bg-white/95 backdrop-blur-sm border-b border-neutral-200',
+        'bg-white/80 backdrop-blur-[12px] border-b border-purple-500/10',
         'shadow-sm',
         className
       )}>
@@ -59,6 +59,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button
+              onClick={() => scrollToSection('how-it-works')}
+              className="text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+            >
+              How It Works
+            </button>
+            <button
               onClick={() => scrollToSection('features')}
               className="text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
             >
@@ -69,12 +75,6 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
               className="text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
             >
               Pricing
-            </button>
-            <button
-              onClick={() => scrollToSection('how-it-works')}
-              className="text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
-            >
-              How It Works
             </button>
           </nav>
 
@@ -129,6 +129,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
           <div className="md:hidden py-4 border-t border-neutral-200">
             <nav className="flex flex-col space-y-4">
               <button
+                onClick={() => scrollToSection('how-it-works')}
+                className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+              >
+                How It Works
+              </button>
+              <button
                 onClick={() => scrollToSection('features')}
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
@@ -139,12 +145,6 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
                 Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection('how-it-works')}
-                className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
-              >
-                How It Works
               </button>
               
               <div className="pt-4 border-t border-neutral-200 flex flex-col space-y-3">

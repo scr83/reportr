@@ -44,8 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
               </span>
             </div>
             <Typography variant="body" className="text-neutral-400 max-w-sm">
-              Professional SEO reporting made simple. Generate branded, 
-              AI-powered reports for your digital marketing agency in minutes.
+              Professional SEO reports in minutes. Built for agencies.
             </Typography>
           </div>
 
@@ -55,6 +54,12 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
               Product
             </Typography>
             <nav className="flex flex-col space-y-3">
+              <button
+                onClick={() => scrollToSection('how-it-works')}
+                className="text-left text-neutral-400 hover:text-white transition-colors"
+              >
+                How It Works
+              </button>
               <button
                 onClick={() => scrollToSection('features')}
                 className="text-left text-neutral-400 hover:text-white transition-colors"
@@ -66,18 +71,6 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                 className="text-left text-neutral-400 hover:text-white transition-colors"
               >
                 Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection('how-it-works')}
-                className="text-left text-neutral-400 hover:text-white transition-colors"
-              >
-                How It Works
-              </button>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="text-left text-neutral-400 hover:text-white transition-colors"
-              >
-                Dashboard
               </button>
             </nav>
           </div>

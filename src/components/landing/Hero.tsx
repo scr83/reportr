@@ -59,8 +59,8 @@ export const Hero: React.FC<HeroProps> = ({ className }) => {
             variant="h2" 
             className="text-xl lg:text-2xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed"
           >
-            Generate stunning, branded SEO reports automatically from Google Search Console, 
-            Analytics 4, and PageSpeed Insights. Perfect for digital marketing agencies who value their time.
+            Generate stunning, professional SEO reports automatically from Google Search Console 
+            and Analytics 4. Perfect for digital marketing agencies who value their time.
           </Typography>
 
           {/* CTA Buttons */}

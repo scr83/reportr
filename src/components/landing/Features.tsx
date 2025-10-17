@@ -37,14 +37,14 @@ const features = [
   },
   {
     icon: Palette,
-    title: 'Custom Branding',
-    description: 'White-label reports with your agency branding, colors, and logo for a professional client experience.',
+    title: 'Professional Reports',
+    description: 'Beautifully designed PDF reports that showcase your client\'s SEO data clearly and professionally.',
     color: 'text-purple-600 bg-purple-100'
   },
   {
     icon: BarChart3,
     title: 'Advanced Analytics',
-    description: 'Comprehensive SEO metrics from Google Search Console, Analytics 4, and PageSpeed Insights.',
+    description: 'Comprehensive SEO metrics from Google Search Console and Analytics 4.',
     color: 'text-green-600 bg-green-100'
   },
   {
@@ -77,8 +77,8 @@ export const Features: React.FC<FeaturesProps> = ({ className }) => {
             Everything You Need to Impress Your Clients
           </Typography>
           <Typography variant="body" className="text-xl text-neutral-600">
-            Built specifically for digital marketing agencies who need professional, 
-            branded reports without the hassle.
+            Built specifically for digital marketing agencies who need professional 
+            reports without the hassle.
           </Typography>
         </div>
 

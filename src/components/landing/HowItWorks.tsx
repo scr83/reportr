@@ -20,7 +20,7 @@ const steps = [
     number: 1,
     icon: Link,
     title: 'Connect Your Accounts',
-    description: 'Securely connect your Google Search Console, Analytics 4, and PageSpeed Insights accounts with just a few clicks.',
+    description: 'Securely connect your Google Search Console and Analytics 4 accounts with just a few clicks.'
     color: 'from-blue-500 to-blue-600'
   },
   {
@@ -34,7 +34,7 @@ const steps = [
     number: 3,
     icon: FileText,
     title: 'Generate Report',
-    description: 'Get a professional, branded PDF report with AI-powered insights and recommendations in minutes.',
+    description: 'Get a professional PDF report with AI-powered insights and recommendations in minutes.'
     color: 'from-green-500 to-green-600'
   }
 ]

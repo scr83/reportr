@@ -47,7 +47,6 @@ const plans = [
       '25 reports per month',
       '5 clients',
       'Advanced SEO metrics',
-      'Custom branding',
       'AI-powered insights',
       'Priority support',
       'All integrations',
