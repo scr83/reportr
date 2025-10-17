@@ -3,6 +3,7 @@ import { Document } from '@react-pdf/renderer';
 import { ReportData } from '../types';
 import { CoverPage } from './CoverPage';
 import { GSCMetricsPage } from './GSCMetricsPage';
+import { TopQueriesPage } from './TopQueriesPage';
 import { ExecutiveGA4Page } from './ExecutiveGA4Page';
 import { StandardGA4Pages } from './StandardGA4Pages';
 import { CustomGA4Pages } from './CustomGA4Pages';
@@ -35,6 +36,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
 
       {/* GSC Metrics Page - Always included (4 metrics) */}
       <GSCMetricsPage data={data} />
+
+      {/* Top Queries Page - Always included after GSC Metrics */}
+      <TopQueriesPage data={data} />
 
       {/* GA4 Pages - Conditional based on report type */}
       {data.reportType === 'executive' && (
