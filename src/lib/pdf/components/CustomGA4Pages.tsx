@@ -13,7 +13,7 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
   // CRITICAL FIX: Only show metrics that are in selectedMetrics array
   // This ensures custom reports only show user-selected metrics
   const getSelectedMetrics = () => {
-    const metrics = [];
+    const metrics: any[] = [];
     const ga4 = data.ga4Metrics;
     const selectedMetrics = data.selectedMetrics || [];
 
