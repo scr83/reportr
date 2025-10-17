@@ -293,7 +293,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
         {/* GSC Performance Tables */}
         
         {/* Top Countries */}
-        {data.gscMetrics.topCountries && data.gscMetrics.topCountries.length > 0 && (
+        {data.gscMetrics?.topCountries && Array.isArray(data.gscMetrics.topCountries) && data.gscMetrics.topCountries.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Countries</Text>
             <View style={styles.tableContainer}>
@@ -326,7 +326,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
         </View>
 
         {/* Top Performing Keywords */}
-        {data.gscMetrics.topKeywords && data.gscMetrics.topKeywords.length > 0 && (
+        {data.gscMetrics?.topKeywords && Array.isArray(data.gscMetrics.topKeywords) && data.gscMetrics.topKeywords.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Performing Keywords</Text>
             <View style={styles.tableContainer}>
@@ -353,7 +353,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
         )}
 
         {/* Top Pages */}
-        {data.gscMetrics.topPages && data.gscMetrics.topPages.length > 0 && (
+        {data.gscMetrics?.topPages && Array.isArray(data.gscMetrics.topPages) && data.gscMetrics.topPages.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Pages</Text>
             <View style={styles.tableContainer}>
@@ -380,7 +380,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
         )}
 
         {/* Device Breakdown (Table Format) */}
-        {data.gscMetrics.deviceBreakdown && data.gscMetrics.deviceBreakdown.length > 0 && (
+        {data.gscMetrics?.deviceBreakdown && Array.isArray(data.gscMetrics.deviceBreakdown) && data.gscMetrics.deviceBreakdown.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Device Breakdown</Text>
             <View style={styles.tableContainer}>

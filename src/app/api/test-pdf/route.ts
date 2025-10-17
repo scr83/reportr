@@ -35,12 +35,171 @@ export async function GET(request: NextRequest) {
         phone: '+1 (555) 123-4567'
       },
 
-      // GSC Data - ALWAYS REQUIRED (4 metrics)
+      // GSC Data - ALWAYS REQUIRED (4 metrics + tables)
       gscMetrics: {
         clicks: 12543,
         impressions: 89342,
         ctr: 0.1404, // 14.04%
         position: 8.7,
+        
+        // ADD MISSING GSC TABLE DATA - This was the source of the blank pages!
+        topKeywords: [
+          {
+            query: 'digital marketing services',
+            clicks: 2847,
+            impressions: 18934,
+            ctr: 0.1504,
+            position: 4.2
+          },
+          {
+            query: 'seo consulting company',
+            clicks: 1923,
+            impressions: 15672,
+            ctr: 0.1227,
+            position: 6.8
+          },
+          {
+            query: 'content marketing strategy',
+            clicks: 1456,
+            impressions: 12984,
+            ctr: 0.1121,
+            position: 7.3
+          },
+          {
+            query: 'local seo services',
+            clicks: 1234,
+            impressions: 11567,
+            ctr: 0.1067,
+            position: 8.1
+          },
+          {
+            query: 'ppc management agency',
+            clicks: 987,
+            impressions: 9876,
+            ctr: 0.0999,
+            position: 9.2
+          },
+          {
+            query: 'social media marketing',
+            clicks: 876,
+            impressions: 8934,
+            ctr: 0.0980,
+            position: 10.1
+          },
+          {
+            query: 'web design services',
+            clicks: 743,
+            impressions: 7823,
+            ctr: 0.0950,
+            position: 11.3
+          },
+          {
+            query: 'digital advertising agency',
+            clicks: 654,
+            impressions: 6745,
+            ctr: 0.0970,
+            position: 12.1
+          }
+        ],
+        
+        topPages: [
+          {
+            page: '/services/digital-marketing',
+            clicks: 3452,
+            impressions: 23456,
+            ctr: 0.1472,
+            position: 5.1
+          },
+          {
+            page: '/services/seo-consulting',
+            clicks: 2834,
+            impressions: 19876,
+            ctr: 0.1426,
+            position: 5.8
+          },
+          {
+            page: '/blog/content-marketing-guide',
+            clicks: 2156,
+            impressions: 16789,
+            ctr: 0.1284,
+            position: 6.4
+          },
+          {
+            page: '/services/local-seo',
+            clicks: 1876,
+            impressions: 14567,
+            ctr: 0.1288,
+            position: 7.2
+          },
+          {
+            page: '/case-studies/ecommerce-success',
+            clicks: 1543,
+            impressions: 12345,
+            ctr: 0.1250,
+            position: 8.0
+          },
+          {
+            page: '/about-us',
+            clicks: 1234,
+            impressions: 10987,
+            ctr: 0.1124,
+            position: 8.9
+          }
+        ],
+        
+        topCountries: [
+          {
+            country: 'United States',
+            clicks: 8934,
+            impressions: 56789,
+            ctr: 0.1574
+          },
+          {
+            country: 'Canada',
+            clicks: 1456,
+            impressions: 10234,
+            ctr: 0.1423
+          },
+          {
+            country: 'United Kingdom',
+            clicks: 987,
+            impressions: 7456,
+            ctr: 0.1324
+          },
+          {
+            country: 'Australia',
+            clicks: 654,
+            impressions: 5234,
+            ctr: 0.1249
+          },
+          {
+            country: 'Germany',
+            clicks: 432,
+            impressions: 3567,
+            ctr: 0.1211
+          }
+        ],
+        
+        deviceBreakdown: [
+          {
+            device: 'desktop',
+            clicks: 7234,
+            impressions: 48567,
+            ctr: 0.1489
+          },
+          {
+            device: 'mobile',
+            clicks: 4567,
+            impressions: 34789,
+            ctr: 0.1313
+          },
+          {
+            device: 'tablet',
+            clicks: 742,
+            impressions: 5986,
+            ctr: 0.1239
+          }
+        ]
       },
       
       // GA4 Metrics - Structure varies by report type
@@ -85,6 +244,12 @@ export async function GET(request: NextRequest) {
           tablet: 4.5
         }
       },
+      
+      // Custom report selected metrics (for custom report type)
+      selectedMetrics: reportType === 'custom' ? [
+        'users', 'sessions', 'bounceRate', 'conversions', 
+        'avgSessionDuration', 'pagesPerSession', 'newUsers', 'organicTraffic'
+      ] : undefined,
       
       // Optional insights for recommendations page
       insights: {

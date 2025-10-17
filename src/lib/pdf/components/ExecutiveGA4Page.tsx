@@ -200,6 +200,38 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
           </View>
         </View>
 
+        {/* DEBUG: Show message when no GSC data is available */}
+        {(!data.gscMetrics?.topKeywords || data.gscMetrics.topKeywords.length === 0) &&
+         (!data.gscMetrics?.topPages || data.gscMetrics.topPages.length === 0) &&
+         (!data.gscMetrics?.topCountries || data.gscMetrics.topCountries.length === 0) &&
+         (!data.gscMetrics?.deviceBreakdown || data.gscMetrics.deviceBreakdown.length === 0) && (
+          <View style={{
+            backgroundColor: '#FEF3C7',
+            borderWidth: 1,
+            borderColor: '#F59E0B',
+            borderRadius: 8,
+            padding: 20,
+            marginTop: 30
+          }}>
+            <Text style={{
+              fontSize: 14,
+              fontWeight: 'bold',
+              color: '#92400E',
+              marginBottom: 8
+            }}>
+              No Search Console Data Available
+            </Text>
+            <Text style={{
+              fontSize: 12,
+              color: '#78350F',
+              lineHeight: 1.4
+            }}>
+              Google Search Console data tables will appear here once your website is connected and has performance data available.
+              This may take 24-48 hours after connecting your Search Console account.
+            </Text>
+          </View>
+        )}
+
         <View style={styles.footer} fixed>
           <Text style={styles.footerLeft}></Text>
           <Text style={styles.footerCenter}>
@@ -228,7 +260,8 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
         </View>
 
         {/* Top Performing Keywords */}
-        {data.gscMetrics.topKeywords && data.gscMetrics.topKeywords.length > 0 && (
+        {/* DEBUG: Enhanced conditional checks for better data handling */}
+        {data.gscMetrics?.topKeywords && Array.isArray(data.gscMetrics.topKeywords) && data.gscMetrics.topKeywords.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Performing Keywords</Text>
             <View style={styles.tableContainer}>
@@ -255,7 +288,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
         )}
 
         {/* Top Pages */}
-        {data.gscMetrics.topPages && data.gscMetrics.topPages.length > 0 && (
+        {data.gscMetrics?.topPages && Array.isArray(data.gscMetrics.topPages) && data.gscMetrics.topPages.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Pages</Text>
             <View style={styles.tableContainer}>
@@ -282,7 +315,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
         )}
 
         {/* Top Countries */}
-        {data.gscMetrics.topCountries && data.gscMetrics.topCountries.length > 0 && (
+        {data.gscMetrics?.topCountries && Array.isArray(data.gscMetrics.topCountries) && data.gscMetrics.topCountries.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Top Countries</Text>
             <View style={styles.tableContainer}>
@@ -305,7 +338,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
         )}
 
         {/* Device Breakdown (Table Format) */}
-        {data.gscMetrics.deviceBreakdown && data.gscMetrics.deviceBreakdown.length > 0 && (
+        {data.gscMetrics?.deviceBreakdown && Array.isArray(data.gscMetrics.deviceBreakdown) && data.gscMetrics.deviceBreakdown.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Device Breakdown</Text>
             <View style={styles.tableContainer}>

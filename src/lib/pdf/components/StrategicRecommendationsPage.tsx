@@ -91,6 +91,11 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
       padding: 20,
       borderRadius: 8,
       marginTop: 30,
+      // CRITICAL FIX: Prevent page breaks inside the Next Steps box
+      breakInside: 'avoid',
+      pageBreakInside: 'avoid',
+      orphans: 2,
+      widows: 2,
     },
     nextStepsTitle: {
       fontSize: 16,
