@@ -272,6 +272,15 @@ export async function POST(request: NextRequest) {
         position: validatedData.gscData?.position || 0,
       },
       
+      // GSC Data - Additional structure for PDF components
+      gscData: {
+        totalClicks: validatedData.gscData?.clicks || 0,
+        totalImpressions: validatedData.gscData?.impressions || 0,
+        averageCTR: validatedData.gscData?.ctr || 0,
+        averagePosition: validatedData.gscData?.position || 0,
+        topQueries: validatedData.gscData?.topQueries || []
+      },
+      
       // GA4 Metrics - Structure varies by report type
       ga4Metrics: {
         // Core required metrics
@@ -293,6 +302,18 @@ export async function POST(request: NextRequest) {
       selectedMetrics: validatedData.selectedMetrics || [],
     }
     
+    // 🔍 SERVER: Debug logging before PDF generation
+    console.log('🔍 SERVER: Data being passed to PDF generator:', {
+      hasGscData: !!reactPDFReportData.gscData,
+      hasTopQueries: !!reactPDFReportData.gscData?.topQueries,
+      topQueriesLength: reactPDFReportData.gscData?.topQueries?.length,
+      firstQuery: reactPDFReportData.gscData?.topQueries?.[0],
+      gscDataStructure: reactPDFReportData.gscData,
+      // Also check the GSC metrics structure
+      hasGscMetrics: !!reactPDFReportData.gscMetrics,
+      gscMetricsStructure: reactPDFReportData.gscMetrics
+    });
+
     // Generate PDF using React-PDF
     const result = await pdfGenerator.generateReport(reactPDFReportData)
     
