@@ -2,6 +2,7 @@ import React from 'react';
 import { Document } from '@react-pdf/renderer';
 import { ReportData } from '../types';
 import { CoverPage } from './CoverPage';
+import { GSCMetricsPage } from './GSCMetricsPage';
 import { ExecutiveGA4Page } from './ExecutiveGA4Page';
 import { StandardGA4Pages } from './StandardGA4Pages';
 import { CustomGA4Pages } from './CustomGA4Pages';
