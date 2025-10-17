@@ -20,7 +20,7 @@ const steps = [
     number: 1,
     icon: Link,
     title: 'Connect Your Accounts',
-    description: 'Securely connect your Google Search Console and Analytics 4 accounts with just a few clicks.'
+    description: 'Securely connect your Google Search Console and Analytics 4 accounts with just a few clicks.',
     color: 'from-blue-500 to-blue-600'
   },
   {
