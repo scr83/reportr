@@ -124,7 +124,15 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
     };
 
     // Only include metrics that are in selectedMetrics array
+    // But exclude complex metrics that should be rendered as special sections, not cards
+    const complexMetrics = ['topLandingPages', 'deviceBreakdown'];
+    
     selectedMetrics.forEach(metricKey => {
+      // Skip complex metrics - they'll be handled separately as tables/special sections
+      if (complexMetrics.includes(metricKey)) {
+        return;
+      }
+      
       if (metricMapping[metricKey]) {
         const mapping = metricMapping[metricKey];
         metrics.push({
@@ -287,14 +295,28 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
     },
   });
 
-  // Split metrics into pages (8 metrics per page maximum)
+  // Calculate total pages needed including complex metrics
   const metricsPerPage = 8;
-  const totalPages = Math.ceil(selectedMetricsData.length / metricsPerPage);
+  const simpleMetricsPages = Math.ceil(selectedMetricsData.length / metricsPerPage);
+  
+  // Count complex metrics that need their own sections
+  const hasTopLandingPages = data.selectedMetrics?.includes('topLandingPages') && 
+                             data.ga4Metrics.topLandingPages && 
+                             data.ga4Metrics.topLandingPages.length > 0;
+  const hasDeviceBreakdown = data.selectedMetrics?.includes('deviceBreakdown') && 
+                             data.ga4Metrics.deviceBreakdown;
+  
+  // We need at least one page for simple metrics, plus potentially additional pages for complex metrics
+  const totalPages = Math.max(1, simpleMetricsPages);
 
   const renderMetricsPage = (pageIndex: number) => {
     const startIndex = pageIndex * metricsPerPage;
     const endIndex = Math.min(startIndex + metricsPerPage, selectedMetricsData.length);
     const pageMetrics = selectedMetricsData.slice(startIndex, endIndex);
+    
+    // Check if this is the last page and has space for complex metrics
+    const isLastPage = pageIndex === totalPages - 1;
+    const hasSpaceForComplexMetrics = pageMetrics.length <= 4;
 
     return (
       <Page key={pageIndex} style={styles.page}>
@@ -317,63 +339,83 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
           ))}
         </View>
 
-        {/* Show complex metrics if selected and on last page with space */}
-        {pageIndex === totalPages - 1 && pageMetrics.length <= 4 && (
-          <>
-            {/* Top Landing Pages Table - only if topLandingPages in selectedMetrics */}
-            {data.selectedMetrics?.includes('topLandingPages') && 
-             data.ga4Metrics.topLandingPages && 
-             data.ga4Metrics.topLandingPages.length > 0 && (
-              <>
-                <Text style={styles.sectionTitle}>Top Landing Pages</Text>
-                <View style={styles.tableContainer}>
-                  <View style={styles.tableHeader}>
-                    <Text style={styles.tableHeaderText}>Page</Text>
-                    <Text style={styles.tableHeaderText}>Sessions</Text>
-                    <Text style={styles.tableHeaderText}>Users</Text>
-                    <Text style={styles.tableHeaderText}>Bounce Rate</Text>
-                  </View>
-                  {data.ga4Metrics.topLandingPages.slice(0, 6).map((page, index) => (
-                    <View key={index} style={styles.tableRow}>
-                      <Text style={styles.tableCell}>
-                        {page.page.length > 35 ? `${page.page.substring(0, 35)}...` : page.page}
-                      </Text>
-                      <Text style={styles.tableCell}>{formatNumber(page.sessions)}</Text>
-                      <Text style={styles.tableCell}>{formatNumber(page.users)}</Text>
-                      <Text style={styles.tableCell}>{formatPercentage(page.bounceRate)}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
+      </Page>
+    );
+  };
 
-            {/* Device Breakdown - only if deviceBreakdown in selectedMetrics */}
-            {data.selectedMetrics?.includes('deviceBreakdown') && 
-             data.ga4Metrics.deviceBreakdown && (
-              <>
-                <Text style={styles.sectionTitle}>Device Breakdown</Text>
-                <View style={styles.metricsGrid}>
-                  <View style={styles.metricCard}>
-                    <Text style={styles.metricValue}>
-                      {formatPercentage(data.ga4Metrics.deviceBreakdown.desktop)}
-                    </Text>
-                    <Text style={styles.metricLabel}>Desktop</Text>
-                    <Text style={styles.metricDescription}>
-                      Percentage of sessions from desktop devices
-                    </Text>
-                  </View>
-                  <View style={styles.metricCard}>
-                    <Text style={styles.metricValue}>
-                      {formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)}
-                    </Text>
-                    <Text style={styles.metricLabel}>Mobile</Text>
-                    <Text style={styles.metricDescription}>
-                      Percentage of sessions from mobile devices
-                    </Text>
-                  </View>
+  // Render additional pages for complex metrics if they don't fit on the last page
+  const renderComplexMetricsPage = () => {
+    return (
+      <Page style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Custom Analytics Report - Additional Data
+          </Text>
+          <Text style={styles.subtitle}>
+            Selected detailed metrics for {data.clientDomain} | {data.reportPeriod.startDate} - {data.reportPeriod.endDate}
+          </Text>
+        </View>
+
+        {/* Top Landing Pages Table */}
+        {hasTopLandingPages && (
+          <>
+            <Text style={styles.sectionTitle}>Top Landing Pages</Text>
+            <View style={styles.tableContainer}>
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableHeaderText}>Page</Text>
+                <Text style={styles.tableHeaderText}>Sessions</Text>
+                <Text style={styles.tableHeaderText}>Users</Text>
+                <Text style={styles.tableHeaderText}>Bounce Rate</Text>
+              </View>
+              {data.ga4Metrics.topLandingPages.slice(0, 8).map((page, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={styles.tableCell}>
+                    {page.page.length > 40 ? `${page.page.substring(0, 40)}...` : page.page}
+                  </Text>
+                  <Text style={styles.tableCell}>{formatNumber(page.sessions)}</Text>
+                  <Text style={styles.tableCell}>{formatNumber(page.users)}</Text>
+                  <Text style={styles.tableCell}>{formatPercentage(page.bounceRate)}</Text>
                 </View>
-              </>
-            )}
+              ))}
+            </View>
+          </>
+        )}
+
+        {/* Device Breakdown */}
+        {hasDeviceBreakdown && (
+          <>
+            <Text style={styles.sectionTitle}>Device Breakdown</Text>
+            <View style={styles.metricsGrid}>
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {formatPercentage(data.ga4Metrics.deviceBreakdown.desktop)}
+                </Text>
+                <Text style={styles.metricLabel}>Desktop</Text>
+                <Text style={styles.metricDescription}>
+                  Percentage of sessions from desktop devices
+                </Text>
+              </View>
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)}
+                </Text>
+                <Text style={styles.metricLabel}>Mobile</Text>
+                <Text style={styles.metricDescription}>
+                  Percentage of sessions from mobile devices
+                </Text>
+              </View>
+              {data.ga4Metrics.deviceBreakdown.tablet !== undefined && (
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>
+                    {formatPercentage(data.ga4Metrics.deviceBreakdown.tablet)}
+                  </Text>
+                  <Text style={styles.metricLabel}>Tablet</Text>
+                  <Text style={styles.metricDescription}>
+                    Percentage of sessions from tablet devices
+                  </Text>
+                </View>
+              )}
+            </View>
           </>
         )}
       </Page>
@@ -383,6 +425,8 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
   return (
     <>
       {Array.from({ length: totalPages }, (_, index) => renderMetricsPage(index))}
+      {/* Add a dedicated page for complex metrics if they exist and don't fit on metric pages */}
+      {(hasTopLandingPages || hasDeviceBreakdown) && renderComplexMetricsPage()}
     </>
   );
 };
