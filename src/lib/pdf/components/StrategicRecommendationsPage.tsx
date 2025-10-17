@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { formatPercentage } from './styles';
 
 interface StrategicRecommendationsPageProps {
   data: ReportData;
@@ -94,8 +95,9 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
       // CRITICAL FIX: Prevent page breaks inside the Next Steps box
       breakInside: 'avoid',
       pageBreakInside: 'avoid',
-      orphans: 2,
-      widows: 2,
+      orphans: 3,
+      widows: 3,
+      minPresenceAhead: 120, // Require at least 120pt space ahead
     },
     nextStepsTitle: {
       fontSize: 16,
@@ -217,7 +219,7 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
         <View style={styles.actionContent}>
           <Text style={styles.actionTitle}>Enhance User Experience</Text>
           <Text style={styles.actionDescription}>
-            With a bounce rate of {data.ga4Metrics.bounceRate.toFixed(1)}%, focus on improving 
+            With a bounce rate of {formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving 
             page load speeds, mobile responsiveness, and content relevance. Consider implementing 
             personalization features to increase engagement and session duration.
           </Text>

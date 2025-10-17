@@ -474,11 +474,20 @@ export const formatPercentage = (num: number | undefined | null): string => {
   // Handle zero explicitly (show as 0.0%)
   if (num === 0) return '0.0%';
   
-  // CRITICAL FIX: Handle CTR values that are already percentages (> 1)
-  // If the value is > 1, it's likely already been multiplied by 100, so divide by 100
-  const normalizedValue = num > 1 ? num / 100 : num;
+  // CRITICAL FIX: Handle different percentage formats intelligently
+  // If num is between 0 and 1, it's a decimal (0.05 = 5%)
+  // If num is > 1, it's already a percentage (5.0 = 5%)
+  let percentage: number;
   
-  return `${normalizedValue.toFixed(1)}%`;
+  if (num <= 1) {
+    // It's a decimal, multiply by 100
+    percentage = num * 100;
+  } else {
+    // It's already a percentage
+    percentage = num;
+  }
+  
+  return `${percentage.toFixed(1)}%`;
 };
 
 // Helper function to format duration with proper N/A handling
