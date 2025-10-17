@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { formatNumber, formatPercentage, formatDuration, formatDecimal } from './styles';
 
 interface StandardGA4PagesProps {
   data: ReportData;
@@ -8,26 +9,6 @@ interface StandardGA4PagesProps {
 
 export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
-  
-  const formatNumber = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toLocaleString();
-  };
-
-  const formatPercentage = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const styles = StyleSheet.create({
     page: {
@@ -209,7 +190,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           {/* Average Session Duration */}
           <View style={styles.metricCard}>
             <Text style={styles.metricValue}>
-              {data.ga4Metrics.avgSessionDuration ? formatDuration(data.ga4Metrics.avgSessionDuration) : 'N/A'}
+              {formatDuration(data.ga4Metrics.avgSessionDuration)}
             </Text>
             <Text style={styles.metricLabel}>Avg Session Duration</Text>
             <Text style={styles.metricDescription}>
@@ -220,7 +201,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           {/* Pages Per Session */}
           <View style={styles.metricCard}>
             <Text style={styles.metricValue}>
-              {data.ga4Metrics.pagesPerSession ? data.ga4Metrics.pagesPerSession.toFixed(1) : 'N/A'}
+              {formatDecimal(data.ga4Metrics.pagesPerSession, 1)}
             </Text>
             <Text style={styles.metricLabel}>Pages Per Session</Text>
             <Text style={styles.metricDescription}>
@@ -244,7 +225,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           {/* New Users */}
           <View style={styles.metricCard3}>
             <Text style={styles.metricValueSmall}>
-              {data.ga4Metrics.newUsers ? formatNumber(data.ga4Metrics.newUsers) : 'N/A'}
+              {formatNumber(data.ga4Metrics.newUsers)}
             </Text>
             <Text style={styles.metricLabelSmall}>New Users</Text>
             <Text style={styles.metricDescriptionSmall}>
@@ -255,7 +236,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           {/* Organic Traffic */}
           <View style={styles.metricCard3}>
             <Text style={styles.metricValueSmall}>
-              {data.ga4Metrics.organicTraffic ? formatNumber(data.ga4Metrics.organicTraffic) : 'N/A'}
+              {formatNumber(data.ga4Metrics.organicTraffic)}
             </Text>
             <Text style={styles.metricLabelSmall}>Organic Traffic</Text>
             <Text style={styles.metricDescriptionSmall}>

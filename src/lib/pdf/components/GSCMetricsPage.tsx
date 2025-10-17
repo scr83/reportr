@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { formatNumber, formatPercentage, formatDecimal } from './styles';
 
 interface GSCMetricsPageProps {
   data: ReportData;
@@ -8,24 +9,6 @@ interface GSCMetricsPageProps {
 
 export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
-  
-  const formatNumber = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toLocaleString();
-  };
-
-  const formatPercentage = (value: number) => {
-    return `${(value * 100).toFixed(1)}%`;
-  };
-
-  const formatPosition = (value: number) => {
-    return value.toFixed(1);
-  };
 
   const styles = StyleSheet.create({
     page: {
@@ -113,7 +96,7 @@ export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
 
         {/* Average CTR */}
         <View style={styles.metricCard}>
-          <Text style={styles.metricValue}>{formatPercentage(data.gscMetrics.ctr)}</Text>
+          <Text style={styles.metricValue}>{formatPercentage(data.gscMetrics.ctr * 100)}</Text>
           <Text style={styles.metricLabel}>Average CTR</Text>
           <Text style={styles.metricDescription}>
             Click-through rate - percentage of impressions that resulted in clicks
@@ -122,7 +105,7 @@ export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
 
         {/* Average Position */}
         <View style={styles.metricCard}>
-          <Text style={styles.metricValue}>{formatPosition(data.gscMetrics.position)}</Text>
+          <Text style={styles.metricValue}>{formatDecimal(data.gscMetrics.position, 1)}</Text>
           <Text style={styles.metricLabel}>Average Position</Text>
           <Text style={styles.metricDescription}>
             Average ranking position of your pages in Google search results

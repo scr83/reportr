@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { formatNumber, formatPercentage, formatDuration, formatDecimal } from './styles';
 
 interface CustomGA4PagesProps {
   data: ReportData;
@@ -8,53 +9,34 @@ interface CustomGA4PagesProps {
 
 export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
-  
-  const formatNumber = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toLocaleString();
-  };
 
-  const formatPercentage = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Get all available metrics from GA4 data
+  // CRITICAL FIX: Get ALL available metrics - show them regardless of value
+  // This function must NEVER filter out metrics based on their values
   const getAvailableMetrics = () => {
     const metrics = [];
     const ga4 = data.ga4Metrics;
 
-    if (ga4.users !== undefined) metrics.push({ key: 'users', label: 'Total Users', value: formatNumber(ga4.users), description: 'Number of unique visitors to your website' });
-    if (ga4.sessions !== undefined) metrics.push({ key: 'sessions', label: 'Total Sessions', value: formatNumber(ga4.sessions), description: 'Total number of visits to your website' });
-    if (ga4.bounceRate !== undefined) metrics.push({ key: 'bounceRate', label: 'Bounce Rate', value: formatPercentage(ga4.bounceRate), description: 'Percentage of single-page sessions' });
-    if (ga4.conversions !== undefined) metrics.push({ key: 'conversions', label: 'Conversions', value: formatNumber(ga4.conversions), description: 'Number of completed conversion events' });
-    if (ga4.avgSessionDuration !== undefined) metrics.push({ key: 'avgSessionDuration', label: 'Avg Session Duration', value: formatDuration(ga4.avgSessionDuration), description: 'Average time users spend on your website' });
-    if (ga4.pagesPerSession !== undefined) metrics.push({ key: 'pagesPerSession', label: 'Pages Per Session', value: ga4.pagesPerSession.toFixed(1), description: 'Average number of pages viewed per session' });
-    if (ga4.newUsers !== undefined) metrics.push({ key: 'newUsers', label: 'New Users', value: formatNumber(ga4.newUsers), description: 'First-time visitors to your website' });
-    if (ga4.organicTraffic !== undefined) metrics.push({ key: 'organicTraffic', label: 'Organic Traffic', value: formatNumber(ga4.organicTraffic), description: 'Sessions from search engines' });
+    // ALWAYS include core metrics - use formatNumber which handles null/undefined/zero properly
+    metrics.push({ key: 'users', label: 'Total Users', value: formatNumber(ga4.users), description: 'Number of unique visitors to your website' });
+    metrics.push({ key: 'sessions', label: 'Total Sessions', value: formatNumber(ga4.sessions), description: 'Total number of visits to your website' });
+    metrics.push({ key: 'bounceRate', label: 'Bounce Rate', value: formatPercentage(ga4.bounceRate), description: 'Percentage of single-page sessions' });
+    metrics.push({ key: 'conversions', label: 'Conversions', value: formatNumber(ga4.conversions), description: 'Number of completed conversion events' });
+    metrics.push({ key: 'avgSessionDuration', label: 'Avg Session Duration', value: formatDuration(ga4.avgSessionDuration), description: 'Average time users spend on your website' });
+    metrics.push({ key: 'pagesPerSession', label: 'Pages Per Session', value: formatDecimal(ga4.pagesPerSession), description: 'Average number of pages viewed per session' });
+    metrics.push({ key: 'newUsers', label: 'New Users', value: formatNumber(ga4.newUsers), description: 'First-time visitors to your website' });
+    metrics.push({ key: 'organicTraffic', label: 'Organic Traffic', value: formatNumber(ga4.organicTraffic), description: 'Sessions from search engines' });
 
-    // Add any additional custom metrics
+    // Add any additional custom metrics - NO filtering based on undefined
     Object.keys(ga4).forEach(key => {
       if (!['users', 'sessions', 'bounceRate', 'conversions', 'avgSessionDuration', 'pagesPerSession', 'newUsers', 'organicTraffic', 'topLandingPages', 'deviceBreakdown'].includes(key)) {
         const value = ga4[key];
-        if (typeof value === 'number') {
-          metrics.push({
-            key,
-            label: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-            value: formatNumber(value),
-            description: 'Custom metric value'
-          });
-        }
+        // Don't filter by type - include everything and let formatNumber handle it
+        metrics.push({
+          key,
+          label: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+          value: typeof value === 'number' ? formatNumber(value) : (value ? String(value) : 'N/A'),
+          description: 'Custom metric value'
+        });
       }
     });
 

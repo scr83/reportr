@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { formatNumber, formatPercentage } from './styles';
 
 interface ExecutiveGA4PageProps {
   data: ReportData;
@@ -8,20 +9,6 @@ interface ExecutiveGA4PageProps {
 
 export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
-  
-  const formatNumber = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toLocaleString();
-  };
-
-  const formatPercentage = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
 
   const styles = StyleSheet.create({
     page: {

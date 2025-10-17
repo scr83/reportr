@@ -450,10 +450,18 @@ export const createBrandedStyles = (primaryColor: string = '#9333EA') => {
   });
 };
 
-// Helper function to format numbers
-export const formatNumber = (num: number | undefined): string => {
-  if (num === undefined || num === null) return '0';
+// UNIVERSAL VALUE FORMATTING FUNCTIONS - CRITICAL FOR METRIC DISPLAY
+// These functions ensure ALL metrics display properly regardless of their values
+
+// Helper function to format numbers with proper N/A handling
+export const formatNumber = (num: number | undefined | null): string => {
+  // Handle completely missing/null/undefined values
+  if (num === undefined || num === null) return 'N/A';
   
+  // Handle zero explicitly (don't hide it!)
+  if (num === 0) return '0';
+  
+  // Format large numbers
   if (num >= 1000000) {
     return `${(num / 1000000).toFixed(1)}M`;
   } else if (num >= 1000) {
@@ -463,18 +471,53 @@ export const formatNumber = (num: number | undefined): string => {
   return num.toLocaleString();
 };
 
-// Helper function to format percentages
-export const formatPercentage = (num: number | undefined): string => {
-  if (num === undefined || num === null) return '0%';
+// Helper function to format percentages with proper N/A handling  
+export const formatPercentage = (num: number | undefined | null): string => {
+  // Handle completely missing/null/undefined values
+  if (num === undefined || num === null) return 'N/A';
+  
+  // Handle zero explicitly (show as 0.0%)
+  if (num === 0) return '0.0%';
+  
   return `${num.toFixed(1)}%`;
 };
 
-// Helper function to format duration
-export const formatDuration = (seconds: number | undefined): string => {
-  if (seconds === undefined || seconds === null) return '0:00';
+// Helper function to format duration with proper N/A handling
+export const formatDuration = (seconds: number | undefined | null): string => {
+  // Handle completely missing/null/undefined values
+  if (seconds === undefined || seconds === null) return 'N/A';
+  
+  // Handle zero explicitly (show as 0:00)
+  if (seconds === 0) return '0:00';
   
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+// Helper function to format decimal values (like position)
+export const formatDecimal = (num: number | undefined | null, decimals: number = 1): string => {
+  // Handle completely missing/null/undefined values
+  if (num === undefined || num === null) return 'N/A';
+  
+  // Handle zero explicitly
+  if (num === 0) return '0.0';
+  
+  return num.toFixed(decimals);
+};
+
+// CRITICAL: Universal metric value formatter based on type
+export const formatValue = (value: any, type: 'number' | 'percentage' | 'duration' | 'decimal' = 'number', decimals: number = 1): string => {
+  switch(type) {
+    case 'percentage':
+      return formatPercentage(value);
+    case 'duration':
+      return formatDuration(value);
+    case 'decimal':
+      return formatDecimal(value, decimals);
+    case 'number':
+    default:
+      return formatNumber(value);
+  }
 };

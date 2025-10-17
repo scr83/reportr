@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, View, Text } from '@react-pdf/renderer';
-import { styles, createBrandedStyles, formatNumber, formatPercentage, formatDuration } from './styles';
+import { styles, createBrandedStyles, formatNumber, formatPercentage, formatDuration, formatDecimal, formatValue } from './styles';
 import { ReportData } from '../types';
 
 interface CustomReportPageProps {
@@ -103,7 +103,7 @@ export const CustomReportPage: React.FC<CustomReportPageProps> = ({ data }) => {
     );
   };
 
-  // Function to get metric value and format it appropriately
+  // CRITICAL FIX: Get metric value and format it - ALWAYS return a value, never hide metrics
   const getMetricValue = (metricKey: string): { value: string; subtitle: string; isPositive?: boolean } => {
     const combinedData = { ...metrics, ...ga4Data, ...gscData } as any;
     
@@ -141,7 +141,7 @@ export const CustomReportPage: React.FC<CustomReportPageProps> = ({ data }) => {
         };
       case 'pagesPerSession':
         return {
-          value: combinedData.pagesPerSession?.toFixed(2) || '0.00',
+          value: formatDecimal(combinedData.pagesPerSession, 2),
           subtitle: 'Page depth'
         };
       case 'newUsers':
@@ -151,24 +151,24 @@ export const CustomReportPage: React.FC<CustomReportPageProps> = ({ data }) => {
         };
       case 'totalClicks':
         return {
-          value: formatNumber(combinedData.totalClicks),
+          value: formatNumber(combinedData.totalClicks || combinedData.clicks),
           subtitle: 'Search Console clicks'
         };
       case 'totalImpressions':
         return {
-          value: formatNumber(combinedData.totalImpressions),
+          value: formatNumber(combinedData.totalImpressions || combinedData.impressions),
           subtitle: 'Search impressions'
         };
       case 'averageCTR':
         return {
-          value: formatPercentage(combinedData.averageCTR),
+          value: formatPercentage(combinedData.averageCTR || combinedData.ctr),
           subtitle: 'Click-through rate'
         };
       case 'averagePosition':
         return {
-          value: combinedData.averagePosition?.toFixed(1) || '0.0',
+          value: formatDecimal(combinedData.averagePosition || combinedData.position),
           subtitle: 'Search ranking',
-          isPositive: (combinedData.averagePosition || 100) <= 10
+          isPositive: (combinedData.averagePosition || combinedData.position || 100) <= 10
         };
       case 'conversionRate':
         return {
@@ -190,9 +190,65 @@ export const CustomReportPage: React.FC<CustomReportPageProps> = ({ data }) => {
           value: formatNumber(combinedData.uniquePageViews),
           subtitle: 'Unique page views'
         };
+      case 'directTraffic':
+        return {
+          value: formatNumber(combinedData.directTraffic),
+          subtitle: 'Direct traffic sessions'
+        };
+      case 'referralTraffic':
+        return {
+          value: formatNumber(combinedData.referralTraffic),
+          subtitle: 'Referral traffic sessions'
+        };
+      case 'socialTraffic':
+        return {
+          value: formatNumber(combinedData.socialTraffic),
+          subtitle: 'Social media traffic'
+        };
+      case 'emailTraffic':
+        return {
+          value: formatNumber(combinedData.emailTraffic),
+          subtitle: 'Email campaign traffic'
+        };
+      case 'paidTraffic':
+        return {
+          value: formatNumber(combinedData.paidTraffic),
+          subtitle: 'Paid advertising traffic'
+        };
+      case 'mobileUsers':
+        return {
+          value: formatNumber(combinedData.mobileUsers),
+          subtitle: 'Mobile device users'
+        };
+      case 'desktopUsers':
+        return {
+          value: formatNumber(combinedData.desktopUsers),
+          subtitle: 'Desktop device users'
+        };
+      case 'tabletUsers':
+        return {
+          value: formatNumber(combinedData.tabletUsers),
+          subtitle: 'Tablet device users'
+        };
+      case 'returningUsers':
+        return {
+          value: formatNumber(combinedData.returningUsers),
+          subtitle: 'Returning visitors'
+        };
+      case 'averageTimeOnPage':
+        return {
+          value: formatDuration(combinedData.averageTimeOnPage),
+          subtitle: 'Avg time per page'
+        };
+      case 'exitRate':
+        return {
+          value: formatPercentage(combinedData.exitRate),
+          subtitle: 'Page exit rate',
+          isPositive: false
+        };
       default:
         return {
-          value: formatNumber(combinedData[metricKey as keyof typeof combinedData] as number) || 'N/A',
+          value: formatValue(combinedData[metricKey as keyof typeof combinedData]),
           subtitle: metricKey.replace(/([A-Z])/g, ' $1').toLowerCase()
         };
     }
