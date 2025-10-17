@@ -134,8 +134,8 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
           {/* Bottom Quote */}
           <div className="mt-16 pt-8 border-t border-brand-500/30">
             <Typography variant="body" className="text-brand-100 italic text-lg mb-4">
-              "Reportr has transformed how we deliver SEO insights to our clients. 
-              What used to take hours now takes minutes."
+              &quot;Reportr has transformed how we deliver SEO insights to our clients. 
+              What used to take hours now takes minutes.&quot;
             </Typography>
             <Typography variant="caption" className="text-brand-200">
               — Sarah Johnson, Digital Marketing Agency Owner
