@@ -94,7 +94,7 @@ export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
   });
 
   // Check if we have top queries data
-  const hasQueriesData = data.gscMetrics.topKeywords && data.gscMetrics.topKeywords.length > 0;
+  const hasQueriesData = data.gscData?.topQueries && data.gscData.topQueries.length > 0;
 
   return (
     <Page style={styles.page}>
@@ -114,7 +114,7 @@ export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
             <Text style={styles.tableHeaderText}>CTR</Text>
             <Text style={styles.tableHeaderText}>Position</Text>
           </View>
-          {data.gscMetrics.topKeywords!.slice(0, 20).map((query, index) => (
+          {data.gscData?.topQueries?.slice(0, 20).map((query, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={styles.queryCell}>
                 {query.query.length > 50 ? `${query.query.substring(0, 50)}...` : query.query}

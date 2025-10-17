@@ -63,6 +63,21 @@ export interface ReportData {
   // GSC Data - ALWAYS REQUIRED (4 metrics + tables)
   gscMetrics: GSCMetrics;
   
+  // Alternative GSC Data structure (used by new PDF generation)
+  gscData?: {
+    totalClicks: number;
+    totalImpressions: number;
+    averageCTR: number;
+    averagePosition: number;
+    topQueries?: Array<{
+      query: string;
+      clicks: number;
+      impressions: number;
+      ctr: number;
+      position: number;
+    }>;
+  };
+  
   // GA4 Data - Structure varies by report type
   ga4Metrics: GA4Metrics;
   
