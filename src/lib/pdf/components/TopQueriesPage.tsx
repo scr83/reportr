@@ -8,11 +8,6 @@ interface TopQueriesPageProps {
 }
 
 export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
-  // ADD DEBUG LOGGING
-  console.log('🔍 TopQueriesPage - Full data object:', data);
-  console.log('🔍 TopQueriesPage - gscData:', data.gscData);
-  console.log('🔍 TopQueriesPage - topQueries:', data.gscData?.topQueries);
-  
   const primaryColor = data.branding.primaryColor || '#8B5CF6';
 
   const styles = StyleSheet.create({
