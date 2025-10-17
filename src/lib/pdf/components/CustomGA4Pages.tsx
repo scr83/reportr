@@ -367,7 +367,7 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
                 <Text style={styles.tableHeaderText}>Users</Text>
                 <Text style={styles.tableHeaderText}>Bounce Rate</Text>
               </View>
-              {data.ga4Metrics.topLandingPages.slice(0, 8).map((page, index) => (
+              {data.ga4Metrics.topLandingPages?.slice(0, 8).map((page, index) => (
                 <View key={index} style={styles.tableRow}>
                   <Text style={styles.tableCell}>
                     {page.page.length > 40 ? `${page.page.substring(0, 40)}...` : page.page}
