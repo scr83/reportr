@@ -510,9 +510,9 @@ export default function GenerateReportPage() {
             dynamicGA4Data.newUsers = Math.floor((dynamicGA4Data.users || 0) * 0.7)
             dynamicGA4Data.organicTraffic = 65.5
             dynamicGA4Data.topLandingPages = [
-              { page: '/', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.4), users: Math.floor((dynamicGA4Data.users || 0) * 0.4), bounceRate: 25.3 },
-              { page: '/services', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.3), users: Math.floor((dynamicGA4Data.users || 0) * 0.3), bounceRate: 45.2 },
-              { page: '/about', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.2), users: Math.floor((dynamicGA4Data.users || 0) * 0.2), bounceRate: 55.8 }
+              { page: '/', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.4), users: Math.floor((dynamicGA4Data.users || 0) * 0.4), bounceRate: 25.3, conversions: Math.floor((dynamicGA4Data.conversions || 0) * 0.5) },
+              { page: '/services', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.3), users: Math.floor((dynamicGA4Data.users || 0) * 0.3), bounceRate: 45.2, conversions: Math.floor((dynamicGA4Data.conversions || 0) * 0.3) },
+              { page: '/about', sessions: Math.floor((dynamicGA4Data.sessions || 0) * 0.2), users: Math.floor((dynamicGA4Data.users || 0) * 0.2), bounceRate: 55.8, conversions: Math.floor((dynamicGA4Data.conversions || 0) * 0.2) }
             ]
             dynamicGA4Data.deviceBreakdown = {
               desktop: Math.floor((dynamicGA4Data.sessions || 0) * 0.6),
