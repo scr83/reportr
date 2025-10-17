@@ -437,37 +437,6 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
           </>
         )}
 
-        {/* GSC Performance Tables (if space allows) */}
-        {isLastPage && hasSpaceForComplexMetrics && (
-          <>
-            {/* Top Performing Keywords */}
-            {data.gscMetrics.topKeywords && data.gscMetrics.topKeywords.length > 0 && (
-              <>
-                <Text style={styles.sectionTitle}>Top Performing Keywords</Text>
-                <View style={styles.tableContainer}>
-                  <View style={styles.tableHeader}>
-                    <Text style={[styles.tableHeaderText, {flex: 2}]}>Query</Text>
-                    <Text style={styles.tableHeaderText}>Clicks</Text>
-                    <Text style={styles.tableHeaderText}>Impressions</Text>
-                    <Text style={styles.tableHeaderText}>CTR (%)</Text>
-                    <Text style={styles.tableHeaderText}>Position</Text>
-                  </View>
-                  {data.gscMetrics.topKeywords.slice(0, 5).map((keyword, index) => (
-                    <View key={index} style={styles.tableRow}>
-                      <Text style={[styles.tableCell, {flex: 2}]}>
-                        {keyword.query.length > 40 ? `${keyword.query.substring(0, 40)}...` : keyword.query}
-                      </Text>
-                      <Text style={styles.tableCell}>{formatNumber(keyword.clicks)}</Text>
-                      <Text style={styles.tableCell}>{formatNumber(keyword.impressions)}</Text>
-                      <Text style={styles.tableCell}>{formatPercentage(keyword.ctr * 100)}</Text>
-                      <Text style={styles.tableCell}>{formatDecimal(keyword.position, 1)}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
-          </>
-        )}
       </Page>
     );
   };
