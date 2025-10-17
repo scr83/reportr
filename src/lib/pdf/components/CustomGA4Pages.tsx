@@ -388,7 +388,7 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
             <View style={styles.metricsGrid}>
               <View style={styles.metricCard}>
                 <Text style={styles.metricValue}>
-                  {formatPercentage(data.ga4Metrics.deviceBreakdown.desktop)}
+                  {formatPercentage(data.ga4Metrics.deviceBreakdown?.desktop)}
                 </Text>
                 <Text style={styles.metricLabel}>Desktop</Text>
                 <Text style={styles.metricDescription}>
@@ -397,17 +397,17 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
               </View>
               <View style={styles.metricCard}>
                 <Text style={styles.metricValue}>
-                  {formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)}
+                  {formatPercentage(data.ga4Metrics.deviceBreakdown?.mobile)}
                 </Text>
                 <Text style={styles.metricLabel}>Mobile</Text>
                 <Text style={styles.metricDescription}>
                   Percentage of sessions from mobile devices
                 </Text>
               </View>
-              {data.ga4Metrics.deviceBreakdown.tablet !== undefined && (
+              {data.ga4Metrics.deviceBreakdown?.tablet !== undefined && (
                 <View style={styles.metricCard}>
                   <Text style={styles.metricValue}>
-                    {formatPercentage(data.ga4Metrics.deviceBreakdown.tablet)}
+                    {formatPercentage(data.ga4Metrics.deviceBreakdown?.tablet)}
                   </Text>
                   <Text style={styles.metricLabel}>Tablet</Text>
                   <Text style={styles.metricDescription}>
