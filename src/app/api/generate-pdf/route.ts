@@ -188,6 +188,23 @@ export async function POST(request: NextRequest) {
     // Validation passed - all report types use the same Zod schema
     console.log('7. All validation checks passed')
     
+    // Step 2.5: Check report type restrictions for FREE plan
+    if (user.plan === 'FREE' && validatedData.reportType === 'custom') {
+      console.log('8. BLOCKED: FREE plan attempting Custom report generation')
+      return NextResponse.json(
+        {
+          error: 'Custom reports are not available on the FREE plan',
+          message: 'Upgrade to STARTER plan to unlock custom reports with advanced features.',
+          upgradeRequired: true,
+          currentPlan: 'FREE',
+          requiredPlan: 'STARTER',
+          reportType: 'custom'
+        },
+        { status: 403 }
+      );
+    }
+    console.log('8. Report type access verified for plan:', user.plan)
+    
     // Step 3: Verify client ownership
     console.log('9. Verifying client ownership...')
     const client = await prisma.client.findFirst({

@@ -20,6 +20,8 @@ model User {
   plan             Plan      @default(FREE)
   planExpires      DateTime?
   stripeCustomerId String?
+  billingCycleStart DateTime @default(now())
+  billingCycleEnd   DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   clients          Client[]

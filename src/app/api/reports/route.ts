@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
 import { checkTrialExpiry } from '@/lib/check-trial'
+import { getBillingCycleInfo, getReportsInCurrentCycle } from '@/lib/billing-cycle'
 
 const createReportSchema = z.object({
   clientId: z.string().min(1, 'Client ID is required'),
@@ -99,24 +100,14 @@ export async function POST(request: NextRequest) {
       user = await requireUser();
     }
     
-    // Check monthly report limits
-    const startOfMonth = new Date()
-    startOfMonth.setDate(1)
-    startOfMonth.setHours(0, 0, 0, 0)
-    
-    const reportCount = await prisma.report.count({
-      where: {
-        userId: user.id,
-        createdAt: {
-          gte: startOfMonth
-        }
-      }
-    })
+    // Check billing cycle report limits (30-day rolling)
+    const billingCycleInfo = await getBillingCycleInfo(user.id)
+    const reportCount = await getReportsInCurrentCycle(user.id)
 
     // Define tier limits
     const limits = {
       FREE: 5,
-      STARTER: 20,
+      STARTER: 25,
       PROFESSIONAL: 75,
       ENTERPRISE: 250
     } as const
@@ -127,11 +118,16 @@ export async function POST(request: NextRequest) {
     if (reportCount >= limit) {
       return NextResponse.json({
         error: 'Report limit reached',
-        message: `${user.plan} plan allows ${limit} reports per month. You have used ${reportCount}/${limit} reports.`,
+        message: `${user.plan} plan allows ${limit} reports per billing cycle. You have used ${reportCount}/${limit} reports. Your limit resets in ${billingCycleInfo.daysRemaining} days.`,
         upgrade: true,
         currentUsage: reportCount,
         limit: limit,
-        plan: user.plan
+        plan: user.plan,
+        billingCycle: {
+          start: billingCycleInfo.cycleStart,
+          end: billingCycleInfo.cycleEnd,
+          daysRemaining: billingCycleInfo.daysRemaining
+        }
       }, { status: 403 })
     }
     
@@ -183,6 +179,32 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+    
+    // Check if FREE user should get upgrade warning (after 4+ reports)
+    if (user.plan === 'FREE' && reportCount >= 4) {
+      console.log(`FREE user ${user.id} has generated ${reportCount + 1} reports - showing upgrade warning`)
+      return NextResponse.json({
+        ...report,
+        warning: {
+          message: `You've used ${reportCount + 1} of your 5 free reports this billing cycle. Upgrade to STARTER for 25 reports per cycle!`,
+          reportsRemaining: limits.FREE - (reportCount + 1),
+          upgradePrompt: true,
+          currentPlan: 'FREE',
+          billingCycle: {
+            daysRemaining: billingCycleInfo.daysRemaining,
+            resetsOn: billingCycleInfo.cycleEnd
+          },
+          upgradeOptions: {
+            starter: {
+              plan: 'STARTER',
+              reports: 25,
+              clients: 5,
+              features: ['Custom reports', 'Advanced analytics', 'Priority support']
+            }
+          }
+        }
+      }, { status: 201 })
+    }
     
     return NextResponse.json(report, { status: 201 })
   } catch (error: any) {

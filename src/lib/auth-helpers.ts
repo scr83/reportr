@@ -16,15 +16,25 @@ export async function getCurrentUser() {
 
   // If user doesn't exist, create them (auto-registration)
   if (!user) {
+    const now = new Date()
+    const billingCycleEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+    
     user = await prisma.user.create({
       data: {
         email: session.user.email,
         name: session.user.name,
         image: session.user.image,
-        companyName: session.user.name ? `${session.user.name}'s Agency` : 'My Agency'
+        companyName: session.user.name ? `${session.user.name}'s Agency` : 'My Agency',
+        billingCycleStart: now,
+        billingCycleEnd: billingCycleEnd
       }
     })
-    console.log('Auto-created user record:', user.id, user.email)
+    console.log('Auto-created user record with billing cycle:', {
+      userId: user.id,
+      email: user.email,
+      billingCycleStart: now,
+      billingCycleEnd: billingCycleEnd
+    })
   }
 
   return user
