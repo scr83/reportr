@@ -37,8 +37,35 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data including clients and reports.')) {
-      alert('Account deletion feature coming soon. Please contact support for now.')
+    const confirmed = confirm(
+      'Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data including clients and reports.'
+    );
+    
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/user/delete', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+
+      // Sign out user
+      await signOut({ redirect: false });
+      
+      // Show success message
+      alert('Your account has been successfully deleted.');
+      
+      // Redirect to homepage
+      router.push('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('Failed to delete account. Please try again or contact support.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -158,9 +185,11 @@ export default function SettingsPage() {
               variant="outline"
               className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
               size="lg"
+              loading={loading}
+              disabled={loading}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete Account
+              {loading ? 'Deleting Account...' : 'Delete Account'}
             </Button>
           </div>
 

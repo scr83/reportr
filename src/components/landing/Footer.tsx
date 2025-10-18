@@ -108,7 +108,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
         <div className="mt-12 pt-8 border-t border-neutral-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <Typography variant="caption" className="text-neutral-500">
-              © 2024 Reportr. All rights reserved.
+              © 2025 Reportr. All rights reserved.
             </Typography>
             <Typography variant="caption" className="text-neutral-500">
               Professional SEO reporting for digital marketing agencies.
