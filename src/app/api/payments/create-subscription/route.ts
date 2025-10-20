@@ -9,6 +9,8 @@ import { authOptions } from '../../../../lib/auth';
 import { paypalClient } from '../../../../lib/services/paypal-client';
 import { prisma } from '../../../../lib/prisma';
 
+export const runtime = 'nodejs'
+
 export async function POST(request: Request) {
   try {
     // Check authentication
