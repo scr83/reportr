@@ -14,6 +14,7 @@ import {
   Badge
 } from '@/components/atoms'
 import { cn } from '@/lib/utils'
+import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
 
 export interface PricingProps {
   className?: string
@@ -155,6 +156,23 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                     >
                       Loading...
                     </Button>
+                  ) : plan.name === 'STARTER' ? (
+                    <div className="space-y-3">
+                      <Button 
+                        size="lg" 
+                        className="w-full py-3 text-lg font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        onClick={() => handleGetStarted(plan.name)}
+                      >
+                        {plan.cta}
+                      </Button>
+                      
+                      <PayPalSubscribeButton
+                        planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID || 'P-09S98046PD2685338ND3AO4Q'}
+                        planName="Starter"
+                        price={39}
+                        className="mt-2"
+                      />
+                    </div>
                   ) : (
                     <Button 
                       size="lg" 

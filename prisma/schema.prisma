@@ -9,25 +9,62 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  name             String?
-  email            String    @unique
-  emailVerified    DateTime?
-  image            String?
-  companyName      String?
-  primaryColor     String    @default("#3B82F6")
-  logo             String?
-  plan             Plan      @default(FREE)
-  planExpires      DateTime?
-  stripeCustomerId String?
-  billingCycleStart DateTime @default(now())
+  id                String    @id @default(cuid())
+  name              String?
+  email             String    @unique
+  emailVerified     DateTime?
+  image             String?
+  companyName       String?
+  primaryColor      String    @default("#3B82F6")
+  logo              String?
+  plan              Plan      @default(FREE)
+  planExpires       DateTime?
+  stripeCustomerId  String?
+  billingCycleStart DateTime  @default(now())
   billingCycleEnd   DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  clients          Client[]
-  reports          Report[]
+
+  // PayPal integration fields
+  paypalSubscriptionId String? @unique
+  subscriptionStatus   String  @default("free")
+  paypalCustomerId     String? @unique
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  clients   Client[]
+  reports   Report[]
+  payments  Payment[]
 
   @@map("users")
+}
+
+model Payment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // PayPal identifiers
+  paypalOrderId        String  @unique
+  paypalSubscriptionId String?
+
+  // Payment details
+  amount   Decimal @db.Decimal(10, 2)
+  currency String  @default("USD")
+  status   String // "COMPLETED", "PENDING", "FAILED", "REFUNDED"
+
+  // Plan reference
+  plan Plan // Links to Plan enum (FREE, STARTER, etc.)
+
+  // Store full PayPal webhook payload for debugging
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Performance indexes
+  @@index([userId])
+  @@index([status])
+  @@index([paypalSubscriptionId])
+  @@map("payments")
 }
 
 model Client {
@@ -48,25 +85,25 @@ model Client {
   updatedAt                    DateTime  @updatedAt
   userId                       String
   gaPropertyId                 String?
-  
+
   // OAuth tokens (Phase 4)
-  googleAccessToken            String?
-  googleConnectedAt            DateTime?
-  googleRefreshToken           String?
-  googleTokenExpiry            DateTime?
-  
+  googleAccessToken  String?
+  googleConnectedAt  DateTime?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+
   // Property selections (Phase 5A)
-  gscSiteUrl                   String?   // e.g., "https://acmecorp.com/"
-  gscSiteName                  String?   // e.g., "acmecorp.com"
-  ga4PropertyId                String?   // e.g., "123456789"
-  ga4PropertyName              String?   // e.g., "Acme Corp Website"
-  
+  gscSiteUrl      String? // e.g., "https://acmecorp.com/"
+  gscSiteName     String? // e.g., "acmecorp.com"
+  ga4PropertyId   String? // e.g., "123456789"
+  ga4PropertyName String? // e.g., "Acme Corp Website"
+
   // Data fetch tracking
-  lastDataFetch                DateTime?
-  dataFetchStatus              String?   // 'success' | 'failed' | 'pending'
-  
-  user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports                      Report[]
+  lastDataFetch   DateTime?
+  dataFetchStatus String? // 'success' | 'failed' | 'pending'
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports Report[]
 
   @@index([userId])
   @@index([domain])
