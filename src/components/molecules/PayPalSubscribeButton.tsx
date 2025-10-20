@@ -22,7 +22,6 @@ export function PayPalSubscribeButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [pendingSubscription, setPendingSubscription] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -63,14 +62,24 @@ export function PayPalSubscribeButton({
     }
   }, [planId]);
 
-  // Auto-trigger subscription after authentication
+  // Auto-trigger subscription after OAuth redirect
   useEffect(() => {
-    if (pendingSubscription && session?.user) {
-      console.log('✅ User authenticated, continuing with subscription...');
-      setPendingSubscription(false);
+    // Check URL parameter for pending subscription
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldSubscribe = urlParams.get('subscribe') === 'pending';
+    
+    if (shouldSubscribe && session?.user) {
+      console.log('✅ User authenticated after OAuth, auto-triggering subscription...');
+      
+      // Clean up URL parameter
+      urlParams.delete('subscribe');
+      const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.history.replaceState({}, '', newUrl);
+      
+      // Trigger subscription
       createSubscription();
     }
-  }, [session, pendingSubscription, createSubscription]);
+  }, [session, createSubscription]);
 
   const handleSubscribe = async () => {
     // Check if user is authenticated
@@ -91,11 +100,14 @@ export function PayPalSubscribeButton({
 
   const handleGoogleSignIn = async () => {
     console.log('🔐 Initiating Google sign-in...');
-    setPendingSubscription(true); // Flag to auto-continue after auth
     
-    // Trigger Google OAuth with callback to current page
+    // Add URL parameter to persist subscription intent across redirect
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('subscribe', 'pending');
+    
+    // Trigger Google OAuth with callback URL that includes subscription intent
     await signIn('google', {
-      callbackUrl: window.location.href, // Return to this page after auth
+      callbackUrl: currentUrl.toString(), // Return with ?subscribe=pending
     });
   };
 
