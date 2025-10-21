@@ -121,7 +121,7 @@ export default function StarterBatchClientsPage() {
                     <strong>STARTER Plan - 14-Day Free Trial:</strong> Perfect for small agencies
                   </Typography>
                   <Typography variant="caption" className="text-slate-600 mt-1 block">
-                    • Up to 5 clients • 20 reports per month • $39/month after trial
+                    • Up to 5 clients • 20 reports per month • $29/month after trial
                   </Typography>
                 </div>
               </div>

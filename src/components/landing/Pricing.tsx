@@ -40,7 +40,7 @@ const plans = [
   },
   {
     name: 'STARTER',
-    price: '$39',
+    price: '$29',
     period: '/month',
     description: 'Best for growing agencies',
     popular: true,

@@ -93,7 +93,7 @@ export class SubscriptionService {
           userId: user.id,
           paypalOrderId: paymentData.id || subscriptionId,
           paypalSubscriptionId: subscriptionId,
-          amount: parseFloat(paymentData.amount?.value || '39.00'),
+          amount: parseFloat(paymentData.amount?.value || '29.00'),
           currency: paymentData.amount?.currency_code || 'USD',
           status: 'COMPLETED',
           plan: user.plan,

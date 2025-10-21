@@ -46,7 +46,7 @@ export default function WelcomePage() {
 
   const clientCountOptions = [
     { value: '1', label: '1 client', tier: 'FREE', price: '$0' },
-    { value: '2-5', label: '2-5 clients', tier: 'STARTER', price: '$39/mo' },
+    { value: '2-5', label: '2-5 clients', tier: 'STARTER', price: '$29/mo' },
     { value: '6-15', label: '6-15 clients', tier: 'PROFESSIONAL', price: '$99/mo' },
     { value: '16+', label: '16+ clients', tier: 'ENTERPRISE', price: '$199/mo' }
   ]
