@@ -115,8 +115,8 @@ export function GSCPerformancePage({
           lineColor="#9233ea" // Purple
           yAxisLabel="Impressions"
           branding={branding}
-          height={200}
-          width={520}
+          height={220}
+          width={550}
         />
 
         {/* Clicks Chart - Keep title and chart together */}
@@ -127,8 +127,8 @@ export function GSCPerformancePage({
             lineColor="#22d3ee" // Cyan
             yAxisLabel="Clicks"
             branding={branding}
-            height={200}
-            width={520}
+            height={220}
+            width={550}
           />
         </View>
 

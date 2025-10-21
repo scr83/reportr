@@ -137,7 +137,7 @@ export function GSCLineChart({
     }))
 
   return (
-    <View style={{ marginBottom: 12, width: width }}>
+    <View style={{ marginVertical: 16, width: '100%' }}>
       {/* Chart Title */}
       <Text style={[styles.h4, { 
         marginBottom: 12, 
@@ -148,12 +148,7 @@ export function GSCLineChart({
       </Text>
       
       {/* Chart Container */}
-      <View style={{
-        border: `1px solid ${pdfStyles.colors.border}`,
-        borderRadius: 8,
-        backgroundColor: '#ffffff',
-        padding: 12
-      }}>
+      <View>
         <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
           {/* Grid lines */}
           <G>
@@ -267,8 +262,7 @@ export function GSCLineChart({
       <View style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 6,
-        paddingHorizontal: 16
+        marginTop: 8
       }}>
         <Text style={[styles.bodySmall, { color: pdfStyles.colors.textLight }]}>
           Min: {formatValue(minValue)}
