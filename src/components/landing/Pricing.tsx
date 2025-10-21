@@ -160,7 +160,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                     <div className="space-y-3">
                       <Button 
                         size="lg" 
-                        className="w-full py-3 text-lg font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="w-full py-3 text-lg font-semibold text-[#7e23ce] bg-white border-2 border-[#7e23ce] hover:bg-purple-50 transition-all duration-200"
                         onClick={() => handleGetStarted(plan.name)}
                       >
                         {plan.cta}

@@ -117,7 +117,7 @@ export function PayPalSubscribeButton({
         <button
           onClick={handleSubscribe}
           disabled={disabled || loading || status === 'loading'}
-          className="w-full bg-gradient-to-r from-[#06B6D4] to-[#84CC16] text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#7e23ce] hover:bg-[#6b1fb0] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
