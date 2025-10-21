@@ -115,20 +115,22 @@ export function GSCPerformancePage({
           lineColor="#9233ea" // Purple
           yAxisLabel="Impressions"
           branding={branding}
-          height={180}
-          width={500}
+          height={200}
+          width={520}
         />
 
-        {/* Clicks Chart */}
-        <GSCLineChart
-          data={clicksData}
-          title="Clicks Over Time"
-          lineColor="#22d3ee" // Cyan
-          yAxisLabel="Clicks"
-          branding={branding}
-          height={180}
-          width={500}
-        />
+        {/* Clicks Chart - Keep title and chart together */}
+        <View style={{ marginTop: 24 }} break>
+          <GSCLineChart
+            data={clicksData}
+            title="Clicks Over Time"
+            lineColor="#22d3ee" // Cyan
+            yAxisLabel="Clicks"
+            branding={branding}
+            height={200}
+            width={520}
+          />
+        </View>
 
         {/* Key Metrics Summary */}
         <View style={{

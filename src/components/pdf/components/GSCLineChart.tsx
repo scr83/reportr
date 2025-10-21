@@ -137,10 +137,10 @@ export function GSCLineChart({
     }))
 
   return (
-    <View style={{ marginBottom: 32, width: width }}>
+    <View style={{ marginBottom: 24, width: width }}>
       {/* Chart Title */}
       <Text style={[styles.h4, { 
-        marginBottom: 16, 
+        marginBottom: 12, 
         color: pdfStyles.colors.primary,
         textAlign: 'center'
       }]}>
@@ -152,9 +152,9 @@ export function GSCLineChart({
         border: `1px solid ${pdfStyles.colors.border}`,
         borderRadius: 8,
         backgroundColor: '#ffffff',
-        padding: 16
+        padding: 12
       }}>
-        <Svg width={width} height={height}>
+        <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
           {/* Grid lines */}
           <G>
             {/* Horizontal grid lines */}
@@ -190,7 +190,7 @@ export function GSCLineChart({
           <Path
             d={generatePath()}
             stroke={lineColor}
-            strokeWidth={3}
+            strokeWidth={1.5}
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -202,10 +202,10 @@ export function GSCLineChart({
               key={`point-${index}`}
               cx={xScale(index)}
               cy={yScale(point.value)}
-              r={4}
+              r={3}
               fill={lineColor}
               stroke="#ffffff"
-              strokeWidth={2}
+              strokeWidth={1.5}
             />
           ))}
 
