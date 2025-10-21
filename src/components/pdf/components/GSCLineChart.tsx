@@ -152,8 +152,7 @@ export function GSCLineChart({
         border: `1px solid ${pdfStyles.colors.border}`,
         borderRadius: 8,
         backgroundColor: '#ffffff',
-        padding: 12,
-        paddingBottom: 8
+        padding: 12
       }}>
         <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
           {/* Grid lines */}
