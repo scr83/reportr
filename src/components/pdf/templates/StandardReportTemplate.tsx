@@ -8,6 +8,7 @@ import { ReportFooter } from '../components/ReportFooter'
 import { MetricGrid } from '../components/MetricCard'
 import { DataTable } from '../components/DataTable'
 import { SectionTitle, InsightBox } from '../components/SectionTitle'
+import { GSCPerformancePage } from '../components/GSCPerformancePage'
 
 export function StandardReportTemplate({ data }: PDFTemplateProps) {
   const pdfStyles = createPDFStyles(data.branding)
@@ -145,11 +146,22 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportFooter
           branding={data.branding}
           pageNumber={1}
-          totalPages={6}
+          totalPages={7}
         />
       </Page>
       
-      {/* Page 3: Search Console Data */}
+      {/* Page 3: GSC Performance Charts */}
+      {data.gscData && (
+        <GSCPerformancePage
+          gscData={data.gscData}
+          branding={data.branding}
+          clientName={data.clientName}
+          pageNumber={2}
+          totalPages={7}
+        />
+      )}
+      
+      {/* Page 4: Search Console Data */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -191,12 +203,12 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={2}
-          totalPages={6}
+          pageNumber={3}
+          totalPages={7}
         />
       </Page>
       
-      {/* Page 4: Analytics Performance */}
+      {/* Page 5: Analytics Performance */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -237,12 +249,12 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={3}
-          totalPages={6}
+          pageNumber={4}
+          totalPages={7}
         />
       </Page>
       
-      {/* Page 5: Device & Traffic Sources */}
+      {/* Page 6: Device & Traffic Sources */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -318,12 +330,12 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={4}
-          totalPages={6}
+          pageNumber={5}
+          totalPages={7}
         />
       </Page>
       
-      {/* Page 6: Insights & Recommendations */}
+      {/* Page 7: Insights & Recommendations */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -395,12 +407,12 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={5}
-          totalPages={6}
+          pageNumber={6}
+          totalPages={7}
         />
       </Page>
       
-      {/* Page 7: Summary & Contact */}
+      {/* Page 8: Summary & Contact */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -472,8 +484,8 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={6}
-          totalPages={6}
+          pageNumber={7}
+          totalPages={7}
         />
       </Page>
     </BaseTemplate>

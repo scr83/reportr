@@ -6,10 +6,19 @@ export interface SearchConsoleData {
   averageCTR: number;
   topKeywords: KeywordPerformance[];
   topPages: PagePerformance[];
+  dailyData?: DailySearchConsoleData[];
   dateRange: {
     startDate: string;
     endDate: string;
   };
+}
+
+export interface DailySearchConsoleData {
+  date: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
 }
 
 export interface KeywordPerformance {

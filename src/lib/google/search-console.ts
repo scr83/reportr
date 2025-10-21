@@ -355,6 +355,51 @@ export class SearchConsoleClient {
       return [];
     }
   }
+
+  /**
+   * Get daily performance data for time-series charts
+   */
+  async getDailyPerformanceData(
+    siteUrl: string,
+    accessToken: string,
+    startDate: string,
+    endDate: string
+  ): Promise<Array<{ date: string; clicks: number; impressions: number; ctr: number; position: number }>> {
+    try {
+      return await retryWithBackoff(async () => {
+        const auth = createGoogleAuthClient();
+        auth.setCredentials({ access_token: accessToken });
+
+        const response = await this.searchconsole.searchanalytics.query({
+          siteUrl,
+          auth,
+          requestBody: {
+            startDate,
+            endDate,
+            dimensions: ['date'],
+            aggregationType: 'auto'
+          }
+        });
+
+        if (!response.data.rows) {
+          return [];
+        }
+
+        return response.data.rows
+          .map(row => ({
+            date: row.keys?.[0] || '',
+            clicks: Math.round(row.clicks || 0),
+            impressions: Math.round(row.impressions || 0),
+            ctr: Number(((row.ctr || 0) * 100).toFixed(2)),
+            position: Number((row.position || 0).toFixed(1))
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date ascending
+      });
+    } catch (error) {
+      console.error('Failed to fetch daily performance data:', error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance

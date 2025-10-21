@@ -8,6 +8,7 @@ import { ReportFooter } from '../components/ReportFooter'
 import { MetricGrid } from '../components/MetricCard'
 import { DataTable } from '../components/DataTable'
 import { SectionTitle, InsightBox } from '../components/SectionTitle'
+import { GSCPerformancePage } from '../components/GSCPerformancePage'
 
 export function CustomReportTemplate({ data }: PDFTemplateProps) {
   const pdfStyles = createPDFStyles(data.branding)
@@ -64,9 +65,11 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
   
   // Calculate number of pages needed
   const metricsPerPage = 8
+  const hasGSCData = data.gscData && data.gscData.dailyData && data.gscData.dailyData.length > 0
+  const gscPageCount = hasGSCData ? 1 : 0
   const totalPages = Math.max(
-    3, // Minimum 3 pages (cover + summary + contact)
-    Math.ceil(displayMetrics.length / metricsPerPage) + 2
+    3 + gscPageCount, // Minimum pages + GSC performance page if data exists
+    Math.ceil(displayMetrics.length / metricsPerPage) + 2 + gscPageCount
   )
   
   // Determine if we should show detailed data tables
@@ -153,6 +156,17 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
         />
       </Page>
       
+      {/* Page 2.5: GSC Performance Charts (if data exists) */}
+      {hasGSCData && (
+        <GSCPerformancePage
+          gscData={data.gscData!}
+          branding={data.branding}
+          clientName={data.clientName}
+          pageNumber={2}
+          totalPages={totalPages}
+        />
+      )}
+      
       {/* Page 3+: Detailed Metrics Pages */}
       {displayMetrics.length > 4 && (
         <Page size="A4" style={styles.page}>
@@ -209,7 +223,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
           
           <ReportFooter
             branding={data.branding}
-            pageNumber={2}
+            pageNumber={2 + gscPageCount}
             totalPages={totalPages}
           />
         </Page>

@@ -88,7 +88,14 @@ const generatePdfSchema = z.object({
     impressions: z.number().min(0),
     ctr: z.number().min(0),
     position: z.number().min(0),
-    topQueries: z.array(topQuerySchema).optional()
+    topQueries: z.array(topQuerySchema).optional(),
+    dailyData: z.array(z.object({
+      date: z.string(),
+      clicks: z.number(),
+      impressions: z.number(),
+      ctr: z.number(),
+      position: z.number()
+    })).optional()
   }),
   
   // Flexible GA4 data - REQUIRED for all report types
@@ -296,6 +303,7 @@ export async function POST(request: NextRequest) {
         averageCTR: validatedData.gscData?.ctr || 0,
         averagePosition: validatedData.gscData?.position || 0,
         topQueries: validatedData.gscData?.topQueries || [],
+        dailyData: validatedData.gscData?.dailyData || [],
       },
       
       // GA4 Metrics - Structure varies by report type

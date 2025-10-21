@@ -7,6 +7,7 @@ import { ReportHeader } from '../components/ReportHeader'
 import { ReportFooter } from '../components/ReportFooter'
 import { MetricGrid } from '../components/MetricCard'
 import { SectionTitle, InsightBox } from '../components/SectionTitle'
+import { GSCPerformancePage } from '../components/GSCPerformancePage'
 
 export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
   const pdfStyles = createPDFStyles(data.branding)
@@ -126,11 +127,22 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
         <ReportFooter
           branding={data.branding}
           pageNumber={1}
-          totalPages={2}
+          totalPages={3}
         />
       </Page>
       
-      {/* Page 3: Recommendations */}
+      {/* Page 3: GSC Performance Charts */}
+      {data.gscData && (
+        <GSCPerformancePage
+          gscData={data.gscData}
+          branding={data.branding}
+          clientName={data.clientName}
+          pageNumber={2}
+          totalPages={3}
+        />
+      )}
+      
+      {/* Page 4: Recommendations */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -218,8 +230,8 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={2}
-          totalPages={2}
+          pageNumber={3}
+          totalPages={3}
         />
       </Page>
     </BaseTemplate>

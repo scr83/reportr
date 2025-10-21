@@ -49,6 +49,13 @@ export interface GSCData {
     ctr: number
     position: number
   }>
+  dailyData?: Array<{
+    date: string
+    clicks: number
+    impressions: number
+    ctr: number
+    position: number
+  }>
 }
 
 export interface GA4Data {
