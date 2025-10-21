@@ -1,12 +1,11 @@
 // PDF Report Generation Types
 
 export interface BrandingConfig {
-  name: string
-  primaryColor: string
-  accentColor: string
+  companyName: string
+  primaryColor?: string
   website: string
   email: string
-  phone: string
+  phone?: string
   logo?: string
 }
 

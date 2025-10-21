@@ -54,7 +54,7 @@ export function CoverPage({ clientName, reportType, dateRange, branding }: Cover
         
         {/* Agency Name */}
         <Text style={[styles.coverTitle, { fontSize: 28, marginBottom: 16 }]}>
-          {branding.name}
+          {branding.companyName}
         </Text>
         
         {/* Report Title */}
@@ -76,7 +76,7 @@ export function CoverPage({ clientName, reportType, dateRange, branding }: Cover
         <View style={{
           width: 200,
           height: 2,
-          backgroundColor: branding.accentColor,
+          backgroundColor: pdfStyles.colors.secondary,
           marginBottom: 40
         }} />
         

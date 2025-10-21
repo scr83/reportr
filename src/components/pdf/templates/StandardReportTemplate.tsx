@@ -468,7 +468,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
               Questions About This Report?
             </Text>
             <Text style={[styles.body, { marginBottom: 8 }]}>
-              Contact {data.branding.name} for detailed analysis and strategic guidance
+              Contact {data.branding.companyName} for detailed analysis and strategic guidance
             </Text>
             <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 4 }]}>
               {data.branding.email}

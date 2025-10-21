@@ -31,7 +31,7 @@ export function ReportHeader({ branding, clientName, pageTitle, showLogo = true 
         )}
         <View>
           <Text style={[styles.h4, { marginBottom: 2, color: pdfStyles.colors.primary }]}>
-            {branding.name}
+            {branding.companyName}
           </Text>
           <Text style={[styles.bodySmall, { color: pdfStyles.colors.textLight }]}>
             {branding.website}

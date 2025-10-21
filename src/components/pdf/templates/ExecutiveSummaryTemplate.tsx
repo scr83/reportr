@@ -220,7 +220,7 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
           {/* Contact CTA */}
           <View style={{ marginTop: 32, textAlign: 'center' }}>
             <Text style={[styles.body, { color: pdfStyles.colors.textLight }]}>
-              Questions about this report? Contact {data.branding.name}
+              Questions about this report? Contact {data.branding.companyName}
             </Text>
             <Text style={[styles.bodySmall, { color: pdfStyles.colors.primary, marginTop: 4 }]}>
               {data.branding.email} • {data.branding.phone}

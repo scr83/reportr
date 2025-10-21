@@ -20,7 +20,7 @@ export function ReportFooter({ branding, pageNumber, totalPages, showContact = t
       {showContact && (
         <View style={{ flex: 1 }}>
           <Text style={[styles.caption, { color: pdfStyles.colors.primary, fontWeight: 'bold' }]}>
-            {branding.name}
+            {branding.companyName}
           </Text>
           <Text style={styles.caption}>
             {branding.email} • {branding.phone} • {branding.website}

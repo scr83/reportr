@@ -91,7 +91,7 @@ export function validateReportData(reportData: ReportData): string[] {
     errors.push('End date is required')
   }
   
-  if (!reportData.branding?.name?.trim()) {
+  if (!reportData.branding?.companyName?.trim()) {
     errors.push('Agency name is required')
   }
   

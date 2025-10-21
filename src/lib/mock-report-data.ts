@@ -1,9 +1,8 @@
 import { ReportData, BrandingConfig, AIInsight, TrafficDataPoint, PageSpeedData } from '@/types/report'
 
 export const MOCK_BRANDING: BrandingConfig = {
-  name: 'Digital Frog Agency',
+  companyName: 'Digital Frog Agency',
   primaryColor: '#9810f9', // Digital Frog Purple from brand
-  accentColor: '#84CC16',  // Digital Frog Lime from brand
   website: 'https://digitalfrog.co',
   email: 'jump@digitalfrog.co',
   phone: '+56 9 9073 0352'

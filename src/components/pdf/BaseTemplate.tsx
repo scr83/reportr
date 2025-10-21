@@ -8,8 +8,8 @@ import { BrandingConfig, PDFStyles } from '@/types/report'
 export function createPDFStyles(branding: BrandingConfig): PDFStyles {
   return {
     colors: {
-      primary: branding.primaryColor,
-      secondary: branding.accentColor,
+      primary: branding.primaryColor || '#3B82F6',
+      secondary: '#6B7280',
       accent: '#22D3EE', // Digital Frog Aqua
       text: '#1F2937',
       textLight: '#6B7280',
@@ -252,7 +252,7 @@ export function BaseTemplate({ children, branding, title = 'SEO Report', author 
   const styles = createStyleSheet(pdfStyles)
   
   return (
-    <Document title={title} author={author || branding.name}>
+    <Document title={title} author={author || branding.companyName}>
       {children}
     </Document>
   )

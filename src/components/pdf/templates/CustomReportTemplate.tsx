@@ -416,7 +416,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
               Need Help Interpreting This Data?
             </Text>
             <Text style={[styles.body, { marginBottom: 8 }]}>
-              Contact {data.branding.name} for detailed analysis and strategic recommendations
+              Contact {data.branding.companyName} for detailed analysis and strategic recommendations
             </Text>
             <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 4 }]}>
               {data.branding.email}
