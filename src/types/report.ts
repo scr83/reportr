@@ -42,7 +42,7 @@ export interface GSCData {
   totalImpressions: number
   averageCTR: number
   averagePosition: number
-  topQueries: Array<{
+  topQueries?: Array<{
     query: string
     clicks: number
     impressions: number
