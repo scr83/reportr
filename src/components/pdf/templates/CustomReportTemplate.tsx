@@ -157,9 +157,9 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
       </Page>
       
       {/* Page 2.5: GSC Performance Charts (if data exists) */}
-      {hasGSCData && (
+      {data.gscData && data.gscData.dailyData && data.gscData.dailyData.length > 0 && (
         <GSCPerformancePage
-          gscData={data.gscData!}
+          gscData={data.gscData}
           branding={data.branding}
           clientName={data.clientName}
           pageNumber={2}

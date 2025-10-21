@@ -151,7 +151,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
       </Page>
       
       {/* Page 3: GSC Performance Charts */}
-      {data.gscData && (
+      {data.gscData && data.gscData.dailyData && data.gscData.dailyData.length > 0 && (
         <GSCPerformancePage
           gscData={data.gscData}
           branding={data.branding}

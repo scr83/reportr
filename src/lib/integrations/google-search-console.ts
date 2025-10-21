@@ -25,6 +25,13 @@ export interface SearchConsoleData {
   position: string;
   topQueries: SearchConsoleQuery[];
   topPages: SearchConsolePage[];
+  dailyData?: Array<{
+    date: string;      // Format: 'YYYY-MM-DD'
+    clicks: number;
+    impressions: number;
+    ctr: number;
+    position: number;
+  }>;
   summary: {
     totalClicks: number;
     totalImpressions: number;
@@ -94,8 +101,22 @@ export async function getSearchConsoleData(
       }
     });
 
+    // Fetch daily breakdown for time-series charts
+    console.log('📊 Fetching daily time-series data for charts...');
+    const dailyResponse = await searchconsole.searchanalytics.query({
+      siteUrl: targetSiteUrl,
+      requestBody: {
+        startDate,
+        endDate,
+        dimensions: ['date'],  // This groups results by date
+        rowLimit: 1000,
+        dataState: 'final'
+      }
+    });
+
     const queryRows = queriesResponse.data.rows || [];
     const pageRows = pagesResponse.data.rows || [];
+    const dailyRows = dailyResponse.data.rows || [];
 
     // Calculate totals from individual rows if aggregate is not available
     const totalClicks = aggregateRow?.clicks || queryRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
@@ -123,6 +144,17 @@ export async function getSearchConsoleData(
       position: row.position?.toFixed(1) || '0.0'
     }));
 
+    // Process daily data into chart-friendly format
+    const dailyData = dailyRows.map(row => ({
+      date: row.keys?.[0] || '',           // Format: 'YYYY-MM-DD'
+      clicks: row.clicks || 0,
+      impressions: row.impressions || 0,
+      ctr: (row.ctr || 0) * 100,          // Convert to percentage
+      position: row.position || 0
+    })).sort((a, b) => a.date.localeCompare(b.date)); // Sort by date ascending
+
+    console.log(`✅ Daily data points fetched: ${dailyData.length} days`);
+
     // Update the client's GSC site URL if it was successful
     if (!client.gscSiteUrl && targetSiteUrl) {
       await prisma.client.update({
@@ -138,6 +170,7 @@ export async function getSearchConsoleData(
       position: avgPosition.toFixed(1),
       topQueries,
       topPages,
+      dailyData,
       summary: {
         totalClicks,
         totalImpressions,

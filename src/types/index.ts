@@ -70,6 +70,13 @@ export interface SearchConsoleData {
     ctr: number
     position: number
   }>
+  dailyData?: Array<{
+    date: string      // Format: 'YYYY-MM-DD'
+    clicks: number
+    impressions: number
+    ctr: number
+    position: number
+  }>
 }
 
 export interface AnalyticsData {

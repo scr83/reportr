@@ -40,11 +40,15 @@ export class SearchConsoleClient {
           position: 0
         };
 
-        // Get top keywords and pages in parallel
-        const [topKeywords, topPages] = await Promise.all([
+        // Get top keywords, pages, and daily data in parallel
+        const [topKeywords, topPages, dailyData] = await Promise.all([
           this.getTopKeywords(siteUrl, accessToken, 10),
-          this.getTopPages(siteUrl, accessToken, 10)
+          this.getTopPages(siteUrl, accessToken, 10),
+          this.getDailyPerformanceData(siteUrl, accessToken, startDate, endDate)
         ]);
+
+        console.log('📊 Fetching daily time-series data for charts...');
+        console.log(`✅ Daily data points fetched: ${dailyData.length} days`);
 
         return {
           totalClicks: Math.round(overallData.clicks || 0),
@@ -53,6 +57,7 @@ export class SearchConsoleClient {
           averageCTR: Number(((overallData.ctr || 0) * 100).toFixed(2)),
           topKeywords,
           topPages,
+          dailyData,
           dateRange: {
             startDate,
             endDate
