@@ -164,6 +164,23 @@ export async function POST(request: NextRequest) {
     console.log('3. Parsing request body...')
     const body = await request.json()
     
+    console.log('🔍 [PDF-API] PDF generation request received');
+    console.log('🔍 [PDF-API] Request data structure:', {
+      hasGscData: !!body.gscData,
+      gscDataKeys: Object.keys(body.gscData || {}),
+      hasDailyData: !!body.gscData?.dailyData,
+      dailyDataLength: body.gscData?.dailyData?.length || 0
+    });
+    
+    if (body.gscData?.dailyData) {
+      console.log('🔍 [PDF-API] Daily data sample:', {
+        first: body.gscData.dailyData[0],
+        last: body.gscData.dailyData[body.gscData.dailyData.length - 1]
+      });
+    } else {
+      console.log('🔍 [PDF-API] ❌ NO DAILY DATA FOUND IN REQUEST');
+    }
+    
     // PHASE 2 DIAGNOSTIC LOGGING: Enhanced request data analysis
     console.log('🟢 API: Received request');
     console.log('Request body keys:', Object.keys(body));

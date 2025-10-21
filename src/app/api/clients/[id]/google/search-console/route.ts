@@ -80,10 +80,27 @@ export async function GET(
       siteUrl || undefined
     );
     
-    return NextResponse.json({
+    console.log('🔍 [GSC-API-ROUTE] Data received from integration:', {
+      hasData: !!data,
+      dataKeys: Object.keys(data || {}),
+      hasDailyData: !!data?.dailyData,
+      dailyDataLength: data?.dailyData?.length || 0,
+      sampleDailyEntry: data?.dailyData?.[0]
+    });
+    
+    const response = {
       success: true,
       data
+    };
+    
+    console.log('🔍 [GSC-API-ROUTE] Returning response:', {
+      success: response.success,
+      responseDataKeys: Object.keys(response.data || {}),
+      includesDailyData: !!response.data?.dailyData,
+      dailyDataLength: response.data?.dailyData?.length || 0
     });
+    
+    return NextResponse.json(response);
   } catch (error: any) {
     console.error('Search Console API error:', error);
     

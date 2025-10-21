@@ -41,6 +41,7 @@ export default function GenerateReportPage() {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['users', 'sessions', 'bounceRate', 'conversions'])
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false)
   const [formData, setFormData] = useState<Record<string, any>>({})
+  const [rawGscData, setRawGscData] = useState<any>(null) // Store the complete GSC data including dailyData
   const [reportData, setReportData] = useState<LegacyReportData>({
     clientId: '',
     client: '',
@@ -324,6 +325,18 @@ export default function GenerateReportPage() {
       if (gscRes.ok) {
         const gscResponse = await gscRes.json()
         gscData = gscResponse.data
+        
+        console.log('🔍 [REPORT-GEN] GSC data received from API:', {
+          hasGscData: !!gscData,
+          gscDataKeys: Object.keys(gscData || {}),
+          hasDailyData: !!gscData?.dailyData,
+          dailyDataLength: gscData?.dailyData?.length || 0,
+          sampleDailyEntry: gscData?.dailyData?.[0],
+          fullGscData: gscData
+        });
+        
+        // Store the complete raw GSC data including dailyData
+        setRawGscData(gscData);
       } else {
         const gscError = await gscRes.json()
         console.warn('GSC fetch failed:', gscError.error)
@@ -463,8 +476,15 @@ export default function GenerateReportPage() {
           totalImpressions: parseFloat((formData.totalImpressions || reportData.gscData.totalImpressions || '0').toString().replace(/,/g, '')) || 0,
           averageCTR: parseFloat((formData.averageCTR || reportData.gscData.averageCTR || '0').toString().replace(/[,%]/g, '')) || 0,
           averagePosition: parseFloat((formData.averagePosition || reportData.gscData.averagePosition || '0').toString().replace(/,/g, '')) || 0,
-          topQueries: topQueries
+          topQueries: topQueries,
+          dailyData: rawGscData?.dailyData || [] // CRITICAL FIX: Include dailyData from the stored raw GSC data
         }
+        
+        console.log('🔍 [REPORT-GEN] GSC data constructed for PDF:', {
+          hasDailyData: !!pdfReportData.gscData.dailyData,
+          dailyDataLength: pdfReportData.gscData.dailyData?.length || 0,
+          dailyDataSample: pdfReportData.gscData.dailyData?.[0]
+        });
       }
 
       // Add metrics based on report type
@@ -564,7 +584,15 @@ export default function GenerateReportPage() {
       console.log('Report Type:', reportType);
       
       // CRITICAL DEBUGGING: Log what we're sending to API
-      console.log('🔍 SENDING TO API:', {
+      console.log('🔍 [REPORT-GEN] Preparing data for PDF generation');
+      console.log('🔍 [REPORT-GEN] GSC data being sent:', {
+        hasGscData: !!pdfReportData.gscData,
+        gscDataKeys: Object.keys(pdfReportData.gscData || {}),
+        includesDailyData: !!pdfReportData.gscData?.dailyData,
+        dailyDataLength: pdfReportData.gscData?.dailyData?.length || 0,
+        fullGscData: pdfReportData.gscData
+      });
+      console.log('🔍 [REPORT-GEN] SENDING TO API:', {
         reportType: reportType,
         selectedMetrics: selectedMetrics,
         gscDataKeys: Object.keys(pdfReportData.gscData || {}), // Should always be 4
@@ -595,7 +623,8 @@ export default function GenerateReportPage() {
             impressions: Number(q.impressions) || 0,
             ctr: Number(q.ctr) || 0,
             position: Number(q.position) || 0
-          })) || []
+          })) || [],
+          dailyData: pdfReportData.gscData?.dailyData || [] // CRITICAL FIX: Include dailyData in the request body
         },
         // FIX: Apply type conversion to ensure all GA4 fields are numbers
         ga4Data: ensureNumericGA4Types(pdfReportData.ga4Data) || {
@@ -606,6 +635,13 @@ export default function GenerateReportPage() {
         }
       }
       
+      console.log('🔍 [REPORT-GEN] Final request body logging:');
+      console.log('🔍 [REPORT-GEN] Request body structure:', {
+        hasGscData: !!requestBody.gscData,
+        gscDataKeys: Object.keys(requestBody.gscData || {}),
+        hasDailyDataInRequest: !!requestBody.gscData?.dailyData,
+        dailyDataLengthInRequest: requestBody.gscData?.dailyData?.length || 0
+      });
       console.log('Request Body:', JSON.stringify(requestBody, null, 2));
       console.log('🔍 Type Check - organicTraffic type:', typeof requestBody.ga4Data?.organicTraffic);
       console.log('🔍 Type Check - organicTraffic value:', requestBody.ga4Data?.organicTraffic);

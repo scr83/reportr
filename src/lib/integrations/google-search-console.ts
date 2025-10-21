@@ -50,6 +50,10 @@ export async function getSearchConsoleData(
   siteUrl?: string
 ): Promise<SearchConsoleData> {
   try {
+    console.log('🔍 [GSC-API] Starting performance data fetch');
+    console.log('🔍 [GSC-API] Date range:', { startDate, endDate });
+    console.log('🔍 [GSC-API] Client ID:', clientId);
+    
     // Get client with site URL
     const client = await prisma.client.findUnique({
       where: { id: clientId }
@@ -61,6 +65,7 @@ export async function getSearchConsoleData(
 
     // Use provided siteUrl or fallback to stored one or domain
     const targetSiteUrl = siteUrl || client.gscSiteUrl || `https://${client.domain}`;
+    console.log('🔍 [GSC-API] Target site URL:', targetSiteUrl);
 
     const auth = await createAuthenticatedGoogleClient(clientId);
     const searchconsole = google.searchconsole({ version: 'v1', auth });
@@ -118,6 +123,12 @@ export async function getSearchConsoleData(
     const pageRows = pagesResponse.data.rows || [];
     const dailyRows = dailyResponse.data.rows || [];
 
+    console.log('🔍 [GSC-API] Raw API responses received:', {
+      queryRowsCount: queryRows.length,
+      pageRowsCount: pageRows.length,
+      dailyRowsCount: dailyRows.length
+    });
+
     // Calculate totals from individual rows if aggregate is not available
     const totalClicks = aggregateRow?.clicks || queryRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
     const totalImpressions = aggregateRow?.impressions || queryRows.reduce((sum, row) => sum + (row.impressions || 0), 0);
@@ -154,6 +165,11 @@ export async function getSearchConsoleData(
     })).sort((a, b) => a.date.localeCompare(b.date)); // Sort by date ascending
 
     console.log(`✅ Daily data points fetched: ${dailyData.length} days`);
+    console.log('🔍 [GSC-API] Daily data sample:', {
+      firstEntry: dailyData?.[0],
+      lastEntry: dailyData?.[dailyData.length - 1],
+      totalEntries: dailyData.length
+    });
 
     // Update the client's GSC site URL if it was successful
     if (!client.gscSiteUrl && targetSiteUrl) {
@@ -163,7 +179,7 @@ export async function getSearchConsoleData(
       });
     }
 
-    return {
+    const result = {
       clicks: totalClicks,
       impressions: totalImpressions,
       ctr: avgCTR.toFixed(2),
@@ -178,6 +194,15 @@ export async function getSearchConsoleData(
         averagePosition: avgPosition
       }
     };
+
+    console.log('🔍 [GSC-API] Returning result with keys:', Object.keys(result));
+    console.log('🔍 [GSC-API] dailyData in result:', {
+      exists: !!result.dailyData,
+      length: result.dailyData?.length || 0,
+      isArray: Array.isArray(result.dailyData)
+    });
+
+    return result;
   } catch (error: any) {
     console.error('Search Console API error:', error);
     
