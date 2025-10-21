@@ -10,6 +10,7 @@ import { CustomGA4Pages } from './CustomGA4Pages';
 import { RecommendationsPage } from './RecommendationsPage';
 import { KeyInsightsPage } from './KeyInsightsPage';
 import { StrategicRecommendationsPage } from './StrategicRecommendationsPage';
+import { GSCPerformanceChartsPage } from './GSCPerformanceChartsPage';
 
 interface ReportDocumentProps {
   data: ReportData;
@@ -39,6 +40,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
 
       {/* Top Queries Page - Always included after GSC Metrics */}
       <TopQueriesPage data={data} />
+
+      {/* GSC Performance Charts Page - Included if daily data exists */}
+      <GSCPerformanceChartsPage data={data} />
 
       {/* GA4 Pages - Conditional based on report type */}
       {data.reportType === 'executive' && (

@@ -42,6 +42,7 @@ class ReactPDFGenerator {
       console.log('  - GA4 data keys:', data.ga4Metrics ? Object.keys(data.ga4Metrics) : []);
       console.log('  - Has insights:', !!data.insights);
       
+      
       // Validate input data
       this.validateReportData(data);
       

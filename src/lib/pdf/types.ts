@@ -76,6 +76,13 @@ export interface ReportData {
       ctr: number;
       position: number;
     }>;
+    dailyData?: Array<{
+      date: string;
+      clicks: number;
+      impressions: number;
+      ctr: number;
+      position: number;
+    }>;
   };
   
   // GA4 Data - Structure varies by report type
