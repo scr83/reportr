@@ -5,12 +5,16 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Button, Input, Typography } from '@/components/atoms'
+import { BillingCard } from '@/components/molecules/BillingCard'
+import { PaymentHistory } from '@/components/molecules/PaymentHistory'
+import { useBilling } from '@/hooks/useBilling'
 import { User, Mail, Building2, LogOut, Trash2 } from 'lucide-react'
 
 export default function SettingsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { data: billingData, loading: billingLoading, error: billingError } = useBilling()
 
   if (status === 'loading') {
     return (
@@ -136,6 +140,27 @@ export default function SettingsPage() {
             </div>
           </div>
         </Card>
+
+        {/* Billing & Subscription */}
+        {billingData && (
+          <BillingCard data={billingData} loading={billingLoading} />
+        )}
+        
+        {billingError && (
+          <Card className="p-6 mb-6">
+            <div className="text-center">
+              <Typography className="text-red-600 mb-2">Failed to load billing information</Typography>
+              <Typography className="text-sm text-gray-500">{billingError}</Typography>
+            </div>
+          </Card>
+        )}
+
+        {/* Payment History */}
+        {billingData && (
+          <div className="mb-6">
+            <PaymentHistory payments={billingData.payments} loading={billingLoading} />
+          </div>
+        )}
 
         {/* Connected Accounts */}
         <Card className="p-6 mb-6">

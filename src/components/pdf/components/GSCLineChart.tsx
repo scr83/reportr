@@ -24,8 +24,8 @@ export function GSCLineChart({
   lineColor, 
   yAxisLabel, 
   branding,
-  height = 200,
-  width = 500
+  height = 300,
+  width = 600
 }: GSCLineChartProps) {
   const pdfStyles = createPDFStyles(branding)
   const styles = createStyleSheet(pdfStyles)
