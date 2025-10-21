@@ -143,7 +143,9 @@ export default function SettingsPage() {
 
         {/* Billing & Subscription */}
         {billingData && (
-          <BillingCard data={billingData} loading={billingLoading} />
+          <div className="mb-6">
+            <BillingCard data={billingData} loading={billingLoading} />
+          </div>
         )}
         
         {billingError && (
