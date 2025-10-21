@@ -169,7 +169,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                       <PayPalSubscribeButton
                         planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID || 'P-09S98046PD2685338ND3AO4Q'}
                         planName="Starter"
-                        price={39}
+                        price={29}
                         className="mt-2"
                       />
                     </div>
