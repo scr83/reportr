@@ -121,7 +121,7 @@ export function BillingCard({ data, loading }: BillingCardProps) {
         {subscription.plan === 'FREE' && (
           <div className="bg-blue-50 p-4 rounded-lg">
             <Typography className="text-sm text-blue-800">
-              You're currently on the free plan. Upgrade to unlock more features and generate unlimited reports.
+              You&apos;re currently on the free plan. Upgrade to unlock more features and generate unlimited reports.
             </Typography>
           </div>
         )}
