@@ -11,36 +11,35 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { profile } = useUserProfile()
 
   useEffect(() => {
-    // Apply theme based on user profile
-    const applyTheme = () => {
-      const root = document.documentElement
+    const root = document.documentElement
 
-      if (profile?.whiteLabelEnabled && profile?.primaryColor) {
-        // Apply custom primary color when white-label is enabled
-        root.style.setProperty('--primary-color', profile.primaryColor)
-        
-        // Convert hex to RGB for use in rgba() functions
-        const hexToRgb = (hex: string) => {
-          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-          return result ? {
-            r: parseInt(result[1]!, 16),
-            g: parseInt(result[2]!, 16),
-            b: parseInt(result[3]!, 16)
-          } : null
-        }
-        
-        const rgb = hexToRgb(profile.primaryColor)
-        if (rgb) {
-          root.style.setProperty('--primary-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`)
-        }
-      } else {
-        // Reset to default purple when white-label is disabled
-        root.style.setProperty('--primary-color', '#8B5CF6')
-        root.style.setProperty('--primary-color-rgb', '139, 92, 246') // Purple 500 RGB
-      }
+    // CRITICAL: Always reset first, then conditionally apply
+    if (!profile?.whiteLabelEnabled) {
+      // FORCE RESET to default purple
+      root.style.setProperty('--primary-color', '#8B5CF6')
+      root.style.setProperty('--primary-color-rgb', '139, 92, 246')
+      console.log('Theme: Reset to default purple (whiteLabelEnabled=false)')
+      return // Exit early
     }
 
-    applyTheme()
+    // Apply custom color only if enabled AND color exists
+    if (profile?.primaryColor) {
+      root.style.setProperty('--primary-color', profile.primaryColor)
+      
+      // Convert hex to RGB for rgb() usage
+      const hex = profile.primaryColor.replace('#', '')
+      const r = parseInt(hex.substring(0, 2), 16)
+      const g = parseInt(hex.substring(2, 4), 16)
+      const b = parseInt(hex.substring(4, 6), 16)
+      root.style.setProperty('--primary-color-rgb', `${r}, ${g}, ${b}`)
+      
+      console.log('Theme: Applied custom color', profile.primaryColor)
+    } else {
+      // Fallback to purple if enabled but no color set
+      root.style.setProperty('--primary-color', '#8B5CF6')
+      root.style.setProperty('--primary-color-rgb', '139, 92, 246')
+      console.log('Theme: No custom color, using default purple')
+    }
   }, [profile])
 
   return <>{children}</>
