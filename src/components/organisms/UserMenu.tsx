@@ -35,8 +35,11 @@ export function UserMenu() {
             className="w-8 h-8 rounded-full"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-            <User className="h-4 w-4 text-purple-600" />
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: `rgba(var(--primary-color-rgb), 0.1)` }}
+          >
+            <User className="h-4 w-4" style={{ color: 'var(--primary-color)' }} />
           </div>
         )}
         <span className="hidden md:block text-sm font-medium text-gray-900 max-w-24 truncate">

@@ -289,7 +289,8 @@ export default function BrandingSettingsPage() {
             onClick={handleSave}
             loading={saving}
             disabled={saving}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8"
+            className="text-white px-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
             size="lg"
           >
             <Save className="h-4 w-4 mr-2" />

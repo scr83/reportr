@@ -65,7 +65,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-gray-200">
         <div className="flex items-center space-x-2 flex-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md" style={{ backgroundColor: 'var(--primary-color)' }}>
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
@@ -74,7 +74,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {mobile && onClose && (
           <button
             onClick={onClose}
-            className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2"
+            style={{ '--tw-ring-color': 'var(--primary-color)' } as React.CSSProperties}
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -94,15 +95,20 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               className={cn(
                 'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors min-h-[44px]',
                 isActive
-                  ? 'bg-purple-100 text-purple-700'
+                  ? 'text-gray-700'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
               )}
+              style={isActive ? { 
+                backgroundColor: `rgba(var(--primary-color-rgb), 0.1)`,
+                color: 'var(--primary-color)'
+              } : {}}
             >
               <item.icon
                 className={cn(
                   'mr-3 h-5 w-5 flex-shrink-0 transition-colors',
-                  isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-500'
+                  isActive ? '' : 'text-gray-400 group-hover:text-gray-500'
                 )}
+                style={isActive ? { color: 'var(--primary-color)' } : {}}
               />
               {item.name}
             </Link>
@@ -114,7 +120,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <div className="px-4 pb-6">
         <Link href="/generate-report" onClick={handleLinkClick}>
           <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white min-h-[44px]"
+            className="w-full text-white min-h-[44px]"
+            style={{ 
+              backgroundColor: 'var(--primary-color)',
+              '--tw-bg-opacity': '1'
+            } as React.CSSProperties}
             size="md"
           >
             <Plus className="h-4 w-4 mr-2" />

@@ -118,6 +118,10 @@
   --radius-xl: 0.75rem;
   --radius-2xl: 1rem;
   --radius-full: 9999px;
+
+  /* Dynamic theme variables (set by ThemeProvider) */
+  --primary-color: #8B5CF6; /* Default purple */
+  --primary-color-rgb: 139, 92, 246; /* Default purple RGB */
 }
 
 @layer base {

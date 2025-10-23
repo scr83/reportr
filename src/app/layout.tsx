@@ -1,6 +1,7 @@
 import { Inter, Poppins } from 'next/font/google'
 import type { Metadata } from 'next'
 import { Providers } from '@/components/providers/Providers'
+import { ThemeProvider } from '@/components/ThemeProvider'
 
 import './globals.css'
 
@@ -91,7 +92,9 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} ${poppins.variable}`}>
         <Providers>
-          {children}
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
         </Providers>
       </body>
     </html>
