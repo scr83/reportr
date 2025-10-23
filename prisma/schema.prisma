@@ -9,58 +9,46 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  name              String?
-  email             String    @unique
-  emailVerified     DateTime?
-  image             String?
-  companyName       String?
-  primaryColor      String    @default("#3B82F6")
-  logo              String?
-  plan              Plan      @default(FREE)
-  planExpires       DateTime?
-  stripeCustomerId  String?
-  billingCycleStart DateTime  @default(now())
-  billingCycleEnd   DateTime?
-
-  // PayPal integration fields
-  paypalSubscriptionId String? @unique
-  subscriptionStatus   String  @default("free")
-  paypalCustomerId     String? @unique
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  clients   Client[]
-  reports   Report[]
-  payments  Payment[]
+  id                   String    @id @default(cuid())
+  name                 String?
+  email                String    @unique
+  emailVerified        DateTime?
+  image                String?
+  whiteLabelEnabled    Boolean   @default(false)
+  companyName          String?
+  primaryColor         String    @default("#8B5CF6")
+  logo                 String?
+  plan                 Plan      @default(FREE)
+  planExpires          DateTime?
+  stripeCustomerId     String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  billingCycleEnd      DateTime?
+  billingCycleStart    DateTime  @default(now())
+  paypalCustomerId     String?   @unique
+  paypalSubscriptionId String?   @unique
+  subscriptionStatus   String    @default("free")
+  clients              Client[]
+  payments             Payment[]
+  reports              Report[]
 
   @@map("users")
 }
 
 model Payment {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // PayPal identifiers
-  paypalOrderId        String  @unique
+  id                   String   @id @default(cuid())
+  userId               String
+  paypalOrderId        String   @unique
   paypalSubscriptionId String?
+  amount               Decimal  @db.Decimal(10, 2)
+  currency             String   @default("USD")
+  status               String
+  plan                 Plan
+  metadata             Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Payment details
-  amount   Decimal @db.Decimal(10, 2)
-  currency String  @default("USD")
-  status   String // "COMPLETED", "PENDING", "FAILED", "REFUNDED"
-
-  // Plan reference
-  plan Plan // Links to Plan enum (FREE, STARTER, etc.)
-
-  // Store full PayPal webhook payload for debugging
-  metadata Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Performance indexes
   @@index([userId])
   @@index([status])
   @@index([paypalSubscriptionId])
@@ -85,25 +73,18 @@ model Client {
   updatedAt                    DateTime  @updatedAt
   userId                       String
   gaPropertyId                 String?
-
-  // OAuth tokens (Phase 4)
-  googleAccessToken  String?
-  googleConnectedAt  DateTime?
-  googleRefreshToken String?
-  googleTokenExpiry  DateTime?
-
-  // Property selections (Phase 5A)
-  gscSiteUrl      String? // e.g., "https://acmecorp.com/"
-  gscSiteName     String? // e.g., "acmecorp.com"
-  ga4PropertyId   String? // e.g., "123456789"
-  ga4PropertyName String? // e.g., "Acme Corp Website"
-
-  // Data fetch tracking
-  lastDataFetch   DateTime?
-  dataFetchStatus String? // 'success' | 'failed' | 'pending'
-
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports Report[]
+  googleAccessToken            String?
+  googleConnectedAt            DateTime?
+  googleRefreshToken           String?
+  googleTokenExpiry            DateTime?
+  gscSiteUrl                   String?
+  dataFetchStatus              String?
+  ga4PropertyId                String?
+  ga4PropertyName              String?
+  gscSiteName                  String?
+  lastDataFetch                DateTime?
+  user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports                      Report[]
 
   @@index([userId])
   @@index([domain])

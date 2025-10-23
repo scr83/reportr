@@ -7,16 +7,16 @@ export async function PATCH(request: NextRequest) {
     const user = await requireUser();
     const body = await request.json();
 
-    const { companyName, website, primaryColor, logo, plan, planExpires } = body;
+    const { companyName, primaryColor, logo, whiteLabelEnabled, plan, planExpires } = body;
 
     // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        ...(companyName && { companyName }),
-        ...(website && { website }),
+        ...(companyName !== undefined && { companyName }),
         ...(primaryColor && { primaryColor }),
-        ...(logo && { logo }),
+        ...(logo !== undefined && { logo }),
+        ...(whiteLabelEnabled !== undefined && { whiteLabelEnabled }),
         ...(plan && { plan }),
         ...(planExpires !== undefined && { planExpires: planExpires ? new Date(planExpires) : null }),
       },
