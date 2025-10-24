@@ -98,8 +98,8 @@ function PricingTiers() {
       ],
       cta: 'Start 14-Day Trial',
       ctaLink: whiteLabelEnabled.starter 
-        ? '/auth/signin?plan=starter-whitelabel'
-        : '/auth/signin?plan=starter',
+        ? '/subscribe?plan=starter-whitelabel'
+        : '/subscribe?plan=starter',
       popular: true, // STARTER IS MOST POPULAR
       canAddWhiteLabel: true
     },
@@ -122,8 +122,8 @@ function PricingTiers() {
       ],
       cta: 'Start 14-Day Trial',
       ctaLink: whiteLabelEnabled.professional
-        ? '/auth/signin?plan=professional-whitelabel'
-        : '/auth/signin?plan=professional',
+        ? '/subscribe?plan=professional-whitelabel'
+        : '/subscribe?plan=professional',
       popular: false,
       canAddWhiteLabel: true
     },
@@ -146,8 +146,10 @@ function PricingTiers() {
         '99.9% uptime SLA',
         'White-glove onboarding'
       ],
-      cta: 'Contact Sales',
-      ctaLink: 'mailto:jump@digitalfrog.co',
+      cta: 'Start 14-Day Trial',
+      ctaLink: whiteLabelEnabled.agency
+        ? '/subscribe?plan=agency-whitelabel'
+        : '/subscribe?plan=agency',
       popular: false,
       canAddWhiteLabel: true
     }

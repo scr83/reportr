@@ -21,6 +21,7 @@ interface CreateSubscriptionResponse {
 interface SubscriptionDetails {
   id: string;
   status: string;
+  plan_id: string;
   subscriber: {
     email_address: string;
     payer_id: string;

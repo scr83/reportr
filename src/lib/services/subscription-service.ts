@@ -6,6 +6,7 @@
 import { prisma } from '../prisma';
 import { paypalClient } from './paypal-client';
 import { Plan } from '@prisma/client';
+import { isWhiteLabelPlan, getTierFromPlanId, tierToPlan } from '../utils/paypal-plans';
 
 interface SubscriptionData {
   userId: string;
@@ -24,16 +25,33 @@ export class SubscriptionService {
       // Get subscription details from PayPal
       const subscriptionDetails = await paypalClient.getSubscriptionDetails(paypalSubscriptionId);
 
-      // Update user with subscription info
+      // Detect white-label plan and get PayPal plan ID from subscription details
+      const paypalPlanId = subscriptionDetails.plan_id;
+      const isWhiteLabel = isWhiteLabelPlan(paypalPlanId);
+      const tierFromPlan = getTierFromPlanId(paypalPlanId);
+      
+      // Convert tier to correct Prisma Plan enum
+      const actualPlan = tierFromPlan ? tierToPlan(tierFromPlan) : plan;
+
+      console.log('Plan detection:', {
+        paypalPlanId,
+        isWhiteLabel,
+        tierFromPlan,
+        requestedPlan: plan,
+        actualPlan
+      });
+
+      // Update user with subscription info and white-label status
       await prisma.user.update({
         where: { id: userId },
         data: {
-          plan: plan,
+          plan: actualPlan,
           paypalSubscriptionId: paypalSubscriptionId,
           subscriptionStatus: 'active',
           planExpires: null, // Clear trial expiration
           billingCycleStart: new Date(),
           billingCycleEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          whiteLabelEnabled: isWhiteLabel, // Auto-enable white-label for WL plans
         },
       });
 
@@ -48,7 +66,7 @@ export class SubscriptionService {
             amount: parseFloat(lastPayment.amount.value),
             currency: lastPayment.amount.currency_code,
             status: 'COMPLETED',
-            plan: plan,
+            plan: actualPlan,
             metadata: subscriptionDetails as any,
           },
         });
