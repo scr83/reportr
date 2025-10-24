@@ -237,30 +237,40 @@ function PricingTiers() {
               </div>
             )}
 
-            {/* TWO BUTTONS */}
-            <div className="space-y-3">
-              {/* Primary CTA - Start Trial / Contact */}
+            {/* BUTTONS */}
+            {tier.name === 'FREE' ? (
               <a
-                href={tier.ctaLink}
-                className={`block w-full text-center py-3 rounded-lg font-semibold transition ${
-                  tier.popular
-                    ? 'bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50'
-                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                }`}
+                href="/auth/signin"
+                className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition bg-gray-900 text-white hover:bg-gray-800"
               >
-                {tier.cta}
+                Start Free
               </a>
-              
-              {/* Secondary CTA - Subscribe Now (if not free/agency) */}
-              {tier.name !== 'FREE' && tier.name !== 'AGENCY' && (
+            ) : tier.name === 'AGENCY' ? (
+              <a
+                href="mailto:jump@digitalfrog.co"
+                className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50"
+              >
+                Contact Sales
+              </a>
+            ) : (
+              <div className="space-y-3">
+                {/* Button 1: Start Trial (outline style) */}
                 <a
                   href={tier.ctaLink}
-                  className="block w-full text-center py-3 rounded-lg font-semibold bg-purple-600 text-white hover:bg-purple-700 transition"
+                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50"
+                >
+                  Start 14-Day Trial
+                </a>
+                
+                {/* Button 2: Subscribe (solid purple) */}
+                <a
+                  href={tier.ctaLink}
+                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition bg-purple-600 text-white hover:bg-purple-700"
                 >
                   Subscribe to {tier.name} - ${finalPrice}/month
                 </a>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )
       })}
@@ -446,8 +456,8 @@ function FAQ() {
           Yes. We use industry-standard HTTPS encryption (TLS 1.3) for all data transmission and secure 
           PostgreSQL database with encryption at rest. Your Google account data is accessed via OAuth tokens 
           that you can revoke anytime. All reports are private to your account, and we never share your data 
-          with third parties. Our infrastructure is hosted on <strong>Vercel</strong> and <strong>AWS</strong>, 
-          both SOC 2 Type II certified providers.
+          with third parties. Our infrastructure is hosted on <strong>Vercel</strong>, 
+          a SOC 2 Type II certified provider.
         </span>
       )
     },
