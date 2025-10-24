@@ -28,6 +28,11 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
     setIsMobileMenuOpen(false)
   }
 
+  const navigateToPage = (path: string) => {
+    router.push(path)
+    setIsMobileMenuOpen(false)
+  }
+
   return (
     <>
       {/* Skip Link for Accessibility */}
@@ -71,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
               Features
             </button>
             <button
-              onClick={() => scrollToSection('pricing')}
+              onClick={() => navigateToPage('/pricing')}
               className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
             >
               Pricing
@@ -141,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 Features
               </button>
               <button
-                onClick={() => scrollToSection('pricing')}
+                onClick={() => navigateToPage('/pricing')}
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
                 Pricing
