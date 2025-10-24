@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 
@@ -40,10 +40,18 @@ export default function PricingPage() {
 
 // Pricing tier cards component
 function PricingTiers() {
+  // State for white-label checkboxes
+  const [whiteLabelEnabled, setWhiteLabelEnabled] = useState<{[key: string]: boolean}>({
+    starter: false,
+    professional: false,
+    enterprise: false
+  })
+
   const tiers = [
     {
       name: 'FREE',
-      price: 0,
+      basePrice: 0,
+      whiteLabelPrice: 0,
       period: 'forever',
       description: 'Perfect for trying out Reportr',
       clients: 1,
@@ -52,126 +60,192 @@ function PricingTiers() {
         'Up to 1 client',
         '5 reports per month',
         'Basic SEO metrics',
+        'Google Search Console',
+        'Google Analytics 4',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         'Standard templates',
-        'Email support'
+        'Email support (48hrs)'
       ],
       cta: 'Start Free',
       ctaLink: '/auth/signin',
-      popular: false
+      popular: false,
+      canAddWhiteLabel: false
     },
     {
       name: 'STARTER',
-      price: 29,
+      basePrice: 29,
+      whiteLabelPrice: 20,
       period: 'month',
-      description: 'For freelancers and small agencies',
+      description: 'Perfect for freelancers',
       clients: 5,
       reports: 20,
       features: [
         'Up to 5 clients',
         '20 reports per month',
         'Advanced SEO analytics',
+        'Google Search Console',
+        'Google Analytics 4',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         'Custom branding',
-        'Priority email support',
-        'Google integrations'
+        'Priority email support (24hrs)',
+        'API access'
       ],
       cta: 'Start 14-Day Trial',
-      ctaLink: '/auth/signin?plan=starter',
-      popular: false
+      ctaLink: whiteLabelEnabled.starter 
+        ? '/auth/signin?plan=starter-whitelabel'
+        : '/auth/signin?plan=starter',
+      popular: true, // STARTER IS MOST POPULAR
+      canAddWhiteLabel: true
     },
     {
       name: 'PROFESSIONAL',
-      price: 99,
+      basePrice: 99,
+      whiteLabelPrice: 20,
       period: 'month',
-      description: 'Most popular for growing agencies',
+      description: 'For growing agencies',
       clients: 15,
       reports: 75,
       features: [
         'Up to 15 clients',
         '75 reports per month',
         'Everything in Starter',
-        'White-label branding (+$20/mo)',
-        'API access',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         'Custom report templates',
-        'Phone & email support',
-        'Team collaboration'
+        'Priority support',
+        'Team collaboration',
+        'Advanced analytics'
       ],
       cta: 'Start 14-Day Trial',
-      ctaLink: '/auth/signin?plan=professional',
-      popular: true
+      ctaLink: whiteLabelEnabled.professional
+        ? '/auth/signin?plan=professional-whitelabel'
+        : '/auth/signin?plan=professional',
+      popular: false,
+      canAddWhiteLabel: true
     },
     {
       name: 'ENTERPRISE',
-      price: 199,
+      basePrice: 199,
+      whiteLabelPrice: 20,
       period: 'month',
-      description: 'For large agencies and teams',
+      description: 'For large agencies',
       clients: 50,
       reports: 250,
       features: [
         'Up to 50 clients',
         '250 reports per month',
         'Everything in Professional',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
+        { text: 'Custom Domain', badge: 'Coming Soon' },
         'Dedicated account manager',
         'Custom integrations',
-        'SSO & advanced security',
+        'Priority support',
         '99.9% uptime SLA',
         'White-glove onboarding'
       ],
       cta: 'Contact Sales',
       ctaLink: 'mailto:jump@digitalfrog.co',
-      popular: false
+      popular: false,
+      canAddWhiteLabel: true
     }
   ]
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
-      {tiers.map((tier) => (
-        <div
-          key={tier.name}
-          className={`relative rounded-2xl border-2 p-8 ${
-            tier.popular
-              ? 'border-purple-600 shadow-xl scale-105'
-              : 'border-gray-200'
-          }`}
-        >
-          {tier.popular && (
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-              Most Popular
-            </div>
-          )}
-
-          <div className="mb-6">
-            <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
-            <p className="text-gray-600 text-sm">{tier.description}</p>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex items-baseline">
-              <span className="text-5xl font-bold">${tier.price}</span>
-              <span className="text-gray-600 ml-2">/{tier.period}</span>
-            </div>
-          </div>
-
-          <ul className="space-y-3 mb-8">
-            {tier.features.map((feature, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-gray-700">{feature}</span>
-              </li>
-            ))}
-          </ul>
-
-          <a
-            href={tier.ctaLink}
-            className={`block w-full text-center py-3 rounded-lg font-semibold transition ${
+      {tiers.map((tier) => {
+        const finalPrice = tier.basePrice + (
+          tier.canAddWhiteLabel && whiteLabelEnabled[tier.name.toLowerCase()]
+            ? tier.whiteLabelPrice
+            : 0
+        )
+        
+        return (
+          <div
+            key={tier.name}
+            className={`relative rounded-2xl border-2 p-8 ${
               tier.popular
-                ? 'bg-purple-600 text-white hover:bg-purple-700'
-                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                ? 'border-purple-600 shadow-xl scale-105'
+                : 'border-gray-200'
             }`}
           >
-            {tier.cta}
-          </a>
-        </div>
-      ))}
+            {tier.popular && (
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                Most Popular
+              </div>
+            )}
+
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
+              <p className="text-gray-600 text-sm">{tier.description}</p>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-baseline">
+                <span className="text-5xl font-bold">${finalPrice}</span>
+                <span className="text-gray-600 ml-2">/{tier.period}</span>
+              </div>
+              
+              {/* White-Label Add-On Checkbox */}
+              {tier.canAddWhiteLabel && (
+                <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={whiteLabelEnabled[tier.name.toLowerCase()]}
+                      onChange={(e) => setWhiteLabelEnabled({
+                        ...whiteLabelEnabled,
+                        [tier.name.toLowerCase()]: e.target.checked
+                      })}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-purple-900">
+                        Add White-Label Branding
+                      </span>
+                      <p className="text-xs text-purple-700">
+                        +$20/month - Replace all Reportr branding with yours
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <ul className="space-y-3 mb-8">
+              {tier.features.map((feature, i) => {
+                // Handle both string and object features
+                const isObject = typeof feature === 'object'
+                const featureText = isObject ? feature.text : feature
+                const badge = isObject ? feature.badge : null
+                
+                return (
+                  <li key={i} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-gray-700 flex-1">
+                      {featureText}
+                      {badge && (
+                        <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                          {badge}
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+
+            <a
+              href={tier.ctaLink}
+              className={`block w-full text-center py-3 rounded-lg font-semibold transition ${
+                tier.popular
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              }`}
+            >
+              {tier.cta}
+            </a>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -186,7 +260,7 @@ function FeatureComparison() {
         { name: 'SEO Reports', free: '5/mo', starter: '20/mo', pro: '75/mo', enterprise: '250/mo' },
         { name: 'Google Search Console', free: true, starter: true, pro: true, enterprise: true },
         { name: 'Google Analytics 4', free: true, starter: true, pro: true, enterprise: true },
-        { name: 'PageSpeed Insights', free: true, starter: true, pro: true, enterprise: true },
+        { name: 'PageSpeed Insights', free: 'Coming Soon', starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
       ]
     },
     {
@@ -194,29 +268,15 @@ function FeatureComparison() {
       items: [
         { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true },
         { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true },
-        { name: 'White-Label Branding', free: false, starter: false, pro: '+$20/mo', enterprise: true },
+        { name: 'White-Label Branding', free: false, starter: '+$20/mo', pro: '+$20/mo', enterprise: '+$20/mo' },
         { name: 'Custom Report Templates', free: false, starter: false, pro: true, enterprise: true },
-        { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: true },
+        { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
       ]
     },
     {
       category: 'Support & Services',
       items: [
-        { name: 'Email Support', free: '48hrs', starter: '24hrs', pro: '12hrs', enterprise: '4hrs' },
-        { name: 'Phone Support', free: false, starter: false, pro: true, enterprise: true },
-        { name: 'Dedicated Account Manager', free: false, starter: false, pro: false, enterprise: true },
-        { name: 'Onboarding Assistance', free: false, starter: true, pro: true, enterprise: 'White-glove' },
-        { name: 'SLA', free: false, starter: false, pro: false, enterprise: '99.9%' },
-      ]
-    },
-    {
-      category: 'Advanced Features',
-      items: [
-        { name: 'API Access', free: false, starter: false, pro: true, enterprise: true },
-        { name: 'Team Collaboration', free: false, starter: false, pro: true, enterprise: true },
-        { name: 'SSO / SAML', free: false, starter: false, pro: false, enterprise: true },
-        { name: 'Custom Integrations', free: false, starter: false, pro: false, enterprise: true },
-        { name: 'Priority Feature Requests', free: false, starter: false, pro: false, enterprise: true },
+        { name: 'Email Support', free: '48hrs', starter: '24hrs', pro: 'Priority', enterprise: 'Priority' },
       ]
     }
   ]
@@ -224,6 +284,16 @@ function FeatureComparison() {
   const renderCell = (value: any) => {
     if (value === true) return <Check className="w-5 h-5 text-green-600 mx-auto" />
     if (value === false) return <X className="w-5 h-5 text-gray-300 mx-auto" />
+    
+    // Handle "Coming Soon" values
+    if (typeof value === 'string' && value.includes('Soon')) {
+      return (
+        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full">
+          Coming Soon
+        </span>
+      )
+    }
+    
     return <span className="text-sm text-gray-700">{value}</span>
   }
 
@@ -308,8 +378,16 @@ function FAQ() {
       answer: 'Yes! All paid plans come with a 14-day free trial. No credit card required to start. You can cancel anytime during the trial with no charges.'
     },
     {
-      question: 'What\'s included in white-label branding?',
-      answer: 'White-label branding (+$20/month on Professional plan, included in Enterprise) allows you to replace all Reportr branding with your agency\'s logo, colors, and company name in both the dashboard and generated PDF reports.'
+      question: 'How does the white-label add-on work?',
+      answer: 'White-label branding is available as a $20/month add-on for any paid plan (Starter, Professional, or Enterprise). When enabled, you can replace all Reportr branding with your agency\'s logo, colors, and company name in both the dashboard and generated PDF reports. Simply check the "Add White-Label Branding" box when subscribing.'
+    },
+    {
+      question: 'What features are "Coming Soon"?',
+      answer: 'We\'re actively developing PageSpeed Insights integration (available for all plans) and Custom Domain hosting (Enterprise only). These features will be automatically enabled for your plan once released, at no additional cost. Sign up for our newsletter to get notified when they launch.'
+    },
+    {
+      question: 'What is a custom domain?',
+      answer: 'Custom domain (Enterprise only, coming soon) will allow you to host the Reportr application on your own domain (e.g., reports.youragency.com) instead of using reportr.agency. This provides the ultimate white-label experience for your clients.'
     },
     {
       question: 'Do you offer annual billing?',
