@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
   }
 
   const navigateToPage = (path: string) => {
-    router.push(path)
+    router.push(path as any) // Type assertion for dynamic routes
     setIsMobileMenuOpen(false)
   }
 
