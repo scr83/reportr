@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, 
@@ -12,9 +13,10 @@ import {
   X,
   Settings
 } from 'lucide-react'
-import { Button } from '@/components/atoms'
+import { Button, Skeleton } from '@/components/atoms'
 import { UserMenu } from '@/components/organisms/UserMenu'
-import { cn } from '@/lib/utils'
+import { useUserProfile } from '@/hooks/useUserProfile'
+import { cn, getInitials, truncate } from '@/lib/utils'
 
 interface DashboardSidebarProps {
   mobile?: boolean
@@ -26,6 +28,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   onClose 
 }) => {
   const pathname = usePathname()
+  const { profile, loading } = useUserProfile()
+  const [imageError, setImageError] = useState(false)
 
   const navigation = [
     {
@@ -57,6 +61,79 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
   }
 
+  const handleImageError = () => {
+    setImageError(true)
+  }
+
+  const renderLogo = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center space-x-2 flex-1">
+          <Skeleton variant="circular" width={32} height={32} />
+          <Skeleton variant="text" width={120} />
+        </div>
+      )
+    }
+
+    const isWhiteLabel = profile?.whiteLabelEnabled
+    const logoUrl = profile?.logo
+    const companyName = profile?.companyName || 'My Agency'
+    
+    // Desktop: show full name, Mobile: truncate to 20 chars
+    const displayName = mobile ? truncate(companyName, 20) : truncate(companyName, 24)
+
+    if (isWhiteLabel && logoUrl && !imageError) {
+      // Show custom logo with company name
+      return (
+        <div className="flex items-center space-x-2 flex-1">
+          <div className="relative flex-shrink-0">
+            <Image
+              src={logoUrl}
+              alt={`${companyName} logo`}
+              width={mobile ? 32 : 40}
+              height={mobile ? 32 : 40}
+              className="object-contain rounded-md"
+              onError={handleImageError}
+              priority
+            />
+          </div>
+          <span className="text-lg font-semibold text-gray-900 truncate">
+            {displayName}
+          </span>
+        </div>
+      )
+    } else if (isWhiteLabel) {
+      // Show letter circle fallback with company name
+      const initials = getInitials(companyName)
+      return (
+        <div className="flex items-center space-x-2 flex-1">
+          <div 
+            className={cn(
+              "flex items-center justify-center text-white font-semibold rounded-md flex-shrink-0",
+              mobile ? "h-8 w-8 text-sm" : "h-10 w-10 text-base"
+            )}
+            style={{ backgroundColor: profile?.primaryColor || 'var(--primary-color)' }}
+          >
+            {initials}
+          </div>
+          <span className="text-lg font-semibold text-gray-900 truncate">
+            {displayName}
+          </span>
+        </div>
+      )
+    } else {
+      // Show default "SEO Reports" branding
+      return (
+        <div className="flex items-center space-x-2 flex-1">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md" style={{ backgroundColor: 'var(--primary-color)' }}>
+            <BarChart3 className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
+        </div>
+      )
+    }
+  }
+
   return (
     <div className={cn(
       "flex h-full flex-col bg-white border-r border-gray-200",
@@ -64,12 +141,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     )}>
       {/* Logo */}
       <div className="flex h-16 items-center px-6 border-b border-gray-200">
-        <div className="flex items-center space-x-2 flex-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md" style={{ backgroundColor: 'var(--primary-color)' }}>
-            <BarChart3 className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
-        </div>
+        {renderLogo()}
         {/* Close button for mobile */}
         {mobile && onClose && (
           <button
