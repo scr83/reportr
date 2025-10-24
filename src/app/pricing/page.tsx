@@ -245,13 +245,6 @@ function PricingTiers() {
               >
                 Start Free
               </a>
-            ) : tier.name === 'AGENCY' ? (
-              <a
-                href="mailto:jump@digitalfrog.co"
-                className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50"
-              >
-                Contact Sales
-              </a>
             ) : (
               <div className="space-y-3">
                 {/* Button 1: Start Trial (outline style) */}
