@@ -4,6 +4,13 @@ import React, { useState } from 'react'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 
+// Helper component for brand mentions
+const BrandLink = ({ children }: { children: React.ReactNode }) => (
+  <a href="/" className="font-bold hover:text-purple-700 transition">
+    {children}
+  </a>
+)
+
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-white">
@@ -85,7 +92,6 @@ function PricingTiers() {
         'Advanced SEO analytics',
         'Google Search Console',
         'Google Analytics 4',
-        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         'Custom branding',
         'Priority email support (24hrs)',
         'API access'
@@ -109,7 +115,6 @@ function PricingTiers() {
         'Up to 15 clients',
         '75 reports per month',
         'Everything in Starter',
-        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         'Custom report templates',
         'Priority support',
         'Team collaboration',
@@ -123,7 +128,7 @@ function PricingTiers() {
       canAddWhiteLabel: true
     },
     {
-      name: 'ENTERPRISE',
+      name: 'AGENCY',
       basePrice: 199,
       whiteLabelPrice: 20,
       period: 'month',
@@ -134,7 +139,6 @@ function PricingTiers() {
         'Up to 50 clients',
         '250 reports per month',
         'Everything in Professional',
-        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
         { text: 'Custom Domain', badge: 'Coming Soon' },
         'Dedicated account manager',
         'Custom integrations',
@@ -183,34 +187,9 @@ function PricingTiers() {
                 <span className="text-5xl font-bold">${finalPrice}</span>
                 <span className="text-gray-600 ml-2">/{tier.period}</span>
               </div>
-              
-              {/* White-Label Add-On Checkbox */}
-              {tier.canAddWhiteLabel && (
-                <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={whiteLabelEnabled[tier.name.toLowerCase()]}
-                      onChange={(e) => setWhiteLabelEnabled({
-                        ...whiteLabelEnabled,
-                        [tier.name.toLowerCase()]: e.target.checked
-                      })}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <span className="text-sm font-semibold text-purple-900">
-                        Add White-Label Branding
-                      </span>
-                      <p className="text-xs text-purple-700">
-                        +$20/month - Replace all Reportr branding with yours
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              )}
             </div>
 
-            <ul className="space-y-3 mb-8">
+            <ul className="space-y-3 mb-6">
               {tier.features.map((feature, i) => {
                 // Handle both string and object features
                 const isObject = typeof feature === 'object'
@@ -233,16 +212,55 @@ function PricingTiers() {
               })}
             </ul>
 
-            <a
-              href={tier.ctaLink}
-              className={`block w-full text-center py-3 rounded-lg font-semibold transition ${
-                tier.popular
-                  ? 'bg-purple-600 text-white hover:bg-purple-700'
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-              }`}
-            >
-              {tier.cta}
-            </a>
+            {/* White-Label Add-On Checkbox */}
+            {tier.canAddWhiteLabel && (
+              <div className="mb-6 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={whiteLabelEnabled[tier.name.toLowerCase()]}
+                    onChange={(e) => setWhiteLabelEnabled({
+                      ...whiteLabelEnabled,
+                      [tier.name.toLowerCase()]: e.target.checked
+                    })}
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-semibold text-purple-900">
+                      Add White-Label Branding
+                    </span>
+                    <p className="text-xs text-purple-700">
+                      +$20/month - Replace all <BrandLink>Reportr</BrandLink> branding with yours
+                    </p>
+                  </div>
+                </label>
+              </div>
+            )}
+
+            {/* TWO BUTTONS */}
+            <div className="space-y-3">
+              {/* Primary CTA - Start Trial / Contact */}
+              <a
+                href={tier.ctaLink}
+                className={`block w-full text-center py-3 rounded-lg font-semibold transition ${
+                  tier.popular
+                    ? 'bg-white text-purple-600 border-2 border-purple-600 hover:bg-purple-50'
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {tier.cta}
+              </a>
+              
+              {/* Secondary CTA - Subscribe Now (if not free/agency) */}
+              {tier.name !== 'FREE' && tier.name !== 'AGENCY' && (
+                <a
+                  href={tier.ctaLink}
+                  className="block w-full text-center py-3 rounded-lg font-semibold bg-purple-600 text-white hover:bg-purple-700 transition"
+                >
+                  Subscribe to {tier.name} - ${finalPrice}/month
+                </a>
+              )}
+            </div>
           </div>
         )
       })}
@@ -321,7 +339,7 @@ function FeatureComparison() {
                   Professional
                 </th>
                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                  Enterprise
+                  Agency
                 </th>
               </tr>
             </thead>
@@ -379,15 +397,35 @@ function FAQ() {
     },
     {
       question: 'How does the white-label add-on work?',
-      answer: 'White-label branding is available as a $20/month add-on for any paid plan (Starter, Professional, or Enterprise). When enabled, you can replace all Reportr branding with your agency\'s logo, colors, and company name in both the dashboard and generated PDF reports. Simply check the "Add White-Label Branding" box when subscribing.'
+      answer: (
+        <span>
+          White-label branding is available as a $20/month add-on for any paid plan (Starter, Professional, or Agency). 
+          When enabled, you can replace all <BrandLink>Reportr</BrandLink> branding with your agency&apos;s logo, colors, 
+          and company name in both the dashboard and generated PDF reports. Simply check the &quot;Add White-Label Branding&quot; 
+          box when subscribing.
+        </span>
+      )
     },
     {
       question: 'What features are "Coming Soon"?',
-      answer: 'We\'re actively developing PageSpeed Insights integration (available for all plans) and Custom Domain hosting (Enterprise only). These features will be automatically enabled for your plan once released, at no additional cost. Sign up for our newsletter to get notified when they launch.'
+      answer: (
+        <span>
+          We&apos;re actively developing <strong>PageSpeed Insights</strong> integration (all plans), 
+          <strong> Google Ads</strong>, <strong>Meta Ads</strong>, and <strong>LinkedIn Ads</strong> reporting 
+          (Professional+ plans), plus <strong>Custom Domain</strong> hosting (Agency only). 
+          These features will be automatically enabled for your plan once released, at no additional cost.
+        </span>
+      )
     },
     {
       question: 'What is a custom domain?',
-      answer: 'Custom domain (Enterprise only, coming soon) will allow you to host the Reportr application on your own domain (e.g., reports.youragency.com) instead of using reportr.agency. This provides the ultimate white-label experience for your clients.'
+      answer: (
+        <span>
+          Custom domain (Agency only, coming soon) will allow you to host the <BrandLink>Reportr</BrandLink> application 
+          on your own domain (e.g., reports.youragency.com) instead of using <BrandLink>reportr.agency</BrandLink>. 
+          This provides the ultimate white-label experience for your clients.
+        </span>
+      )
     },
     {
       question: 'Do you offer annual billing?',
@@ -395,15 +433,23 @@ function FAQ() {
     },
     {
       question: 'Can I add more clients to my plan?',
-      answer: 'Yes! You can upgrade to a higher tier for more clients, or contact us for custom Enterprise pricing if you need more than 50 clients.'
+      answer: 'Yes! You can upgrade to a higher tier for more clients, or contact us for custom Agency pricing if you need more than 50 clients.'
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards via PayPal. Enterprise customers can also pay via invoice with NET 30 terms.'
+      answer: 'We accept all major credit cards via PayPal. Agency customers can also pay via invoice with NET 30 terms.'
     },
     {
       question: 'Is my data secure?',
-      answer: 'Absolutely. We use bank-level encryption for all data transmission and storage. All reports are private to your account, and we never share your data with third parties.'
+      answer: (
+        <span>
+          Yes. We use industry-standard HTTPS encryption (TLS 1.3) for all data transmission and secure 
+          PostgreSQL database with encryption at rest. Your Google account data is accessed via OAuth tokens 
+          that you can revoke anytime. All reports are private to your account, and we never share your data 
+          with third parties. Our infrastructure is hosted on <strong>Vercel</strong> and <strong>AWS</strong>, 
+          both SOC 2 Type II certified providers.
+        </span>
+      )
     },
     {
       question: 'Can I cancel my subscription?',
