@@ -48,18 +48,12 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
             </Typography>
           </div>
 
-          {/* Product Links */}
+          {/* Quick Links */}
           <div className="space-y-4">
             <Typography variant="h5" className="text-white font-semibold">
-              Product
+              Quick Links
             </Typography>
             <nav className="flex flex-col space-y-3">
-              <button
-                onClick={() => scrollToSection('how-it-works')}
-                className="text-left text-neutral-400 hover:text-white transition-colors"
-              >
-                How It Works
-              </button>
               <button
                 onClick={() => scrollToSection('features')}
                 className="text-left text-neutral-400 hover:text-white transition-colors"
@@ -67,10 +61,22 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                 Features
               </button>
               <button
-                onClick={() => scrollToSection('pricing')}
+                onClick={() => router.push('/pricing')}
                 className="text-left text-neutral-400 hover:text-white transition-colors"
               >
                 Pricing
+              </button>
+              <button
+                onClick={() => scrollToSection('how-it-works')}
+                className="text-left text-neutral-400 hover:text-white transition-colors"
+              >
+                How It Works
+              </button>
+              <button
+                onClick={() => router.push('/blog')}
+                className="text-left text-neutral-400 hover:text-white transition-colors"
+              >
+                Blog
               </button>
             </nav>
           </div>
