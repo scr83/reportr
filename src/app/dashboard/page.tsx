@@ -180,7 +180,7 @@ export default function DashboardPage() {
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Recent Reports</h2>
               <Link
                 href="/reports"
-                className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
+                className="text-primary-themed text-sm font-medium flex items-center gap-1"
               >
                 View all
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                   <p className="text-gray-500 mb-4">No reports generated yet</p>
                   <Link 
                     href="/generate-report"
-                    className="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm"
+                    className="inline-block btn-primary-themed text-sm"
                   >
                     Generate First Report
                   </Link>
@@ -257,7 +257,7 @@ export default function DashboardPage() {
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Active Clients</h2>
               <Link 
                 href="/dashboard/clients"
-                className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1"
+                className="text-primary-themed text-sm font-medium flex items-center gap-1"
               >
                 View all
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                   <p className="text-gray-500 mb-4">No clients yet</p>
                   <Link 
                     href="/dashboard/clients"
-                    className="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm"
+                    className="inline-block btn-primary-themed text-sm"
                   >
                     Add First Client
                   </Link>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                   <Link 
                     key={client.id}
                     href={`/dashboard/clients?client=${client.id}`}
-                    className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+                    className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-primary-themed"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
@@ -327,11 +327,11 @@ export default function DashboardPage() {
               {/* Manage Clients */}
               <Link 
                 href="/dashboard/clients"
-                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-primary-themed"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 rounded-lg bg-primary-themed-light flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   </div>
@@ -345,11 +345,11 @@ export default function DashboardPage() {
               {/* Generate New Report */}
               <Link 
                 href="/generate-report"
-                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-primary-themed"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 rounded-lg bg-primary-themed-light flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
@@ -363,11 +363,11 @@ export default function DashboardPage() {
               {/* View All Reports */}
               <Link 
                 href="/reports"
-                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-purple-300"
+                className="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all hover:border-primary-themed"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 rounded-lg bg-primary-themed-light flex items-center justify-center">
+                    <svg className="w-5 h-5 text-primary-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>

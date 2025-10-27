@@ -313,8 +313,8 @@ export const PropertyManagementModal: React.FC<PropertyManagementModalProps> = (
             {/* Analytics Section */}
             <div className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-                  <BarChart className="h-4 w-4 text-purple-600" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-themed-light">
+                  <BarChart className="h-4 w-4 text-primary-themed" />
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">Google Analytics Property</h3>

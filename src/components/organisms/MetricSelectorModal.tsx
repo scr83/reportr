@@ -116,7 +116,7 @@ export default function MetricSelectorModal({
           {/* Counter */}
           <div className="mt-4 flex items-center gap-3">
             <div className={`text-sm font-semibold ${
-              localSelection.length >= MAX_METRICS ? 'text-red-600' : 'text-purple-600'
+              localSelection.length >= MAX_METRICS ? 'text-red-600' : 'text-primary-themed'
             }`}>
               Selected: {localSelection.length} / {MAX_METRICS}
             </div>
@@ -146,10 +146,10 @@ export default function MetricSelectorModal({
                         key={metric.id}
                         className={`flex items-start p-3 border-2 rounded-lg cursor-pointer transition-all ${
                           isSelected
-                            ? 'border-purple-500 bg-purple-50'
+                            ? 'border-primary-themed bg-primary-themed-light'
                             : isDisabled
                             ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
-                            : 'border-gray-200 hover:border-purple-300'
+                            : 'border-gray-200 hover:border-primary-themed'
                         }`}
                       >
                         <input
@@ -157,7 +157,7 @@ export default function MetricSelectorModal({
                           checked={isSelected}
                           onChange={() => !isDisabled && toggleMetric(metric.id)}
                           disabled={isDisabled}
-                          className="mt-1 w-4 h-4 text-purple-600"
+                          className="mt-1 w-4 h-4 text-primary-themed"
                         />
                         <div className="ml-3">
                           <div className="font-medium text-gray-900 text-sm">
@@ -194,7 +194,7 @@ export default function MetricSelectorModal({
             <button
               onClick={handleSave}
               disabled={localSelection.length === 0}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 btn-primary-themed disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save Selection
             </button>

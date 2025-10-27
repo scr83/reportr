@@ -47,7 +47,7 @@ export function PaymentHistory({ payments, loading }: PaymentHistoryProps) {
       case 'completed': return 'text-green-600 bg-green-100'
       case 'pending': return 'text-yellow-600 bg-yellow-100'
       case 'failed': return 'text-red-600 bg-red-100'
-      case 'refunded': return 'text-purple-600 bg-purple-100'
+      case 'refunded': return 'text-primary-themed bg-primary-themed-light'
       default: return 'text-gray-600 bg-gray-100'
     }
   }

@@ -145,7 +145,7 @@ export function BillingCard({ data, loading }: BillingCardProps) {
               href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-09S98046PD2685338ND3AO4Q"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors text-sm"
+              className="inline-flex items-center justify-center btn-primary-themed text-sm"
             >
               <DollarSign className="h-4 w-4 mr-2" />
               Upgrade Plan

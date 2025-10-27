@@ -297,7 +297,7 @@ export const ManageClientModal: React.FC<ManageClientModalProps> = ({
           </Button>
           <Button
             onClick={handleSave}
-            className="flex-1 bg-purple-600 hover:bg-purple-700"
+            className="flex-1 btn-primary-themed"
             disabled={isLoading || isDeleting || showDeleteConfirm}
           >
             {isLoading ? 'Saving...' : 'Save Changes'}

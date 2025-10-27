@@ -355,7 +355,7 @@ export default function ClientsPage() {
               Manage your client websites and SEO reports.
             </Typography>
           </div>
-          <Button className="bg-purple-600 hover:bg-purple-700 min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
+          <Button className="btn-primary-themed min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>
@@ -370,7 +370,7 @@ export default function ClientsPage() {
               placeholder="Search clients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none min-h-[44px]"
+              className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-2 focus:border-transparent outline-none min-h-[44px]"
             />
           </div>
         </div>
@@ -385,7 +385,7 @@ export default function ClientsPage() {
         {/* Loading State */}
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 spinner-primary-themed border-2 rounded-full"></div>
             <span className="ml-2 text-gray-600">Loading clients...</span>
           </div>
         ) : (
@@ -396,8 +396,8 @@ export default function ClientsPage() {
                 <Card key={client.id} className="p-4 sm:p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                        <Users className="h-5 w-5 text-purple-600" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-themed-light">
+                        <Users className="h-5 w-5 text-primary-themed" />
                       </div>
                       <div>
                         <Typography className="font-semibold text-gray-900">
@@ -552,7 +552,7 @@ export default function ClientsPage() {
                     <Typography className="text-gray-600 mb-4">
                       Start by adding your first client to begin generating SEO reports.
                     </Typography>
-                    <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => setIsModalOpen(true)}>
+                    <Button className="btn-primary-themed" onClick={() => setIsModalOpen(true)}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Client
                     </Button>
@@ -641,7 +641,7 @@ export default function ClientsPage() {
               </Button>
               <Button
                 onClick={handleAddClient}
-                className="flex-1 bg-purple-600 hover:bg-purple-700"
+                className="flex-1 btn-primary-themed"
                 disabled={isLoading}
               >
                 {isLoading ? 'Adding...' : 'Add Client'}
