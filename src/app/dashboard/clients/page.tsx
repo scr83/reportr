@@ -459,13 +459,13 @@ export default function ClientsPage() {
                         {client.gscSiteUrl && (
                           <div className="flex items-center text-sm text-gray-600">
                             <Globe className="h-3 w-3 mr-2 text-gray-400" />
-                            <span className="text-[#9810f9] font-medium">{client.gscSiteName}</span>
+                            <span className="text-[var(--primary-color)] font-medium">{client.gscSiteName}</span>
                           </div>
                         )}
                         {client.ga4PropertyName && (
                           <div className="flex items-center text-sm text-gray-600">
                             <BarChart className="h-3 w-3 mr-2 text-gray-400" />
-                            <span className="text-[#9810f9] font-medium">{client.ga4PropertyName}</span>
+                            <span className="text-[var(--primary-color)] font-medium">{client.ga4PropertyName}</span>
                           </div>
                         )}
                       </div>
@@ -477,7 +477,7 @@ export default function ClientsPage() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="w-full border-[#9810f9] text-[#9810f9] hover:bg-[#9810f9] hover:text-white"
+                          className="w-full border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white"
                           onClick={() => handleManageProperties(client)}
                         >
                           <Settings className="h-4 w-4 mr-2" />
