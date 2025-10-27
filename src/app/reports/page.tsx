@@ -204,7 +204,7 @@ export default function ReportsPage() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1"
+                    className="flex-1 btn-secondary-themed"
                     onClick={() => handleViewReport(report)}
                   >
                     View Details

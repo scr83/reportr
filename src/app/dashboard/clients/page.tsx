@@ -503,7 +503,7 @@ export default function ClientsPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1 min-h-[44px]" 
+                      className="flex-1 min-h-[44px] btn-secondary-themed" 
                       onClick={() => router.push(`/generate-report?clientId=${client.id}`)}
                       disabled={!isFullyConfigured(client)}
                     >
