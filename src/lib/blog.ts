@@ -17,6 +17,7 @@ export interface BlogPost {
   featuredImage: string
   excerpt: string
   relatedPosts: string[]
+  published: boolean
   content: string
   readingTime: {
     text: string
@@ -42,10 +43,12 @@ export function getAllBlogPosts(): BlogPost[] {
       return {
         slug,
         ...data,
+        published: data.published || false, // Default to false if not specified
         content,
         readingTime: readingTimeStats,
       } as BlogPost
     })
+    .filter((post) => post.published === true) // Only show published posts
     .sort((a, b) => (new Date(a.publishDate) < new Date(b.publishDate) ? 1 : -1))
 
   return allPostsData
@@ -58,12 +61,16 @@ export function getBlogPostBySlug(slug: string): BlogPost | null {
     const { data, content } = matter(fileContents)
     const readingTimeStats = readingTime(content)
 
-    return {
+    const post = {
       slug,
       ...data,
+      published: data.published || false,
       content,
       readingTime: readingTimeStats,
     } as BlogPost
+
+    // Only return published posts
+    return post.published ? post : null
   } catch (error) {
     return null
   }
