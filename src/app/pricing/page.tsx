@@ -87,6 +87,15 @@ function PricingTiers() {
     }
   }
 
+  // Handle authentication for FREE plan
+  const handleFreeAuth = () => {
+    if (session) {
+      router.push('/dashboard')
+    } else {
+      signIn('google', { callbackUrl: '/dashboard?plan=free' })
+    }
+  }
+
   const tiers = [
     {
       name: 'FREE',
@@ -274,12 +283,13 @@ function PricingTiers() {
 
             {/* BUTTONS */}
             {tier.name === 'FREE' ? (
-              <a
-                href="/auth/signin"
+              <button
+                onClick={handleFreeAuth}
+                disabled={status === 'loading'}
                 className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition bg-gray-900 text-white hover:bg-gray-800"
               >
-                Start Free
-              </a>
+                {status === 'loading' ? 'Loading...' : 'Start Free'}
+              </button>
             ) : tier.name === 'STARTER' ? (
               <div className="space-y-3">
                 {/* STARTER: Start Trial Button - use authentication flow */}
