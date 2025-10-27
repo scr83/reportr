@@ -43,36 +43,36 @@ export function TableOfContents({ headings, activeHeading }: TableOfContentsProp
   return (
     <div className={`transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <div className="flex items-center mb-4">
-          <List className="h-5 w-5 text-purple-600 mr-2" />
+        <div className="flex items-center mb-6">
+          <List className="h-5 w-5 text-purple-600 mr-3" />
           <h3 className="text-lg font-semibold text-gray-900">
             Table of Contents
           </h3>
         </div>
         
         <nav>
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {headings.map((heading) => (
               <li key={heading.id}>
                 <button
                   onClick={() => handleHeadingClick(heading.id)}
                   className={`
-                    group flex items-start w-full text-left py-2 px-3 rounded-lg transition-all duration-200
-                    ${heading.level === 2 ? 'pl-3' : 'pl-6'}
+                    group flex items-start w-full text-left py-3 px-4 rounded-lg transition-all duration-200
+                    ${heading.level === 2 ? 'pl-4' : 'pl-8'}
                     ${activeHeading === heading.id 
-                      ? 'bg-purple-100 text-purple-700 font-semibold' 
+                      ? 'bg-purple-100 text-purple-700 font-semibold shadow-sm' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'
                     }
                   `}
                 >
                   <ChevronRight 
                     className={`
-                      h-4 w-4 mr-2 mt-0.5 flex-shrink-0 transition-transform duration-200
+                      h-4 w-4 mr-3 mt-0.5 flex-shrink-0 transition-transform duration-200
                       ${activeHeading === heading.id ? 'transform rotate-90 text-purple-500' : 'text-gray-400 group-hover:text-purple-500'}
                     `}
                   />
                   <span className={`
-                    text-sm leading-relaxed
+                    text-sm leading-relaxed break-words
                     ${heading.level === 2 ? 'font-medium' : 'font-normal'}
                   `}>
                     {heading.title}
@@ -84,7 +84,7 @@ export function TableOfContents({ headings, activeHeading }: TableOfContentsProp
         </nav>
         
         <div className="mt-6 pt-6 border-t border-gray-100">
-          <p className="text-xs text-gray-500 text-center">
+          <p className="text-xs text-gray-500 text-center leading-relaxed">
             Click any heading to jump to that section
           </p>
         </div>

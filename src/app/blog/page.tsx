@@ -104,14 +104,6 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
                 href={`/blog/${post.slug}`}
                 className="group block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div className="aspect-video bg-gradient-to-br from-purple-100 to-purple-200 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-purple-600 text-center">
-                      <TrendingUp className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-semibold">{post.contentType}</div>
-                    </div>
-                  </div>
-                </div>
                 <div className="p-6">
                   <div className="flex items-center text-sm text-gray-500 mb-3">
                     <Clock className="h-4 w-4 mr-1" />
@@ -170,15 +162,6 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
                         href={`/blog/${post.slug}`}
                         className="group block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                       >
-                        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative">
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-gray-500 text-center">
-                              <div className="text-xs font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                                {post.contentType}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                         <div className="p-5">
                           <div className="flex items-center text-xs text-gray-500 mb-3">
                             <Clock className="h-3 w-3 mr-1" />

@@ -37,16 +37,50 @@ function renderMarkdownContent(content: string): string {
     .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-600 hover:text-purple-700 underline font-semibold">$1</a>')
     .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-purple-600">$1</code>')
-    .replace(/^- (.+)$/gm, '<li class="leading-relaxed">$1</li>')
+    .replace(/^- (.+)$/gm, '<li class="text-lg text-gray-700 leading-relaxed mb-2 flex items-start"><span class="text-purple-600 mr-3 mt-1">•</span><span>$1</span></li>')
     .replace(/\n\n/g, '</p><p class="text-lg text-gray-700 mb-6 leading-relaxed">')
     .replace(/<!-- (.+) -->/g, '')
     .replace(/\{\/\* (.+) \*\/\}/g, '') // Remove CTA comments for now
+
+  // Handle tables with professional styling
+  html = html.replace(
+    /\|(.+)\|\s*\n\|[-\s\|]+\|\s*\n((?:\|.+\|\s*\n)*)/g,
+    (match, header, rows) => {
+      const headerCells = header.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
+      const rowsArray = rows.trim().split('\n').map((row: string) => 
+        row.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell)
+      );
+
+      let tableHtml = '<div class="my-8 overflow-x-auto"><table class="w-full bg-white rounded-lg shadow-lg border border-gray-200">';
+      
+      // Header
+      tableHtml += '<thead><tr class="bg-purple-600 text-white">';
+      headerCells.forEach((cell: string) => {
+        tableHtml += `<th class="px-6 py-4 text-left font-semibold">${cell}</th>`;
+      });
+      tableHtml += '</tr></thead>';
+      
+      // Body
+      tableHtml += '<tbody>';
+      rowsArray.forEach((row: string[], index: number) => {
+        const bgClass = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+        tableHtml += `<tr class="${bgClass} border-b border-gray-200 hover:bg-purple-50 transition-colors">`;
+        row.forEach((cell: string) => {
+          tableHtml += `<td class="px-6 py-4 text-gray-700">${cell}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table></div>';
+      
+      return tableHtml;
+    }
+  );
   
   // Wrap paragraphs
   html = '<p class="text-lg text-gray-700 mb-6 leading-relaxed">' + html + '</p>'
   
   // Handle lists
-  html = html.replace(/(<li.*?>.*?<\/li>)/gs, '<ul class="list-disc pl-6 mb-6 text-lg text-gray-700 space-y-2">$1</ul>')
+  html = html.replace(/(<li.*?>.*?<\/li>)/gs, '<ul class="list-none pl-0 mb-6 space-y-2">$1</ul>')
   
   return html
 }
@@ -178,12 +212,6 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
 
         {/* Article Header */}
         <header className="mb-12">
-          <div className="mb-4">
-            <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700">
-              {post.contentType}
-            </span>
-          </div>
-          
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
             {post.title}
           </h1>
@@ -239,9 +267,9 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
         </header>
 
         {/* Main Content Layout */}
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-8 xl:gap-12">
           {/* Table of Contents - Desktop Sidebar */}
-          <aside className="lg:w-1/4 order-2 lg:order-1">
+          <aside className="lg:w-80 xl:w-96 order-2 lg:order-1">
             <div className="sticky top-24">
               <TableOfContents 
                 headings={tableOfContents}
@@ -251,7 +279,7 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
           </aside>
 
           {/* Article Content */}
-          <div className="lg:w-3/4 order-1 lg:order-2">
+          <div className="flex-1 order-1 lg:order-2">
             <div className="prose prose-lg max-w-none">
               <div dangerouslySetInnerHTML={{ __html: renderMarkdownContent(post.content) }} />
             </div>
