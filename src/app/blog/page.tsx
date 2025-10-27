@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { getAllBlogPosts } from '@/lib/blog'
 import { Clock, ArrowRight, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/atoms/Button'
+import { Header } from '@/components/landing/Header'
+import { Footer } from '@/components/landing/Footer'
 
 export const metadata: Metadata = {
   title: 'SEO Insights for Agencies | Reportr Blog',
@@ -42,8 +44,10 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-700 text-white py-20">
+      <Header />
+      <main id="main-content">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-700 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl font-bold mb-6">
@@ -174,6 +178,8 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
               )}
         </div>
       </section>
+      </main>
+      <Footer />
     </div>
   )
 }

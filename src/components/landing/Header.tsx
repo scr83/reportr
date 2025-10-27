@@ -52,22 +52,25 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
       <Container className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => navigateToPage('/')}
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
               <Icon icon={BarChart3} size="sm" className="text-white" />
             </div>
             <span className="font-poppins font-bold text-xl text-neutral-900">
               Reportr
             </span>
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <button
-              onClick={() => scrollToSection('how-it-works')}
+              onClick={() => navigateToPage('/')}
               className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
             >
-              How It Works
+              Home
             </button>
             <button
               onClick={() => scrollToSection('features')}
@@ -80,6 +83,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
               className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
             >
               Pricing
+            </button>
+            <button
+              onClick={() => navigateToPage('/blog')}
+              className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
+            >
+              Blog
             </button>
           </nav>
 
@@ -134,10 +143,10 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
           <div className="md:hidden py-4 border-t border-neutral-200">
             <nav className="flex flex-col space-y-4">
               <button
-                onClick={() => scrollToSection('how-it-works')}
+                onClick={() => navigateToPage('/')}
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
-                How It Works
+                Home
               </button>
               <button
                 onClick={() => scrollToSection('features')}
@@ -150,6 +159,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
                 Pricing
+              </button>
+              <button
+                onClick={() => navigateToPage('/blog')}
+                className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+              >
+                Blog
               </button>
               
               <div className="pt-4 border-t border-neutral-200 flex flex-col space-y-3">
