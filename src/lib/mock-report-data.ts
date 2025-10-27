@@ -5,7 +5,9 @@ export const MOCK_BRANDING: BrandingConfig = {
   primaryColor: '#9810f9', // Digital Frog Purple from brand
   website: 'https://digitalfrog.co',
   email: 'jump@digitalfrog.co',
-  phone: '+56 9 9073 0352'
+  phone: '+56 9 9073 0352',
+  whiteLabelEnabled: true,
+  supportEmail: 'support@digitalfrog.co'
   // logo will be added when we have upload functionality
 }
 

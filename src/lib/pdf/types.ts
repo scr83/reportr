@@ -59,6 +59,8 @@ export interface ReportData {
     logo?: string;
     primaryColor?: string;
     // White label settings
+    whiteLabelEnabled?: boolean;
+    supportEmail?: string;
     enabled?: boolean;
     showPoweredBy?: boolean;
   };

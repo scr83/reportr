@@ -7,6 +7,8 @@ export interface BrandingConfig {
   email: string
   phone?: string
   logo?: string
+  whiteLabelEnabled?: boolean
+  supportEmail?: string
 }
 
 export interface MetricData {

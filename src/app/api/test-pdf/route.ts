@@ -28,11 +28,13 @@ export async function GET(request: NextRequest) {
       
       branding: {
         companyName: 'Digital Frog Agency',
-        website: 'https://reportr.app',
+        website: 'https://digitalfrog.cl',
         logo: undefined, // Test without logo first
         primaryColor: '#8B5CF6', // Purple brand color
         email: 'hello@digitalfrog.agency',
-        phone: '+1 (555) 123-4567'
+        phone: '+1 (555) 123-4567',
+        whiteLabelEnabled: true,
+        supportEmail: 'support@digitalfrog.cl'
       },
 
       // GSC Data - ALWAYS REQUIRED (4 metrics + tables)

@@ -25,10 +25,12 @@ export default function TestPDFPage() {
         },
         branding: {
           companyName: 'Digital Frog Agency',
-          website: 'https://reportr.app',
+          website: 'https://digitalfrog.cl',
           primaryColor: '#9333EA',
           email: 'test@agency.com',
-          phone: '(555) 123-4567'
+          phone: '(555) 123-4567',
+          whiteLabelEnabled: true,
+          supportEmail: 'support@digitalfrog.cl'
         },
         ...(reportType === 'custom' && {
           selectedMetrics: ['users', 'sessions', 'bounceRate', 'conversions', 'avgSessionDuration', 'organicTraffic', 'topLandingPages']

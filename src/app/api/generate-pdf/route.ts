@@ -171,6 +171,8 @@ export async function POST(request: NextRequest) {
         whiteLabelEnabled: true,
         primaryColor: true,
         logo: true,
+        website: true,
+        supportEmail: true,
       }
     })
     
@@ -329,7 +331,7 @@ export async function POST(request: NextRequest) {
             ? (userWithBranding.companyName || validatedData.agencyName || 'Agency') 
             : 'Reportr',
           website: userWithBranding.whiteLabelEnabled 
-            ? (validatedData.agencyName ? 'https://example.com' : 'https://example.com')
+            ? (userWithBranding.website || 'https://example.com')
             : 'https://reportr.app',
           email: userWithBranding.email,
           phone: '',
@@ -340,6 +342,8 @@ export async function POST(request: NextRequest) {
             ? userWithBranding.primaryColor 
             : '#7e23ce',
           // White label settings
+          whiteLabelEnabled: userWithBranding.whiteLabelEnabled,
+          supportEmail: userWithBranding.supportEmail || undefined,
           enabled: userWithBranding.whiteLabelEnabled,
           showPoweredBy: !userWithBranding.whiteLabelEnabled, // Show ONLY when white label is OFF
         };
