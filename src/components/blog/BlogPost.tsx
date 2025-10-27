@@ -267,9 +267,9 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
         </header>
 
         {/* Main Content Layout */}
-        <div className="flex flex-col lg:flex-row gap-8 xl:gap-12">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Table of Contents - Desktop Sidebar */}
-          <aside className="lg:w-80 xl:w-96 order-2 lg:order-1">
+          <aside className="lg:w-72 order-2 lg:order-1">
             <div className="sticky top-24">
               <TableOfContents 
                 headings={tableOfContents}
@@ -279,7 +279,7 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
           </aside>
 
           {/* Article Content */}
-          <div className="flex-1 order-1 lg:order-2">
+          <div className="flex-1 lg:max-w-none order-1 lg:order-2">
             <div className="prose prose-lg max-w-none">
               <div dangerouslySetInnerHTML={{ __html: renderMarkdownContent(post.content) }} />
             </div>

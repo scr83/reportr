@@ -20,7 +20,7 @@ export function RelatedArticles({ posts }: RelatedArticlesProps) {
         </p>
       </div>
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4">
         {posts.map((post) => (
           <Link
             key={post.slug}
@@ -35,17 +35,6 @@ export function RelatedArticles({ posts }: RelatedArticlesProps) {
               })
             }}
           >
-            <div className="aspect-video bg-gradient-to-br from-purple-100 to-purple-200 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-purple-600 text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                  <div className="text-xs font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                    {post.contentType}
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <div className="p-6">
               <div className="flex items-center text-sm text-gray-500 mb-3">
                 <Clock className="h-4 w-4 mr-1" />
