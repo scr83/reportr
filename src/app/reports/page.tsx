@@ -204,7 +204,7 @@ export default function ReportsPage() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1 btn-secondary-themed"
+                    className="flex-1 border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white"
                     onClick={() => handleViewReport(report)}
                   >
                     View Details
