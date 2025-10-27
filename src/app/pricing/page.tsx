@@ -266,7 +266,7 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* STARTER: Start Trial Button - use authentication flow */}
                 <button
-                  onClick={() => handleStarterAuth(whiteLabelEnabled.starter)}
+                  onClick={() => handleStarterAuth(whiteLabelEnabled.starter ?? false)}
                   disabled={status === 'loading'}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
                 >
@@ -275,7 +275,7 @@ function PricingTiers() {
                 
                 {/* STARTER: PayPal Subscribe Button - use PayPalSubscribeButton component */}
                 <PayPalSubscribeButton
-                  planId={whiteLabelEnabled.starter 
+                  planId={(whiteLabelEnabled.starter ?? false)
                     ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_PLAN_ID || 'P-2YF10717TE559492JND4NS5Y'
                     : process.env.NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID || 'P-09S98046PD2685338ND3AO4Q'
                   }
