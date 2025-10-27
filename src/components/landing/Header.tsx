@@ -81,6 +81,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
             >
               Pricing
             </button>
+            <button
+              onClick={() => navigateToPage('/blog')}
+              className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
+            >
+              Blog
+            </button>
           </nav>
 
           {/* Desktop Auth Buttons */}
@@ -150,6 +156,12 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
                 Pricing
+              </button>
+              <button
+                onClick={() => navigateToPage('/blog')}
+                className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+              >
+                Blog
               </button>
               
               <div className="pt-4 border-t border-neutral-200 flex flex-col space-y-3">
