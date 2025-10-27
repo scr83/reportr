@@ -16,6 +16,8 @@ interface UserProfile {
   name?: string
   email: string
   companyName?: string
+  website?: string
+  supportEmail?: string
   primaryColor: string
   logo?: string
   whiteLabelEnabled: boolean
@@ -30,6 +32,8 @@ export default function BrandingSettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [formData, setFormData] = useState<BrandingData>({
     companyName: '',
+    website: '',
+    supportEmail: '',
     primaryColor: '#8B5CF6',
     logo: '',
     whiteLabelEnabled: false
@@ -49,6 +53,8 @@ export default function BrandingSettingsPage() {
         setProfile(userData)
         setFormData({
           companyName: userData.companyName || '',
+          website: userData.website || '',
+          supportEmail: userData.supportEmail || '',
           primaryColor: userData.primaryColor || '#8B5CF6',
           logo: userData.logo || '',
           whiteLabelEnabled: userData.whiteLabelEnabled || false
@@ -295,6 +301,55 @@ export default function BrandingSettingsPage() {
                   )}
                   <p className="text-xs text-gray-500 mt-1">
                     This will appear on your client reports and dashboard header
+                  </p>
+                </div>
+
+                {/* Website */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Website <span className="text-gray-400">(Optional)</span>
+                    </label>
+                    {getCharacterCount(formData.website, 100)}
+                  </div>
+                  <Input
+                    value={formData.website}
+                    onChange={(value) => handleInputChange('website', value)}
+                    placeholder="https://youragency.com"
+                    className="w-full"
+                    disabled={!formData.whiteLabelEnabled}
+                    maxLength={100}
+                  />
+                  {fieldErrors.website && (
+                    <p className="text-sm text-red-600 mt-1">{fieldErrors.website}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Your agency website URL for client report footers
+                  </p>
+                </div>
+
+                {/* Support Email */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Support Email <span className="text-gray-400">(Optional)</span>
+                    </label>
+                    {getCharacterCount(formData.supportEmail, 100)}
+                  </div>
+                  <Input
+                    value={formData.supportEmail}
+                    onChange={(value) => handleInputChange('supportEmail', value)}
+                    placeholder="support@youragency.com"
+                    type="email"
+                    className="w-full"
+                    disabled={!formData.whiteLabelEnabled}
+                    maxLength={100}
+                  />
+                  {fieldErrors.supportEmail && (
+                    <p className="text-sm text-red-600 mt-1">{fieldErrors.supportEmail}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Contact email for client support in report footers
                   </p>
                 </div>
 

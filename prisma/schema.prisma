@@ -28,6 +28,8 @@ model User {
   paypalCustomerId     String?   @unique
   paypalSubscriptionId String?   @unique
   subscriptionStatus   String    @default("free")
+  website              String?
+  supportEmail         String?
   clients              Client[]
   payments             Payment[]
   reports              Report[]

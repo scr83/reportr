@@ -9,7 +9,7 @@ import { Card, Button, Input, Typography } from '@/components/atoms'
 import { BillingCard } from '@/components/molecules/BillingCard'
 import { PaymentHistory } from '@/components/molecules/PaymentHistory'
 import { useBilling } from '@/hooks/useBilling'
-import { User, Mail, Building2, LogOut, Trash2, Palette } from 'lucide-react'
+import { User, Mail, LogOut, Trash2, Palette } from 'lucide-react'
 
 export default function SettingsPage() {
   const { data: session, status } = useSession()
@@ -124,21 +124,6 @@ export default function SettingsPage() {
               </p>
             </div>
 
-            {/* Company (placeholder for future feature) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Building2 className="inline h-4 w-4 mr-2" />
-                Agency Name
-              </label>
-              <Input
-                placeholder="Your agency name (coming soon)"
-                disabled
-                className="bg-gray-50"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Custom agency branding coming soon
-              </p>
-            </div>
           </div>
         </Card>
 

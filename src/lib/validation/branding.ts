@@ -7,6 +7,8 @@ export interface BrandingValidationError {
 
 export interface BrandingData {
   companyName: string
+  website: string
+  supportEmail: string
   primaryColor: string
   logo?: string
   whiteLabelEnabled: boolean
@@ -95,6 +97,46 @@ export function validateLogoUrl(url: string): string | null {
   return null
 }
 
+export function validateWebsite(website: string): string | null {
+  if (!website || website.trim().length === 0) {
+    return null // Website is optional
+  }
+  
+  if (website.trim().length > 100) {
+    return 'Website URL must be 100 characters or less'
+  }
+  
+  // Basic URL validation
+  try {
+    const url = new URL(website)
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return 'Website URL must use HTTP or HTTPS protocol'
+    }
+  } catch (error) {
+    return 'Please enter a valid website URL'
+  }
+  
+  return null
+}
+
+export function validateSupportEmail(email: string): string | null {
+  if (!email || email.trim().length === 0) {
+    return null // Support email is optional
+  }
+  
+  if (email.trim().length > 100) {
+    return 'Support email must be 100 characters or less'
+  }
+  
+  // Basic email validation
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(email.trim())) {
+    return 'Please enter a valid email address'
+  }
+  
+  return null
+}
+
 export function validateBrandingData(data: BrandingData): BrandingValidationError[] {
   const errors: BrandingValidationError[] = []
   
@@ -106,6 +148,20 @@ export function validateBrandingData(data: BrandingData): BrandingValidationErro
   const primaryColorError = validatePrimaryColor(data.primaryColor)
   if (primaryColorError) {
     errors.push({ field: 'primaryColor', message: primaryColorError })
+  }
+  
+  if (data.website) {
+    const websiteError = validateWebsite(data.website)
+    if (websiteError) {
+      errors.push({ field: 'website', message: websiteError })
+    }
+  }
+  
+  if (data.supportEmail) {
+    const supportEmailError = validateSupportEmail(data.supportEmail)
+    if (supportEmailError) {
+      errors.push({ field: 'supportEmail', message: supportEmailError })
+    }
   }
   
   if (data.logo) {
