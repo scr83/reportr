@@ -166,46 +166,6 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
 
   const selectedMetricsData = getSelectedMetrics();
 
-  // Handle case where no metrics are selected
-  if (selectedMetricsData.length === 0) {
-    return (
-      <Page style={{ padding: 40, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' }}>
-        <View style={{ marginBottom: 30, paddingBottom: 15, borderBottomWidth: 2, borderBottomColor: primaryColor }}>
-          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1F2937', marginBottom: 5 }}>
-            Custom Analytics Report
-          </Text>
-          <Text style={{ fontSize: 12, color: '#6B7280' }}>
-            No metrics selected for {data.clientDomain} | {data.reportPeriod.startDate} - {data.reportPeriod.endDate}
-          </Text>
-        </View>
-        <View style={{ 
-          backgroundColor: '#FEF3C7', 
-          borderWidth: 1, 
-          borderColor: '#F59E0B', 
-          borderRadius: 8, 
-          padding: 20, 
-          marginTop: 40 
-        }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#92400E', marginBottom: 8 }}>
-            No Metrics Selected
-          </Text>
-          <Text style={{ fontSize: 12, color: '#78350F', lineHeight: 1.4 }}>
-            Please select at least one metric to include in your custom report. You can choose from various GA4 metrics 
-            such as users, sessions, bounce rate, conversions, and more to create a personalized analytics overview.
-          </Text>
-        </View>
-
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
-          <Text style={styles.footerCenter}>Custom GA4 Report</Text>
-          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
-            `Page ${pageNumber} of ${totalPages}`
-          } />
-        </View>
-      </Page>
-    );
-  }
-
   const styles = StyleSheet.create({
     page: {
       padding: 40,
@@ -335,6 +295,46 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
       color: '#6B7280',
     },
   });
+
+  // Handle case where no metrics are selected
+  if (selectedMetricsData.length === 0) {
+    return (
+      <Page style={{ padding: 40, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' }}>
+        <View style={{ marginBottom: 30, paddingBottom: 15, borderBottomWidth: 2, borderBottomColor: primaryColor }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1F2937', marginBottom: 5 }}>
+            Custom Analytics Report
+          </Text>
+          <Text style={{ fontSize: 12, color: '#6B7280' }}>
+            No metrics selected for {data.clientDomain} | {data.reportPeriod.startDate} - {data.reportPeriod.endDate}
+          </Text>
+        </View>
+        <View style={{ 
+          backgroundColor: '#FEF3C7', 
+          borderWidth: 1, 
+          borderColor: '#F59E0B', 
+          borderRadius: 8, 
+          padding: 20, 
+          marginTop: 40 
+        }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#92400E', marginBottom: 8 }}>
+            No Metrics Selected
+          </Text>
+          <Text style={{ fontSize: 12, color: '#78350F', lineHeight: 1.4 }}>
+            Please select at least one metric to include in your custom report. You can choose from various GA4 metrics 
+            such as users, sessions, bounce rate, conversions, and more to create a personalized analytics overview.
+          </Text>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
+          <Text style={styles.footerCenter}>Custom GA4 Report</Text>
+          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+            `Page ${pageNumber} of ${totalPages}`
+          } />
+        </View>
+      </Page>
+    );
+  }
 
   // Calculate total pages needed including complex metrics
   const metricsPerPage = 8;
