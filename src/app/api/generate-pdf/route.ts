@@ -151,13 +151,39 @@ export async function POST(request: NextRequest) {
   console.log('Timestamp:', processingStarted.toISOString())
   
   try {
-    // Step 1: Authentication
+    // Step 1: Authentication and fetch white label settings
     console.log('1. Authenticating user...')
     const user = await requireUser()
     console.log('2. User authenticated:', { 
       userId: user.id, 
       email: user.email,
       companyName: user.companyName 
+    })
+    
+    // Step 1.5: Fetch user's white label settings from database
+    console.log('2.5. Fetching user white label settings...')
+    const userWithBranding = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        companyName: true,
+        whiteLabelEnabled: true,
+        primaryColor: true,
+        logo: true,
+      }
+    })
+    
+    if (!userWithBranding) {
+      console.error('User not found in database')
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+    
+    console.log('User white label settings:', {
+      whiteLabelEnabled: userWithBranding.whiteLabelEnabled,
+      primaryColor: userWithBranding.primaryColor,
+      hasLogo: !!userWithBranding.logo,
+      companyName: userWithBranding.companyName
     })
     
     // Step 2: Parse and validate request data
@@ -296,14 +322,31 @@ export async function POST(request: NextRequest) {
         endDate: validatedData.endDate,
       },
       
-      branding: {
-        companyName: validatedData.agencyName || user.companyName || 'Digital Frog Agency',
-        website: 'https://reportr.app',
-        email: user.email,
-        phone: '',
-        logo: validatedData.agencyLogo,
-        primaryColor: '#8B5CF6', // Purple branding
-      },
+      // Step 2B: Build branding object based on white label status
+      branding: (() => {
+        const brandingObj = {
+          companyName: userWithBranding.whiteLabelEnabled 
+            ? (userWithBranding.companyName || validatedData.agencyName || 'Agency') 
+            : 'Reportr',
+          website: userWithBranding.whiteLabelEnabled 
+            ? (validatedData.agencyName ? 'https://example.com' : 'https://example.com')
+            : 'https://reportr.app',
+          email: userWithBranding.email,
+          phone: '',
+          logo: userWithBranding.whiteLabelEnabled 
+            ? (userWithBranding.logo || validatedData.agencyLogo || '/default-agency-logo.png') 
+            : '/reportr-logo.png',
+          primaryColor: userWithBranding.whiteLabelEnabled 
+            ? userWithBranding.primaryColor 
+            : '#7e23ce',
+          // White label settings
+          enabled: userWithBranding.whiteLabelEnabled,
+          showPoweredBy: !userWithBranding.whiteLabelEnabled, // Show ONLY when white label is OFF
+        };
+        
+        console.log('Generated branding object:', brandingObj);
+        return brandingObj;
+      })(),
       
       // GSC Metrics - ALWAYS REQUIRED (4 metrics)
       gscMetrics: {

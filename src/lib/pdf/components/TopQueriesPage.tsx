@@ -8,7 +8,7 @@ interface TopQueriesPageProps {
 }
 
 export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
-  const primaryColor = data.branding.primaryColor || '#8B5CF6';
+  const primaryColor = data.branding.primaryColor || '#7e23ce';
 
   const styles = StyleSheet.create({
     page: {

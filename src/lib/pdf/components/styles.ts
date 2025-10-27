@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   coverTitle: {
     fontSize: 36,
     fontFamily: 'Helvetica-Bold',
-    color: '#9333EA',
+    color: '#1F2937', // Use neutral color, will be overridden by branded styles
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
   brandingName: {
     fontSize: 16,
     fontFamily: 'Helvetica-Bold',
-    color: '#9333EA',
+    color: '#1F2937', // Use neutral color, will be overridden by branded styles
   },
 
   brandingWebsite: {
@@ -79,7 +79,7 @@ export const styles = StyleSheet.create({
     marginBottom: 30,
     paddingBottom: 15,
     borderBottomWidth: 2,
-    borderBottomColor: '#9333EA',
+    borderBottomColor: '#E5E7EB', // Use neutral color, will be overridden by branded styles
   },
 
   headerTitle: {
@@ -189,7 +189,7 @@ export const styles = StyleSheet.create({
   insightBox: {
     backgroundColor: '#EEF2FF',
     borderLeftWidth: 4,
-    borderLeftColor: '#9333EA',
+    borderLeftColor: '#E5E7EB', // Use neutral color, will be overridden by branded styles
     padding: 15,
     marginBottom: 12,
   },
@@ -240,7 +240,7 @@ export const styles = StyleSheet.create({
   recommendationNumber: {
     width: 20,
     height: 20,
-    backgroundColor: '#9333EA',
+    backgroundColor: '#6B7280', // Use neutral color, will be overridden by branded styles
     borderRadius: 10,
     fontSize: 10,
     fontFamily: 'Helvetica-Bold',
@@ -260,7 +260,7 @@ export const styles = StyleSheet.create({
 
   // Contact and CTA Styles
   ctaSection: {
-    backgroundColor: '#9333EA',
+    backgroundColor: '#6B7280', // Use neutral color, will be overridden by branded styles
     padding: 20,
     borderRadius: 8,
     marginTop: 30,
@@ -412,7 +412,7 @@ export const styles = StyleSheet.create({
 
   // Color Utilities
   primaryColor: {
-    color: '#9333EA',
+    color: '#7e23ce', // Use Reportr default, will be overridden by branded styles
   },
 
   secondaryColor: {
@@ -433,7 +433,7 @@ export const styles = StyleSheet.create({
 });
 
 // Dynamic styles function for branding colors
-export const createBrandedStyles = (primaryColor: string = '#9333EA') => {
+export const createBrandedStyles = (primaryColor: string = '#7e23ce') => {
   return StyleSheet.create({
     brandPrimary: {
       color: primaryColor,
@@ -446,6 +446,22 @@ export const createBrandedStyles = (primaryColor: string = '#9333EA') => {
     },
     brandAccent: {
       backgroundColor: `${primaryColor}15`, // 15% opacity approximation
+    },
+    // Additional branding styles for consistent application
+    brandSection: {
+      borderBottomColor: primaryColor,
+    },
+    brandMetricCard: {
+      borderColor: primaryColor,
+    },
+    brandInsightBox: {
+      borderLeftColor: primaryColor,
+    },
+    brandRecommendationNumber: {
+      backgroundColor: primaryColor,
+    },
+    brandCTA: {
+      backgroundColor: primaryColor,
     },
   });
 };

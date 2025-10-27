@@ -8,7 +8,7 @@ interface CustomGA4PagesProps {
 }
 
 export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
-  const primaryColor = data.branding.primaryColor || '#8B5CF6';
+  const primaryColor = data.branding.primaryColor || '#7e23ce';
 
   // CRITICAL FIX: Only show metrics that are in selectedMetrics array
   // This ensures custom reports only show user-selected metrics

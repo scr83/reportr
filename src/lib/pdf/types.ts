@@ -58,6 +58,9 @@ export interface ReportData {
     phone?: string;
     logo?: string;
     primaryColor?: string;
+    // White label settings
+    enabled?: boolean;
+    showPoweredBy?: boolean;
   };
   
   // GSC Data - ALWAYS REQUIRED (4 metrics + tables)
@@ -168,5 +171,14 @@ export interface ReactPDFError extends Error {
   stage: 'initialization' | 'rendering' | 'buffer_generation' | 'cleanup';
   duration: number;
   originalError?: Error;
+}
+
+// White Label Branding Interface
+export interface ReportBranding {
+  enabled: boolean;          // Is white label enabled?
+  companyName: string;        // "Reportr" or user's agency name
+  logo: string;               // Reportr logo path or user's logo URL
+  primaryColor: string;       // "#7e23ce" or user's custom color
+  showPoweredBy: boolean;     // Show "Powered by Reportr"? (opposite of enabled)
 }
 

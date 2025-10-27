@@ -8,7 +8,7 @@ interface StandardGA4PagesProps {
 }
 
 export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
-  const primaryColor = data.branding.primaryColor || '#8B5CF6';
+  const primaryColor = data.branding.primaryColor || '#7e23ce';
 
   const styles = StyleSheet.create({
     page: {
