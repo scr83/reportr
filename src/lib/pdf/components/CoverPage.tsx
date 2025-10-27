@@ -56,6 +56,23 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
             day: 'numeric',
           })}
         </Text>
+
+        {/* Prominent Agency Name for White-Label Users */}
+        {(data.branding.whiteLabelEnabled || data.branding.enabled) && data.branding.companyName && (
+          <Text style={[styles.coverAgencyName, brandedStyles.brandPrimary]}>
+            {data.branding.companyName}
+          </Text>
+        )}
+
+        {/* Agency Contact Info for White-Label Users */}
+        {(data.branding.whiteLabelEnabled || data.branding.enabled) && (data.branding.website || data.branding.email || data.branding.supportEmail) && (
+          <Text style={styles.coverAgencyContact}>
+            {[
+              data.branding.website?.replace(/^https?:\/\//, ''), 
+              data.branding.supportEmail || data.branding.email
+            ].filter(Boolean).join(' | ')}
+          </Text>
+        )}
         
         {/* Agency Branding Section */}
         <View style={styles.coverBranding}>

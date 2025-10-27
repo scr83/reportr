@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, View, Text } from '@react-pdf/renderer';
-import { styles, createBrandedStyles } from './styles';
+import { styles, createBrandedStyles, getFooterText } from './styles';
 import { ReportData } from '../types';
 
 interface RecommendationsPageProps {
@@ -26,11 +26,14 @@ export const RecommendationsPage: React.FC<RecommendationsPageProps> = ({ data }
   const Footer: React.FC = () => (
     <View style={styles.footer}>
       <Text style={styles.footerText}>
-        {data.branding.companyName} • {data.clientName} SEO Report
+        {getFooterText(data.branding)}
       </Text>
-      <Text style={styles.footerPage}>
-        Page 3
+      <Text style={styles.footerText}>
+        Strategic Recommendations
       </Text>
+      <Text style={styles.footerPage} render={({ pageNumber, totalPages }) => 
+        `Page ${pageNumber} of ${totalPages}`
+      } />
     </View>
   );
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
-import { formatNumber, formatPercentage, formatDuration, formatDecimal } from './styles';
+import { formatNumber, formatPercentage, formatDuration, formatDecimal, getFooterText } from './styles';
 
 interface CustomGA4PagesProps {
   data: ReportData;
@@ -194,6 +194,14 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
             such as users, sessions, bounce rate, conversions, and more to create a personalized analytics overview.
           </Text>
         </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
+          <Text style={styles.footerCenter}>Custom GA4 Report</Text>
+          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+            `Page ${pageNumber} of ${totalPages}`
+          } />
+        </View>
       </Page>
     );
   }
@@ -301,6 +309,30 @@ export const CustomGA4Pages: React.FC<CustomGA4PagesProps> = ({ data }) => {
       fontSize: 9,
       color: '#374151',
       flex: 1,
+    },
+    footer: {
+      position: 'absolute',
+      bottom: 20,
+      left: 40,
+      right: 40,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 15,
+      borderTopWidth: 1,
+      borderTopColor: '#E5E7EB',
+    },
+    footerLeft: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerCenter: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerRight: {
+      fontSize: 10,
+      color: '#6B7280',
     },
   });
 

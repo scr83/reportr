@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
-import { formatNumber, formatPercentage, formatDecimal } from './styles';
+import { formatNumber, formatPercentage, formatDecimal, getFooterText } from './styles';
 
 interface TopQueriesPageProps {
   data: ReportData;
@@ -91,6 +91,30 @@ export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
       marginTop: 40,
       fontStyle: 'italic',
     },
+    footer: {
+      position: 'absolute',
+      bottom: 20,
+      left: 40,
+      right: 40,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 15,
+      borderTopWidth: 1,
+      borderTopColor: '#E5E7EB',
+    },
+    footerLeft: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerCenter: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerRight: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
   });
 
   // Check if we have top queries data
@@ -131,6 +155,14 @@ export const TopQueriesPage: React.FC<TopQueriesPageProps> = ({ data }) => {
           No query data available for this period
         </Text>
       )}
+
+      <View style={styles.footer} fixed>
+        <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
+        <Text style={styles.footerCenter}>Top Search Queries</Text>
+        <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+          `Page ${pageNumber} of ${totalPages}`
+        } />
+      </View>
     </Page>
   );
 };

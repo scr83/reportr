@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
-import { formatNumber, formatPercentage, formatDecimal } from './styles';
+import { formatNumber, formatPercentage, formatDecimal, getFooterText } from './styles';
 
 interface GSCMetricsPageProps {
   data: ReportData;
@@ -64,6 +64,30 @@ export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
       color: '#6B7280',
       lineHeight: 1.4,
     },
+    footer: {
+      position: 'absolute',
+      bottom: 20,
+      left: 40,
+      right: 40,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: 15,
+      borderTopWidth: 1,
+      borderTopColor: '#E5E7EB',
+    },
+    footerLeft: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerCenter: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
+    footerRight: {
+      fontSize: 10,
+      color: '#6B7280',
+    },
   });
 
   return (
@@ -111,6 +135,14 @@ export const GSCMetricsPage: React.FC<GSCMetricsPageProps> = ({ data }) => {
             Average ranking position of your pages in Google search results
           </Text>
         </View>
+      </View>
+
+      <View style={styles.footer} fixed>
+        <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
+        <Text style={styles.footerCenter}>Google Search Console Metrics</Text>
+        <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
+          `Page ${pageNumber} of ${totalPages}`
+        } />
       </View>
     </Page>
   );
