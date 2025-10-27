@@ -2,13 +2,14 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Button, Input, Typography } from '@/components/atoms'
 import { BillingCard } from '@/components/molecules/BillingCard'
 import { PaymentHistory } from '@/components/molecules/PaymentHistory'
 import { useBilling } from '@/hooks/useBilling'
-import { User, Mail, Building2, LogOut, Trash2 } from 'lucide-react'
+import { User, Mail, Building2, LogOut, Trash2, Palette } from 'lucide-react'
 
 export default function SettingsPage() {
   const { data: session, status } = useSession()
@@ -138,6 +139,26 @@ export default function SettingsPage() {
                 Custom agency branding coming soon
               </p>
             </div>
+          </div>
+        </Card>
+
+        {/* White Label Branding */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <Palette className="inline h-5 w-5 mr-2" />
+                White Label Branding
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Customize your agency branding for reports and dashboard
+              </p>
+            </div>
+            <Link href="/settings/branding">
+              <Button variant="outline">
+                Configure Branding →
+              </Button>
+            </Link>
           </div>
         </Card>
 
