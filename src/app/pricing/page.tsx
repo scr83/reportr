@@ -69,6 +69,24 @@ function PricingTiers() {
     }
   }
 
+  // Handle authentication for PROFESSIONAL plan
+  const handleProfessionalAuth = (isWhiteLabel: boolean) => {
+    if (session) {
+      router.push('/dashboard')
+    } else {
+      signIn('google', { callbackUrl: '/dashboard' })
+    }
+  }
+
+  // Handle authentication for AGENCY plan
+  const handleAgencyAuth = (isWhiteLabel: boolean) => {
+    if (session) {
+      router.push('/dashboard')
+    } else {
+      signIn('google', { callbackUrl: '/dashboard' })
+    }
+  }
+
   const tiers = [
     {
       name: 'FREE',
@@ -283,9 +301,51 @@ function PricingTiers() {
                   price={finalPrice}
                 />
               </div>
+            ) : tier.name === 'PROFESSIONAL' ? (
+              <div className="space-y-3">
+                {/* PROFESSIONAL: Start Trial Button - use authentication flow */}
+                <button
+                  onClick={() => handleProfessionalAuth(whiteLabelEnabled.professional ?? false)}
+                  disabled={status === 'loading'}
+                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
+                >
+                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
+                </button>
+                
+                {/* PROFESSIONAL: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                <PayPalSubscribeButton
+                  planId={(whiteLabelEnabled.professional ?? false)
+                    ? process.env.NEXT_PUBLIC_PAYPAL_PRO_WL_PLAN_ID || 'P-7KR93055H1331572DND4NU7I'
+                    : process.env.NEXT_PUBLIC_PAYPAL_PRO_PLAN_ID || 'P-9JC023812E1399125ND4NUAY'
+                  }
+                  planName="PROFESSIONAL"
+                  price={finalPrice}
+                />
+              </div>
+            ) : tier.name === 'AGENCY' ? (
+              <div className="space-y-3">
+                {/* AGENCY: Start Trial Button - use authentication flow */}
+                <button
+                  onClick={() => handleAgencyAuth(whiteLabelEnabled.agency ?? false)}
+                  disabled={status === 'loading'}
+                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
+                >
+                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
+                </button>
+                
+                {/* AGENCY: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                <PayPalSubscribeButton
+                  planId={(whiteLabelEnabled.agency ?? false)
+                    ? process.env.NEXT_PUBLIC_PAYPAL_AGENCY_WL_PLAN_ID || 'P-7JJ708823A489180TND4NWVI'
+                    : process.env.NEXT_PUBLIC_PAYPAL_AGENCY_PLAN_ID || 'P-6KN07205JA012891NND4NVSI'
+                  }
+                  planName="AGENCY"
+                  price={finalPrice}
+                />
+              </div>
             ) : (
               <div className="space-y-3">
-                {/* OTHER PLANS: Keep existing broken implementation for now */}
+                {/* FALLBACK: Any remaining plans */}
                 <a
                   href={tier.ctaLink}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50"
