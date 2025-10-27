@@ -1,8 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useSession, signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
+import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
 
 // Helper component for brand mentions
 const BrandLink = ({ children }: { children: React.ReactNode }) => (
@@ -47,12 +50,24 @@ export default function PricingPage() {
 
 // Pricing tier cards component
 function PricingTiers() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  
   // State for white-label checkboxes
   const [whiteLabelEnabled, setWhiteLabelEnabled] = useState<{[key: string]: boolean}>({
     starter: false,
     professional: false,
     enterprise: false
   })
+
+  // Handle authentication for STARTER plan
+  const handleStarterAuth = (isWhiteLabel: boolean) => {
+    if (session) {
+      router.push('/dashboard')
+    } else {
+      signIn('google', { callbackUrl: '/dashboard' })
+    }
+  }
 
   const tiers = [
     {
@@ -247,9 +262,30 @@ function PricingTiers() {
               >
                 Start Free
               </a>
+            ) : tier.name === 'STARTER' ? (
+              <div className="space-y-3">
+                {/* STARTER: Start Trial Button - use authentication flow */}
+                <button
+                  onClick={() => handleStarterAuth(whiteLabelEnabled.starter)}
+                  disabled={status === 'loading'}
+                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
+                >
+                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
+                </button>
+                
+                {/* STARTER: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                <PayPalSubscribeButton
+                  planId={whiteLabelEnabled.starter 
+                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_PLAN_ID || 'P-2YF10717TE559492JND4NS5Y'
+                    : process.env.NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID || 'P-09S98046PD2685338ND3AO4Q'
+                  }
+                  planName="STARTER"
+                  price={finalPrice}
+                />
+              </div>
             ) : (
               <div className="space-y-3">
-                {/* Button 1: Start Trial (outline style) */}
+                {/* OTHER PLANS: Keep existing broken implementation for now */}
                 <a
                   href={tier.ctaLink}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50"
@@ -257,7 +293,6 @@ function PricingTiers() {
                   Start 14-Day Trial
                 </a>
                 
-                {/* Button 2: Subscribe (solid purple) */}
                 <a
                   href={tier.ctaLink}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition bg-purple-600 text-white hover:bg-purple-700"
