@@ -1,10 +1,9 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getAllBlogPosts, getBlogPostsByType } from '@/lib/blog'
+import { getAllBlogPosts } from '@/lib/blog'
 import { Clock, ArrowRight, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/atoms/Button'
-import { BlogFilters } from '@/components/blog/BlogFilters'
 
 export const metadata: Metadata = {
   title: 'SEO Insights for Agencies | Reportr Blog',
@@ -26,32 +25,14 @@ export const metadata: Metadata = {
 interface BlogPageProps {
   searchParams: {
     page?: string
-    type?: string
-    search?: string
   }
 }
 
 export default function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = parseInt(searchParams.page || '1')
-  const contentTypeFilter = searchParams.type
-  const searchQuery = searchParams.search
   const postsPerPage = 12
 
-  let allPosts = getAllBlogPosts()
-  
-  // Filter by content type
-  if (contentTypeFilter) {
-    allPosts = getBlogPostsByType(contentTypeFilter)
-  }
-  
-  // Filter by search query
-  if (searchQuery) {
-    allPosts = allPosts.filter((post) =>
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.targetKeyword.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }
+  const allPosts = getAllBlogPosts()
 
   const totalPages = Math.ceil(allPosts.length / postsPerPage)
   const startIndex = (currentPage - 1) * postsPerPage
@@ -129,25 +110,14 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
       {/* All Articles */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
-            <div className="lg:w-1/4">
-              <BlogFilters 
-                searchQuery={searchQuery} 
-                contentTypeFilter={contentTypeFilter} 
-              />
-            </div>
-
-            {/* Articles Grid */}
-            <div className="lg:w-3/4">
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {contentTypeFilter ? `${contentTypeFilter} Articles` : 'All Articles'}
-                </h2>
-                <p className="text-gray-600">
-                  {allPosts.length} article{allPosts.length !== 1 ? 's' : ''} found
-                </p>
-              </div>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              All Articles
+            </h2>
+            <p className="text-gray-600">
+              {allPosts.length} article{allPosts.length !== 1 ? 's' : ''} published
+            </p>
+          </div>
 
               {paginatedPosts.length === 0 ? (
                 <div className="text-center py-12">
@@ -188,7 +158,7 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <Link
                           key={page}
-                          href={`/blog?page=${page}${contentTypeFilter ? `&type=${contentTypeFilter}` : ''}${searchQuery ? `&search=${searchQuery}` : ''}`}
+                          href={`/blog?page=${page}`}
                           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                             page === currentPage
                               ? 'bg-purple-600 text-white'
@@ -202,8 +172,6 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
                   )}
                 </>
               )}
-            </div>
-          </div>
         </div>
       </section>
     </div>
