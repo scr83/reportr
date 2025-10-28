@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { 
   Zap, 
   Clock, 
@@ -123,19 +124,19 @@ export default function FeaturesPage() {
                 that save you time and impress your clients.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  href="/signup"
-                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold"
-                >
-                  Start Free Trial
-                </Button>
-                <Button 
-                  href="/pricing"
-                  variant="secondary"
-                  className="px-8 py-4 text-lg font-semibold"
-                >
-                  View Pricing
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold">
+                    Start Free Trial
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button 
+                    variant="secondary"
+                    className="px-8 py-4 text-lg font-semibold"
+                  >
+                    View Pricing
+                  </Button>
+                </Link>
               </div>
             </div>
           </Container>
@@ -288,19 +289,19 @@ export default function FeaturesPage() {
                 Join hundreds of agencies saving time and impressing clients with professional SEO reports.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  href="/signup"
-                  className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold"
-                >
-                  Start Free Trial
-                </Button>
-                <Button 
-                  href="/how-it-works"
-                  variant="ghost"
-                  className="text-white border-white hover:bg-brand-700 px-8 py-4 text-lg font-semibold"
-                >
-                  See How It Works
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold">
+                    Start Free Trial
+                  </Button>
+                </Link>
+                <Link href="/how-it-works">
+                  <Button 
+                    variant="ghost"
+                    className="text-white border-white hover:bg-brand-700 px-8 py-4 text-lg font-semibold"
+                  >
+                    See How It Works
+                  </Button>
+                </Link>
               </div>
             </div>
           </Container>

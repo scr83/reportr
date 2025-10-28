@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { 
-  Link, 
+  Link as LinkIcon, 
   BarChart3, 
   FileText, 
   Globe,
@@ -29,7 +30,7 @@ import { cn } from '@/lib/utils'
 const mainSteps = [
   {
     number: 1,
-    icon: Link,
+    icon: LinkIcon,
     title: 'Connect Your Accounts',
     description: 'Securely connect your Google Search Console and Analytics 4 accounts with just a few clicks using OAuth2.',
     color: 'from-blue-500 to-blue-600',
@@ -132,19 +133,19 @@ export default function HowItWorksPage() {
                 See how easy it is to revolutionize your SEO reporting process.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  href="/signup"
-                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold"
-                >
-                  Start Free Trial
-                </Button>
-                <Button 
-                  href="/features"
-                  variant="secondary"
-                  className="px-8 py-4 text-lg font-semibold"
-                >
-                  View Features
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold">
+                    Start Free Trial
+                  </Button>
+                </Link>
+                <Link href="/features">
+                  <Button 
+                    variant="secondary"
+                    className="px-8 py-4 text-lg font-semibold"
+                  >
+                    View Features
+                  </Button>
+                </Link>
               </div>
             </div>
           </Container>
@@ -395,20 +396,20 @@ export default function HowItWorksPage() {
                 Try it free for 14 days.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  href="/signup"
-                  className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold"
-                >
-                  Start Free Trial
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button 
-                  href="/pricing"
-                  variant="ghost"
-                  className="text-white border-white hover:bg-brand-700 px-8 py-4 text-lg font-semibold"
-                >
-                  View Pricing
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold">
+                    Start Free Trial
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button 
+                    variant="ghost"
+                    className="text-white border-white hover:bg-brand-700 px-8 py-4 text-lg font-semibold"
+                  >
+                    View Pricing
+                  </Button>
+                </Link>
               </div>
               <Typography className="text-brand-200 text-sm mt-6">
                 No credit card required • 14-day free trial • Cancel anytime
