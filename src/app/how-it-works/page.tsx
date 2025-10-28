@@ -36,7 +36,7 @@ const mainSteps = [
     color: 'from-blue-500 to-blue-600',
     details: [
       'One-click OAuth2 connection',
-      'Bank-level security encryption',
+      'Enterprise-grade security encryption',
       'No passwords or API keys needed',
       'Takes less than 2 minutes'
     ]
@@ -44,12 +44,12 @@ const mainSteps = [
   {
     number: 2,
     icon: BarChart3,
-    title: 'AI Analyzes Your Data',
-    description: 'Our Claude AI automatically collects and analyzes your SEO data, identifying trends, opportunities, and insights.',
+    title: 'Analyze Your Data',
+    description: 'Our system automatically collects and analyzes your SEO data, identifying trends, opportunities, and insights.',
     color: 'from-brand-500 to-brand-600',
     details: [
       'Automated data collection from multiple sources',
-      'AI-powered trend analysis',
+      'Advanced trend analysis',
       'Competitive benchmarking',
       'Strategic insight generation'
     ]
@@ -58,7 +58,7 @@ const mainSteps = [
     number: 3,
     icon: FileText,
     title: 'Generate Professional Reports',
-    description: 'Get a beautifully designed, white-labeled PDF report with AI-powered insights and recommendations in 30 seconds.',
+    description: 'Get a beautifully designed, white-labeled PDF report with data-driven insights and recommendations in 30 seconds.',
     color: 'from-green-500 to-green-600',
     details: [
       '30-second report generation',
@@ -102,9 +102,9 @@ const benefits = [
   },
   {
     icon: Sparkles,
-    title: 'AI-Powered Insights',
-    description: 'Claude AI generates strategic recommendations automatically.',
-    stat: 'Claude AI'
+    title: 'Smart Insights',
+    description: 'Advanced analytics generate strategic recommendations automatically.',
+    stat: 'Smart Analytics'
   },
   {
     icon: Users,

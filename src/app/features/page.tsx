@@ -30,10 +30,10 @@ import { cn } from '@/lib/utils'
 const mainFeatures = [
   {
     icon: Zap,
-    title: 'AI-Powered Automation',
-    description: 'Generate professional SEO reports automatically with Claude AI-powered insights and strategic recommendations.',
+    title: 'Automated Reporting',
+    description: 'Generate professional SEO reports automatically with data-driven insights and strategic recommendations.',
     color: 'text-yellow-600 bg-yellow-100',
-    details: ['Automated data collection', 'Smart insights generation', 'Custom recommendations']
+    details: ['Automated data collection', 'Data-driven insights', 'Custom recommendations']
   },
   {
     icon: Clock,
@@ -59,7 +59,7 @@ const mainFeatures = [
   {
     icon: Shield,
     title: 'Enterprise Security',
-    description: 'Bank-level security with encrypted data storage, secure API connections, and 99.9% uptime.',
+    description: 'Robust security with encrypted data storage, secure API connections, and 99.9% uptime.',
     color: 'text-red-600 bg-red-100',
     details: ['OAuth2 secure connections', 'Encrypted data storage', '99.9% uptime SLA']
   },
@@ -75,8 +75,8 @@ const mainFeatures = [
 const additionalFeatures = [
   {
     icon: Bot,
-    title: 'AI Content Analysis',
-    description: 'Claude AI analyzes your SEO data and generates strategic insights automatically.'
+    title: 'Smart Data Analysis',
+    description: 'Advanced analytics engine analyzes your SEO data and generates strategic insights automatically.'
   },
   {
     icon: FileText,
@@ -120,7 +120,7 @@ export default function FeaturesPage() {
                 <span className="text-brand-600 block">Professional SEO Reporting</span>
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto">
-                Reportr combines AI-powered automation with professional design to create SEO reports 
+                Reportr combines automated data collection with professional design to create SEO reports 
                 that save you time and impress your clients.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
