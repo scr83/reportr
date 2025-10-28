@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signIn } from 'next-auth/react'
 import { 
@@ -14,7 +14,7 @@ import { Header, Footer } from '@/components/landing'
 import { ArrowRight, CheckCircle, Zap, Shield, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export default function SignupPage() {
+function SignupPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
@@ -94,7 +94,6 @@ export default function SignupPage() {
                   size="lg" 
                   className="bg-brand-600 hover:bg-brand-700 text-white px-12 py-5 text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200" 
                   onClick={handleSignup}
-                  disabled={status === 'loading'}
                 >
                   <Icon icon={Users} size="sm" className="mr-3" />
                   Sign Up with Google
@@ -176,7 +175,6 @@ export default function SignupPage() {
                     size="lg" 
                     className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold" 
                     onClick={handleSignup}
-                    disabled={status === 'loading'}
                   >
                     Start Your Free Trial Now
                     <Icon icon={ArrowRight} size="sm" className="ml-2" />
@@ -193,5 +191,20 @@ export default function SignupPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto mb-4"></div>
+          <Typography>Loading...</Typography>
+        </div>
+      </div>
+    }>
+      <SignupPageContent />
+    </Suspense>
   )
 }
