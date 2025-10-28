@@ -44,21 +44,21 @@ const mainSteps = [
   {
     number: 2,
     icon: BarChart3,
-    title: 'Analyze Your Data',
-    description: 'Our system automatically collects and analyzes your SEO data, identifying trends, opportunities, and insights.',
+    title: 'Collect Your Data',
+    description: 'Our system automatically pulls your SEO data from Google Search Console and Analytics, then organizes it for reporting.',
     color: 'from-brand-500 to-brand-600',
     details: [
       'Automated data collection from multiple sources',
-      'Advanced trend analysis',
-      'Competitive benchmarking',
-      'Strategic insight generation'
+      'Clean data organization',
+      'Professional formatting',
+      'Key metrics compilation'
     ]
   },
   {
     number: 3,
     icon: FileText,
     title: 'Generate Professional Reports',
-    description: 'Get a beautifully designed, white-labeled PDF report with data-driven insights and recommendations in 30 seconds.',
+    description: 'Get a beautifully designed, white-labeled PDF report with your client\'s data professionally formatted in 30 seconds.',
     color: 'from-green-500 to-green-600',
     details: [
       '30-second report generation',
@@ -102,9 +102,9 @@ const benefits = [
   },
   {
     icon: Sparkles,
-    title: 'Smart Insights',
-    description: 'Advanced analytics generate strategic recommendations automatically.',
-    stat: 'Smart Analytics'
+    title: 'Professional Formatting',
+    description: 'Transforms raw SEO data into polished, client-ready reports automatically.',
+    stat: 'Time Saver'
   },
   {
     icon: Users,
@@ -129,8 +129,8 @@ export default function HowItWorksPage() {
                 <span className="text-brand-600 block">Transforms Your Workflow</span>
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto">
-                From manual reports that take hours to professional PDFs generated in seconds. 
-                See how easy it is to revolutionize your SEO reporting process.
+                From manual data compilation that takes hours to professional PDFs generated in seconds. 
+                See how easy it is to transform your SEO reporting workflow.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/dashboard">
@@ -159,7 +159,7 @@ export default function HowItWorksPage() {
                 3 Simple Steps to Professional Reports
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                No technical expertise required. Get started in minutes and generate your first report today.
+                No technical expertise required. Connect your accounts and start generating professional reports today.
               </Typography>
             </div>
 
@@ -239,7 +239,7 @@ export default function HowItWorksPage() {
                 Advanced Capabilities
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                Scale your reporting with additional features designed for growing agencies.
+                Scale your data presentation with additional features designed for growing agencies.
               </Typography>
             </div>
 
@@ -279,7 +279,7 @@ export default function HowItWorksPage() {
                 The Reportr Advantage
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                See why agencies choose Reportr for their SEO reporting needs.
+                See why agencies choose Reportr to save time on SEO data presentation.
               </Typography>
             </div>
 

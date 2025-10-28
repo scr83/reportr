@@ -31,9 +31,9 @@ const mainFeatures = [
   {
     icon: Zap,
     title: 'Automated Reporting',
-    description: 'Generate professional SEO reports automatically with data-driven insights and strategic recommendations.',
+    description: 'Generate professional SEO reports automatically by pulling and formatting data from Google Search Console and Analytics.',
     color: 'text-yellow-600 bg-yellow-100',
-    details: ['Automated data collection', 'Data-driven insights', 'Custom recommendations']
+    details: ['Automated data collection', 'Professional formatting', 'Clean data presentation']
   },
   {
     icon: Clock,
@@ -51,10 +51,10 @@ const mainFeatures = [
   },
   {
     icon: BarChart3,
-    title: 'Advanced Analytics',
-    description: 'Comprehensive SEO metrics from Google Search Console, Analytics 4, and PageSpeed Insights.',
+    title: 'Data Aggregation',
+    description: 'Pulls comprehensive SEO metrics from Google Search Console, Analytics 4, and PageSpeed Insights into one report.',
     color: 'text-green-600 bg-green-100',
-    details: ['Multi-source data integration', 'Trend analysis', 'Performance benchmarking']
+    details: ['Multi-source data integration', 'Clean data formatting', 'Professional presentation']
   },
   {
     icon: Shield,
@@ -66,17 +66,17 @@ const mainFeatures = [
   {
     icon: Star,
     title: 'Client-Ready Reports',
-    description: 'Professional reports that impress clients with clear insights and actionable recommendations.',
+    description: 'Professional reports that present your client\'s SEO data in a clear, branded format that saves hours of manual work.',
     color: 'text-brand-600 bg-brand-100',
-    details: ['Executive summaries', 'Visual data presentations', 'Action-oriented insights']
+    details: ['Executive summaries', 'Visual data presentations', 'Key metrics highlighted']
   }
 ]
 
 const additionalFeatures = [
   {
     icon: Bot,
-    title: 'Smart Data Analysis',
-    description: 'Advanced analytics engine analyzes your SEO data and generates strategic insights automatically.'
+    title: 'Data Compilation',
+    description: 'Automatically compiles your SEO data from multiple sources and presents it in a professional format.'
   },
   {
     icon: FileText,
@@ -120,8 +120,8 @@ export default function FeaturesPage() {
                 <span className="text-brand-600 block">Professional SEO Reporting</span>
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto">
-                Reportr combines automated data collection with professional design to create SEO reports 
-                that save you time and impress your clients.
+                Reportr pulls data from Google Search Console and Analytics, then formats it into 
+                professional reports that save you hours of manual work.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/dashboard">
@@ -150,8 +150,8 @@ export default function FeaturesPage() {
                 Core Features
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                Built specifically for digital marketing agencies who need professional 
-                reports without the hassle.
+                Built specifically for digital marketing agencies who need to present client 
+                SEO data professionally without spending hours on formatting.
               </Typography>
             </div>
 
