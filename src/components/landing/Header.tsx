@@ -73,10 +73,16 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
               Home
             </button>
             <button
-              onClick={() => scrollToSection('features')}
+              onClick={() => navigateToPage('/features')}
               className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
             >
               Features
+            </button>
+            <button
+              onClick={() => navigateToPage('/how-it-works')}
+              className="text-neutral-600 hover:text-neutral-900 font-medium hover:bg-white/50 hover:backdrop-blur-sm hover:px-3 hover:py-2 hover:rounded-lg transition-all duration-300"
+            >
+              How It Works
             </button>
             <button
               onClick={() => navigateToPage('/pricing')}
@@ -143,10 +149,16 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 Home
               </button>
               <button
-                onClick={() => scrollToSection('features')}
+                onClick={() => navigateToPage('/features')}
                 className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
               >
                 Features
+              </button>
+              <button
+                onClick={() => navigateToPage('/how-it-works')}
+                className="text-left text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+              >
+                How It Works
               </button>
               <button
                 onClick={() => navigateToPage('/pricing')}

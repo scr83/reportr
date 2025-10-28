@@ -8,18 +8,18 @@
 }
 
 :root {
-  /* Digital Frog Brand Colors (Purple Tech Palette) */
-  --brand-50: 250 245 255;    /* Purple 50 */
-  --brand-100: 243 232 255;   /* Purple 100 */
+  /* Reportr Brand Colors (Purple #7e23ce) */
+  --brand-50: 252 248 255;    /* Purple 50 - lightest tint */
+  --brand-100: 245 237 255;   /* Purple 100 */
   --brand-200: 233 213 255;   /* Purple 200 */
-  --brand-300: 216 180 254;   /* Purple 300 */
-  --brand-400: 196 141 253;   /* Purple 400 */
-  --brand-500: 152 16 249;    /* Primary: Digital Frog Purple */
-  --brand-600: 126 34 206;    /* Purple 600 */
-  --brand-700: 107 33 168;    /* Purple 700 */
-  --brand-800: 88 28 135;     /* Purple 800 */
-  --brand-900: 74 29 115;     /* Purple 900 */
-  --brand-950: 59 7 100;      /* Purple 950 */
+  --brand-300: 213 180 254;   /* Purple 300 */
+  --brand-400: 186 141 253;   /* Purple 400 */
+  --brand-500: 126 35 206;    /* Primary: Reportr Purple #7e23ce */
+  --brand-600: 114 31 186;    /* Purple 600 - darker */
+  --brand-700: 97 26 158;     /* Purple 700 */
+  --brand-800: 77 21 125;     /* Purple 800 */
+  --brand-900: 64 17 104;     /* Purple 900 */
+  --brand-950: 45 12 73;      /* Purple 950 - darkest shade */
 
   /* Secondary/Accent Colors (Lime for Digital Frog) */
   --secondary-50: 247 254 231;  /* Lime 50 */
@@ -120,8 +120,8 @@
   --radius-full: 9999px;
 
   /* Dynamic theme variables (set by ThemeProvider) */
-  --primary-color: #8B5CF6; /* Default purple */
-  --primary-color-rgb: 139, 92, 246; /* Default purple RGB */
+  --primary-color: #7e23ce; /* Reportr purple */
+  --primary-color-rgb: 126, 35, 206; /* Reportr purple RGB */
 }
 
 @layer base {
