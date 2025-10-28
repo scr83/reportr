@@ -19,8 +19,8 @@ export function CTALate() {
       value: 1,
     })
     
-    // Redirect to pricing with UTM tracking
-    window.location.href = '/pricing?ref=blog-late-cta&utm_source=blog&utm_medium=cta&utm_campaign=late-article'
+    // Redirect to signup with UTM tracking
+    window.location.href = '/signup?ref=blog-late-cta&utm_source=blog&utm_medium=cta&utm_campaign=late-article'
   }
 
   return (

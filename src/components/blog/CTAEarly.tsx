@@ -19,8 +19,8 @@ export function CTAEarly() {
       value: 1,
     })
     
-    // Redirect to pricing with UTM tracking
-    window.location.href = '/pricing?ref=blog-early-cta&utm_source=blog&utm_medium=cta&utm_campaign=early-exit'
+    // Redirect to signup with UTM tracking
+    window.location.href = '/signup?ref=blog-early-cta&utm_source=blog&utm_medium=cta&utm_campaign=early-exit'
   }
 
   return (

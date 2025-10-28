@@ -19,8 +19,8 @@ export function CTAMid() {
       value: 1,
     })
     
-    // Redirect to demo with UTM tracking
-    window.location.href = '/showcase?ref=blog-mid-cta&utm_source=blog&utm_medium=cta&utm_campaign=mid-article'
+    // Redirect to features with UTM tracking
+    window.location.href = '/features?ref=blog-mid-cta&utm_source=blog&utm_medium=cta&utm_campaign=mid-article'
   }
 
   const handleTrialClick = () => {
@@ -31,8 +31,8 @@ export function CTAMid() {
       value: 1,
     })
     
-    // Redirect to pricing with UTM tracking
-    window.location.href = '/pricing?ref=blog-mid-cta-trial&utm_source=blog&utm_medium=cta&utm_campaign=mid-article'
+    // Redirect to signup with UTM tracking
+    window.location.href = '/signup?ref=blog-mid-cta-trial&utm_source=blog&utm_medium=cta&utm_campaign=mid-article'
   }
 
   return (
@@ -62,7 +62,7 @@ export function CTAMid() {
             className="bg-white text-purple-700 hover:bg-purple-50 border-white px-8 py-4 text-lg font-semibold"
           >
             <Play className="mr-2 h-5 w-5" />
-            View Live Demo
+            View Features
           </Button>
           
           <Button

@@ -19,8 +19,8 @@ export function CTAConclusion() {
       value: 1,
     })
     
-    // Redirect to pricing with UTM tracking
-    window.location.href = '/pricing?ref=blog-conclusion-cta&utm_source=blog&utm_medium=cta&utm_campaign=conclusion'
+    // Redirect to signup with UTM tracking
+    window.location.href = '/signup?ref=blog-conclusion-cta&utm_source=blog&utm_medium=cta&utm_campaign=conclusion'
   }
 
   return (
