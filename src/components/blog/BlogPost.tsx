@@ -30,9 +30,18 @@ interface BlogPostProps {
 function renderMarkdownContent(content: string): string {
   // Simple markdown rendering - replace with proper markdown parser in production
   let html = content
-    .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold text-gray-900 mt-10 mb-4 leading-tight">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold text-gray-900 mt-12 mb-6 leading-tight">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">$1</h1>')
+    .replace(/^### (.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      return `<h3 id="${id}" class="text-2xl font-bold text-gray-900 mt-10 mb-4 leading-tight">${title}</h3>`
+    })
+    .replace(/^## (.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      return `<h2 id="${id}" class="text-3xl font-bold text-gray-900 mt-12 mb-6 leading-tight">${title}</h2>`
+    })
+    .replace(/^# (.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      return `<h1 id="${id}" class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">${title}</h1>`
+    })
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-600 hover:text-purple-700 underline font-semibold">$1</a>')
