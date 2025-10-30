@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useSession, signIn } from 'next-auth/react'
 import { 
   Link as LinkIcon, 
   BarChart3, 
@@ -133,11 +134,12 @@ export default function HowItWorksPage() {
                 See how easy it is to transform your SEO reporting workflow.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/dashboard">
-                  <Button className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold">
-                    Start Free Trial
-                  </Button>
-                </Link>
+                <Button 
+                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                </Button>
                 <Link href="/features">
                   <Button 
                     variant="secondary"
@@ -396,12 +398,13 @@ export default function HowItWorksPage() {
                 Try it free for 14 days.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/dashboard">
-                  <Button className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold">
-                    Start Free Trial
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
+                <Button 
+                  className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
                 <Link href="/pricing">
                   <Button 
                     variant="ghost"

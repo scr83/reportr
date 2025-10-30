@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useSession, signIn } from 'next-auth/react'
 import { 
   Zap, 
   Clock, 
@@ -124,11 +125,12 @@ export default function FeaturesPage() {
                 professional reports that save you hours of manual work.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/dashboard">
-                  <Button className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold">
-                    Start Free Trial
-                  </Button>
-                </Link>
+                <Button 
+                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                </Button>
                 <Link href="/pricing">
                   <Button 
                     variant="secondary"
@@ -289,11 +291,12 @@ export default function FeaturesPage() {
                 Join hundreds of agencies saving time and impressing clients with professional SEO reports.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/dashboard">
-                  <Button className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold">
-                    Start Free Trial
-                  </Button>
-                </Link>
+                <Button 
+                  className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold"
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                >
+                  Start Free Trial
+                </Button>
                 <Link href="/how-it-works">
                   <Button 
                     variant="ghost"
