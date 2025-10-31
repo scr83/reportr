@@ -105,8 +105,8 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Us</h2>
             <p className="text-gray-700 leading-relaxed">
               For privacy-related questions or to exercise your rights, contact us at:{' '}
-              <a href="mailto:privacy@reportr.agency" className="text-purple-600 hover:underline">
-                privacy@reportr.agency
+              <a href="mailto:jump@digitalfrog.co" className="text-purple-600 hover:underline">
+                jump@digitalfrog.co
               </a>
             </p>
           </section>
