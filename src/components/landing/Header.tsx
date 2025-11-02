@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 </Button>
                 <Button 
                   size="sm" 
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                   className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Get Started
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                     </Button>
                     <Button 
                       size="sm" 
-                      onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                      onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                       className="bg-brand-600 hover:bg-brand-700 text-white justify-center"
                     >
                       Get Started

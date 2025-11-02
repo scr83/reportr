@@ -106,7 +106,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   <Button 
                     variant="primary" 
                     size="sm" 
-                    onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                    onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                   >
                     Get Started
                   </Button>

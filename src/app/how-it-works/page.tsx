@@ -136,7 +136,7 @@ export default function HowItWorksPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold"
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                 >
                   Start Free Trial
                 </Button>
@@ -400,7 +400,7 @@ export default function HowItWorksPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   className="bg-white text-brand-600 hover:bg-brand-50 px-8 py-4 text-lg font-semibold"
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                 >
                   Start Free Trial
                   <ArrowRight className="w-5 h-5 ml-2" />

@@ -50,7 +50,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
         ) : (
           <button 
             className="bg-white text-[#9810f9] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#f8f3ff] hover:scale-105 transition-all duration-200 shadow-lg"
-            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+            onClick={() => signIn('google', { callbackUrl: '/pricing' })}
           >
             Start Free Trial Now →
           </button>

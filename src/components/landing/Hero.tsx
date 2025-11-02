@@ -83,7 +83,7 @@ export const Hero: React.FC<HeroProps> = ({ className }) => {
                 <Button 
                   size="lg" 
                   className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200" 
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: '/pricing' })}
                 >
                   Start Free Trial
                   <Icon icon={ArrowRight} size="sm" className="ml-2" />
