@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
+import { getPayPalTrialPlanId, type PlanTier } from '@/lib/utils/paypal-plans'
 
 // Helper component for brand mentions
 const BrandLink = ({ children }: { children: React.ReactNode }) => (
@@ -60,30 +61,65 @@ function PricingTiers() {
     enterprise: false
   })
 
-  // Handle authentication for STARTER plan
-  const handleStarterAuth = (isWhiteLabel: boolean) => {
-    if (session) {
-      router.push('/dashboard')
-    } else {
-      signIn('google', { callbackUrl: '/dashboard' })
+  // Helper function to create trial subscription
+  const createTrialSubscription = async (tier: PlanTier, isWhiteLabel: boolean) => {
+    try {
+      // Get the correct trial plan ID
+      const trialPlanId = getPayPalTrialPlanId({
+        tier,
+        whiteLabelEnabled: isWhiteLabel
+      })
+
+      // Create subscription via API
+      const response = await fetch('/api/payments/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: trialPlanId
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create subscription')
+      }
+
+      const { approvalUrl } = await response.json()
+
+      // Redirect to PayPal for approval
+      window.location.href = approvalUrl
+    } catch (error) {
+      console.error('Error creating trial subscription:', error)
+      alert('Failed to start trial. Please try again.')
     }
   }
 
-  // Handle authentication for PROFESSIONAL plan
-  const handleProfessionalAuth = (isWhiteLabel: boolean) => {
+  // Handle STARTER trial subscription
+  const handleStarterTrial = async (isWhiteLabel: boolean) => {
     if (session) {
-      router.push('/dashboard')
+      await createTrialSubscription('starter', isWhiteLabel)
     } else {
-      signIn('google', { callbackUrl: '/dashboard' })
+      signIn('google', { callbackUrl: '/pricing' })
     }
   }
 
-  // Handle authentication for AGENCY plan
-  const handleAgencyAuth = (isWhiteLabel: boolean) => {
+  // Handle PROFESSIONAL trial subscription
+  const handleProfessionalTrial = async (isWhiteLabel: boolean) => {
     if (session) {
-      router.push('/dashboard')
+      await createTrialSubscription('professional', isWhiteLabel)
     } else {
-      signIn('google', { callbackUrl: '/dashboard' })
+      signIn('google', { callbackUrl: '/pricing' })
+    }
+  }
+
+  // Handle AGENCY trial subscription
+  const handleAgencyTrial = async (isWhiteLabel: boolean) => {
+    if (session) {
+      await createTrialSubscription('agency', isWhiteLabel)
+    } else {
+      signIn('google', { callbackUrl: '/pricing' })
     }
   }
 
@@ -292,9 +328,9 @@ function PricingTiers() {
               </button>
             ) : tier.name === 'STARTER' ? (
               <div className="space-y-3">
-                {/* STARTER: Start Trial Button - use authentication flow */}
+                {/* STARTER: Start Trial Button - create trial subscription */}
                 <button
-                  onClick={() => handleStarterAuth(whiteLabelEnabled.starter ?? false)}
+                  onClick={() => handleStarterTrial(whiteLabelEnabled.starter ?? false)}
                   disabled={status === 'loading'}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
                 >
@@ -313,9 +349,9 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'PROFESSIONAL' ? (
               <div className="space-y-3">
-                {/* PROFESSIONAL: Start Trial Button - use authentication flow */}
+                {/* PROFESSIONAL: Start Trial Button - create trial subscription */}
                 <button
-                  onClick={() => handleProfessionalAuth(whiteLabelEnabled.professional ?? false)}
+                  onClick={() => handleProfessionalTrial(whiteLabelEnabled.professional ?? false)}
                   disabled={status === 'loading'}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
                 >
@@ -334,9 +370,9 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'AGENCY' ? (
               <div className="space-y-3">
-                {/* AGENCY: Start Trial Button - use authentication flow */}
+                {/* AGENCY: Start Trial Button - create trial subscription */}
                 <button
-                  onClick={() => handleAgencyAuth(whiteLabelEnabled.agency ?? false)}
+                  onClick={() => handleAgencyTrial(whiteLabelEnabled.agency ?? false)}
                   disabled={status === 'loading'}
                   className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
                 >

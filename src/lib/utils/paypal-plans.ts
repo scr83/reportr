@@ -36,6 +36,32 @@ export function getPayPalPlanId(selection: PlanSelection): string {
 }
 
 /**
+ * Get the correct PayPal trial plan ID based on tier and white-label selection
+ */
+export function getPayPalTrialPlanId(selection: PlanSelection): string {
+  const { tier, whiteLabelEnabled } = selection
+
+  // Map to trial plan environment variable names
+  const trialPlanMap: Record<string, string> = {
+    'starter-false': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!,
+    'starter-true': process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!,
+    'professional-false': process.env.PAYPAL_PRO_TRIAL_PLAN_ID!,
+    'professional-true': process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!,
+    'agency-false': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!,
+    'agency-true': process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!,
+  }
+
+  const key = `${tier}-${whiteLabelEnabled}`
+  const trialPlanId = trialPlanMap[key]
+
+  if (!trialPlanId) {
+    throw new Error(`No PayPal trial plan ID found for: ${tier} (white-label: ${whiteLabelEnabled})`)
+  }
+
+  return trialPlanId
+}
+
+/**
  * Parse plan selection from query params
  * Expected formats:
  * - ?plan=starter
@@ -74,6 +100,9 @@ export function isWhiteLabelPlan(paypalPlanId: string): boolean {
     process.env.PAYPAL_STARTER_WL_PLAN_ID,
     process.env.PAYPAL_PRO_WL_PLAN_ID,
     process.env.PAYPAL_AGENCY_WL_PLAN_ID,
+    process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID,
+    process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID,
+    process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID,
   ]
 
   return whiteLabelPlanIds.includes(paypalPlanId)
@@ -90,9 +119,32 @@ export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
     [process.env.PAYPAL_PRO_WL_PLAN_ID!]: 'professional',
     [process.env.PAYPAL_AGENCY_PLAN_ID!]: 'agency',
     [process.env.PAYPAL_AGENCY_WL_PLAN_ID!]: 'agency',
+    [process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!]: 'starter',
+    [process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!]: 'starter',
+    [process.env.PAYPAL_PRO_TRIAL_PLAN_ID!]: 'professional',
+    [process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!]: 'professional',
+    [process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!]: 'agency',
+    [process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!]: 'agency',
   }
 
   return planIdMap[paypalPlanId] || null
+}
+
+/**
+ * Determine if a PayPal plan ID is a trial plan
+ * Used to check if subscription is in trial period
+ */
+export function isTrialPlan(paypalPlanId: string): boolean {
+  const trialPlanIds = [
+    process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
+    process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID,
+    process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
+    process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID,
+    process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
+    process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID,
+  ]
+
+  return trialPlanIds.includes(paypalPlanId)
 }
 
 /**

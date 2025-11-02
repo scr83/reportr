@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { subscriptionService } from '../../../../lib/services/subscription-service';
+import { prisma } from '../../../../lib/prisma';
 import { Plan } from '@prisma/client';
 
 export const runtime = 'nodejs';
@@ -76,7 +77,25 @@ export async function POST(request: Request) {
     switch (eventType) {
       case 'BILLING.SUBSCRIPTION.ACTIVATED': {
         const subscriptionId = body.resource.id;
-        console.log('📌 Subscription activated:', subscriptionId);
+        const planId = body.resource.plan_id;
+        console.log('📌 Subscription activated:', subscriptionId, 'Plan:', planId);
+        
+        // Find user by subscription ID (they should have been created during the approval flow)
+        const user = await prisma.user.findFirst({
+          where: { paypalSubscriptionId: subscriptionId },
+        });
+        
+        if (user) {
+          // Use subscription service to properly activate and assign correct plan
+          await subscriptionService.activateSubscription({
+            userId: user.id,
+            paypalSubscriptionId: subscriptionId,
+            plan: user.plan, // Will be overridden by actual plan detection in service
+          });
+          console.log('✅ User subscription activated and plan assigned');
+        } else {
+          console.warn('⚠️  No user found for activated subscription:', subscriptionId);
+        }
         break;
       }
 
