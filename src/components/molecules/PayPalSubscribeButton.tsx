@@ -10,6 +10,7 @@ interface PayPalSubscribeButtonProps {
   price: number;
   disabled?: boolean;
   className?: string;
+  isTrial?: boolean;
 }
 
 export function PayPalSubscribeButton({
@@ -18,6 +19,7 @@ export function PayPalSubscribeButton({
   price,
   disabled = false,
   className = '',
+  isTrial = false,
 }: PayPalSubscribeButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +129,8 @@ export function PayPalSubscribeButton({
               </svg>
               Processing...
             </span>
+          ) : isTrial ? (
+            'Start 14-Day Trial'
           ) : (
             `Subscribe to ${planName} - $${price}/month`
           )}
@@ -134,6 +138,12 @@ export function PayPalSubscribeButton({
 
         {error && (
           <p className="mt-2 text-sm text-red-500">{error}</p>
+        )}
+        
+        {isTrial && (
+          <p className="text-xs text-gray-600 text-center mt-2">
+            💳 Payment method required. No charge for 14 days.
+          </p>
         )}
       </div>
 

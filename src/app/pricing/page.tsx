@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
-import { getPayPalTrialPlanId, type PlanTier } from '@/lib/utils/paypal-plans'
+import { getPayPalTrialPlanId } from '@/lib/utils/paypal-plans'
 
 // Helper component for brand mentions
 const BrandLink = ({ children }: { children: React.ReactNode }) => (
@@ -61,67 +61,6 @@ function PricingTiers() {
     enterprise: false
   })
 
-  // Helper function to create trial subscription
-  const createTrialSubscription = async (tier: PlanTier, isWhiteLabel: boolean) => {
-    try {
-      // Get the correct trial plan ID
-      const trialPlanId = getPayPalTrialPlanId({
-        tier,
-        whiteLabelEnabled: isWhiteLabel
-      })
-
-      // Create subscription via API
-      const response = await fetch('/api/payments/create-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          planId: trialPlanId
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create subscription')
-      }
-
-      const { approvalUrl } = await response.json()
-
-      // Redirect to PayPal for approval
-      window.location.href = approvalUrl
-    } catch (error) {
-      console.error('Error creating trial subscription:', error)
-      alert('Failed to start trial. Please try again.')
-    }
-  }
-
-  // Handle STARTER trial subscription
-  const handleStarterTrial = async (isWhiteLabel: boolean) => {
-    if (session) {
-      await createTrialSubscription('starter', isWhiteLabel)
-    } else {
-      signIn('google', { callbackUrl: '/pricing' })
-    }
-  }
-
-  // Handle PROFESSIONAL trial subscription
-  const handleProfessionalTrial = async (isWhiteLabel: boolean) => {
-    if (session) {
-      await createTrialSubscription('professional', isWhiteLabel)
-    } else {
-      signIn('google', { callbackUrl: '/pricing' })
-    }
-  }
-
-  // Handle AGENCY trial subscription
-  const handleAgencyTrial = async (isWhiteLabel: boolean) => {
-    if (session) {
-      await createTrialSubscription('agency', isWhiteLabel)
-    } else {
-      signIn('google', { callbackUrl: '/pricing' })
-    }
-  }
 
   // Handle authentication for FREE plan
   const handleFreeAuth = () => {
@@ -163,10 +102,10 @@ function PricingTiers() {
       period: 'month',
       description: 'Perfect for freelancers',
       clients: 5,
-      reports: 20,
+      reports: 25,
       features: [
         'Up to 5 clients',
-        '20 reports per month',
+        '25 reports per month',
         'Advanced SEO analytics',
         'Google Search Console',
         'Google Analytics 4',
@@ -328,16 +267,18 @@ function PricingTiers() {
               </button>
             ) : tier.name === 'STARTER' ? (
               <div className="space-y-3">
-                {/* STARTER: Start Trial Button - create trial subscription */}
-                <button
-                  onClick={() => handleStarterTrial(whiteLabelEnabled.starter ?? false)}
-                  disabled={status === 'loading'}
-                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
-                >
-                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
-                </button>
+                {/* STARTER: Trial Button */}
+                <PayPalSubscribeButton
+                  planId={getPayPalTrialPlanId({
+                    tier: 'starter',
+                    whiteLabelEnabled: whiteLabelEnabled.starter ?? false
+                  })}
+                  planName="STARTER"
+                  price={finalPrice}
+                  isTrial={true}
+                />
                 
-                {/* STARTER: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                {/* STARTER: Subscribe Button */}
                 <PayPalSubscribeButton
                   planId={(whiteLabelEnabled.starter ?? false)
                     ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_PLAN_ID || 'P-2YF10717TE559492JND4NS5Y'
@@ -349,16 +290,18 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'PROFESSIONAL' ? (
               <div className="space-y-3">
-                {/* PROFESSIONAL: Start Trial Button - create trial subscription */}
-                <button
-                  onClick={() => handleProfessionalTrial(whiteLabelEnabled.professional ?? false)}
-                  disabled={status === 'loading'}
-                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
-                >
-                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
-                </button>
+                {/* PROFESSIONAL: Trial Button */}
+                <PayPalSubscribeButton
+                  planId={getPayPalTrialPlanId({
+                    tier: 'professional',
+                    whiteLabelEnabled: whiteLabelEnabled.professional ?? false
+                  })}
+                  planName="PROFESSIONAL"
+                  price={finalPrice}
+                  isTrial={true}
+                />
                 
-                {/* PROFESSIONAL: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                {/* PROFESSIONAL: Subscribe Button */}
                 <PayPalSubscribeButton
                   planId={(whiteLabelEnabled.professional ?? false)
                     ? process.env.NEXT_PUBLIC_PAYPAL_PRO_WL_PLAN_ID || 'P-7KR93055H1331572DND4NU7I'
@@ -370,16 +313,18 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'AGENCY' ? (
               <div className="space-y-3">
-                {/* AGENCY: Start Trial Button - create trial subscription */}
-                <button
-                  onClick={() => handleAgencyTrial(whiteLabelEnabled.agency ?? false)}
-                  disabled={status === 'loading'}
-                  className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition border-2 border-purple-600 text-purple-600 bg-white hover:bg-purple-50 disabled:opacity-50"
-                >
-                  {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial'}
-                </button>
+                {/* AGENCY: Trial Button */}
+                <PayPalSubscribeButton
+                  planId={getPayPalTrialPlanId({
+                    tier: 'agency',
+                    whiteLabelEnabled: whiteLabelEnabled.agency ?? false
+                  })}
+                  planName="AGENCY"
+                  price={finalPrice}
+                  isTrial={true}
+                />
                 
-                {/* AGENCY: PayPal Subscribe Button - use PayPalSubscribeButton component */}
+                {/* AGENCY: Subscribe Button */}
                 <PayPalSubscribeButton
                   planId={(whiteLabelEnabled.agency ?? false)
                     ? process.env.NEXT_PUBLIC_PAYPAL_AGENCY_WL_PLAN_ID || 'P-7JJ708823A489180TND4NWVI'
@@ -421,7 +366,7 @@ function FeatureComparison() {
       category: 'Core Features',
       items: [
         { name: 'Client Management', free: true, starter: true, pro: true, enterprise: true },
-        { name: 'SEO Reports', free: '5/mo', starter: '20/mo', pro: '75/mo', enterprise: '250/mo' },
+        { name: 'SEO Reports', free: '5/mo', starter: '25/mo', pro: '75/mo', enterprise: '250/mo' },
         { name: 'Google Search Console', free: true, starter: true, pro: true, enterprise: true },
         { name: 'Google Analytics 4', free: true, starter: true, pro: true, enterprise: true },
         { name: 'PageSpeed Insights', free: 'Coming Soon', starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
@@ -539,7 +484,7 @@ function FAQ() {
     },
     {
       question: 'Is there a free trial?',
-      answer: 'Yes! All paid plans come with a 14-day free trial. No credit card required to start. You can cancel anytime during the trial with no charges.'
+      answer: 'Yes! All paid plans come with a 14-day free trial. A payment method is required to start, but you won\'t be charged for 14 days. You can cancel anytime during the trial with no charges.'
     },
     {
       question: 'How does the white-label add-on work?',
