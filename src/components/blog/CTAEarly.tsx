@@ -52,7 +52,7 @@ export function CTAEarly() {
           <div className="text-sm text-gray-500 text-center">
             <div className="flex items-center justify-center gap-1">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              No credit card required
+              No setup fees required
             </div>
           </div>
         </div>

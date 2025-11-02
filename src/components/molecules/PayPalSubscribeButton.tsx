@@ -197,7 +197,7 @@ export function PayPalSubscribeButton({
             </button>
 
             <p className="text-center text-sm text-gray-500 mt-4">
-              No credit card required for signup
+              No setup fees required for signup
             </p>
           </div>
         </div>

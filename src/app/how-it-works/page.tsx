@@ -417,7 +417,7 @@ export default function HowItWorksPage() {
                 </Link>
               </div>
               <Typography className="text-brand-200 text-sm mt-6">
-                No credit card required • 14-day free trial • Cancel anytime
+                No setup fees required • 14-day free trial • Cancel anytime
               </Typography>
             </div>
           </Container>

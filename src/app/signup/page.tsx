@@ -76,7 +76,7 @@ function SignupPageContent() {
                 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6"
               >
                 Start Your Free Trial
-                <span className="text-brand-600 block">No Credit Card Required</span>
+                <span className="text-brand-600 block">No Setup Fees Required</span>
               </Typography>
 
               {/* Subheadline */}
@@ -109,7 +109,7 @@ function SignupPageContent() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Icon icon={CheckCircle} size="sm" className="text-green-600" />
-                  <span>No credit card required</span>
+                  <span>No setup fees required</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Icon icon={CheckCircle} size="sm" className="text-green-600" />

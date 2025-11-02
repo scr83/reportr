@@ -105,7 +105,7 @@ export const Hero: React.FC<HeroProps> = ({ className }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-neutral-500 mb-12">
             <div className="flex items-center space-x-2">
               <Icon icon={CheckCircle} size="sm" className="text-green-600" />
-              <span>No credit card required</span>
+              <span>No setup fees required</span>
             </div>
             <div className="flex items-center space-x-2">
               <Icon icon={CheckCircle} size="sm" className="text-green-600" />

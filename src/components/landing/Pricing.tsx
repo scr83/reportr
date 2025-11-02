@@ -196,7 +196,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
         {/* Bottom FAQ */}
         <div className="max-w-2xl mx-auto mt-16 text-center">
           <Typography variant="body" className="text-neutral-600 mb-6">
-            All plans include a 14-day free trial. No credit card required to start.
+            All plans include a 14-day free trial. No setup fees required to start.
           </Typography>
           <div className="flex flex-wrap justify-center gap-6 text-sm text-neutral-500">
             <span>✓ Cancel anytime</span>

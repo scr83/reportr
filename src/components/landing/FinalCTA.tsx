@@ -30,7 +30,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
           Ready to Transform Your SEO Reporting?
         </h2>
         <p className="text-xl text-[#e4c7ff] mb-8">
-          Start creating professional SEO reports in minutes. No credit card required.
+          Start creating professional SEO reports in minutes. No setup fees required.
         </p>
         
         {status === 'loading' ? (
@@ -57,7 +57,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
         )}
         
         <div className="mt-6 flex items-center justify-center gap-6 text-[#e4c7ff] text-sm">
-          <span>✓ No credit card required</span>
+          <span>✓ No setup fees required</span>
           <span>✓ 5 free reports to start</span>
           <span>✓ Cancel anytime</span>
         </div>

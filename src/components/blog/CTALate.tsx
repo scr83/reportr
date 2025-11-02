@@ -76,7 +76,7 @@ export function CTALate() {
           </Button>
           
           <p className="mt-4 text-sm text-gray-500">
-            Setup takes 5 minutes • No credit card required • Cancel anytime
+            Setup takes 5 minutes • No setup fees required • Cancel anytime
           </p>
         </div>
       </div>

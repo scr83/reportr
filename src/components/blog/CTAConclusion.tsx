@@ -44,7 +44,7 @@ export function CTAConclusion() {
         <div className="flex flex-col lg:flex-row gap-8 items-center justify-center mb-10">
           <div className="flex items-center gap-3">
             <Shield className="h-6 w-6 text-green-400" />
-            <span className="text-purple-100">No credit card required</span>
+            <span className="text-purple-100">No setup fees required</span>
           </div>
           <div className="flex items-center gap-3">
             <Zap className="h-6 w-6 text-green-400" />
