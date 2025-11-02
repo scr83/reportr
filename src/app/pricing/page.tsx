@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
-import { getPayPalTrialPlanId } from '@/lib/utils/paypal-plans'
 
 // Helper component for brand mentions
 const BrandLink = ({ children }: { children: React.ReactNode }) => (
@@ -269,10 +268,10 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* STARTER: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={getPayPalTrialPlanId({
-                    tier: 'starter',
-                    whiteLabelEnabled: whiteLabelEnabled.starter ?? false
-                  })}
+                  planId={(whiteLabelEnabled.starter ?? false)
+                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W2526908999423DNEDY5TQ'
+                    : process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0SN795424D608834YNEDY4UY'
+                  }
                   planName="STARTER"
                   price={finalPrice}
                   isTrial={true}
@@ -292,10 +291,10 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* PROFESSIONAL: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={getPayPalTrialPlanId({
-                    tier: 'professional',
-                    whiteLabelEnabled: whiteLabelEnabled.professional ?? false
-                  })}
+                  planId={(whiteLabelEnabled.professional ?? false)
+                    ? process.env.NEXT_PUBLIC_PAYPAL_PRO_WL_TRIAL_PLAN_ID || 'P-9G486628TV699383DNEDY67Q'
+                    : process.env.NEXT_PUBLIC_PAYPAL_PRO_TRIAL_PLAN_ID || 'P-9LW168698M465441PNEDY6KQ'
+                  }
                   planName="PROFESSIONAL"
                   price={finalPrice}
                   isTrial={true}
@@ -315,10 +314,10 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* AGENCY: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={getPayPalTrialPlanId({
-                    tier: 'agency',
-                    whiteLabelEnabled: whiteLabelEnabled.agency ?? false
-                  })}
+                  planId={(whiteLabelEnabled.agency ?? false)
+                    ? process.env.NEXT_PUBLIC_PAYPAL_AGENCY_WL_TRIAL_PLAN_ID || 'P-4KW51269HY146730FNEDZALI'
+                    : process.env.NEXT_PUBLIC_PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-09W11474GA233304HNEDY7UI'
+                  }
                   planName="AGENCY"
                   price={finalPrice}
                   isTrial={true}
