@@ -106,7 +106,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   <Button 
                     variant="primary" 
                     size="sm" 
-                    onClick={() => signIn('google', { callbackUrl: '/pricing' })}
+                    onClick={() => router.push('/pricing')}
                   >
                     Get Started
                   </Button>
