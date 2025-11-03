@@ -30,6 +30,14 @@ model User {
   subscriptionStatus   String    @default("free")
   website              String?
   supportEmail         String?
+  
+  // Email verification and trial tracking
+  trialStartDate       DateTime?
+  trialEndDate         DateTime?
+  trialUsed            Boolean   @default(false)
+  signupIp             String?
+  welcomeEmailSent     Boolean   @default(false)
+  
   clients              Client[]
   payments             Payment[]
   reports              Report[]
@@ -162,6 +170,18 @@ model AppSetting {
   updatedAt   DateTime @updatedAt
 
   @@map("app_settings")
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+  @@index([token])
+  @@map("verification_tokens")
 }
 
 enum Plan {

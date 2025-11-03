@@ -168,7 +168,7 @@ export async function getUsageStats(userId: string, userPlan: string): Promise<U
   const cycleInfo = await getBillingCycleInfo(userId);
   const reportsUsed = await getReportsInCurrentCycle(userId);
   
-  // Define tier limits (same as in reports API)
+  // Define tier limits (updated STARTER from 20 to 25)
   const limits = {
     FREE: 5,
     STARTER: 25,

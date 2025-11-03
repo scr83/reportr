@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
 import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
 import { ManageClientModal } from '@/components/organisms/ManageClientModal'
-import { Users, Plus, Globe, Calendar, Link, CheckCircle, XCircle, AlertCircle, BarChart, Settings, Search } from 'lucide-react'
+import { Users, Plus, Globe, Calendar, Link as LinkIcon, CheckCircle, XCircle, AlertCircle, BarChart, Settings, Search } from 'lucide-react'
 
 interface Client {
   id: string
@@ -46,6 +47,7 @@ interface FormErrors {
 export default function ClientsPage() {
   const router = useRouter()
   const [clients, setClients] = useState<Client[]>([])
+  const [usageStats, setUsageStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -112,9 +114,21 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/clients')
-      if (!res.ok) throw new Error('Failed to fetch clients')
-      const data = await res.json()
+      
+      // Fetch clients and usage stats in parallel
+      const [clientsRes, usageRes] = await Promise.all([
+        fetch('/api/clients'),
+        fetch('/api/usage')
+      ])
+      
+      if (!clientsRes.ok) throw new Error('Failed to fetch clients')
+      const data = await clientsRes.json()
+      
+      // Get usage stats if available
+      if (usageRes.ok) {
+        const usage = await usageRes.json()
+        setUsageStats(usage)
+      }
       
       // Transform database data to match Client interface
       const transformedClients = data.map((client: any) => ({
@@ -197,7 +211,12 @@ export default function ClientsPage() {
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || 'Failed to create client')
+        if (res.status === 403 && errorData.upgradeRequired) {
+          setError(`${errorData.error} - Upgrade your plan to add more clients.`)
+        } else {
+          throw new Error(errorData.error || 'Failed to create client')
+        }
+        return
       }
 
       const newClient = await res.json()
@@ -355,10 +374,24 @@ export default function ClientsPage() {
               Manage your client websites and SEO reports.
             </Typography>
           </div>
-          <Button className="btn-primary-themed min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Client
-          </Button>
+          {usageStats?.clients.isAtLimit ? (
+            <Link href="/pricing">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white min-h-[44px] w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Upgrade to Add More
+              </Button>
+            </Link>
+          ) : (
+            <Button className="btn-primary-themed min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Client
+              {usageStats?.clients.isNearLimit && (
+                <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">
+                  {usageStats.clients.remaining} left
+                </span>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -492,7 +525,7 @@ export default function ClientsPage() {
                           className="w-full"
                           onClick={() => handleConnectGoogle(client.id)}
                         >
-                          <Link className="h-4 w-4 mr-2" />
+                          <LinkIcon className="h-4 w-4 mr-2" />
                           Connect Google Accounts
                         </Button>
                       </div>

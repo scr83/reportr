@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button } from '@/components/atoms'
-import { Users, FileText, TrendingUp, Plus, ExternalLink } from 'lucide-react'
+import { UsageCard } from '@/components/molecules/UsageCard'
+import { Users, FileText, TrendingUp, Plus, ExternalLink, UserCheck } from 'lucide-react'
 
 interface Client {
   id: string
@@ -43,12 +44,37 @@ interface Report {
   }
 }
 
-export default function DashboardPage() {
+interface UsageStats {
+  clients: {
+    used: number;
+    limit: number;
+    percentage: number;
+    remaining: number;
+    isAtLimit: boolean;
+    isNearLimit: boolean;
+  };
+  reports: {
+    used: number;
+    limit: number;
+    percentage: number;
+    remaining: number;
+    isAtLimit: boolean;
+    isNearLimit: boolean;
+  };
+  plan: string;
+  planName: string;
+  whiteLabelEnabled: boolean;
+}
+
+function DashboardContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
   const [reports, setReports] = useState<Report[]>([])
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // Calculate stats from real data
   const stats = [
@@ -89,15 +115,29 @@ export default function DashboardPage() {
     }))
 
   useEffect(() => {
+    // Check for verification success
+    const verified = searchParams?.get('verified')
+    if (verified === 'true') {
+      setSuccessMessage('✅ Email verified successfully! Your 14-day trial has started.')
+      // Clear the URL param
+      const url = new URL(window.location.href)
+      url.searchParams.delete('verified')
+      window.history.replaceState({}, '', url.toString())
+      
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000)
+    }
+
     async function fetchDashboardData() {
       try {
         setLoading(true)
         setError(null)
 
-        // Fetch clients and reports in parallel
-        const [clientsResponse, reportsResponse] = await Promise.all([
+        // Fetch clients, reports, and usage stats in parallel
+        const [clientsResponse, reportsResponse, usageResponse] = await Promise.all([
           fetch('/api/clients'),
-          fetch('/api/reports')
+          fetch('/api/reports'),
+          fetch('/api/usage')
         ])
 
         if (!clientsResponse.ok) {
@@ -106,9 +146,17 @@ export default function DashboardPage() {
         if (!reportsResponse.ok) {
           throw new Error(`Failed to fetch reports: ${reportsResponse.statusText}`)
         }
+        if (!usageResponse.ok) {
+          console.warn('Failed to fetch usage stats, continuing without them')
+        }
 
         const clientsData = await clientsResponse.json()
         const reportsData = await reportsResponse.json()
+        
+        if (usageResponse.ok) {
+          const usageData = await usageResponse.json()
+          setUsageStats(usageData)
+        }
 
         setClients(clientsData)
         setReports(reportsData)
@@ -121,12 +169,27 @@ export default function DashboardPage() {
     }
 
     fetchDashboardData()
-  }, [])
+  }, [searchParams])
 
 
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8">
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700">
+            <div className="flex items-center justify-between">
+              <p className="font-medium">{successMessage}</p>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="ml-4 text-green-400 hover:text-green-600"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
@@ -136,6 +199,43 @@ export default function DashboardPage() {
             Welcome back! Here&apos;s what&apos;s happening with your SEO reports.
           </Typography>
         </div>
+
+        {/* Usage Cards */}
+        {usageStats && (
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <Typography variant="h2" className="text-lg font-semibold text-gray-900">
+                Plan Usage ({usageStats.planName})
+              </Typography>
+              <Link
+                href="/pricing"
+                className="text-primary-themed text-sm font-medium hover:underline"
+              >
+                Upgrade Plan
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UsageCard
+                label="Clients"
+                icon={<Users className="w-5 h-5" />}
+                used={usageStats.clients.used}
+                limit={usageStats.clients.limit}
+                percentage={usageStats.clients.percentage}
+                isAtLimit={usageStats.clients.isAtLimit}
+                isNearLimit={usageStats.clients.isNearLimit}
+              />
+              <UsageCard
+                label="Reports This Cycle"
+                icon={<FileText className="w-5 h-5" />}
+                used={usageStats.reports.used}
+                limit={usageStats.reports.limit}
+                percentage={usageStats.reports.percentage}
+                isAtLimit={usageStats.reports.isAtLimit}
+                isNearLimit={usageStats.reports.isNearLimit}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Stats Cards Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -382,5 +482,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </DashboardLayout>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }

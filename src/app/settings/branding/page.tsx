@@ -8,8 +8,9 @@ import toast from 'react-hot-toast'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Button, Input, Typography, Switch, Skeleton } from '@/components/atoms'
 import { BrandingPreview } from '@/components/organisms/BrandingPreview'
-import { Palette, Building2, Upload, Save, Settings, Eye } from 'lucide-react'
+import { Palette, Building2, Upload, Save, Settings, Eye, Lock } from 'lucide-react'
 import { validateBrandingData, isValidImageFile, type BrandingData } from '@/lib/validation/branding'
+import { canUseWhiteLabel as checkWhiteLabelAccess } from '@/lib/plan-limits'
 
 interface UserProfile {
   id: string
@@ -21,6 +22,9 @@ interface UserProfile {
   primaryColor: string
   logo?: string
   whiteLabelEnabled: boolean
+  plan: string
+  trialStartDate?: string
+  trialEndDate?: string
 }
 
 export default function BrandingSettingsPage() {
@@ -39,6 +43,7 @@ export default function BrandingSettingsPage() {
     whiteLabelEnabled: false
   })
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [canUseWhiteLabel, setCanUseWhiteLabel] = useState(false)
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -51,13 +56,18 @@ export default function BrandingSettingsPage() {
         
         const userData = await response.json()
         setProfile(userData)
+        
+        // Check if user can use white-label features
+        const hasWhiteLabelAccess = checkWhiteLabelAccess(userData)
+        setCanUseWhiteLabel(hasWhiteLabelAccess)
+        
         setFormData({
           companyName: userData.companyName || '',
           website: userData.website || '',
           supportEmail: userData.supportEmail || '',
           primaryColor: userData.primaryColor || '#8B5CF6',
           logo: userData.logo || '',
-          whiteLabelEnabled: userData.whiteLabelEnabled || false
+          whiteLabelEnabled: (userData.whiteLabelEnabled || false) && hasWhiteLabelAccess
         })
       } catch (error) {
         console.error('Error fetching profile:', error)
@@ -263,13 +273,37 @@ export default function BrandingSettingsPage() {
                 White Label Settings
               </h2>
               
-              <Switch
-                checked={formData.whiteLabelEnabled}
-                onChange={(e) => handleInputChange('whiteLabelEnabled', e.target.checked)}
-                label="Enable White Label Branding"
-                description="When enabled, your custom branding will appear throughout the platform and in generated reports"
-                size="md"
-              />
+              {canUseWhiteLabel ? (
+                <Switch
+                  checked={formData.whiteLabelEnabled}
+                  onChange={(e) => handleInputChange('whiteLabelEnabled', e.target.checked)}
+                  label="Enable White Label Branding"
+                  description="When enabled, your custom branding will appear throughout the platform and in generated reports"
+                  size="md"
+                />
+              ) : (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <Lock className="h-5 w-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-medium text-amber-800 mb-1">
+                        White Label Branding Unavailable
+                      </h3>
+                      <p className="text-sm text-amber-700 mb-3">
+                        White label branding is available on Professional and Enterprise plans.
+                        {profile?.plan === 'STARTER' && ' You can also access it during your trial period.'}
+                      </p>
+                      <Button
+                        size="sm"
+                        onClick={() => router.push('/pricing')}
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                      >
+                        Upgrade to Professional
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </Card>
 
             {/* Company Information */}
@@ -279,7 +313,7 @@ export default function BrandingSettingsPage() {
                 Company Information
               </h2>
               
-              <div className={`space-y-4 transition-opacity duration-200 ${formData.whiteLabelEnabled ? 'opacity-100' : 'opacity-50'}`}>
+              <div className={`space-y-4 transition-opacity duration-200 ${formData.whiteLabelEnabled && canUseWhiteLabel ? 'opacity-100' : 'opacity-50'}`}>
                 {/* Company Name */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -293,7 +327,7 @@ export default function BrandingSettingsPage() {
                     onChange={(value) => handleInputChange('companyName', value)}
                     placeholder="Enter your agency name"
                     className="w-full"
-                    disabled={!formData.whiteLabelEnabled}
+                    disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel}
                     maxLength={50}
                   />
                   {fieldErrors.companyName && (
@@ -317,7 +351,7 @@ export default function BrandingSettingsPage() {
                     onChange={(value) => handleInputChange('website', value)}
                     placeholder="https://youragency.com"
                     className="w-full"
-                    disabled={!formData.whiteLabelEnabled}
+                    disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel}
                     maxLength={100}
                   />
                   {fieldErrors.website && (
@@ -342,7 +376,7 @@ export default function BrandingSettingsPage() {
                     placeholder="support@youragency.com"
                     type="email"
                     className="w-full"
-                    disabled={!formData.whiteLabelEnabled}
+                    disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel}
                     maxLength={100}
                   />
                   {fieldErrors.supportEmail && (
@@ -371,11 +405,11 @@ export default function BrandingSettingsPage() {
                           onChange={handleFileUpload}
                           className="hidden"
                           id="logo-upload"
-                          disabled={!formData.whiteLabelEnabled || uploadingLogo}
+                          disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel || uploadingLogo}
                         />
                         <label 
                           htmlFor="logo-upload" 
-                          className={`${formData.whiteLabelEnabled && !uploadingLogo ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                          className={`${formData.whiteLabelEnabled && canUseWhiteLabel && !uploadingLogo ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                         >
                           {uploadingLogo ? (
                             <div className="flex flex-col items-center">
@@ -433,7 +467,7 @@ export default function BrandingSettingsPage() {
                 Color Scheme
               </h2>
               
-              <div className={`transition-opacity duration-200 ${formData.whiteLabelEnabled ? 'opacity-100' : 'opacity-50'}`}>
+              <div className={`transition-opacity duration-200 ${formData.whiteLabelEnabled && canUseWhiteLabel ? 'opacity-100' : 'opacity-50'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <label className="block text-sm font-medium text-gray-700">
                     Primary Color <span className="text-red-500">*</span>
@@ -448,14 +482,14 @@ export default function BrandingSettingsPage() {
                       key={option.value}
                       type="button"
                       onClick={() => handleInputChange('primaryColor', option.value)}
-                      disabled={!formData.whiteLabelEnabled}
+                      disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel}
                       className={`
                         relative w-full h-12 rounded-lg border-2 transition-all duration-200
                         ${formData.primaryColor === option.value 
                           ? 'border-gray-900 shadow-lg scale-105' 
                           : 'border-gray-300 hover:border-gray-400 hover:scale-105'
                         }
-                        ${!formData.whiteLabelEnabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+                        ${!formData.whiteLabelEnabled || !canUseWhiteLabel ? 'cursor-not-allowed' : 'cursor-pointer'}
                       `}
                       title={option.name}
                     >
@@ -474,7 +508,7 @@ export default function BrandingSettingsPage() {
                     type="color"
                     value={formData.primaryColor}
                     onChange={(e) => handleInputChange('primaryColor', e.target.value)}
-                    disabled={!formData.whiteLabelEnabled}
+                    disabled={!formData.whiteLabelEnabled || !canUseWhiteLabel}
                     className="w-12 h-10 rounded border border-gray-300 cursor-pointer disabled:cursor-not-allowed"
                   />
                 </div>
@@ -492,9 +526,9 @@ export default function BrandingSettingsPage() {
               <Button
                 onClick={handleSave}
                 loading={saving}
-                disabled={saving || !formData.whiteLabelEnabled}
+                disabled={saving || !formData.whiteLabelEnabled || !canUseWhiteLabel}
                 className="text-white px-8"
-                style={{ backgroundColor: formData.whiteLabelEnabled ? formData.primaryColor : '#9CA3AF' }}
+                style={{ backgroundColor: formData.whiteLabelEnabled && canUseWhiteLabel ? formData.primaryColor : '#9CA3AF' }}
                 size="lg"
               >
                 <Save className="h-4 w-4 mr-2" />

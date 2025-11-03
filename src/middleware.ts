@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -20,6 +21,21 @@ export async function middleware(request: NextRequest) {
       "base-uri 'self'"
     ].join('; ')
   );
+
+  // Check email verification for protected routes
+  const { pathname } = request.nextUrl;
+  const protectedRoutes = ['/dashboard', '/clients', '/reports', '/settings'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+  if (isProtectedRoute) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    
+    if (token && !token.emailVerified) {
+      // User is logged in but email not verified
+      const verifyUrl = new URL('/verify-email-prompt', request.url);
+      return NextResponse.redirect(verifyUrl);
+    }
+  }
   
   return response;
 }
