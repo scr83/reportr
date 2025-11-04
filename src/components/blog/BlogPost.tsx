@@ -73,7 +73,7 @@ function renderMarkdownContent(content: string): string {
         row.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell)
       );
 
-      let tableHtml = '<div class="my-8 overflow-x-auto"><table class="w-full bg-white rounded-lg shadow-lg border border-gray-200">';
+      let tableHtml = '<div class="my-8 overflow-x-auto" style="display: block; width: 100%;"><table class="w-full bg-white rounded-lg shadow-lg border border-gray-200">';
       
       // Header
       tableHtml += '<thead><tr class="bg-purple-600 text-white">';

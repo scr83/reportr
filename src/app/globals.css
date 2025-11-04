@@ -354,11 +354,19 @@
 
   .blog-content table {
     @apply w-full;
-    display: block;
+    display: table;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
     margin: 1.5rem 0;
+    table-layout: fixed;
+  }
+
+  /* Ensure table containers are always block-level and stack vertically */
+  .blog-content div.my-8.overflow-x-auto {
+    display: block !important;
+    width: 100% !important;
+    flex: none !important;
   }
 
   .blog-content th,
