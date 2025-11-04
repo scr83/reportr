@@ -10,6 +10,7 @@ declare global {
 }
 import Link from 'next/link'
 import { BlogPost as BlogPostType } from '@/lib/blog'
+import { CTA } from './CTA'
 import { CTAEarly } from './CTAEarly'
 import { CTAMid } from './CTAMid'
 import { CTALate } from './CTALate'
