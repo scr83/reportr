@@ -28,8 +28,19 @@ interface BlogPostProps {
 }
 
 function renderMarkdownContent(content: string): string {
-  // Simple markdown rendering - replace with proper markdown parser in production
+  // Simple markdown rendering with improved CTA support
   let html = content
+    // Handle CTA components - convert them to HTML
+    .replace(/<CTA href="([^"]*)"(?:\s+subtitle="([^"]*)")?>([^<]*)<\/CTA>/g, (match, href, subtitle, text) => {
+      const subtitleHtml = subtitle ? `<p class="mt-3 text-sm text-gray-600 text-center md:text-left">${subtitle}</p>` : '';
+      return `<div class="my-8 p-6 bg-purple-50 rounded-xl">
+        <a href="${href}" class="inline-block w-full md:w-auto px-8 py-4 text-lg font-bold text-purple-600 bg-white border-2 border-purple-600 rounded-lg hover:bg-purple-600 hover:text-white transition-all duration-300 text-center">
+          ${text.trim()}
+        </a>
+        ${subtitleHtml}
+      </div>`;
+    })
+    // Handle headings with IDs
     .replace(/^### (.+)$/gm, (match, title) => {
       const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       return `<h3 id="${id}" class="text-2xl font-bold text-gray-900 mt-10 mb-4 leading-tight">${title}</h3>`
@@ -40,8 +51,9 @@ function renderMarkdownContent(content: string): string {
     })
     .replace(/^# (.+)$/gm, (match, title) => {
       const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      return `<h1 id="${id}" class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">${title}</h1>`
+      return `<h1 id="${id}" class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight" style="word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;">${title}</h1>`
     })
+    // Handle formatting
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-600 hover:text-purple-700 underline font-semibold">$1</a>')
@@ -49,9 +61,9 @@ function renderMarkdownContent(content: string): string {
     .replace(/^- (.+)$/gm, '<li class="text-lg text-gray-700 leading-relaxed mb-2 flex items-start"><span class="text-purple-600 mr-3 mt-1">•</span><span>$1</span></li>')
     .replace(/\n\n/g, '</p><p class="text-lg text-gray-700 mb-6 leading-relaxed">')
     .replace(/<!-- (.+) -->/g, '')
-    .replace(/\{\/\* (.+) \*\/\}/g, '') // Remove CTA comments for now
+    .replace(/\{\/\* (.+) \*\/\}/g, '')
 
-  // Handle tables with professional styling
+  // Handle tables with professional styling and responsive design
   html = html.replace(
     /\|(.+)\|\s*\n\|[-\s\|]+\|\s*\n((?:\|.+\|\s*\n)*)/g,
     (match, header, rows) => {
@@ -65,7 +77,7 @@ function renderMarkdownContent(content: string): string {
       // Header
       tableHtml += '<thead><tr class="bg-purple-600 text-white">';
       headerCells.forEach((cell: string) => {
-        tableHtml += `<th class="px-6 py-4 text-left font-semibold">${cell}</th>`;
+        tableHtml += `<th class="px-4 py-3 text-left font-semibold" style="word-wrap: break-word; overflow-wrap: break-word; min-width: 120px;">${cell}</th>`;
       });
       tableHtml += '</tr></thead>';
       
@@ -75,7 +87,7 @@ function renderMarkdownContent(content: string): string {
         const bgClass = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
         tableHtml += `<tr class="${bgClass} border-b border-gray-200 hover:bg-purple-50 transition-colors">`;
         row.forEach((cell: string) => {
-          tableHtml += `<td class="px-6 py-4 text-gray-700">${cell}</td>`;
+          tableHtml += `<td class="px-4 py-3 text-gray-700" style="word-wrap: break-word; overflow-wrap: break-word; min-width: 120px;">${cell}</td>`;
         });
         tableHtml += '</tr>';
       });
@@ -289,7 +301,7 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
 
           {/* Article Content */}
           <div className="flex-1 lg:max-w-none order-1 lg:order-2">
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none blog-content">
               <div dangerouslySetInnerHTML={{ __html: renderMarkdownContent(post.content) }} />
             </div>
 
