@@ -16,9 +16,16 @@ export async function GET(req: NextRequest) {
     const result = await verifyToken(token);
     
     if (!result.success) {
-      // Redirect with error
+      // Redirect with specific error message
+      const errorMap: Record<string, string> = {
+        'Invalid token': 'invalid_token',
+        'Token expired': 'token_expired',
+        'User not found': 'user_not_found'
+      };
+      
+      const errorCode = errorMap[result.error || ''] || 'verification_failed';
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/?error=${result.error}`
+        `${process.env.NEXT_PUBLIC_APP_URL}/?error=${errorCode}`
       );
     }
     

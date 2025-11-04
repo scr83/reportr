@@ -5,16 +5,16 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   
-  // More permissive CSP for Google OAuth
+  // More permissive CSP for Google OAuth, Analytics, and Vercel tools
   response.headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://vercel.live blob:",
       "style-src 'self' 'unsafe-inline' https://accounts.google.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com blob:",
+      "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com https://www.google-analytics.com https://analytics.google.com https://vercel.live blob:",
       "frame-src 'self' https://accounts.google.com",
       "frame-ancestors 'self'",
       "object-src 'none'",

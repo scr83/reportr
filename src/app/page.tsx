@@ -24,8 +24,11 @@ function HomePageContent() {
         case 'invalid_token':
           errorText = 'Invalid verification link. Please try again.'
           break
-        case 'Token expired':
+        case 'token_expired':
           errorText = 'Verification link has expired. Please request a new one.'
+          break
+        case 'user_not_found':
+          errorText = 'User not found. Please contact support.'
           break
         case 'verification_failed':
           errorText = 'Email verification failed. Please try again.'

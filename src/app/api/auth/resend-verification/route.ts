@@ -3,65 +3,48 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generateVerificationToken } from '@/lib/email-tokens';
 import { sendVerificationEmail } from '@/lib/email';
-import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the current session
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { error: 'Unauthorized - no session found' }, 
         { status: 401 }
       );
     }
-    
-    // Check if user is already verified
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { emailVerified: true, name: true }
-    });
-    
-    if (!user) {
+
+    // Check if email is already verified
+    if (session.user.emailVerified) {
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-    
-    if (user.emailVerified) {
-      return NextResponse.json(
-        { error: 'Email already verified' },
+        { error: 'Email is already verified' }, 
         { status: 400 }
       );
     }
-    
+
     // Generate new verification token
     const token = await generateVerificationToken(session.user.email);
     
     // Send verification email
-    const result = await sendVerificationEmail(
-      session.user.email,
-      user.name || session.user.name || 'there',
+    const emailResult = await sendVerificationEmail(
+      session.user.email, 
+      session.user.name || 'User',
       token
     );
-    
-    if (!result.success) {
-      return NextResponse.json(
-        { error: 'Failed to send email' },
-        { status: 500 }
-      );
+
+    if (!emailResult.success) {
+      throw new Error(`Email sending failed: ${emailResult.error}`);
     }
     
-    return NextResponse.json({
-      success: true,
-      message: 'Verification email sent successfully'
+    return NextResponse.json({ 
+      message: 'Verification email sent successfully' 
     });
+    
   } catch (error) {
     console.error('Resend verification error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to send verification email. Please try again.' }, 
       { status: 500 }
     );
   }
