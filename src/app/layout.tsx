@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://reportr.com'),
   alternates: {
     canonical: '/',
+    languages: {
+      'en-US': '/',
+      'en-GB': '/',
+      'en-AU': '/',
+      'en-NZ': '/',
+      'en-IN': '/',
+      'x-default': '/',
+    },
   },
   openGraph: {
     title: 'Reportr - Professional SEO Reports in Minutes',

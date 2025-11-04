@@ -62,6 +62,14 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     },
     alternates: {
       canonical: postUrl,
+      languages: {
+        'en-US': postUrl,
+        'en-GB': postUrl,
+        'en-AU': postUrl,
+        'en-NZ': postUrl,
+        'en-IN': postUrl,
+        'x-default': postUrl,
+      },
     },
     robots: {
       index: true,

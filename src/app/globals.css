@@ -359,7 +359,6 @@
     -webkit-overflow-scrolling: touch;
     border-collapse: collapse;
     margin: 1.5rem 0;
-    table-layout: fixed;
   }
 
   /* Ensure table containers are always block-level and stack vertically */

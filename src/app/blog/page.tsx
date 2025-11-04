@@ -22,6 +22,17 @@ export const metadata: Metadata = {
     title: 'SEO Insights for Agencies | Reportr Blog',
     description: 'Expert insights on white label SEO reporting, agency growth strategies, and digital marketing best practices.',
   },
+  alternates: {
+    canonical: 'https://reportr.agency/blog',
+    languages: {
+      'en-US': 'https://reportr.agency/blog',
+      'en-GB': 'https://reportr.agency/blog',
+      'en-AU': 'https://reportr.agency/blog',
+      'en-NZ': 'https://reportr.agency/blog',
+      'en-IN': 'https://reportr.agency/blog',
+      'x-default': 'https://reportr.agency/blog',
+    },
+  },
 }
 
 interface BlogPageProps {
