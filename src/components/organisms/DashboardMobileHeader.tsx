@@ -5,10 +5,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Menu, BarChart3 } from 'lucide-react'
 import { UserMenu } from '@/components/organisms/UserMenu'
-import { TrialCountdown } from '@/components/molecules/TrialCountdown'
 import { Skeleton } from '@/components/atoms'
 import { useUserProfile } from '@/hooks/useUserProfile'
-import { shouldShowTrialCountdown } from '@/lib/utils/trial-helpers'
 import { cn, getInitials, truncate } from '@/lib/utils'
 
 interface DashboardMobileHeaderProps {
@@ -93,10 +91,6 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
       )
     }
   }
-  const showTrialCountdown = profile && shouldShowTrialCountdown({
-    trialUsed: profile.trialUsed,
-    trialEndDate: profile.trialEndDate ? new Date(profile.trialEndDate) : null,
-  });
 
   return (
     <>
@@ -121,15 +115,6 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
         <UserMenu />
       </header>
 
-      {/* Trial Countdown - positioned below header on mobile */}
-      {showTrialCountdown && profile?.trialEndDate && (
-        <div className="fixed top-16 left-0 right-0 z-30 p-4">
-          <TrialCountdown
-            trialEndDate={new Date(profile.trialEndDate)}
-            onUpgradeClick={() => router.push('/pricing')}
-          />
-        </div>
-      )}
     </>
   )
 }
