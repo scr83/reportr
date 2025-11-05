@@ -5,8 +5,16 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button } from '@/components/atoms'
-import { UsageCard } from '@/components/molecules/UsageCard'
+import { UsageProgressBar } from '@/components/molecules/UsageProgressBar'
+import { TrialCountdown } from '@/components/molecules/TrialCountdown'
+import { UpgradePromptModal } from '@/components/organisms/UpgradePromptModal'
 import { Users, FileText, TrendingUp, Plus, ExternalLink, UserCheck } from 'lucide-react'
+import { Plan } from '@prisma/client'
+import { 
+  shouldShowUpgradePrompt, 
+  getNextTier, 
+  shouldShowTrialCountdown 
+} from '@/lib/utils/trial-helpers'
 
 interface Client {
   id: string
@@ -66,15 +74,24 @@ interface UsageStats {
   whiteLabelEnabled: boolean;
 }
 
+interface UserData {
+  trialStartDate?: string | null;
+  trialEndDate?: string | null;
+  trialUsed: boolean;
+  plan: Plan;
+}
+
 function DashboardContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
   const [reports, setReports] = useState<Report[]>([])
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
+  const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
 
   // Calculate stats from real data
   const stats = [
@@ -133,11 +150,12 @@ function DashboardContent() {
         setLoading(true)
         setError(null)
 
-        // Fetch clients, reports, and usage stats in parallel
-        const [clientsResponse, reportsResponse, usageResponse] = await Promise.all([
+        // Fetch clients, reports, usage stats, and user data in parallel
+        const [clientsResponse, reportsResponse, usageResponse, userResponse] = await Promise.all([
           fetch('/api/clients'),
           fetch('/api/reports'),
-          fetch('/api/usage')
+          fetch('/api/usage'),
+          fetch('/api/user/profile')
         ])
 
         if (!clientsResponse.ok) {
@@ -149,6 +167,9 @@ function DashboardContent() {
         if (!usageResponse.ok) {
           console.warn('Failed to fetch usage stats, continuing without them')
         }
+        if (!userResponse.ok) {
+          console.warn('Failed to fetch user data, continuing without trial info')
+        }
 
         const clientsData = await clientsResponse.json()
         const reportsData = await reportsResponse.json()
@@ -156,6 +177,16 @@ function DashboardContent() {
         if (usageResponse.ok) {
           const usageData = await usageResponse.json()
           setUsageStats(usageData)
+        }
+
+        if (userResponse.ok) {
+          const user = await userResponse.json()
+          setUserData({
+            trialStartDate: user.trialStartDate,
+            trialEndDate: user.trialEndDate,
+            trialUsed: user.trialUsed,
+            plan: user.plan as Plan,
+          })
         }
 
         setClients(clientsData)
@@ -170,6 +201,22 @@ function DashboardContent() {
 
     fetchDashboardData()
   }, [searchParams])
+
+  // Check if upgrade prompt should be shown
+  useEffect(() => {
+    if (!usageStats || !userData) return;
+
+    const hasSeenPrompt = sessionStorage.getItem('upgrade-prompt-shown');
+    if (hasSeenPrompt) return;
+
+    const clientUsagePercent = usageStats.clients.percentage;
+    const reportUsagePercent = usageStats.reports.percentage;
+
+    if (shouldShowUpgradePrompt(clientUsagePercent, reportUsagePercent, 80) && userData.plan !== 'ENTERPRISE') {
+      setShowUpgradePrompt(true);
+      sessionStorage.setItem('upgrade-prompt-shown', 'true');
+    }
+  }, [usageStats, userData])
 
 
   return (
@@ -192,12 +239,29 @@ function DashboardContent() {
 
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Dashboard
-          </Typography>
-          <Typography className="text-gray-600">
-            Welcome back! Here&apos;s what&apos;s happening with your SEO reports.
-          </Typography>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <Typography variant="h1" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                Dashboard
+              </Typography>
+              <Typography className="text-gray-600">
+                Welcome back! Here&apos;s what&apos;s happening with your SEO reports.
+              </Typography>
+            </div>
+            
+            {/* Trial Countdown - desktop only */}
+            {userData && shouldShowTrialCountdown({
+              trialUsed: userData.trialUsed,
+              trialEndDate: userData.trialEndDate ? new Date(userData.trialEndDate) : null,
+            }) && userData.trialEndDate && (
+              <div className="hidden lg:block">
+                <TrialCountdown
+                  trialEndDate={new Date(userData.trialEndDate)}
+                  onUpgradeClick={() => router.push('/pricing')}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Usage Cards */}
@@ -215,23 +279,17 @@ function DashboardContent() {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UsageCard
-                label="Clients"
-                icon={<Users className="w-5 h-5" />}
-                used={usageStats.clients.used}
+              <UsageProgressBar
+                current={usageStats.clients.used}
                 limit={usageStats.clients.limit}
-                percentage={usageStats.clients.percentage}
-                isAtLimit={usageStats.clients.isAtLimit}
-                isNearLimit={usageStats.clients.isNearLimit}
+                label="Clients"
+                onUpgradeClick={() => router.push('/pricing')}
               />
-              <UsageCard
-                label="Reports This Cycle"
-                icon={<FileText className="w-5 h-5" />}
-                used={usageStats.reports.used}
+              <UsageProgressBar
+                current={usageStats.reports.used}
                 limit={usageStats.reports.limit}
-                percentage={usageStats.reports.percentage}
-                isAtLimit={usageStats.reports.isAtLimit}
-                isNearLimit={usageStats.reports.isNearLimit}
+                label="Reports This Month"
+                onUpgradeClick={() => router.push('/pricing')}
               />
             </div>
           </div>
@@ -480,6 +538,28 @@ function DashboardContent() {
             </div>
           </div>
         </div>
+
+        {/* Upgrade Prompt Modal */}
+        {showUpgradePrompt && usageStats && userData && (
+          <UpgradePromptModal
+            isOpen={showUpgradePrompt}
+            onClose={() => setShowUpgradePrompt(false)}
+            currentPlan={userData.plan}
+            suggestedPlan={getNextTier(userData.plan)}
+            usageType={usageStats.clients.percentage >= usageStats.reports.percentage ? 'clients' : 'reports'}
+            currentUsage={
+              usageStats.clients.percentage >= usageStats.reports.percentage 
+                ? usageStats.clients.used 
+                : usageStats.reports.used
+            }
+            currentLimit={
+              usageStats.clients.percentage >= usageStats.reports.percentage 
+                ? usageStats.clients.limit 
+                : usageStats.reports.limit
+            }
+            onUpgradeClick={() => router.push('/pricing')}
+          />
+        )}
       </div>
     </DashboardLayout>
   )
