@@ -66,7 +66,7 @@ function PricingTiers() {
     if (session) {
       router.push('/dashboard')
     } else {
-      signIn('google', { callbackUrl: '/dashboard?plan=free' })
+      signIn('google', { callbackUrl: '/dashboard?flow=free' })
     }
   }
 

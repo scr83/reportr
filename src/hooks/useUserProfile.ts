@@ -11,6 +11,9 @@ export interface UserProfile {
   whiteLabelEnabled: boolean
   plan: string
   planExpires?: string | null
+  trialStartDate?: string | null
+  trialEndDate?: string | null
+  trialUsed: boolean
 }
 
 export function useUserProfile() {

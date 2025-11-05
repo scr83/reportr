@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
     ].join('; ')
   );
 
-  // Check email verification for protected routes
+  // Check verification for protected routes (PayPal subscription, email verification, or PAID_TRIAL flow)
   const { pathname } = request.nextUrl;
   const protectedRoutes = ['/dashboard', '/clients', '/reports', '/settings'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
@@ -30,10 +30,37 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     
-    if (token && !token.emailVerified) {
-      // User is logged in but email not verified
-      const verifyUrl = new URL('/verify-email-prompt', request.url);
-      return NextResponse.redirect(verifyUrl);
+    if (token) {
+      const userId = token.sub;
+      const emailVerified = token.emailVerified as boolean;
+      const paypalSubscriptionId = token.paypalSubscriptionId as string | null;
+      const subscriptionStatus = token.subscriptionStatus as string;
+      const signupFlow = token.signupFlow as string | null;
+      
+      // Check if user has active PayPal subscription
+      const hasActivePayPalSubscription = paypalSubscriptionId && subscriptionStatus === 'active';
+      
+      // Allow access if user has:
+      // 1. Active PayPal subscription, OR
+      // 2. Email verification for FREE flow users, OR  
+      // 3. PAID_TRIAL flow (trusted PayPal users who don't need email verification)
+      const hasAccess = hasActivePayPalSubscription || emailVerified || signupFlow === 'PAID_TRIAL';
+      
+      if (!hasAccess) {
+        // User is logged in but needs verification
+        console.log(`User ${userId} blocked - no access (PayPal: ${subscriptionStatus}, emailVerified: ${emailVerified}, signupFlow: ${signupFlow})`);
+        const verifyUrl = new URL('/verify-email-prompt', request.url);
+        return NextResponse.redirect(verifyUrl);
+      } else {
+        // Log which verification path was used for debugging
+        if (hasActivePayPalSubscription) {
+          console.log(`User ${userId} accessed via PayPal subscription (${paypalSubscriptionId})`);
+        } else if (signupFlow === 'PAID_TRIAL') {
+          console.log(`User ${userId} accessed via PAID_TRIAL flow (skipped email verification)`);
+        } else if (emailVerified) {
+          console.log(`User ${userId} accessed via email verification`);
+        }
+      }
     }
   }
   

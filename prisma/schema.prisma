@@ -35,8 +35,10 @@ model User {
   trialStartDate       DateTime?
   trialEndDate         DateTime?
   trialUsed            Boolean   @default(false)
+  trialType            String?   // 'EMAIL' | 'PAYPAL' | null
   signupIp             String?
   welcomeEmailSent     Boolean   @default(false)
+  signupFlow           String?   // 'FREE' | 'PAID_TRIAL' | null
   
   clients              Client[]
   payments             Payment[]

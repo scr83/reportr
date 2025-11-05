@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { activateTrial } from '@/lib/trial-activation';
+import { Plan } from '@prisma/client';
 
 /**
  * Generate a verification token for email verification
@@ -65,12 +67,19 @@ export async function verifyToken(token: string) {
     where: { id: user.id },
     data: {
       emailVerified: new Date(),
-      // Set trial dates when email is verified
-      trialStartDate: new Date(),
-      trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days
-      trialUsed: true,
     }
   });
+
+  // Activate trial using centralized function (only if not already activated)
+  const trialResult = await activateTrial({
+    userId: user.id,
+    trialType: 'EMAIL',
+    plan: Plan.FREE,
+  });
+
+  if (!trialResult.success) {
+    console.warn(`⚠️  Email verification completed but trial activation failed: ${trialResult.error} (User: ${user.id})`);
+  }
   
   // Delete used token
   await prisma.verificationToken.delete({

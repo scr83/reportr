@@ -2,10 +2,13 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Menu, BarChart3 } from 'lucide-react'
 import { UserMenu } from '@/components/organisms/UserMenu'
+import { TrialCountdown } from '@/components/molecules/TrialCountdown'
 import { Skeleton } from '@/components/atoms'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { shouldShowTrialCountdown } from '@/lib/utils/trial-helpers'
 import { cn, getInitials, truncate } from '@/lib/utils'
 
 interface DashboardMobileHeaderProps {
@@ -17,6 +20,7 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
   onMenuClick,
   className
 }) => {
+  const router = useRouter()
   const { profile, loading } = useUserProfile()
   const [imageError, setImageError] = useState(false)
 
@@ -89,27 +93,44 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
       )
     }
   }
+  const showTrialCountdown = profile && shouldShowTrialCountdown({
+    trialUsed: profile.trialUsed,
+    trialEndDate: profile.trialEndDate ? new Date(profile.trialEndDate) : null,
+  });
+
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4",
-      className
-    )}>
-      {/* Hamburger Menu Button */}
-      <button
-        onClick={onMenuClick}
-        className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2"
-        style={{ '--tw-ring-color': 'var(--primary-color)' } as React.CSSProperties}
-        aria-label="Open menu"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+    <>
+      <header className={cn(
+        "fixed top-0 left-0 right-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4",
+        className
+      )}>
+        {/* Hamburger Menu Button */}
+        <button
+          onClick={onMenuClick}
+          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2"
+          style={{ '--tw-ring-color': 'var(--primary-color)' } as React.CSSProperties}
+          aria-label="Open menu"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
 
-      {/* Logo */}
-      {renderLogo()}
+        {/* Logo */}
+        {renderLogo()}
 
-      {/* User Menu */}
-      <UserMenu />
-    </header>
+        {/* User Menu */}
+        <UserMenu />
+      </header>
+
+      {/* Trial Countdown - positioned below header on mobile */}
+      {showTrialCountdown && profile?.trialEndDate && (
+        <div className="fixed top-16 left-0 right-0 z-30 p-4">
+          <TrialCountdown
+            trialEndDate={new Date(profile.trialEndDate)}
+            onUpgradeClick={() => router.push('/pricing')}
+          />
+        </div>
+      )}
+    </>
   )
 }
 

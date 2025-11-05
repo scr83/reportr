@@ -7,6 +7,7 @@ import { prisma } from '../prisma';
 import { paypalClient } from './paypal-client';
 import { Plan } from '@prisma/client';
 import { isWhiteLabelPlan, getTierFromPlanId, tierToPlan } from '../utils/paypal-plans';
+import { activateTrial } from '../trial-activation';
 
 interface SubscriptionData {
   userId: string;
@@ -41,6 +42,17 @@ export class SubscriptionService {
         actualPlan
       });
 
+      // Activate trial using centralized function (for trial plans)
+      const trialResult = await activateTrial({
+        userId,
+        trialType: 'PAYPAL',
+        plan: actualPlan,
+      });
+
+      if (!trialResult.success) {
+        console.warn(`⚠️  PayPal subscription activated but trial activation failed: ${trialResult.error} (User: ${userId})`);
+      }
+
       // Update user with subscription info and white-label status
       await prisma.user.update({
         where: { id: userId },
@@ -52,6 +64,7 @@ export class SubscriptionService {
           billingCycleStart: new Date(),
           billingCycleEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
           whiteLabelEnabled: isWhiteLabel, // Auto-enable white-label for WL plans
+          signupFlow: 'PAID_TRIAL', // Mark as paid trial flow to skip email verification
         },
       });
 

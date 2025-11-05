@@ -101,15 +101,16 @@ export function PayPalSubscribeButton({
   };
 
   const handleGoogleSignIn = async () => {
-    console.log('🔐 Initiating Google sign-in...');
+    console.log('🔐 Initiating Google sign-in for PayPal subscription...');
     
     // Add URL parameter to persist subscription intent across redirect
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('subscribe', 'pending');
+    currentUrl.searchParams.set('flow', 'paid'); // Mark as paid flow for analytics
     
     // Trigger Google OAuth with callback URL that includes subscription intent
     await signIn('google', {
-      callbackUrl: currentUrl.toString(), // Return with ?subscribe=pending
+      callbackUrl: currentUrl.toString(), // Return with ?subscribe=pending&flow=paid
     });
   };
 
