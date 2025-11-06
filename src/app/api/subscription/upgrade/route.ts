@@ -14,12 +14,12 @@ export const runtime = 'nodejs'
 
 // PayPal Plan IDs - Use SAME IDs as pricing page!
 const PLAN_IDS = {
-  'STARTER': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!, // Starter_Free_Trial
-  'STARTER_WL': process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!, // Starter_WL_Free_Trial
-  'PROFESSIONAL': process.env.PAYPAL_PRO_TRIAL_PLAN_ID!, // PRO_Free_Trial
-  'PROFESSIONAL_WL': process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!, // PRO_WL_Free_Trial
-  'ENTERPRISE': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!, // Agency_Free_Trial
-  'ENTERPRISE_WL': process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!, // Agency_WL_Free_Trial
+  'STARTER': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0SN795424D608834YNEDY4UY', // Starter_Free_Trial
+  'STARTER_WL': process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W25269089942DNEDY5TQ', // Starter_WL_Free_Trial
+  'PROFESSIONAL': process.env.PAYPAL_PRO_TRIAL_PLAN_ID || 'P-9LW168698M465441PNEDY6KQ', // PRO_Free_Trial
+  'PROFESSIONAL_WL': process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID || 'P-9G486628TV699383DNEDY67Q', // PRO_WL_Free_Trial
+  'ENTERPRISE': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-09W11474GA233304HNEDY7UI', // Agency_Free_Trial
+  'ENTERPRISE_WL': process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID || 'P-4KW51269HY146730FNEDZALI', // Agency_WL_Free_Trial
 };
 
 export async function POST(request: Request) {
@@ -35,7 +35,10 @@ export async function POST(request: Request) {
 
     // 2. Parse request
     const body = await request.json();
-    const { targetPlan, addWhiteLabel } = body;
+    console.log('📩 Upgrade request received:', body);
+    
+    let { targetPlan } = body;
+    const { addWhiteLabel } = body;
 
     if (!targetPlan) {
       return NextResponse.json(
@@ -43,6 +46,11 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Normalize plan name to uppercase
+    targetPlan = targetPlan.toUpperCase();
+    console.log('🎯 Target plan normalized:', targetPlan);
+    console.log('🏷️  Add white-label:', addWhiteLabel);
 
     // 3. Get user with current subscription
     const user = await prisma.user.findUnique({
@@ -64,7 +72,8 @@ export async function POST(request: Request) {
     }
 
     // 4. Determine new plan ID (same logic for all scenarios)
-    const newPlanId = getPlanId(targetPlan.toUpperCase(), addWhiteLabel);
+    const newPlanId = getPlanId(targetPlan, addWhiteLabel);
+    console.log('💳 Selected PayPal plan ID:', newPlanId);
     
     if (!newPlanId) {
       return NextResponse.json(
@@ -76,7 +85,7 @@ export async function POST(request: Request) {
     // 5. SCENARIO A & C: Has existing subscription - REVISE it
     if (user.paypalSubscriptionId && user.subscriptionStatus === 'active') {
       try {
-        console.log(`Revising subscription ${user.paypalSubscriptionId} to plan ${newPlanId}`);
+        console.log(`🔄 Revising subscription ${user.paypalSubscriptionId} to plan ${newPlanId}`);
         
         await paypalClient.reviseSubscription(
           user.paypalSubscriptionId,
@@ -87,7 +96,7 @@ export async function POST(request: Request) {
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            plan: targetPlan.toUpperCase(),
+            plan: targetPlan,
             whiteLabelEnabled: addWhiteLabel || user.whiteLabelEnabled
           }
         });
@@ -97,12 +106,12 @@ export async function POST(request: Request) {
         return NextResponse.json({
           success: true,
           planUpdated: true,
-          newPlan: targetPlan.toUpperCase(),
+          newPlan: targetPlan,
           whiteLabelEnabled: addWhiteLabel || user.whiteLabelEnabled
         });
         
       } catch (error) {
-        console.error('PayPal revision failed:', error);
+        console.error('❌ PayPal revision failed:', error);
         return NextResponse.json(
           { error: 'Failed to update subscription' },
           { status: 500 }
@@ -112,7 +121,7 @@ export async function POST(request: Request) {
 
     // 6. SCENARIO B: No subscription - CREATE new one (freemium upgrade)
     try {
-      console.log(`Creating new subscription for user ${user.id} with plan ${newPlanId}`);
+      console.log(`📝 Creating new subscription for user ${user.id} with plan ${newPlanId}`);
       
       // Get base URL for return URLs (same pattern as working flow)
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -144,7 +153,7 @@ export async function POST(request: Request) {
       });
       
     } catch (error) {
-      console.error('PayPal subscription creation failed:', error);
+      console.error('❌ PayPal subscription creation failed:', error);
       return NextResponse.json(
         { error: 'Failed to create subscription' },
         { status: 500 }
@@ -160,8 +169,21 @@ export async function POST(request: Request) {
   }
 }
 
-// Helper: Get correct PayPal plan ID
+// Helper: Get correct PayPal plan ID with detailed debugging
 function getPlanId(plan: string, withWhiteLabel: boolean): string | null {
   const key = withWhiteLabel ? `${plan}_WL` : plan;
-  return PLAN_IDS[key as keyof typeof PLAN_IDS] || null;
+  console.log('🔑 Looking for plan key:', key);
+  console.log('📋 Available plan keys:', Object.keys(PLAN_IDS));
+  
+  const planId = PLAN_IDS[key as keyof typeof PLAN_IDS];
+  console.log('💰 Plan ID value:', planId);
+  
+  if (!planId) {
+    console.error(`❌ No plan ID found for key: ${key}`);
+    console.error('🏷️  Available plans:', Object.keys(PLAN_IDS));
+    console.error('🌍 Environment check - PAYPAL_STARTER_TRIAL_PLAN_ID:', process.env.PAYPAL_STARTER_TRIAL_PLAN_ID ? 'SET' : 'NOT SET');
+    console.error('🌍 Environment check - PAYPAL_PRO_TRIAL_PLAN_ID:', process.env.PAYPAL_PRO_TRIAL_PLAN_ID ? 'SET' : 'NOT SET');
+  }
+  
+  return planId || null;
 }

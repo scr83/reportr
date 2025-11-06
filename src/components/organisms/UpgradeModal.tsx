@@ -257,7 +257,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          targetPlan: option.plan.toLowerCase(),
+          targetPlan: option.plan.toUpperCase(),
           addWhiteLabel: isAddingWhiteLabel,
           context: context
         }),
