@@ -269,7 +269,7 @@ function PricingTiers() {
                 {/* STARTER: Trial Button */}
                 <PayPalSubscribeButton
                   planId={(whiteLabelEnabled.starter ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W2526908999423DNEDY5TQ'
+                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W25269089942DNEDY5TQ'
                     : process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0SN795424D608834YNEDY4UY'
                   }
                   planName="STARTER"
