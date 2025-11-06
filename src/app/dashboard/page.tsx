@@ -7,7 +7,7 @@ import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button } from '@/components/atoms'
 import { UsageProgressBar } from '@/components/molecules/UsageProgressBar'
 import { TrialCountdown } from '@/components/molecules/TrialCountdown'
-import { UpgradePromptModal } from '@/components/organisms/UpgradePromptModal'
+import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Users, FileText, TrendingUp, Plus, ExternalLink, UserCheck } from 'lucide-react'
 import { Plan } from '@prisma/client'
 import { 
@@ -92,6 +92,14 @@ function DashboardContent() {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
+  const [upgradeContext, setUpgradeContext] = useState<'white-label' | 'reports' | 'clients' | 'general'>('general')
+  const [upgradeLimitInfo, setUpgradeLimitInfo] = useState<{current: number, limit: number, type: string} | undefined>(undefined)
+
+  const handleUpgradeClick = (context: 'white-label' | 'reports' | 'clients' | 'general', limitInfo?: {current: number, limit: number, type: string}) => {
+    setUpgradeContext(context)
+    setUpgradeLimitInfo(limitInfo)
+    setShowUpgradePrompt(true)
+  }
 
   // Calculate stats from real data
   const stats = [
@@ -257,7 +265,7 @@ function DashboardContent() {
               <div className="hidden lg:block">
                 <TrialCountdown
                   trialEndDate={new Date(userData.trialEndDate)}
-                  onUpgradeClick={() => router.push('/pricing')}
+                  onUpgradeClick={() => handleUpgradeClick('general')}
                 />
               </div>
             )}
@@ -271,25 +279,33 @@ function DashboardContent() {
               <Typography variant="h2" className="text-lg font-semibold text-gray-900">
                 Plan Usage ({usageStats.planName})
               </Typography>
-              <Link
-                href="/pricing"
-                className="text-primary-themed text-sm font-medium hover:underline"
+              <button
+                onClick={() => handleUpgradeClick('general')}
+                className="text-primary-themed text-sm font-medium hover:underline cursor-pointer"
               >
                 Upgrade Plan
-              </Link>
+              </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <UsageProgressBar
                 current={usageStats.clients.used}
                 limit={usageStats.clients.limit}
                 label="Clients"
-                onUpgradeClick={() => router.push('/pricing')}
+                onUpgradeClick={() => handleUpgradeClick('clients', {
+                  current: usageStats.clients.used,
+                  limit: usageStats.clients.limit,
+                  type: 'clients'
+                })}
               />
               <UsageProgressBar
                 current={usageStats.reports.used}
                 limit={usageStats.reports.limit}
                 label="Reports This Month"
-                onUpgradeClick={() => router.push('/pricing')}
+                onUpgradeClick={() => handleUpgradeClick('reports', {
+                  current: usageStats.reports.used,
+                  limit: usageStats.reports.limit,
+                  type: 'reports'
+                })}
               />
             </div>
           </div>
@@ -539,25 +555,14 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Upgrade Prompt Modal */}
-        {showUpgradePrompt && usageStats && userData && (
-          <UpgradePromptModal
+        {/* Upgrade Modal */}
+        {showUpgradePrompt && userData && (
+          <UpgradeModal
             isOpen={showUpgradePrompt}
             onClose={() => setShowUpgradePrompt(false)}
             currentPlan={userData.plan}
-            suggestedPlan={getNextTier(userData.plan)}
-            usageType={usageStats.clients.percentage >= usageStats.reports.percentage ? 'clients' : 'reports'}
-            currentUsage={
-              usageStats.clients.percentage >= usageStats.reports.percentage 
-                ? usageStats.clients.used 
-                : usageStats.reports.used
-            }
-            currentLimit={
-              usageStats.clients.percentage >= usageStats.reports.percentage 
-                ? usageStats.clients.limit 
-                : usageStats.reports.limit
-            }
-            onUpgradeClick={() => router.push('/pricing')}
+            context={upgradeContext}
+            limitInfo={upgradeLimitInfo}
           />
         )}
       </div>

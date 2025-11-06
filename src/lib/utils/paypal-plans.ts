@@ -3,6 +3,8 @@
  * Maps tier + white-label selection to correct PayPal subscription plan
  */
 
+import { validatePayPalEnvironment } from './env-validation'
+
 export type PlanTier = 'starter' | 'professional' | 'agency'
 export type PlanSelection = {
   tier: PlanTier
@@ -29,6 +31,11 @@ export function getPayPalPlanId(selection: PlanSelection): string {
   const planId = planMap[key]
 
   if (!planId) {
+    // Check if environment variables are properly configured
+    const validation = validatePayPalEnvironment()
+    if (!validation.isValid) {
+      throw new Error(`PayPal environment not configured. Missing: ${validation.missing.join(', ')}`)
+    }
     throw new Error(`No PayPal plan ID found for: ${tier} (white-label: ${whiteLabelEnabled})`)
   }
 

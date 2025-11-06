@@ -8,9 +8,11 @@ import toast from 'react-hot-toast'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Button, Input, Typography, Switch, Skeleton } from '@/components/atoms'
 import { BrandingPreview } from '@/components/organisms/BrandingPreview'
+import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Palette, Building2, Upload, Save, Settings, Eye, Lock } from 'lucide-react'
 import { validateBrandingData, isValidImageFile, type BrandingData } from '@/lib/validation/branding'
 import { canUseWhiteLabel as checkWhiteLabelAccess } from '@/lib/plan-limits'
+import { Plan } from '@prisma/client'
 
 interface UserProfile {
   id: string
@@ -44,6 +46,7 @@ export default function BrandingSettingsPage() {
   })
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [canUseWhiteLabel, setCanUseWhiteLabel] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -295,10 +298,10 @@ export default function BrandingSettingsPage() {
                       </p>
                       <Button
                         size="sm"
-                        onClick={() => router.push('/pricing')}
+                        onClick={() => setShowUpgradeModal(true)}
                         className="bg-amber-600 hover:bg-amber-700 text-white"
                       >
-                        Upgrade to Professional
+                        {profile?.plan === 'STARTER' ? 'Add White-Label (+$20/mo)' : 'Upgrade to Professional'}
                       </Button>
                     </div>
                   </div>
@@ -565,6 +568,16 @@ export default function BrandingSettingsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          currentPlan={profile?.plan as Plan}
+          context="white-label"
+        />
+      )}
     </DashboardLayout>
   )
 }
