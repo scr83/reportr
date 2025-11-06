@@ -301,7 +301,9 @@ export default function BrandingSettingsPage() {
                         onClick={() => setShowUpgradeModal(true)}
                         className="bg-amber-600 hover:bg-amber-700 text-white"
                       >
-                        {profile?.plan === 'STARTER' ? 'Add White-Label (+$20/mo)' : 'Upgrade to Professional'}
+                        {profile?.plan === 'STARTER' || profile?.plan === 'PROFESSIONAL' || profile?.plan === 'ENTERPRISE' 
+                          ? 'Add White-Label (+$20/mo)' 
+                          : 'Upgrade to Professional'}
                       </Button>
                     </div>
                   </div>

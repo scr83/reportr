@@ -152,6 +152,50 @@ export class PayPalClient {
   }
 
   /**
+   * Revise a subscription (change plan)
+   */
+  async reviseSubscription(subscriptionId: string, newPlanId: string): Promise<void> {
+    try {
+      const accessToken = await this.getAccessToken();
+
+      const response = await fetch(`${this.baseUrl}/v1/billing/subscriptions/${subscriptionId}/revise`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'PayPal-Request-Id': `upgrade-${Date.now()}`
+        },
+        body: JSON.stringify({
+          plan_id: newPlanId,
+          quantity: "1",
+          shipping_amount: {
+            currency_code: "USD",
+            value: "0.00"
+          },
+          application_context: {
+            user_action: "SUBSCRIBE_NOW",
+            payment_method: {
+              payer_selected: "PAYPAL",
+              payee_preferred: "IMMEDIATE_PAYMENT_REQUIRED"
+            }
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('PayPal subscription revision error:', errorText);
+        throw new Error('Failed to revise subscription');
+      }
+
+      console.log('PayPal subscription revised:', subscriptionId, 'to plan:', newPlanId);
+    } catch (error) {
+      console.error('Error revising PayPal subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Cancel a subscription
    */
   async cancelSubscription(subscriptionId: string, reason: string = 'User requested cancellation'): Promise<void> {

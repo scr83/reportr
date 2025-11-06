@@ -115,7 +115,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
     if (context === 'white-label') {
       // For white-label context, focus on plans that include it or can add it
       if (currentPlan === 'STARTER') {
-        // STARTER user wanting white-label: show both options
+        // STARTER user wanting white-label: show add-on option
         const starterOption = allOptions.find(opt => opt.plan === 'STARTER')
         const starterBasePrice = starterOption?.price || 29
         const whiteLabelPrice = starterOption?.whiteLabelPrice || 20
@@ -124,7 +124,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           {
             plan: 'STARTER',
             name: 'Starter + White-Label',
-            price: starterBasePrice + whiteLabelPrice, // Dynamic pricing
+            price: starterBasePrice + whiteLabelPrice,
             period: 'month',
             features: [
               'Up to 5 clients',
@@ -137,13 +137,59 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             ],
             highlighted: true,
             ctaText: 'Add White-Label (+$20/mo)'
-          },
-          ...availableOptions.map(opt => ({
-            ...opt,
-            features: opt.features.includes('White-label included') 
-              ? opt.features 
-              : [...opt.features, 'White-label branding ✨']
-          }))
+          }
+        ]
+      } else if (currentPlan === 'PROFESSIONAL') {
+        // PROFESSIONAL user wanting white-label: show add-on option
+        const proOption = allOptions.find(opt => opt.plan === 'PROFESSIONAL')
+        const proBasePrice = proOption?.price || 99
+        const whiteLabelPrice = proOption?.whiteLabelPrice || 20
+        
+        availableOptions = [
+          {
+            plan: 'PROFESSIONAL',
+            name: 'Professional + White-Label',
+            price: proBasePrice + whiteLabelPrice,
+            period: 'month',
+            features: [
+              'Up to 15 clients',
+              '75 reports per month',
+              'Everything in Starter',
+              'Custom report templates',
+              'Priority support',
+              'Team collaboration',
+              'White-label branding ✨',
+              'Custom company name & logo'
+            ],
+            highlighted: true,
+            ctaText: 'Add White-Label (+$20/mo)'
+          }
+        ]
+      } else if (currentPlan === 'ENTERPRISE') {
+        // ENTERPRISE user wanting white-label: show add-on option
+        const enterpriseOption = allOptions.find(opt => opt.plan === 'ENTERPRISE')
+        const enterpriseBasePrice = enterpriseOption?.price || 199
+        const whiteLabelPrice = enterpriseOption?.whiteLabelPrice || 20
+        
+        availableOptions = [
+          {
+            plan: 'ENTERPRISE',
+            name: 'Agency + White-Label',
+            price: enterpriseBasePrice + whiteLabelPrice,
+            period: 'month',
+            features: [
+              'Up to 50 clients',
+              '250 reports per month',
+              'Everything in Professional',
+              'Dedicated account manager',
+              'Custom integrations',
+              'Priority support',
+              'White-label branding ✨',
+              'Custom company name & logo'
+            ],
+            highlighted: true,
+            ctaText: 'Add White-Label (+$20/mo)'
+          }
         ]
       } else if (currentPlan === 'FREE') {
         // FREE user wanting white-label: show Professional as recommended
