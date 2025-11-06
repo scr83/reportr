@@ -107,7 +107,7 @@ export async function getReportsInCurrentCycle(userId: string): Promise<number> 
       userId,
       createdAt: {
         gte: cycleInfo.cycleStart,
-        lte: cycleInfo.cycleEnd,
+        lt: cycleInfo.cycleEnd, // Use 'lt' instead of 'lte' to exclude reports created at cycle end
       },
     },
   });

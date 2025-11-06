@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { put } from '@vercel/blob'
 import { z } from 'zod'
 import { requireUser } from '@/lib/auth-helpers'
+import { canGenerateReport } from '@/lib/plan-limits'
+import { getBillingCycleInfo } from '@/lib/billing-cycle'
 import { randomUUID } from 'crypto'
 
 // Enhanced validation schemas for flexible data handling
@@ -186,6 +188,42 @@ export async function POST(request: NextRequest) {
       primaryColor: userWithBranding.primaryColor,
       hasLogo: !!userWithBranding.logo,
       companyName: userWithBranding.companyName
+    })
+    
+    // Step 1.9: CHECK REPORT GENERATION LIMITS BEFORE PROCESSING
+    console.log('1.9. Checking report generation limits...')
+    const limitCheck = await canGenerateReport(user.id)
+    
+    if (!limitCheck.allowed) {
+      console.log('LIMIT CHECK FAILED:', {
+        currentCount: limitCheck.currentCount,
+        limit: limitCheck.limit,
+        reason: limitCheck.reason
+      })
+      
+      // Get billing cycle info for additional context
+      const billingCycleInfo = await getBillingCycleInfo(user.id)
+      
+      return NextResponse.json(
+        { 
+          error: limitCheck.reason,
+          currentCount: limitCheck.currentCount,
+          limit: limitCheck.limit,
+          upgradeRequired: true,
+          billingCycle: {
+            start: billingCycleInfo.cycleStart,
+            end: billingCycleInfo.cycleEnd,
+            daysRemaining: billingCycleInfo.daysRemaining
+          }
+        },
+        { status: 403 }
+      )
+    }
+    
+    console.log('Limit check passed:', {
+      currentCount: limitCheck.currentCount,
+      limit: limitCheck.limit,
+      remaining: limitCheck.limit - limitCheck.currentCount
     })
     
     // Step 2: Parse and validate request data
