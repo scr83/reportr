@@ -1,5 +1,6 @@
 import { Plan } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { getBillingCycleInfo, getReportsInCurrentCycle } from '@/lib/billing-cycle';
 
 export interface PlanLimits {
   clients: number;
@@ -83,6 +84,7 @@ export async function canAddClient(userId: string): Promise<{
 
 /**
  * Check if user can generate another report this month
+ * FIXED: Now uses billing-cycle.ts for proper cycle management
  */
 export async function canGenerateReport(userId: string): Promise<{
   allowed: boolean;
@@ -90,8 +92,14 @@ export async function canGenerateReport(userId: string): Promise<{
   currentCount: number;
   limit: number;
 }> {
+  // 🔗 INTEGRATION: Use billing-cycle system for cycle-aware counting
+  // This automatically handles cycle reset if expired
+  const cycleInfo = await getBillingCycleInfo(userId);
+  
+  // Get user data for plan limits
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    select: { plan: true },
   });
 
   if (!user) {
@@ -99,18 +107,9 @@ export async function canGenerateReport(userId: string): Promise<{
   }
 
   const limits = getPlanLimits(user.plan);
-
-  // Count reports generated this billing cycle
-  const cycleStart = user.billingCycleStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   
-  const currentCount = await prisma.report.count({
-    where: {
-      userId,
-      createdAt: {
-        gte: cycleStart,
-      },
-    },
-  });
+  // ✅ FIXED: Get cycle-aware report count (automatically resets if cycle expired)
+  const currentCount = await getReportsInCurrentCycle(userId);
 
   if (currentCount >= limits.reportsPerMonth) {
     return {

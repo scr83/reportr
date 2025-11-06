@@ -7,15 +7,16 @@ import { NextResponse } from 'next/server';
 import { subscriptionService } from '../../../../lib/services/subscription-service';
 import { prisma } from '../../../../lib/prisma';
 import { Plan } from '@prisma/client';
+import crypto from 'crypto';
+import https from 'https';
 
 export const runtime = 'nodejs';
 
 /**
  * Verify PayPal webhook signature
- * Implements basic verification with sandbox bypass
- * TODO: Full cert-based verification before going live
+ * FIXED: Implements full certificate-based verification for production
  */
-function verifyWebhookSignature(headers: Headers): boolean {
+async function verifyWebhookSignature(headers: Headers, body: string): Promise<boolean> {
   try {
     // Extract PayPal signature headers
     const transmissionId = headers.get('paypal-transmission-id');
@@ -37,16 +38,68 @@ function verifyWebhookSignature(headers: Headers): boolean {
       authAlgo,
     });
 
-    // SANDBOX MODE: Allow webhooks for testing
+    // SANDBOX MODE: Allow webhooks for testing (but still verify headers)
     if (process.env.PAYPAL_MODE === 'sandbox') {
       console.log('✅ SANDBOX MODE: Webhook accepted (signature headers verified)');
       return true;
     }
 
-    // LIVE MODE: Require full verification
-    console.error('❌ LIVE MODE: Full webhook signature verification not yet implemented');
-    console.error('⚠️  Deploy webhook cert validation before switching to live mode');
-    return false;
+    // PRODUCTION MODE: Full certificate-based verification
+    console.log('🔒 PRODUCTION MODE: Performing full webhook signature verification');
+
+    const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+    if (!webhookId) {
+      console.error('❌ PAYPAL_WEBHOOK_ID environment variable not set');
+      return false;
+    }
+
+    // Build expected signature string
+    const bodyHash = crypto.createHash('sha256').update(body, 'utf8').digest('hex');
+    const expectedSig = `${transmissionId}|${transmissionTime}|${webhookId}|${bodyHash}`;
+
+    console.log('🔐 Signature verification data:', {
+      transmissionId: transmissionId.substring(0, 10) + '...',
+      transmissionTime,
+      webhookId: webhookId.substring(0, 10) + '...',
+      bodyHash: bodyHash.substring(0, 16) + '...'
+    });
+
+    // Fetch PayPal's public certificate
+    const cert = await new Promise<string>((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Certificate fetch timeout')), 5000);
+      
+      https.get(certUrl, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          clearTimeout(timeout);
+          resolve(data);
+        });
+        res.on('error', (err) => {
+          clearTimeout(timeout);
+          reject(err);
+        });
+      }).on('error', (err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
+    });
+
+    // Verify signature using PayPal's public certificate
+    const verifier = crypto.createVerify('SHA256');
+    verifier.update(expectedSig, 'utf8');
+    verifier.end();
+
+    const isValid = verifier.verify(cert, transmissionSig, 'base64');
+
+    if (isValid) {
+      console.log('✅ Webhook signature verified successfully');
+      return true;
+    } else {
+      console.error('❌ Webhook signature verification failed');
+      console.error('Expected sig data:', expectedSig.substring(0, 100) + '...');
+      return false;
+    }
 
   } catch (error) {
     console.error('❌ Webhook verification error:', error);
@@ -58,17 +111,18 @@ export async function POST(request: Request) {
   try {
     const headers = request.headers;
     
+    // Parse webhook body first (needed for signature verification)
+    const bodyText = await request.text();
+    const body = JSON.parse(bodyText);
+    
     // SECURITY: Verify webhook is from PayPal
-    if (!verifyWebhookSignature(headers)) {
+    if (!(await verifyWebhookSignature(headers, bodyText))) {
       console.error('❌ Webhook signature verification FAILED - Rejecting request');
       return NextResponse.json(
         { error: 'Unauthorized webhook' },
         { status: 401 }
       );
     }
-
-    // Parse webhook body
-    const body = await request.json();
     const eventType = body.event_type;
 
     console.log('✅ Verified webhook received:', eventType);
