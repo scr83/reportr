@@ -8,7 +8,9 @@ import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
 import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
 import { ManageClientModal } from '@/components/organisms/ManageClientModal'
+import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Users, Plus, Globe, Calendar, Link as LinkIcon, CheckCircle, XCircle, AlertCircle, BarChart, Settings, Search } from 'lucide-react'
+import { Plan } from '@prisma/client'
 
 interface Client {
   id: string
@@ -71,6 +73,9 @@ export default function ClientsPage() {
   // Manage client modal state
   const [isManageModalOpen, setIsManageModalOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+  
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Fetch clients on mount
   useEffect(() => {
@@ -375,12 +380,13 @@ export default function ClientsPage() {
             </Typography>
           </div>
           {usageStats?.clients.isAtLimit ? (
-            <Link href="/pricing">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white min-h-[44px] w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Upgrade to Add More
-              </Button>
-            </Link>
+            <Button 
+              onClick={() => setShowUpgradeModal(true)}
+              className="bg-orange-500 hover:bg-orange-600 text-white min-h-[44px] w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Upgrade to Add More
+            </Button>
           ) : (
             <Button className="btn-primary-themed min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -699,6 +705,21 @@ export default function ClientsPage() {
           client={selectedClient}
           onSuccess={handleManageClientSuccess}
         />
+        
+        {/* Upgrade Modal */}
+        {usageStats?.plan && (
+          <UpgradeModal
+            isOpen={showUpgradeModal}
+            onClose={() => setShowUpgradeModal(false)}
+            currentPlan={usageStats.plan as Plan}
+            context="clients"
+            limitInfo={{
+              current: usageStats.clients.used,
+              limit: usageStats.clients.limit,
+              type: 'clients'
+            }}
+          />
+        )}
       </div>
     </DashboardLayout>
   )

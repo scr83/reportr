@@ -82,8 +82,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. SCENARIO A & C: Has existing subscription - REVISE it
-    if (user.paypalSubscriptionId && user.subscriptionStatus === 'active') {
+    // 5. SCENARIO A & C: Has existing subscription - REVISE it (works for active AND trialing)
+    if (user.paypalSubscriptionId) {
       try {
         console.log(`🔄 Revising subscription ${user.paypalSubscriptionId} to plan ${newPlanId}`);
         
@@ -120,14 +120,28 @@ export async function POST(request: Request) {
     }
 
     // 6. SCENARIO B: No subscription - CREATE new one (freemium upgrade)
-    try {
-      console.log(`📝 Creating new subscription for user ${user.id} with plan ${newPlanId}`);
-      
-      // Get base URL for return URLs (same pattern as working flow)
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      const returnUrl = `${baseUrl}/payment/success?session_id=${session.user.id}`;
-      const cancelUrl = `${baseUrl}/payment/canceled`;
+    console.log(`📝 Creating new subscription for user ${user.id} with plan ${newPlanId}`);
+    
+    // Ensure NEXT_PUBLIC_APP_URL is defined
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      console.error('❌ NEXT_PUBLIC_APP_URL not defined');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
 
+    const returnUrl = `${appUrl}/api/payments/activate-subscription`;
+    const cancelUrl = `${appUrl}/dashboard`;
+
+    console.log('🌐 Creating subscription with URLs:', {
+      planId: newPlanId,
+      returnUrl,
+      cancelUrl
+    });
+
+    try {
       const subscription = await paypalClient.createSubscription(
         newPlanId,
         returnUrl,
@@ -140,10 +154,12 @@ export async function POST(request: Request) {
       )?.href;
 
       if (!approvalUrl) {
+        console.error('❌ No approval URL returned from PayPal');
         throw new Error('No approval URL returned from PayPal');
       }
 
       console.log(`✅ New subscription created for user ${user.id}: ${subscription.id}`);
+      console.log('🔗 Approval URL:', approvalUrl);
 
       return NextResponse.json({
         success: true,
@@ -152,10 +168,16 @@ export async function POST(request: Request) {
         subscriptionId: subscription.id
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ PayPal subscription creation failed:', error);
+      console.error('🔍 Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        statusCode: error.response?.status
+      });
+      
       return NextResponse.json(
-        { error: 'Failed to create subscription' },
+        { error: error.message || 'Failed to create subscription' },
         { status: 500 }
       );
     }
