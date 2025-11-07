@@ -269,49 +269,53 @@ export default function BrandingSettingsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Settings Form */}
           <div className="space-y-6">
-            {/* White Label Toggle */}
-            <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <Settings className="h-5 w-5 mr-2" />
-                White Label Settings
-              </h2>
-              
-              {canUseWhiteLabel ? (
-                <Switch
-                  checked={formData.whiteLabelEnabled}
-                  onChange={(e) => handleInputChange('whiteLabelEnabled', e.target.checked)}
-                  label="Enable White Label Branding"
-                  description="When enabled, your custom branding will appear throughout the platform and in generated reports"
-                  size="md"
-                />
-              ) : (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <div className="flex items-start">
-                    <Lock className="h-5 w-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-medium text-amber-800 mb-1">
-                        White Label Branding Unavailable
-                      </h3>
-                      <p className="text-sm text-amber-700 mb-3">
-                        White label branding is available on Professional and Enterprise plans.
-                        {profile?.plan === 'STARTER' && ' You can also access it during your trial period.'}
-                      </p>
-                      <Button
-                        size="sm"
-                        onClick={() => setShowUpgradeModal(true)}
-                        className="bg-amber-600 hover:bg-amber-700 text-white"
-                      >
-                        {profile?.plan === 'STARTER' || profile?.plan === 'PROFESSIONAL' || profile?.plan === 'ENTERPRISE' 
-                          ? 'Add White-Label (+$20/mo)' 
-                          : 'Upgrade to Professional'}
-                      </Button>
+            {/* White Label Toggle - Only show if white-label is NOT enabled */}
+            {!(formData.whiteLabelEnabled && canUseWhiteLabel) && (
+              <Card className="p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Settings className="h-5 w-5 mr-2" />
+                  White Label Settings
+                </h2>
+                
+                {canUseWhiteLabel ? (
+                  <Switch
+                    checked={formData.whiteLabelEnabled}
+                    onChange={(e) => handleInputChange('whiteLabelEnabled', e.target.checked)}
+                    label="Enable White Label Branding"
+                    description="When enabled, your custom branding will appear throughout the platform and in generated reports"
+                    size="md"
+                  />
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Lock className="h-5 w-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-medium text-amber-800 mb-1">
+                          White Label Branding Unavailable
+                        </h3>
+                        <p className="text-sm text-amber-700 mb-3">
+                          White label branding is available on Professional and Enterprise plans.
+                          {profile?.plan === 'STARTER' && ' You can also access it during your trial period.'}
+                        </p>
+                        <Button
+                          size="sm"
+                          onClick={() => setShowUpgradeModal(true)}
+                          className="bg-amber-600 hover:bg-amber-700 text-white"
+                        >
+                          {profile?.plan === 'STARTER' || profile?.plan === 'PROFESSIONAL' || profile?.plan === 'ENTERPRISE' 
+                            ? 'Add White-Label (+$20/mo)' 
+                            : 'Upgrade to Professional'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </Card>
+                )}
+              </Card>
+            )}
 
-            {/* Company Information */}
+            {/* Company Information - Only show if white-label IS enabled */}
+            {formData.whiteLabelEnabled && canUseWhiteLabel && (
+            <>
             <Card className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <Building2 className="h-5 w-5 mr-2" />
@@ -465,7 +469,7 @@ export default function BrandingSettingsPage() {
               </div>
             </Card>
 
-            {/* Color Scheme */}
+            {/* Color Scheme - Part of same conditional as Company Information */}
             <Card className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <Palette className="h-5 w-5 mr-2" />
@@ -526,7 +530,7 @@ export default function BrandingSettingsPage() {
               </div>
             </Card>
 
-            {/* Save Button */}
+            {/* Save Button - Only show if white-label IS enabled */}
             <div className="flex justify-end">
               <Button
                 onClick={handleSave}
@@ -540,6 +544,8 @@ export default function BrandingSettingsPage() {
                 {saving ? 'Saving...' : 'Save Settings'}
               </Button>
             </div>
+            </>
+            )}
           </div>
 
           {/* Live Preview */}
