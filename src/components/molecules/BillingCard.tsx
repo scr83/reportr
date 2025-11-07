@@ -59,12 +59,6 @@ export function BillingCard({ data, loading }: BillingCardProps) {
     }
   }
 
-  const handleManageSubscription = () => {
-    if (subscription.paypalSubscriptionId) {
-      // Redirect to PayPal subscription management
-      window.open('https://www.paypal.com/myaccount/autopay/', '_blank')
-    }
-  }
 
   const handleCancelSubscription = async () => {
     setCancelling(true)
@@ -161,50 +155,56 @@ export function BillingCard({ data, loading }: BillingCardProps) {
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="space-y-3 pt-2">
-          {/* Payment management for paid users */}
-          {subscription.plan !== 'FREE' && subscription.paypalSubscriptionId && (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-600">
-                Your subscription is managed through PayPal
-              </p>
-              
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleManageSubscription}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center flex-1"
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Manage Payment Method
-                  <ExternalLink className="h-3.5 w-3.5 ml-2 text-gray-400" />
-                </Button>
-                
-                <Button
-                  onClick={() => setShowCancelModal(true)}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center flex-1 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                >
-                  Cancel Subscription
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Payment Management Section - Always Visible */}
+        <div className="space-y-3 mt-6 pt-6 border-t">
+          {/* Status Message */}
+          <p className="text-sm text-gray-600 mb-3">
+            {subscription.paypalSubscriptionId ? (
+              <>Your subscription is managed through PayPal</>
+            ) : subscription.plan !== 'FREE' ? (
+              <>Set up your payment method to manage your subscription</>
+            ) : (
+              <>Upgrade to access payment management features</>
+            )}
+          </p>
           
-          {/* Upgrade button for FREE users */}
-          {subscription.plan === 'FREE' && (
-            <a
-              href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-09S98046PD2685338ND3AO4Q"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center btn-primary-themed text-sm w-full py-2.5"
+          {/* Manage Payment Method Button */}
+          <a
+            href="https://www.paypal.com/myaccount/autopay"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          >
+            <CreditCard className="h-4 w-4" />
+            Manage Payment Method
+            <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+          </a>
+
+          {/* Cancel Subscription Button - Only if has PayPal subscription */}
+          {subscription.paypalSubscriptionId ? (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              disabled={subscription.status === 'cancelled'}
+              className="w-full px-4 py-2.5 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <DollarSign className="h-4 w-4 mr-2" />
+              {subscription.status === 'cancelled' 
+                ? 'Subscription Cancelled' 
+                : 'Cancel Subscription'}
+            </button>
+          ) : subscription.plan !== 'FREE' ? (
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            >
+              Complete Payment Setup
+            </button>
+          ) : (
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            >
               Upgrade to Premium
-            </a>
+            </button>
           )}
         </div>
       </div>
