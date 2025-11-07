@@ -977,10 +977,10 @@ export default function GenerateReportPage() {
             </div>
             <div className="ml-3">
               <Typography className="text-lg font-semibold text-gray-900">
-                Auto-Fetch from Google APIs
+                Auto-Fetch from Google
               </Typography>
               <Typography className="text-sm text-gray-600">
-                Automatically import data from Google Search Console and Analytics
+                Automatically import data from Google Search Console, Analytics and PageSpeed Insights
               </Typography>
             </div>
           </div>
@@ -1119,28 +1119,15 @@ export default function GenerateReportPage() {
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Top Queries
-            </label>
-            <textarea
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              value={reportData.gscData.topQueries}
-              onChange={(e) => setReportData(prev => ({
-                ...prev,
-                gscData: { ...prev.gscData, topQueries: e.target.value }
-              }))}
-              placeholder='[{"query": "seo tools", "clicks": 123, "impressions": 4567, "ctr": 2.69, "position": 12.5}, ...]'
-            />
-            
-            {/* Top Queries Preview Table */}
-            {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
-              <div className="mt-3">
-                <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
-                {renderTopQueries(reportData.gscData.topQueries)}
-              </div>
-            )}
-          </div>
+          {/* Top Queries Preview Table */}
+          {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Top Queries
+              </label>
+              {renderTopQueries(reportData.gscData.topQueries)}
+            </div>
+          )}
         </div>
       )}
 
