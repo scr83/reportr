@@ -68,7 +68,11 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
 
       {/* PageSpeed Insights Page - Include if PageSpeed data exists */}
       {data.pageSpeedData && (
-        <PageSpeedInsightsPage data={data} />
+        <PageSpeedInsightsPage 
+          data={data} 
+          pageNumber={7}
+          totalPages={10}
+        />
       )}
 
       {/* Key Insights Page - Always included after GA4 data */}

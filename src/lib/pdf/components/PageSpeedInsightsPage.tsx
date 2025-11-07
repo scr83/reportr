@@ -1,18 +1,26 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
+import { ReportHeader } from '@/components/pdf/components/ReportHeader';
+import { ReportFooter } from '@/components/pdf/components/ReportFooter';
+import { createPDFStyles, createStyleSheet } from '@/components/pdf/BaseTemplate';
 
 interface PageSpeedInsightsPageProps {
   data: ReportData;
+  pageNumber: number;
+  totalPages: number;
 }
 
-export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ data }) => {
+export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ data, pageNumber, totalPages }) => {
   if (!data.pageSpeedData) {
     return null; // Don't render page if no PageSpeed data
   }
 
   const { pageSpeedData } = data;
-  const primaryColor = data.branding.primaryColor || '#7e23ce';
+  const branding = data.branding;
+  const pdfStyles = createPDFStyles(branding);
+  const baseStyles = createStyleSheet(pdfStyles);
+  const primaryColor = branding.primaryColor || '#7e23ce';
 
   // Helper function for score color
   const getScoreColor = (score: number): string => {
@@ -36,13 +44,8 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
     return '#ef4444';
   };
 
-  const styles = StyleSheet.create({
-    page: {
-      flexDirection: 'column',
-      backgroundColor: '#ffffff',
-      padding: 30,
-      fontFamily: 'Helvetica',
-    },
+  const pageSpeedStyles = StyleSheet.create({
+    // Remove page style as it's now handled by baseStyles
     header: {
       backgroundColor: primaryColor,
       padding: 20,
@@ -183,59 +186,66 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
   });
 
   return (
-    <Page size="A4" style={styles.page}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>PageSpeed Insights</Text>
-        <Text style={styles.headerSubtitle}>
+    <Page size="A4" style={baseStyles.page}>
+      <ReportHeader
+        branding={branding}
+        clientName={data.clientName}
+        pageTitle="PageSpeed Insights"
+      />
+      
+      <View style={baseStyles.container}>
+      {/* Page Content Header */}
+      <View style={pageSpeedStyles.header}>
+        <Text style={pageSpeedStyles.headerTitle}>PageSpeed Insights</Text>
+        <Text style={pageSpeedStyles.headerSubtitle}>
           Performance analysis for {data.clientName}
         </Text>
       </View>
 
       {/* Performance Scores */}
-      <View style={styles.scoresContainer}>
-        <View style={styles.scoreCard}>
-          <Text style={styles.scoreLabel}>Mobile Performance</Text>
-          <Text style={[styles.scoreValue, { color: getScoreColor(pageSpeedData.mobile.score) }]}>
+      <View style={pageSpeedStyles.scoresContainer}>
+        <View style={pageSpeedStyles.scoreCard}>
+          <Text style={pageSpeedStyles.scoreLabel}>Mobile Performance</Text>
+          <Text style={[pageSpeedStyles.scoreValue, { color: getScoreColor(pageSpeedData.mobile.score) }]}>
             {pageSpeedData.mobile.score}
           </Text>
-          <Text style={styles.scoreOutOf}>/100</Text>
+          <Text style={pageSpeedStyles.scoreOutOf}>/100</Text>
         </View>
         
-        <View style={styles.scoreCard}>
-          <Text style={styles.scoreLabel}>Desktop Performance</Text>
-          <Text style={[styles.scoreValue, { color: getScoreColor(pageSpeedData.desktop.score) }]}>
+        <View style={pageSpeedStyles.scoreCard}>
+          <Text style={pageSpeedStyles.scoreLabel}>Desktop Performance</Text>
+          <Text style={[pageSpeedStyles.scoreValue, { color: getScoreColor(pageSpeedData.desktop.score) }]}>
             {pageSpeedData.desktop.score}
           </Text>
-          <Text style={styles.scoreOutOf}>/100</Text>
+          <Text style={pageSpeedStyles.scoreOutOf}>/100</Text>
         </View>
       </View>
 
       {/* Core Web Vitals */}
-      <Text style={styles.sectionTitle}>Core Web Vitals (Mobile)</Text>
+      <Text style={pageSpeedStyles.sectionTitle}>Core Web Vitals (Mobile)</Text>
       <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>
         Key metrics that impact user experience and search rankings
       </Text>
       
-      <View style={styles.cwvContainer}>
+      <View style={pageSpeedStyles.cwvContainer}>
         {/* LCP */}
-        <View style={styles.cwvCard}>
-          <Text style={styles.cwvTitle}>LCP</Text>
-          <Text style={[styles.cwvValue, { color: primaryColor }]}>
+        <View style={pageSpeedStyles.cwvCard}>
+          <Text style={pageSpeedStyles.cwvTitle}>LCP</Text>
+          <Text style={[pageSpeedStyles.cwvValue, { color: primaryColor }]}>
             {pageSpeedData.mobile.lcp 
               ? `${(pageSpeedData.mobile.lcp / 1000).toFixed(2)}s`
               : 'N/A'
             }
           </Text>
-          <Text style={styles.cwvDescription}>
+          <Text style={pageSpeedStyles.cwvDescription}>
             Largest Contentful Paint{'\n'}Target: ≤ 2.5s
           </Text>
           {pageSpeedData.mobile.lcp && (
             <View style={[
-              styles.cwvStatus, 
+              pageSpeedStyles.cwvStatus, 
               { backgroundColor: getCWVStatusColor(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}) }
             ]}>
-              <Text style={styles.cwvStatusText}>
+              <Text style={pageSpeedStyles.cwvStatusText}>
                 {getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000})}
               </Text>
             </View>
@@ -243,23 +253,23 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
         </View>
 
         {/* FID */}
-        <View style={styles.cwvCard}>
-          <Text style={styles.cwvTitle}>FID</Text>
-          <Text style={[styles.cwvValue, { color: primaryColor }]}>
+        <View style={pageSpeedStyles.cwvCard}>
+          <Text style={pageSpeedStyles.cwvTitle}>FID</Text>
+          <Text style={[pageSpeedStyles.cwvValue, { color: primaryColor }]}>
             {pageSpeedData.mobile.fid 
               ? `${pageSpeedData.mobile.fid.toFixed(0)}ms`
               : 'N/A'
             }
           </Text>
-          <Text style={styles.cwvDescription}>
+          <Text style={pageSpeedStyles.cwvDescription}>
             First Input Delay{'\n'}Target: ≤ 100ms
           </Text>
           {pageSpeedData.mobile.fid && (
             <View style={[
-              styles.cwvStatus, 
+              pageSpeedStyles.cwvStatus, 
               { backgroundColor: getCWVStatusColor(pageSpeedData.mobile.fid, {good: 100, poor: 300}) }
             ]}>
-              <Text style={styles.cwvStatusText}>
+              <Text style={pageSpeedStyles.cwvStatusText}>
                 {getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300})}
               </Text>
             </View>
@@ -267,23 +277,23 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
         </View>
 
         {/* CLS */}
-        <View style={styles.cwvCard}>
-          <Text style={styles.cwvTitle}>CLS</Text>
-          <Text style={[styles.cwvValue, { color: primaryColor }]}>
+        <View style={pageSpeedStyles.cwvCard}>
+          <Text style={pageSpeedStyles.cwvTitle}>CLS</Text>
+          <Text style={[pageSpeedStyles.cwvValue, { color: primaryColor }]}>
             {pageSpeedData.mobile.cls !== null
               ? pageSpeedData.mobile.cls.toFixed(3)
               : 'N/A'
             }
           </Text>
-          <Text style={styles.cwvDescription}>
+          <Text style={pageSpeedStyles.cwvDescription}>
             Cumulative Layout Shift{'\n'}Target: ≤ 0.1
           </Text>
           {pageSpeedData.mobile.cls !== null && (
             <View style={[
-              styles.cwvStatus, 
+              pageSpeedStyles.cwvStatus, 
               { backgroundColor: getCWVStatusColor(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}) }
             ]}>
-              <Text style={styles.cwvStatusText}>
+              <Text style={pageSpeedStyles.cwvStatusText}>
                 {getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25})}
               </Text>
             </View>
@@ -291,27 +301,27 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
         </View>
       </View>
 
-      {/* Performance Opportunities */}
+      {/* Performance Opportunities - Prevent page breaks within this section */}
       {pageSpeedData.opportunities && pageSpeedData.opportunities.length > 0 && (
-        <View style={styles.opportunitiesContainer}>
-          <Text style={styles.sectionTitle}>Top Performance Opportunities</Text>
+        <View style={pageSpeedStyles.opportunitiesContainer} break={false}>
+          <Text style={pageSpeedStyles.sectionTitle}>Top Performance Opportunities</Text>
           <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>
             Recommendations to improve website speed
           </Text>
           
           {pageSpeedData.opportunities.slice(0, 5).map((opportunity, index) => (
-            <View key={index} style={styles.opportunityCard}>
-              <View style={styles.opportunityHeader}>
-                <Text style={styles.opportunityNumber}>{index + 1}</Text>
-                <Text style={styles.opportunityTitle}>
+            <View key={index} style={pageSpeedStyles.opportunityCard}>
+              <View style={pageSpeedStyles.opportunityHeader}>
+                <Text style={pageSpeedStyles.opportunityNumber}>{index + 1}</Text>
+                <Text style={pageSpeedStyles.opportunityTitle}>
                   {opportunity.title}
                 </Text>
               </View>
-              <Text style={styles.opportunityDescription}>
+              <Text style={pageSpeedStyles.opportunityDescription}>
                 {opportunity.description}
               </Text>
               {opportunity.displayValue && (
-                <Text style={styles.opportunityValue}>
+                <Text style={pageSpeedStyles.opportunityValue}>
                   💡 {opportunity.displayValue}
                 </Text>
               )}
@@ -319,6 +329,13 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
           ))}
         </View>
       )}
+      </View>
+      
+      <ReportFooter
+        branding={branding}
+        pageNumber={pageNumber}
+        totalPages={totalPages}
+      />
     </Page>
   );
 };

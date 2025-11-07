@@ -8,13 +8,77 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const reportType = searchParams.get('type') || 'executive';
+  const whiteLabelParam = searchParams.get('whiteLabel');
+  const whiteLabelEnabled = whiteLabelParam !== 'false'; // Default to true unless explicitly set to 'false'
+  const opportunitiesParam = searchParams.get('opportunities');
+  const opportunitiesCount = opportunitiesParam ? parseInt(opportunitiesParam) : 5;
   const requestId = crypto.randomUUID();
   
   console.log('========== TEST PDF GENERATION START ==========');
   console.log(`[${requestId}] Test PDF generation started with React-PDF`);
   console.log(`[${requestId}] Report type: ${reportType}`);
+  console.log(`[${requestId}] White-label enabled: ${whiteLabelEnabled}`);
+  console.log(`[${requestId}] Opportunities count: ${opportunitiesCount}`);
   
   try {
+    // Dynamic opportunities generator for testing pagination
+    const generateOpportunities = (count: number) => {
+      const baseOpportunities = [
+        {
+          title: 'Eliminate render-blocking resources',
+          description: 'Resources are blocking the first paint of your page. Consider delivering critical JS/CSS inline and deferring all non-critical JS/styles.',
+          displayValue: 'Potential savings of 0.87 s'
+        },
+        {
+          title: 'Properly size images',
+          description: 'Serve images that are appropriately-sized to save cellular data and improve load time.',
+          displayValue: 'Potential savings of 0.45 s'
+        },
+        {
+          title: 'Remove unused CSS',
+          description: 'Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content.',
+          displayValue: 'Potential savings of 0.32 s'
+        },
+        {
+          title: 'Enable text compression',
+          description: 'Text-based resources should be served with compression (gzip, deflate or brotli) to minimize total network bytes.',
+          displayValue: 'Potential savings of 0.28 s'
+        },
+        {
+          title: 'Minify JavaScript',
+          description: 'Minifying JavaScript files can reduce payload sizes and script parse time.',
+          displayValue: 'Potential savings of 0.15 s'
+        },
+        {
+          title: 'Reduce server response times (TTFB)',
+          description: 'Root document took 420 ms longer than the average server response time for this site.',
+          displayValue: 'Root document took 1,280 ms'
+        },
+        {
+          title: 'Preload key requests',
+          description: 'Consider adding preload hints to prioritize fetching resources that are currently requested later in page load.',
+          displayValue: 'Potential savings of 0.42 s'
+        },
+        {
+          title: 'Avoid enormous network payloads',
+          description: 'Large network payloads cost users real money and are highly correlated with long load times.',
+          displayValue: 'Total size was 3,456 KiB'
+        },
+        {
+          title: 'Serve images in next-gen formats',
+          description: 'Image formats like WebP and AVIF often provide better compression than PNG or JPEG, which means faster downloads and less data consumption.',
+          displayValue: 'Potential savings of 124 KiB'
+        },
+        {
+          title: 'Efficiently encode images',
+          description: 'Optimized images load faster and consume less cellular data.',
+          displayValue: 'Potential savings of 89 KiB'
+        }
+      ];
+      
+      return baseOpportunities.slice(0, Math.max(1, Math.min(count, baseOpportunities.length)));
+    };
+
     // Comprehensive sample data for testing all features
     const testReportData: ReportData = {
       reportType: reportType as 'executive' | 'standard' | 'custom',
@@ -33,7 +97,7 @@ export async function GET(request: NextRequest) {
         primaryColor: '#8B5CF6', // Purple brand color
         email: 'hello@digitalfrog.agency',
         phone: '+1 (555) 123-4567',
-        whiteLabelEnabled: true,
+        whiteLabelEnabled: whiteLabelEnabled,
         supportEmail: 'support@digitalfrog.cl'
       },
 
@@ -272,7 +336,24 @@ export async function GET(request: NextRequest) {
           description: 'Your blog content is performing well. Consider expanding content around high-performing topics.',
           priority: 'medium' as const
         }
-      ]
+      ],
+      
+      // PageSpeed Insights Data - Test the fixed PageSpeed page
+      pageSpeedData: {
+        mobile: {
+          score: 78,
+          lcp: 2800, // ms
+          fid: 45,   // ms  
+          cls: 0.085 // score
+        },
+        desktop: {
+          score: 94,
+          lcp: 1200, // ms
+          fid: 12,   // ms
+          cls: 0.023 // score
+        },
+        opportunities: generateOpportunities(opportunitiesCount)
+      }
     };
     
     console.log(`[${requestId}] Test data prepared:`, {
@@ -280,8 +361,10 @@ export async function GET(request: NextRequest) {
       reportType: testReportData.reportType,
       hasGSCMetrics: !!testReportData.gscMetrics,
       hasGA4Metrics: !!testReportData.ga4Metrics,
+      hasPageSpeedData: !!testReportData.pageSpeedData,
       hasInsights: !!testReportData.insights,
-      hasRecommendations: !!testReportData.recommendations
+      hasRecommendations: !!testReportData.recommendations,
+      whiteLabelEnabled: testReportData.branding.whiteLabelEnabled
     });
     
     // Generate PDF using React-PDF
