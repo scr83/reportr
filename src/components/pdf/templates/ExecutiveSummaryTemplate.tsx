@@ -16,8 +16,15 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
   // Format date range for cover page
   const dateRange = `${data.startDate} to ${data.endDate}`
   
-  // Prepare metrics for the executive summary (4 key metrics)
-  const keyMetrics = [
+  // Helper function for PageSpeed score color coding
+  const getScoreColor = (score: number): string => {
+    if (score >= 90) return '#10b981' // green
+    if (score >= 50) return '#f59e0b' // orange
+    return '#ef4444' // red
+  }
+  
+  // Prepare metrics for the executive summary (4 key metrics + PageSpeed if available)
+  const baseMetrics = [
     {
       title: 'Total Users',
       value: data.metrics?.users || 0,
@@ -39,6 +46,23 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
       description: 'Goal completions'
     }
   ]
+
+  // Add PageSpeed metrics if available
+  const keyMetrics = data.pageSpeedData ? [
+    ...baseMetrics,
+    {
+      title: 'Mobile Speed',
+      value: `${data.pageSpeedData.mobile.score}/100`,
+      description: 'PageSpeed mobile performance',
+      color: getScoreColor(data.pageSpeedData.mobile.score)
+    },
+    {
+      title: 'Desktop Speed',
+      value: `${data.pageSpeedData.desktop.score}/100`,
+      description: 'PageSpeed desktop performance',
+      color: getScoreColor(data.pageSpeedData.desktop.score)
+    }
+  ] : baseMetrics
   
   // Calculate some basic insights
   const bounceRate = data.metrics?.bounceRate || 0
@@ -85,7 +109,7 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
           <MetricGrid
             metrics={keyMetrics}
             branding={data.branding}
-            columns={2}
+            columns={data.pageSpeedData ? 3 : 2}
           />
           
           {/* Performance Insights */}
@@ -122,6 +146,35 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
             type={data.metrics?.conversions ? 'success' : 'warning'}
             branding={data.branding}
           />
+
+          {/* PageSpeed Performance */}
+          {data.pageSpeedData ? (
+            <InsightBox
+              title="Website Performance"
+              content={`Your website scores ${data.pageSpeedData.mobile.score}/100 on mobile and ${data.pageSpeedData.desktop.score}/100 on desktop performance. ${
+                Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
+                  ? 'Excellent performance! Your site loads quickly for users.'
+                  : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
+                  ? 'Good performance with room for optimization. Consider improving loading speed.'
+                  : 'Performance needs attention. Slow loading speeds may impact user experience and SEO rankings.'
+              }`}
+              type={
+                Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
+                  ? 'success' 
+                  : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
+                  ? 'warning'
+                  : 'error'
+              }
+              branding={data.branding}
+            />
+          ) : (
+            <InsightBox
+              title="Website Performance"
+              content="⚠️ Performance data temporarily unavailable. PageSpeed Insights could not be retrieved at this time."
+              type="warning"
+              branding={data.branding}
+            />
+          )}
         </View>
         
         <ReportFooter

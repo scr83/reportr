@@ -42,6 +42,7 @@ export default function GenerateReportPage() {
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false)
   const [formData, setFormData] = useState<Record<string, any>>({})
   const [rawGscData, setRawGscData] = useState<any>(null) // Store the complete GSC data including dailyData
+  const [pageSpeedData, setPageSpeedData] = useState<any>(null) // Store PageSpeed Insights data
   const [reportData, setReportData] = useState<LegacyReportData>({
     clientId: '',
     client: '',
@@ -359,6 +360,36 @@ export default function GenerateReportPage() {
         console.warn('GA4 fetch failed:', ga4Error.error)
       }
 
+      // Fetch PageSpeed data (optional - will not break report if it fails)
+      let pageSpeedData = null
+      try {
+        console.log('[REPORT-GEN] Fetching PageSpeed data...')
+        const pageSpeedRes = await fetch(
+          `/api/clients/${reportData.clientId}/pagespeed`
+        )
+        
+        if (pageSpeedRes.ok) {
+          const pageSpeedResponse = await pageSpeedRes.json()
+          pageSpeedData = pageSpeedResponse.data
+          
+          console.log('🔍 [REPORT-GEN] PageSpeed data received from API:', {
+            hasPageSpeedData: !!pageSpeedData,
+            mobileScore: pageSpeedData?.mobile?.score,
+            desktopScore: pageSpeedData?.desktop?.score,
+            opportunitiesCount: pageSpeedData?.opportunities?.length || 0
+          })
+          
+          // Store PageSpeed data in component state
+          setPageSpeedData(pageSpeedData)
+        } else {
+          const pageSpeedError = await pageSpeedRes.json()
+          console.warn('PageSpeed fetch failed (non-breaking):', pageSpeedError.message || pageSpeedError.error)
+        }
+      } catch (error: any) {
+        console.warn('PageSpeed fetch error (non-breaking):', error.message)
+        // PageSpeed is optional - don't let it break the report generation
+      }
+
       // Update form data with fetched data
       if (gscData || ga4Data) {
         // Update legacy reportData for existing functionality
@@ -424,8 +455,9 @@ export default function GenerateReportPage() {
         const fetchedSources = []
         if (gscData) fetchedSources.push('Search Console')
         if (ga4Data) fetchedSources.push('Analytics')
+        if (pageSpeedData) fetchedSources.push('PageSpeed Insights')
         
-        alert(`Data successfully fetched from Google ${fetchedSources.join(' and ')}!`)
+        alert(`Data successfully fetched from ${fetchedSources.join(', ').replace(/,([^,]*)$/, ' and$1')}!`)
       } else {
         throw new Error('Failed to fetch data from both Google APIs. Please verify your Google connection and try again.')
       }
@@ -632,7 +664,9 @@ export default function GenerateReportPage() {
           sessions: 0,
           bounceRate: 0,
           conversions: 0
-        }
+        },
+        // Add PageSpeed data (optional)
+        pageSpeedData: pageSpeedData || null
       }
       
       console.log('🔍 [REPORT-GEN] Final request body logging:');

@@ -17,6 +17,13 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
   // Format date range for cover page
   const dateRange = `${data.startDate} to ${data.endDate}`
   
+  // Helper function for PageSpeed score color coding
+  const getScoreColor = (score: number): string => {
+    if (score >= 90) return '#10b981' // green
+    if (score >= 50) return '#f59e0b' // orange
+    return '#ef4444' // red
+  }
+  
   // Prepare executive summary metrics
   const executiveMetrics = [
     {
@@ -249,12 +256,417 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={4}
-          totalPages={7}
+          pageNumber={5}
+          totalPages={8}
         />
       </Page>
       
-      {/* Page 6: Device & Traffic Sources */}
+      {/* Page 6: PageSpeed Performance Analysis */}
+      {data.pageSpeedData ? (
+        <Page size="A4" style={styles.page}>
+          <ReportHeader
+            branding={data.branding}
+            clientName={data.clientName}
+            pageTitle="Website Performance"
+          />
+          
+          <View style={styles.container}>
+            {/* Section Header */}
+            <SectionTitle
+              title="Website Performance Analysis"
+              subtitle="Measured via Google PageSpeed Insights"
+              branding={data.branding}
+              marginTop={0}
+            />
+
+            {/* Performance Scores */}
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              marginVertical: 20,
+              gap: 20,
+            }}>
+              <View style={{
+                flex: 1,
+                alignItems: 'center',
+                padding: 20,
+                backgroundColor: '#f9fafb',
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+              }}>
+                <Text style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  marginBottom: 8,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}>
+                  Mobile Performance
+                </Text>
+                <Text style={{
+                  fontSize: 48,
+                  fontWeight: 'bold',
+                  color: getScoreColor(data.pageSpeedData.mobile.score),
+                  marginBottom: 4,
+                }}>
+                  {data.pageSpeedData.mobile.score}
+                </Text>
+                <Text style={{
+                  fontSize: 18,
+                  color: '#9ca3af',
+                }}>
+                  /100
+                </Text>
+              </View>
+              
+              <View style={{
+                flex: 1,
+                alignItems: 'center',
+                padding: 20,
+                backgroundColor: '#f9fafb',
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+              }}>
+                <Text style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  marginBottom: 8,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}>
+                  Desktop Performance
+                </Text>
+                <Text style={{
+                  fontSize: 48,
+                  fontWeight: 'bold',
+                  color: getScoreColor(data.pageSpeedData.desktop.score),
+                  marginBottom: 4,
+                }}>
+                  {data.pageSpeedData.desktop.score}
+                </Text>
+                <Text style={{
+                  fontSize: 18,
+                  color: '#9ca3af',
+                }}>
+                  /100
+                </Text>
+              </View>
+            </View>
+
+            {/* Core Web Vitals */}
+            <SectionTitle
+              title="Core Web Vitals (Mobile)"
+              subtitle="Key metrics that impact user experience and search rankings"
+              branding={data.branding}
+              marginTop={24}
+              marginBottom={16}
+            />
+            
+            <View style={{
+              flexDirection: 'row',
+              gap: 15,
+              marginTop: 15,
+            }}>
+              {/* LCP - Largest Contentful Paint */}
+              <View style={{
+                flex: 1,
+                padding: 15,
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 6,
+              }}>
+                <Text style={{
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  marginBottom: 8,
+                }}>
+                  LCP
+                </Text>
+                <Text style={{
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  color: data.branding.primaryColor || '#7e23ce',
+                  marginBottom: 8,
+                }}>
+                  {data.pageSpeedData.mobile.lcp 
+                    ? `${(data.pageSpeedData.mobile.lcp / 1000).toFixed(2)}s`
+                    : 'N/A'
+                  }
+                </Text>
+                <Text style={{
+                  fontSize: 9,
+                  color: '#6b7280',
+                  lineHeight: 1.4,
+                }}>
+                  Largest Contentful Paint{'\n'}
+                  Target: &lt; 2.5s
+                </Text>
+                {data.pageSpeedData.mobile.lcp && (
+                  <View style={{
+                    marginTop: 8,
+                    paddingVertical: 4,
+                    paddingHorizontal: 8,
+                    borderRadius: 4,
+                    alignSelf: 'flex-start',
+                    backgroundColor: data.pageSpeedData.mobile.lcp < 2500 ? '#10b981' : '#ef4444'
+                  }}>
+                    <Text style={{
+                      fontSize: 9,
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                    }}>
+                      {data.pageSpeedData.mobile.lcp < 2500 ? 'Good' : 'Needs Improvement'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* FID - First Input Delay */}
+              <View style={{
+                flex: 1,
+                padding: 15,
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 6,
+              }}>
+                <Text style={{
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  marginBottom: 8,
+                }}>
+                  FID
+                </Text>
+                <Text style={{
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  color: data.branding.primaryColor || '#7e23ce',
+                  marginBottom: 8,
+                }}>
+                  {data.pageSpeedData.mobile.fid 
+                    ? `${data.pageSpeedData.mobile.fid.toFixed(0)}ms`
+                    : 'N/A'
+                  }
+                </Text>
+                <Text style={{
+                  fontSize: 9,
+                  color: '#6b7280',
+                  lineHeight: 1.4,
+                }}>
+                  First Input Delay{'\n'}
+                  Target: &lt; 100ms
+                </Text>
+                {data.pageSpeedData.mobile.fid && (
+                  <View style={{
+                    marginTop: 8,
+                    paddingVertical: 4,
+                    paddingHorizontal: 8,
+                    borderRadius: 4,
+                    alignSelf: 'flex-start',
+                    backgroundColor: data.pageSpeedData.mobile.fid < 100 ? '#10b981' : '#ef4444'
+                  }}>
+                    <Text style={{
+                      fontSize: 9,
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                    }}>
+                      {data.pageSpeedData.mobile.fid < 100 ? 'Good' : 'Needs Improvement'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* CLS - Cumulative Layout Shift */}
+              <View style={{
+                flex: 1,
+                padding: 15,
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 6,
+              }}>
+                <Text style={{
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  marginBottom: 8,
+                }}>
+                  CLS
+                </Text>
+                <Text style={{
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  color: data.branding.primaryColor || '#7e23ce',
+                  marginBottom: 8,
+                }}>
+                  {data.pageSpeedData.mobile.cls !== null
+                    ? data.pageSpeedData.mobile.cls.toFixed(3)
+                    : 'N/A'
+                  }
+                </Text>
+                <Text style={{
+                  fontSize: 9,
+                  color: '#6b7280',
+                  lineHeight: 1.4,
+                }}>
+                  Cumulative Layout Shift{'\n'}
+                  Target: &lt; 0.1
+                </Text>
+                {data.pageSpeedData.mobile.cls !== null && (
+                  <View style={{
+                    marginTop: 8,
+                    paddingVertical: 4,
+                    paddingHorizontal: 8,
+                    borderRadius: 4,
+                    alignSelf: 'flex-start',
+                    backgroundColor: data.pageSpeedData.mobile.cls < 0.1 ? '#10b981' : '#ef4444'
+                  }}>
+                    <Text style={{
+                      fontSize: 9,
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                    }}>
+                      {data.pageSpeedData.mobile.cls < 0.1 ? 'Good' : 'Needs Improvement'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Performance Opportunities */}
+            {data.pageSpeedData.opportunities && data.pageSpeedData.opportunities.length > 0 && (
+              <View style={{ marginTop: 24 }}>
+                <SectionTitle
+                  title="Top Performance Opportunities"
+                  subtitle="Recommendations to improve website speed"
+                  branding={data.branding}
+                  marginTop={0}
+                  marginBottom={16}
+                />
+                
+                {data.pageSpeedData.opportunities.slice(0, 5).map((opportunity, index) => (
+                  <View key={index} style={{
+                    padding: 12,
+                    backgroundColor: '#fef3c7',
+                    borderLeftWidth: 4,
+                    borderLeftColor: '#f59e0b',
+                    marginBottom: 10,
+                    borderRadius: 4,
+                  }}>
+                    <View style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 6,
+                    }}>
+                      <Text style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        color: '#f59e0b',
+                        marginRight: 8,
+                        width: 24,
+                        textAlign: 'center',
+                      }}>
+                        {index + 1}
+                      </Text>
+                      <Text style={{
+                        fontSize: 11,
+                        fontWeight: 'bold',
+                        color: '#92400e',
+                        flex: 1,
+                      }}>
+                        {opportunity.title}
+                      </Text>
+                    </View>
+                    <Text style={{
+                      fontSize: 9,
+                      color: '#78350f',
+                      lineHeight: 1.4,
+                      marginBottom: 4,
+                    }}>
+                      {opportunity.description}
+                    </Text>
+                    {opportunity.displayValue && (
+                      <Text style={{
+                        fontSize: 9,
+                        color: '#b45309',
+                        fontStyle: 'italic',
+                      }}>
+                        💡 {opportunity.displayValue}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+          
+          <ReportFooter
+            branding={data.branding}
+            pageNumber={6}
+            totalPages={8}
+          />
+        </Page>
+      ) : (
+        <Page size="A4" style={styles.page}>
+          <ReportHeader
+            branding={data.branding}
+            clientName={data.clientName}
+            pageTitle="Website Performance"
+          />
+          
+          <View style={styles.container}>
+            <SectionTitle
+              title="⚠️ Performance Data Temporarily Unavailable"
+              branding={data.branding}
+              marginTop={0}
+            />
+            <View style={{
+              padding: 30,
+              backgroundColor: '#fef3c7',
+              borderRadius: 8,
+              borderWidth: 2,
+              borderColor: '#fbbf24',
+              marginVertical: 20,
+            }}>
+              <Text style={{
+                fontSize: 14,
+                fontWeight: 'bold',
+                color: '#92400e',
+                marginBottom: 10,
+                textAlign: 'center',
+              }}>
+                ⚠️ Performance Data Temporarily Unavailable
+              </Text>
+              <Text style={{
+                fontSize: 10,
+                color: '#78350f',
+                lineHeight: 1.6,
+                textAlign: 'center',
+              }}>
+                PageSpeed Insights data could not be retrieved at this time.{'\n'}
+                This may be due to temporary API limitations or connectivity issues.{'\n'}
+                Please generate a new report to include performance metrics.
+                {!data.branding.whiteLabelEnabled && (
+                  `{'\n\n'}Contact ${data.branding.supportEmail || data.branding.email} for assistance.`
+                )}
+              </Text>
+            </View>
+          </View>
+          
+          <ReportFooter
+            branding={data.branding}
+            pageNumber={6}
+            totalPages={8}
+          />
+        </Page>
+      )}
+      
+      {/* Page 7: Device & Traffic Sources */}
       <Page size="A4" style={styles.page}>
         <ReportHeader
           branding={data.branding}
@@ -330,8 +742,8 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={5}
-          totalPages={7}
+          pageNumber={7}
+          totalPages={9}
         />
       </Page>
       
@@ -407,8 +819,8 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={6}
-          totalPages={7}
+          pageNumber={8}
+          totalPages={9}
         />
       </Page>
       
@@ -484,8 +896,8 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         
         <ReportFooter
           branding={data.branding}
-          pageNumber={7}
-          totalPages={7}
+          pageNumber={9}
+          totalPages={9}
         />
       </Page>
     </BaseTemplate>

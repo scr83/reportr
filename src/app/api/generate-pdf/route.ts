@@ -103,6 +103,28 @@ const generatePdfSchema = z.object({
   // Flexible GA4 data - REQUIRED for all report types
   ga4Data: flexibleGA4Schema,
   
+  // PageSpeed data - OPTIONAL (for performance metrics)
+  pageSpeedData: z.object({
+    mobile: z.object({
+      score: z.number(),
+      lcp: z.number().nullable(),
+      fid: z.number().nullable(),
+      cls: z.number().nullable()
+    }),
+    desktop: z.object({
+      score: z.number(),
+      lcp: z.number().nullable(),
+      fid: z.number().nullable(),
+      cls: z.number().nullable()
+    }),
+    opportunities: z.array(z.object({
+      title: z.string(),
+      description: z.string(),
+      displayValue: z.string().optional()
+    })).optional(),
+    fetchedAt: z.string()
+  }).nullable().optional(),
+  
   // Legacy metrics object (for backward compatibility)
   metrics: z.object({
     users: z.number().optional(),
@@ -427,6 +449,9 @@ export async function POST(request: NextRequest) {
       
       // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
       selectedMetrics: validatedData.selectedMetrics || [],
+      
+      // Add PageSpeed data (optional)
+      pageSpeedData: validatedData.pageSpeedData || null,
     }
     
     // Generate PDF using React-PDF
@@ -494,11 +519,15 @@ export async function POST(request: NextRequest) {
       // Complete GA4 data (including dynamic fields)
       ga4Data: mergedGA4Data,
       
+      // PageSpeed data (optional)
+      pageSpeedData: validatedData.pageSpeedData,
+      
       // Additional metadata
       generatedAt: processingStarted.toISOString(),
       dataSourceInfo: {
         hasGSC: !!validatedData.gscData,
         hasGA4: !!validatedData.ga4Data,
+        hasPageSpeed: !!validatedData.pageSpeedData,
         metricsCount: Object.keys(mergedGA4Data).length,
         hasCustomFields: !!validatedData.customFields?.length,
         selectedMetricsCount: validatedData.selectedMetrics?.length || 0

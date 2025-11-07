@@ -1,5 +1,7 @@
 // PDF Report Generation Types
 
+import type { PageSpeedMetrics } from '@/lib/integrations/pagespeed'
+
 export interface BrandingConfig {
   companyName: string
   primaryColor?: string
@@ -87,22 +89,8 @@ export interface GA4Data {
   }>
 }
 
-export interface PageSpeedData {
-  mobile: {
-    score: number
-    fcp: number // First Contentful Paint in seconds
-    lcp: number // Largest Contentful Paint in seconds
-    cls: number // Cumulative Layout Shift
-    fid: number // First Input Delay in milliseconds
-  }
-  desktop: {
-    score: number
-    fcp: number
-    lcp: number
-    cls: number
-    fid: number
-  }
-}
+// PageSpeed data type alias - using the type from the PageSpeed integration
+export type PageSpeedData = PageSpeedMetrics
 
 export interface TrafficDataPoint {
   date: string

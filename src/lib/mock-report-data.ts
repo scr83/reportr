@@ -164,16 +164,32 @@ export const MOCK_AI_INSIGHTS: AIInsight[] = [
 export const MOCK_PAGE_SPEED: PageSpeedData = {
   mobile: {
     score: 78,
-    fcp: 1.2, // First Contentful Paint in seconds
-    lcp: 2.1, // Largest Contentful Paint in seconds
+    lcp: 2100, // Largest Contentful Paint in milliseconds
     cls: 0.05, // Cumulative Layout Shift
     fid: 45 // First Input Delay in milliseconds
   },
   desktop: {
     score: 95,
-    fcp: 0.8,
-    lcp: 1.3,
+    lcp: 1300,
     cls: 0.02,
     fid: 12
-  }
+  },
+  opportunities: [
+    {
+      title: "Eliminate render-blocking resources",
+      description: "Resources are blocking the first paint of your page. Consider delivering critical JS/CSS inline and deferring all non-critical JS/styles.",
+      displayValue: "Potential savings: 1.2s"
+    },
+    {
+      title: "Properly size images",
+      description: "Serve images that are appropriately-sized to save cellular data and improve load time.",
+      displayValue: "Potential savings: 845 KiB"
+    },
+    {
+      title: "Remove unused JavaScript",
+      description: "Remove dead code and split bundles to defer loading of unused code.",
+      displayValue: "Potential savings: 320 KiB"
+    }
+  ],
+  fetchedAt: new Date()
 }
