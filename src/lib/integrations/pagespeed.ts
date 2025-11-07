@@ -29,7 +29,7 @@ export interface PageSpeedMetrics {
     description: string;
     displayValue?: string;      // e.g., "Potential savings: 2.1s"
   }>;
-  fetchedAt: Date;              // Timestamp for caching purposes
+  fetchedAt: Date | string;     // Timestamp for caching purposes
 }
 
 /**

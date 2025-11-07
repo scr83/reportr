@@ -1,5 +1,7 @@
 // PRODUCTION-READY PDF TYPES - Phase 1 Implementation
 
+import type { PageSpeedMetrics } from '../integrations/pagespeed';
+
 export interface GSCKeyword {
   query: string;
   clicks: number;
@@ -92,6 +94,9 @@ export interface ReportData {
   
   // GA4 Data - Structure varies by report type
   ga4Metrics: GA4Metrics;
+  
+  // PageSpeed Data - Optional
+  pageSpeedData?: PageSpeedMetrics | null;
   
   // Custom report selected metrics - only used for custom report type
   selectedMetrics?: string[];

@@ -550,7 +550,9 @@ export async function POST(request: NextRequest) {
       // PageSpeed data (use auto-fetched if available, otherwise use provided data)
       pageSpeedData: autoFetchedPageSpeedData ? {
         ...autoFetchedPageSpeedData,
-        fetchedAt: autoFetchedPageSpeedData.fetchedAt.toISOString()
+        fetchedAt: autoFetchedPageSpeedData.fetchedAt instanceof Date 
+          ? autoFetchedPageSpeedData.fetchedAt.toISOString()
+          : autoFetchedPageSpeedData.fetchedAt
       } : validatedData.pageSpeedData,
       
       // Additional metadata
