@@ -9,6 +9,42 @@ import { checkPDFSupport, getReportTypeDescription, estimatePDFSize } from '@/li
 import { MOCK_BRANDING, MOCK_EXECUTIVE_REPORT, MOCK_STANDARD_REPORT, MOCK_CUSTOM_REPORT } from '@/lib/mock-report-data'
 import { ReportData, GA4Data } from '@/types/report'
 
+// PageSpeed helper functions
+const getScoreColor = (score: number): string => {
+  if (score >= 90) return 'text-green-600 bg-green-50'
+  if (score >= 50) return 'text-orange-600 bg-orange-50'
+  return 'text-red-600 bg-red-50'
+}
+
+const getScoreLabel = (score: number): string => {
+  if (score >= 90) return 'Good'
+  if (score >= 50) return 'Needs Improvement'
+  return 'Poor'
+}
+
+const formatCWVValue = (value: number | null, unit: string): string => {
+  if (value === null) return 'N/A'
+  if (unit === 's') return `${(value / 1000).toFixed(1)}s`
+  if (unit === 'ms') return `${Math.round(value)}ms`
+  return value.toFixed(2)
+}
+
+const getCWVStatus = (value: number | null, thresholds: {good: number, poor: number}): string => {
+  if (value === null) return 'unknown'
+  if (value <= thresholds.good) return 'good'
+  if (value <= thresholds.poor) return 'needs-improvement'
+  return 'poor'
+}
+
+const getCWVStatusColor = (status: string): string => {
+  switch (status) {
+    case 'good': return 'text-green-600 bg-green-50'
+    case 'needs-improvement': return 'text-orange-600 bg-orange-50'
+    case 'poor': return 'text-red-600 bg-red-50'
+    default: return 'text-gray-600 bg-gray-50'
+  }
+}
+
 interface LegacyReportData {
   clientId: string
   client: string
@@ -62,7 +98,7 @@ export default function GenerateReportPage() {
       conversions: ''
     }
   })
-  const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4'>('gsc')
+  const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4' | 'pagespeed'>('gsc')
 
   // Field definitions for each report type
   const REPORT_FIELDS = {
@@ -1007,6 +1043,20 @@ export default function GenerateReportPage() {
           >
             Google Analytics 4
           </button>
+          <button
+            onClick={() => setActiveDataTab('pagespeed')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeDataTab === 'pagespeed'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+            disabled={!pageSpeedData}
+          >
+            PageSpeed Insights
+            {!pageSpeedData && (
+              <span className="ml-1 text-xs text-gray-400">(fetch data first)</span>
+            )}
+          </button>
         </nav>
       </div>
 
@@ -1127,6 +1177,172 @@ export default function GenerateReportPage() {
               </div>
             )
           })()}
+        </div>
+      )}
+
+      {/* PageSpeed Fields */}
+      {activeDataTab === 'pagespeed' && (
+        <div className="space-y-6">
+          {!pageSpeedData ? (
+            <div className="text-center py-12 text-gray-500">
+              <div className="mb-4">
+                <Zap className="h-12 w-12 mx-auto text-gray-400" />
+              </div>
+              <Typography className="text-lg font-medium text-gray-700 mb-2">
+                PageSpeed Data Not Available
+              </Typography>
+              <Typography className="text-sm text-gray-600 mb-4">
+                Click "Fetch from Google" to load PageSpeed Insights data for this client.
+              </Typography>
+              <div className="text-xs text-gray-500">
+                <p>PageSpeed analysis includes:</p>
+                <ul className="mt-2 space-y-1">
+                  <li>• Mobile & Desktop Performance Scores</li>
+                  <li>• Core Web Vitals (LCP, FID, CLS)</li>
+                  <li>• Performance Optimization Opportunities</li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Performance Scores */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Typography className="text-lg font-semibold text-gray-900">
+                      📱 Mobile Performance
+                    </Typography>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(pageSpeedData.mobile.score)}`}>
+                      {getScoreLabel(pageSpeedData.mobile.score)}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-4xl font-bold mb-2 ${getScoreColor(pageSpeedData.mobile.score).split(' ')[0]}`}>
+                      {pageSpeedData.mobile.score}
+                    </div>
+                    <div className="text-gray-600 text-sm">Performance Score</div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Typography className="text-lg font-semibold text-gray-900">
+                      🖥️ Desktop Performance
+                    </Typography>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(pageSpeedData.desktop.score)}`}>
+                      {getScoreLabel(pageSpeedData.desktop.score)}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-4xl font-bold mb-2 ${getScoreColor(pageSpeedData.desktop.score).split(' ')[0]}`}>
+                      {pageSpeedData.desktop.score}
+                    </div>
+                    <div className="text-gray-600 text-sm">Performance Score</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Core Web Vitals */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                <Typography className="text-lg font-semibold text-gray-900 mb-4">
+                  ⚡ Core Web Vitals (Mobile)
+                </Typography>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* LCP */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Typography className="text-sm font-medium text-gray-700">
+                        Largest Contentful Paint
+                      </Typography>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.lcp, 's')}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Good: ≤ 2.5s</div>
+                  </div>
+
+                  {/* FID */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Typography className="text-sm font-medium text-gray-700">
+                        First Input Delay
+                      </Typography>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.fid, 'ms')}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Good: ≤ 100ms</div>
+                  </div>
+
+                  {/* CLS */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Typography className="text-sm font-medium text-gray-700">
+                        Cumulative Layout Shift
+                      </Typography>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.cls, '')}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Good: ≤ 0.1</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optimization Opportunities */}
+              {pageSpeedData.opportunities && pageSpeedData.opportunities.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <Typography className="text-lg font-semibold text-gray-900 mb-4">
+                    💡 Performance Opportunities
+                  </Typography>
+                  <div className="space-y-3">
+                    {pageSpeedData.opportunities.slice(0, 3).map((opportunity, index) => (
+                      <div key={index} className="bg-white border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <Typography className="font-medium text-gray-900 mb-1">
+                              {index + 1}. {opportunity.title}
+                            </Typography>
+                            <Typography className="text-sm text-gray-600 mb-2">
+                              {opportunity.description}
+                            </Typography>
+                            {opportunity.displayValue && (
+                              <Typography className="text-sm font-medium text-blue-600">
+                                {opportunity.displayValue}
+                              </Typography>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {pageSpeedData.opportunities.length > 3 && (
+                      <div className="text-center text-sm text-gray-500 pt-2">
+                        + {pageSpeedData.opportunities.length - 3} more opportunities will be shown in the full report
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Data freshness */}
+              <div className="text-center text-xs text-gray-500">
+                Data fetched on {pageSpeedData.fetchedAt ? new Date(pageSpeedData.fetchedAt).toLocaleString() : 'Unknown'}
+              </div>
+            </>
+          )}
         </div>
       )}
 

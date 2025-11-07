@@ -11,6 +11,7 @@ import { RecommendationsPage } from './RecommendationsPage';
 import { KeyInsightsPage } from './KeyInsightsPage';
 import { StrategicRecommendationsPage } from './StrategicRecommendationsPage';
 import { GSCPerformancePage } from '../../../components/pdf/components/GSCPerformancePage';
+import { PageSpeedInsightsPage } from './PageSpeedInsightsPage';
 
 interface ReportDocumentProps {
   data: ReportData;
@@ -63,6 +64,11 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
 
       {data.reportType === 'custom' && (
         <CustomGA4Pages data={data} />
+      )}
+
+      {/* PageSpeed Insights Page - Include if PageSpeed data exists */}
+      {data.pageSpeedData && (
+        <PageSpeedInsightsPage data={data} />
       )}
 
       {/* Key Insights Page - Always included after GA4 data */}

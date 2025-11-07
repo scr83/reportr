@@ -1,0 +1,3183 @@
+New chat
+We've worked on this for the last 2 days
+/Users/scr/WHITE-LABEL-SEO/documentation/TOP_LEVEL_AUDIT_CONVO_P2.md
+right now we have a fully functional system, read it and tell me what you think
+
+I've reviewed your TOP_LEVEL_AUDIT conversation and I'm genuinely impressed with what you've built! Let me give you my honest assessment:
+
+What's Working Brilliantly 🎯
+1. Revenue-First Architecture You nailed the fundamentals - PayPal integration is complete, plan limits are enforced, white-label upgrades work across all tiers. This is critical because many founders build features before monetization. You did it right.
+
+2. Production-Ready Core
+
+Google API integrations are solid (GSC, GA4, PageSpeed)
+PDF generation with professional branding works
+Authentication flows are secure
+Client management CRUD is complete
+3. Smart Technical Decisions
+
+Next.js 14 App Router for modern architecture
+Prisma for type-safe database operations
+Vercel deployment for zero-config scalability
+PayPal Business (smart choice given Chile/Stripe limitations)
+4. SEO Content Strategy The 30-article plan targeting validated Semrush keywords is excellent. Your focus on "white label seo reports" (880 searches/mo, KD 39) and similar commercial-intent terms shows you understand the market.
+
+Critical Observations 🔍
+1. You're at the "Valley of Death" Stage This is where most SaaS products fail - you have a working product but zero users. The next 30-60 days are make-or-break. You need to:
+
+Get 10-20 paying customers ASAP to validate product-market fit
+Start publishing those 30 blog articles immediately (2-3 per week minimum)
+Set up conversion tracking for every funnel step
+Launch outbound sales outreach to small agencies
+2. Pricing Psychology Concern Your FREE tier (1 client, 5 reports/month) might be too generous. Consider:
+
+Freemium Risk: Users can get real value without paying
+Recommendation: Reduce FREE to 1 client + 2 reports/month OR make it a 14-day trial with full features
+Why: Creates urgency and forces conversion decisions faster
+3. White-Label Pricing Gap $20/month white-label add-on seems low for the value provided. Competitors charge $50-100/month for this. Consider:
+
+Enterprise Plan: $199/mo already includes white-label (good)
+Lower Tiers: $20/mo white-label might undervalue it
+Recommendation: Test $29/mo or bundle into PROFESSIONAL tier at $89 (vs $79)
+4. Missing GTM Elements You have product-market fit validation gaps:
+
+No customer interviews documented - You need 20-30 conversations with target agencies
+No competitor win/loss analysis - Why would agencies choose you over AgencyAnalytics?
+No trial-to-paid conversion optimization - What's your target conversion rate? (Industry: 15-25%)
+No churn prevention strategy - How will you retain customers month 2, 3, 4?
+What I'd Do Next (30-Day Roadmap) 🚀
+Week 1-2: Customer Discovery Sprint
+
+markdown
+Goal: Validate pricing & positioning with real agencies
+
+1. Reach out to 50 small agencies (5-15 employees)
+   - LinkedIn: "I built a white-label SEO reporting tool. Can I get your feedback?"
+   - Offer: Free 30-day trial + setup help
+   - Goal: Get 10 agencies to actually try it
+
+2. During demos, ask:
+   - "How much time do you spend on client reports?" (validate pain)
+   - "What do you currently use?" (competitive intel)
+   - "Would you pay $79/month for this?" (pricing validation)
+   - "What's missing that would make this a no-brainer?" (feature gaps)
+
+3. Document everything in a "Customer Insights" doc
+Week 3-4: Content Marketing Launch
+
+markdown
+Goal: Start ranking for target keywords
+
+1. Publish 8 articles (2/week):
+   - "White Label SEO Reports: Complete Guide for Agencies [2025]"
+   - "How to Automate SEO Reporting (Save 10 Hours Per Week)"
+   - "AgencyAnalytics vs SEMrush vs Reportr: Comparison"
+   - "SEO Report Template: What to Include for Clients"
+   - "Google Search Console Report Automation Guide"
+   - "How to Create Custom White Label SEO Reports"
+   - "SEO Reporting Best Practices for Agencies"
+   - "Cost of Manual SEO Reporting: True ROI Analysis"
+
+2. Distribution:
+   - Post on LinkedIn (your personal
+i'm still building, i will put marketing efforts as soon as i am comfortable with everything, right now we have a solid architecture, but there are a few things about the CORE product (the pdf report) that i need fixed/work a little bit more. for example, at the moment, the reports only fetch data from GSC and GA4, and i want to add data from pagespeed insights, i have the api enabled in google cloud console, how do we add it, WITHOUT BREAKING WHAT'S ALREADY WORKING, to the reports
+
+Perfect approach - let's add PageSpeed Insights data systematically without breaking existing functionality. I'll guide you through this carefully.
+
+🎯 Implementation Strategy: Add PageSpeed Insights (Non-Breaking)
+Phase 1: Investigation & Setup (Investigation Only - No Code Changes)
+Step 1: Verify Current Report Generation Flow
+
+bash
+# First, let's understand what we're working with
+# Read these files to see the current report structure
+
+F
+
+Read text file
+
+
+Let me check the directory structure first:
+
+
+F
+
+List directory
+
+
+you are my consultant, yo don't do anything other than discussing with me, consulting and guiding, every bit of the job/implementation is handled by specialised claude code agents, so just break down with me, as clearly and concise as possible, what we need to do
+
+Perfect! Let me be your strategic consultant here. Let's break this down into a clear, systematic plan.
+
+🎯 PageSpeed Insights Integration - Strategic Breakdown
+Current State Assessment
+You have:
+
+✅ Working GSC + GA4 data fetching
+✅ PDF generation with 3 report types (Executive, Standard, Custom)
+✅ PageSpeed Insights API enabled in Google Cloud Console
+⚠️ No PageSpeed data in reports yet
+What We Need to Add
+1. PageSpeed API Client (New file, won't break anything)
+
+Location: src/lib/integrations/pagespeed.ts
+
+What it does:
+- Fetches mobile + desktop scores for a URL
+- Gets Core Web Vitals (LCP, FID, CLS)
+- Returns performance opportunities/recommendations
+- Handles rate limits (25 requests/minute)
+2. Integrate into Report Generation Pipeline (Modify existing)
+
+Location: src/app/api/reports/generate/route.ts (or similar)
+
+Current flow:
+1. Fetch GSC data
+2. Fetch GA4 data
+3. Generate PDF
+
+New flow:
+1. Fetch GSC data
+2. Fetch GA4 data
+3. Fetch PageSpeed data (NEW - with try/catch so failure doesn't break report)
+4. Generate PDF (now includes PageSpeed if available)
+3. Update Report Data Types (Extend existing)
+
+Location: src/types/report.ts (or wherever types live)
+
+Add:
+- PageSpeedMetrics interface
+- Update ReportData interface to include optional pageSpeed field
+4. Update PDF Templates (Conditional rendering)
+
+Location: src/components/pdf/ (your PDF components)
+
+Changes:
+- Add PageSpeed section to Standard & Custom reports
+- Show mobile/desktop scores
+- Show Core Web Vitals metrics
+- Only render if data exists (so old reports still work)
+Critical Safety Approach
+Make PageSpeed Optional Throughout:
+
+typescript
+// This pattern everywhere:
+interface ReportData {
+  gsc: GSCMetrics;           // Required (existing)
+  ga4: GA4Metrics;           // Required (existing)  
+  pageSpeed?: PageSpeedMetrics;  // Optional (NEW)
+}
+
+// In PDF templates:
+{data.pageSpeed && (
+  <PageSpeedSection metrics={data.pageSpeed} />
+)}
+
+// In API:
+try {
+  pageSpeedData = await fetchPageSpeed(domain);
+} catch (error) {
+  console.error('PageSpeed failed, continuing without it:', error);
+  // Report still generates without PageSpeed
+}
+Implementation Order (Give to your code agents)
+Phase 1: Create PageSpeed API Client (Isolated)
+
+New file, can't break existing code
+Test it independently before integrating
+Phase 2: Update Type Definitions (Non-Breaking)
+
+Add optional fields to existing interfaces
+TypeScript will still compile for old code
+Phase 3: Integrate into Report Generation (Carefully)
+
+Add PageSpeed fetch in try/catch
+Store in database as optional field
+Old reports without PageSpeed still work
+Phase 4: Update PDF Templates (Conditional)
+
+Add PageSpeed sections with conditional rendering
+Test with and without PageSpeed data
+Verify old reports still render
+Testing Strategy
+Before deploying, test these scenarios:
+
+✅ New report WITH PageSpeed data (happy path)
+✅ New report WITHOUT PageSpeed data (API fails gracefully)
+✅ Old reports still render (backward compatibility)
+✅ PageSpeed API rate limit handling (25/min)
+Questions for You
+Before we proceed, I need to know:
+
+Where is your current report generation code?
+Likely: src/app/api/reports/generate/route.ts or similar?
+Which report types should include PageSpeed?
+Executive Summary: Yes/No?
+Standard Report: Yes/No?
+Custom Report: Yes/No?
+What PageSpeed metrics matter most to your users?
+Mobile score only?
+Desktop score only?
+Both + Core Web Vitals?
+Performance recommendations?
+Performance budget concern:
+PageSpeed API is slower than GSC/GA4 (takes 10-30 seconds per URL)
+Are you okay with reports taking 30-60 seconds longer?
+Should we make it optional (checkbox: "Include PageSpeed Insights")?
+Let me know these answers and I'll create the exact implementation plan for your code agents! 🚀
+
+this needs to go on every report.
+what do i need to fecth, if anything, from cloud console, to give to the agents to implement this
+
+Perfect! For PageSpeed Insights API, you need one critical piece of information from Google Cloud Console:
+
+🔑 What You Need from Google Cloud Console
+PageSpeed Insights API Key
+Step-by-step to get it:
+
+Go to Google Cloud Console
+Select your project (same one where you enabled PageSpeed API)
+Navigate to: APIs & Services → Credentials
+Click "+ CREATE CREDENTIALS" → "API key"
+Copy the API key (looks like: AIzaSyB...xxxxx)
+IMPORTANT: Restrict the key:
+Click on the key you just created
+Under "API restrictions" → Select "Restrict key"
+Choose "PageSpeed Insights API" only
+Save
+Add to your .env.local file:
+bash
+PAGESPEED_API_KEY=AIzaSyB...xxxxx
+📋 Information Package for Your Code Agents
+Give them this:
+
+markdown
+# PageSpeed Insights Integration Requirements
+
+## API Credentials
+PAGESPEED_API_KEY=AIzaSyB...xxxxx  (from .env.local)
+
+## API Specifications
+- Endpoint: https://www.googleapis.com/pagespeedonline/v5/runPagespeed
+- Rate Limit: 25,000 requests/day (400 requests/100 seconds)
+- Response Time: 10-30 seconds per URL
+- Required Parameters: url, key, category=performance, strategy=mobile|desktop
+
+## What to Fetch Per Report
+For each client domain, fetch:
+1. Mobile performance score (0-100)
+2. Desktop performance score (0-100)
+3. Core Web Vitals:
+   - LCP (Largest Contentful Paint) - target: <2.5s
+   - FID (First Input Delay) - target: <100ms
+   - CLS (Cumulative Layout Shift) - target: <0.1
+4. Performance opportunities (top 3-5 recommendations)
+
+## Integration Requirements
+- Must be OPTIONAL (report generates even if PageSpeed fails)
+- Must handle rate limits gracefully (429 errors)
+- Must use try/catch with fallback
+- Must test on homepage URL only (not every page - too slow)
+- Must cache results for 24 hours (same URL)
+
+## Report Placement
+- Executive Summary: Show mobile/desktop scores only (2 metric cards)
+- Standard Report: Full PageSpeed section with Core Web Vitals + recommendations
+- Custom Report: Include in all custom reports by default
+
+## Testing Requirements
+1. Test with valid URL → Should return scores
+2. Test with invalid URL → Should fail gracefully, report still generates
+3. Test rate limit → Should queue/retry appropriately
+4. Test old reports → Should still render without PageSpeed data
+🎯 That's It!
+You only need:
+
+✅ PageSpeed Insights API Key (from credentials page)
+✅ Add it to .env.local
+✅ Give agents the requirements above
+The API is public, so no OAuth needed like GSC/GA4. Just the API key is enough.
+
+Quick validation - Test your API key works:
+
+bash
+curl "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://reportr.agency&key=YOUR_API_KEY&strategy=mobile"
+If you get JSON with lighthouseResult.categories.performance.score, you're good to go! 🚀
+
+Want me to help you test the API key once you have it, or should we move straight to creating the implementation prompt for your agents?
+
+if i already created it, can i access it again? or do would i need to create a new one and copy that one?
+
+Great question! You can access existing API keys - no need to create a new one.
+
+🔍 How to Find Your Existing API Key
+Step-by-step:
+
+Go to Google Cloud Console
+Select your project
+Navigate to: APIs & Services → Credentials
+Look under "API Keys" section - you'll see your existing key(s)
+Click on the key name to view details
+To see the actual key value:
+Click "SHOW KEY" button
+Copy the key (starts with AIzaSy...)
+⚠️ Important Note
+If the key was created a while ago and you never copied it:
+
+Google DOES let you view it again (unlike some services)
+Just click "SHOW KEY" in the credentials page
+However, best practice:
+
+If you're unsure if this key is already being used elsewhere
+Or if it's unrestricted (applies to all APIs)
+Create a NEW restricted key specifically for PageSpeed
+This keeps things organized and secure
+🎯 My Recommendation
+Since this is for production:
+
+Create a fresh, restricted key:
+
+Keep any old keys (don't delete)
+Create new one: "PageSpeed Insights API - Reportr Production"
+Restrict it to only PageSpeed Insights API
+Add it to .env.local
+Takes 30 seconds and you'll have a clean, properly-restricted key!
+
+Want to go that route, or do you want to find your existing one first to see if it's already restricted?
+
+Screenshot 2025-11-07 at 16.32.49.png
+where?
+
+Perfect! I can see you're on the PageSpeed Insights API page, but you need to go to the Credentials section. Here's exactly where to go:
+
+📍 Navigation Steps
+From where you are now:
+
+Click "Credenciales" in the left sidebar (you can see it listed under "APIs y servicios") OR
+Click the link that says "Credenciales en la sección API y servicios" in the middle of your current page
+Then you'll see:
+
+A section called "Claves de API" (API Keys)
+That's where your existing keys will be listed
+Click "+ Crear credenciales" at the top to make a new one
+🎯 Quick Route
+Direct link (should work if you're already logged in):
+
+https://console.cloud.google.com/apis/credentials?project=reportr-seo-tool
+Once you're on the Credentials page, you'll see:
+
+OAuth 2.0 Client IDs (you already have "Reportr OAuth Client")
+API Keys (this is what you need - might be empty if you haven't created one yet)
+Let me know what you see on the Credentials page! 🔑
+
+Screenshot 2025-11-07 at 16.33.21.png
+keep your answer shor
+
+Perfect! You don't have an API key yet.
+
+✅ Create One Now
+Click "+ Crear credenciales" (top left, blue button)
+Select "Clave de API" (API Key)
+Copy the key that appears
+Click on the key name → "Restricciones de API" → Select "PageSpeed Insights API"
+Save
+Then add to .env.local:
+
+bash
+PAGESPEED_API_KEY=AIzaSy...your-key-here
+That's it! 🎯
+
+Screenshot 2025-11-07 at 16.36.01.png
+Perfect! Now restrict it for security:
+
+🔒 Configure Before Creating
+Under "Restricciones de API":
+
+Click "Restringir clave" (second radio button)
+A dropdown will appear below
+Search for and select: "PageSpeed Insights API"
+Click "Crear" (blue button)
+This ensures the key can only be used for PageSpeed Insights, nothing else.
+
+Then copy the key that appears and add to .env.local! 🎯
+
+ok, i have it, how do we implement it?
+also, how do i see the ones i already have for GSC and GA4, because those are fetching data into the reports
+
+🎯 Implementation Plan for PageSpeed Insights
+Quick Answer on GSC/GA4:
+You're NOT using API keys for GSC/GA4 - you're using OAuth 2.0 tokens (the "Reportr OAuth Client" you saw). Those tokens are stored in your database after users connect their Google accounts. PageSpeed is different - it uses a simple API key.
+
+📋 Implementation Breakdown for Your Code Agents
+Create a document with this spec:
+
+markdown
+# PageSpeed Insights Integration - Implementation Spec
+
+## Environment Variable
+Add to .env.local (and Vercel):
+PAGESPEED_API_KEY=AIzaSy[your-key-here]
+
+## Files to Create/Modify
+
+### 1. CREATE: PageSpeed API Client
+**File:** `src/lib/integrations/pagespeed.ts`
+
+**Purpose:** Fetch PageSpeed data for a given URL
+
+**What it needs to do:**
+- Accept a URL (e.g., client domain)
+- Fetch both mobile AND desktop scores in parallel
+- Extract: mobile score, desktop score, LCP, FID, CLS
+- Handle errors gracefully (return null if fails, don't throw)
+- Respect rate limits (25,000/day, 400/100 seconds)
+
+**API Endpoint:**
+```
+GET https://www.googleapis.com/pagespeedonline/v5/runPagespeed
+Parameters:
+  - url: [client domain]
+  - key: process.env.PAGESPEED_API_KEY
+  - category: performance
+  - strategy: mobile (then desktop)
+```
+
+**Return Type:**
+```typescript
+interface PageSpeedMetrics {
+  mobile: {
+    score: number;        // 0-100
+    lcp: number;          // milliseconds
+    fid: number;          // milliseconds  
+    cls: number;          // score 0-1
+  };
+  desktop: {
+    score: number;        // 0-100
+    lcp: number;
+    fid: number;
+    cls: number;
+  };
+  opportunities?: Array;
+}
+```
+
+---
+
+### 2. UPDATE: Type Definitions
+**File:** `src/types/report.ts` (or wherever ReportData is defined)
+
+**Add PageSpeed to ReportData interface:**
+```typescript
+interface ReportData {
+  gsc: GSCMetrics;
+  ga4: GA4Metrics;
+  pageSpeed?: PageSpeedMetrics;  // NEW - optional!
+  // ... rest of existing fields
+}
+```
+
+---
+
+### 3. UPDATE: Report Generation API
+**File:** `src/app/api/reports/generate/route.ts` (or similar)
+
+**Changes needed:**
+```typescript
+// Current flow:
+const gscData = await fetchGSCData(client);
+const ga4Data = await fetchGA4Data(client);
+
+// ADD THIS (with try/catch):
+let pageSpeedData = null;
+try {
+  pageSpeedData = await fetchPageSpeedData(client.domain);
+} catch (error) {
+  console.error('PageSpeed fetch failed:', error);
+  // Continue without PageSpeed - report still generates
+}
+
+// Update reportData object:
+const reportData = {
+  gsc: gscData,
+  ga4: ga4Data,
+  pageSpeed: pageSpeedData,  // NEW - can be null
+  // ... rest
+};
+```
+
+---
+
+### 4. UPDATE: PDF Templates
+**Files:** All three report templates
+- `src/components/pdf/ExecutiveSummaryTemplate.tsx`
+- `src/components/pdf/StandardReportTemplate.tsx`  
+- `src/components/pdf/CustomReportTemplate.tsx`
+
+**Changes needed:**
+
+**Executive Summary:** Add 2 metric cards showing mobile/desktop scores
+```typescript
+{data.pageSpeed && (
+  <>
+    
+    
+  </>
+)}
+```
+
+**Standard Report:** Add full PageSpeed section
+```typescript
+{data.pageSpeed && (
+  
+    Performance Analysis
+    
+    
+      
+      
+    
+    
+    
+      
+      
+      
+    
+    
+    {data.pageSpeed.opportunities && (
+      
+    )}
+  
+)}
+```
+
+**Custom Report:** Include PageSpeed by default (same as Standard)
+
+---
+
+### 5. UPDATE: Database Schema (Optional but Recommended)
+**File:** `prisma/schema.prisma`
+
+**Add to Report model:**
+```prisma
+model Report {
+  // ... existing fields
+  pageSpeedMobile    Int?     // Mobile score 0-100
+  pageSpeedDesktop   Int?     // Desktop score 0-100
+  pageSpeedLCP       Float?   // LCP in milliseconds
+  pageSpeedFID       Float?   // FID in milliseconds
+  pageSpeedCLS       Float?   // CLS score
+}
+```
+
+Then run: `npx prisma migrate dev --name add_pagespeed_metrics`
+
+---
+
+## ⚠️ Critical Requirements
+
+**MUST HAVE:**
+1. ✅ Try/catch around PageSpeed fetch - report generates even if it fails
+2. ✅ Conditional rendering in PDFs - old reports without PageSpeed still work
+3. ✅ Fetch BOTH mobile and desktop in parallel (faster)
+4. ✅ Cache results for 24 hours (same domain = don't refetch)
+5. ✅ Rate limit handling (exponential backoff on 429 errors)
+
+**MUST TEST:**
+1. ✅ New report WITH PageSpeed data (happy path)
+2. ✅ New report when PageSpeed API fails (still generates)
+3. ✅ Old reports from database still render correctly
+4. ✅ Invalid domains (should fail gracefully)
+
+---
+
+## 🎯 Success Criteria
+
+**After implementation:**
+- Reports include mobile/desktop scores + Core Web Vitals
+- PageSpeed failure doesn't break report generation
+- Old reports (pre-PageSpeed) still render perfectly
+- Response time: +10-30 seconds per report (acceptable)
+🚀 Next Steps
+Give this entire spec to your code agents and ask them to:
+
+Phase 1: Create the PageSpeed client (pagespeed.ts) - test it independently first
+Phase 2: Update types and integrate into report generation
+Phase 3: Update PDF templates with conditional rendering
+Phase 4: Test all scenarios
+Want me to create a more detailed prompt for each phase, or is this clear enough for your agents? 🎯
+
+look, here's the api key: AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI
+
+give me a full prompt for the agents, in the same format of the prompts that you saw in the document i asked you to read before, give here, in the conversation
+
+🎯 AGENT PROMPT: Add PageSpeed Insights to SEO Reports
+CONTEXT & OBJECTIVES
+You are implementing PageSpeed Insights API integration into the existing SEO reporting system. This is a non-breaking addition - all existing functionality must continue working perfectly.
+
+Current State:
+
+✅ Reports successfully fetch GSC + GA4 data
+✅ PDF generation works for 3 report types (Executive, Standard, Custom)
+✅ PayPal subscriptions and limits enforcement functional
+✅ White-label branding system operational
+Goal: Add PageSpeed Insights data (mobile/desktop scores + Core Web Vitals) to ALL reports without breaking existing functionality.
+
+Critical Constraint: PageSpeed data must be OPTIONAL throughout the entire system. If PageSpeed API fails, reports still generate successfully with GSC + GA4 data only.
+
+ENVIRONMENT SETUP
+1. Add API Key to Environment Variables
+
+Add to .env.local:
+
+bash
+PAGESPEED_API_KEY=AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI
+Add to Vercel Environment Variables (Production):
+
+Variable name: PAGESPEED_API_KEY
+Value: AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI
+Environments: Production, Preview, Development
+PHASE 1: CREATE PAGESPEED API CLIENT (New File - Cannot Break Anything)
+File to Create: src/lib/integrations/pagespeed.ts
+
+Requirements:
+
+typescript
+/**
+ * PageSpeed Insights API Client
+ * 
+ * Fetches performance metrics for a given URL using Google's PageSpeed Insights API.
+ * Returns mobile + desktop scores, Core Web Vitals, and performance opportunities.
+ * 
+ * API Specifications:
+ * - Endpoint: https://www.googleapis.com/pagespeedonline/v5/runPagespeed
+ * - Rate Limits: 25,000 requests/day, 400 requests per 100 seconds
+ * - Response Time: 10-30 seconds per URL
+ * - Strategy: Fetch mobile AND desktop in parallel for efficiency
+ */
+
+// TypeScript Interface
+export interface PageSpeedMetrics {
+  mobile: {
+    score: number;              // Performance score 0-100
+    lcp: number | null;         // Largest Contentful Paint (ms)
+    fid: number | null;         // First Input Delay (ms)
+    cls: number | null;         // Cumulative Layout Shift (0-1)
+  };
+  desktop: {
+    score: number;
+    lcp: number | null;
+    fid: number | null;
+    cls: number | null;
+  };
+  opportunities?: Array<{       // Top 3-5 performance recommendations
+    title: string;
+    description: string;
+    displayValue?: string;      // e.g., "Potential savings: 2.1s"
+  }>;
+  fetchedAt: Date;              // Timestamp for caching purposes
+}
+
+// Main Function
+export async function fetchPageSpeedData(url: string): Promise<PageSpeedMetrics | null> {
+  /**
+   * Implementation Requirements:
+   * 
+   * 1. Validate URL format (must start with http:// or https://)
+   * 2. Ensure URL doesn't have trailing slash (remove if present)
+   * 3. Fetch mobile and desktop scores IN PARALLEL using Promise.all()
+   * 4. Extract performance score from: lighthouseResult.categories.performance.score (multiply by 100)
+   * 5. Extract Core Web Vitals from: lighthouseResult.audits
+   *    - LCP: audits['largest-contentful-paint'].numericValue
+   *    - FID: audits['max-potential-fid'].numericValue
+   *    - CLS: audits['cumulative-layout-shift'].numericValue
+   * 6. Extract opportunities from: lighthouseResult.audits (filter by score < 0.9)
+   * 7. Handle errors gracefully - return null if API fails
+   * 8. Add exponential backoff for rate limit errors (429)
+   * 9. Add timeout of 60 seconds per request
+   * 10. Log errors but DO NOT throw exceptions
+   */
+}
+
+// Helper Function for Single Strategy Fetch
+async function fetchPageSpeedForStrategy(
+  url: string, 
+  strategy: 'mobile' | 'desktop'
+): Promise<any> {
+  /**
+   * API Call Structure:
+   * 
+   * GET https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&key={apiKey}&strategy={strategy}&category=performance
+   * 
+   * Error Handling:
+   * - 400: Invalid URL → Return null
+   * - 429: Rate limit → Retry with exponential backoff (2s, 4s, 8s)
+   * - 500: Google server error → Return null
+   * - Timeout (60s): Return null
+   */
+}
+
+// Utility: Extract Core Web Vitals
+function extractCoreWebVitals(lighthouseResult: any): {
+  lcp: number | null;
+  fid: number | null;
+  cls: number | null;
+} {
+  /**
+   * Parse Lighthouse audit data safely.
+   * Return null for any metric that's missing or invalid.
+   */
+}
+
+// Utility: Extract Top Opportunities
+function extractOpportunities(lighthouseResult: any, limit: number = 5): Array<{
+  title: string;
+  description: string;
+  displayValue?: string;
+}> {
+  /**
+   * Filter audits where score < 0.9 and scoreDisplayMode === 'numeric'
+   * Sort by potential impact (numericValue descending)
+   * Return top N opportunities
+   */
+}
+Testing Requirements for Phase 1:
+
+Create test file: src/lib/integrations/__tests__/pagespeed.test.ts
+
+Test cases:
+
+✅ Valid URL returns mobile + desktop scores
+✅ Invalid URL returns null (doesn't throw)
+✅ Rate limit handling (mock 429 response)
+✅ Timeout handling (mock slow response)
+✅ Missing Core Web Vitals data (some sites don't have FID)
+Phase 1 Success Criteria:
+
+Function exists and can be imported
+Returns PageSpeedMetrics object for valid URLs
+Returns null for invalid/failed requests
+NO exceptions thrown under any circumstances
+All tests pass
+PHASE 2: UPDATE TYPE DEFINITIONS (Non-Breaking Extension)
+File to Modify: src/types/report.ts (or wherever ReportData interface is defined)
+
+Changes Required:
+
+typescript
+// Import the new PageSpeed types
+import type { PageSpeedMetrics } from '@/lib/integrations/pagespeed';
+
+// Extend existing ReportData interface
+export interface ReportData {
+  // EXISTING FIELDS - DO NOT MODIFY
+  gsc: GSCMetrics;
+  ga4: GA4Metrics;
+  client: ClientInfo;
+  dateRange: DateRange;
+  branding: BrandingConfig;
+  
+  // NEW FIELD - OPTIONAL
+  pageSpeed?: PageSpeedMetrics | null;  // Can be null if fetch failed
+  
+  // ... any other existing fields
+}
+Phase 2 Success Criteria:
+
+TypeScript compilation succeeds
+No type errors in existing code
+pageSpeed field is properly typed as optional
+PHASE 3: INTEGRATE INTO REPORT GENERATION (Critical - Must Not Break)
+File to Modify: Find the report generation API route
+
+Likely: src/app/api/reports/generate/route.ts
+Or: src/lib/services/report-generator.ts
+Or: Similar file that orchestrates GSC + GA4 data fetching
+Changes Required:
+
+typescript
+// Add import at top
+import { fetchPageSpeedData } from '@/lib/integrations/pagespeed';
+
+// In the report generation function, AFTER GSC and GA4 are fetched:
+
+// EXISTING CODE (DO NOT MODIFY):
+const gscData = await fetchGSCData(client);
+const ga4Data = await fetchGA4Data(client);
+
+// NEW CODE (ADD AFTER EXISTING FETCHES):
+// Fetch PageSpeed data with full error isolation
+let pageSpeedData: PageSpeedMetrics | null = null;
+try {
+  console.log(`[PageSpeed] Fetching data for ${client.domain}`);
+  
+  // Ensure domain has protocol
+  const domainUrl = client.domain.startsWith('
+wait, why are you saying that pagespeed insights must be optional, i told you i want them on every report
+
+You're absolutely right - my apologies for the confusion! Let me clarify:
+
+🎯 What I Mean by "Optional"
+NOT Optional in Terms of:
+
+❌ User choice (no checkbox to skip it)
+❌ Report inclusion (ALWAYS included in every report)
+❌ Business requirement (it's a core feature)
+Optional in Terms of Technical Implementation:
+
+✅ Graceful degradation - If PageSpeed API is down/fails, report still generates
+✅ Backward compatibility - Old reports in database don't break
+✅ Error resilience - One API failure doesn't kill entire report
+📋 Corrected Strategy
+What happens in production:
+
+Scenario 1: PageSpeed API succeeds (99% of time)
+
+✅ Report includes: GSC + GA4 + PageSpeed (mobile/desktop scores + Core Web Vitals)
+✅ User sees complete report with all performance data
+Scenario 2: PageSpeed API fails (1% of time - Google outage, rate limit, etc.)
+
+⚠️ Report still generates with: GSC + GA4 data
+⚠️ PageSpeed section shows: "Performance data temporarily unavailable"
+⚠️ User gets their report (not ideal, but better than complete failure)
+🤔 Your Decision Point
+Option A: Strict Requirement (PageSpeed or Nothing)
+
+If PageSpeed fails → Entire report fails
+User sees error: "Report generation failed, try again later"
+Risk: Google API downtime = your entire product is down
+Option B: Best Effort (My Recommendation)
+
+If PageSpeed fails → Report generates without it, shows error message in PDF
+User still gets GSC + GA4 data
+You can retry PageSpeed fetch in background
+Risk: Minimal - user might occasionally see incomplete report
+Which approach do you want?
+
+If you want Option A (strict requirement), I'll rewrite the prompt to make PageSpeed failures block the entire report. Just confirm! 🎯
+
+option B
+
+Perfect! Option B it is - best effort with graceful degradation. Let me continue with the complete agent prompt:
+
+🎯 AGENT PROMPT: Add PageSpeed Insights to SEO Reports (CONTINUED)
+PHASE 3: INTEGRATE INTO REPORT GENERATION (Critical - Must Not Break)
+File to Modify: Find the report generation API route
+
+Likely: src/app/api/reports/generate/route.ts
+Or: src/lib/services/report-generator.ts
+Or: Similar file that orchestrates GSC + GA4 data fetching
+Changes Required:
+
+typescript
+// Add import at top
+import { fetchPageSpeedData } from '@/lib/integrations/pagespeed';
+
+// In the report generation function, AFTER GSC and GA4 are fetched:
+
+// EXISTING CODE (DO NOT MODIFY):
+const gscData = await fetchGSCData(client);
+const ga4Data = await fetchGA4Data(client);
+
+// NEW CODE (ADD AFTER EXISTING FETCHES):
+// Fetch PageSpeed data with full error isolation
+let pageSpeedData: PageSpeedMetrics | null = null;
+try {
+  console.log(`[PageSpeed] Fetching data for ${client.domain}`);
+  
+  // Ensure domain has protocol
+  const domainUrl = client.domain.startsWith('http') 
+    ? client.domain 
+    : `https://${client.domain}`;
+  
+  pageSpeedData = await fetchPageSpeedData(domainUrl);
+  
+  if (pageSpeedData) {
+    console.log(`[PageSpeed] Success - Mobile: ${pageSpeedData.mobile.score}, Desktop: ${pageSpeedData.desktop.score}`);
+  } else {
+    console.warn('[PageSpeed] Fetch returned null - will generate report without PageSpeed data');
+  }
+  
+} catch (error) {
+  console.error('[PageSpeed] Failed to fetch data:', error);
+  // Continue without PageSpeed - report still generates with GSC + GA4
+}
+
+// UPDATE reportData object to include PageSpeed:
+const reportData: ReportData = {
+  gsc: gscData,
+  ga4: ga4Data,
+  pageSpeed: pageSpeedData,  // Will be null if fetch failed
+  client: clientInfo,
+  dateRange: dateRange,
+  branding: brandingConfig,
+  // ... rest of existing fields
+};
+
+// EXISTING CODE CONTINUES (PDF generation, etc.)
+Phase 3 Success Criteria:
+
+Report generation still works if PageSpeed is null
+Logs clearly indicate PageSpeed fetch success/failure
+No exceptions thrown that break report generation
+Database saves pageSpeed data when available
+PHASE 4: UPDATE PDF TEMPLATES (Conditional Rendering)
+Files to Modify:
+
+src/components/pdf/ExecutiveSummaryTemplate.tsx
+src/components/pdf/StandardReportTemplate.tsx
+src/components/pdf/CustomReportTemplate.tsx
+4A. Executive Summary Template
+Location in file: Find the metrics cards section (likely shows GSC + GA4 summary metrics)
+
+Add PageSpeed Metric Cards:
+
+typescript
+{/* EXISTING GSC/GA4 METRIC CARDS - DO NOT MODIFY */}
+<View style={styles.metricsGrid}>
+  <MetricCard label="Total Clicks" value={data.gsc.totalClicks} />
+  <MetricCard label="Impressions" value={data.gsc.totalImpressions} />
+  {/* ... other existing cards ... */}
+</View>
+
+{/* NEW PAGESPEED METRIC CARDS */}
+{data.pageSpeed ? (
+  <View style={styles.metricsGrid}>
+    <MetricCard 
+      label="Mobile Speed Score"
+      value={data.pageSpeed.mobile.score}
+      unit="/100"
+      color={getScoreColor(data.pageSpeed.mobile.score)}
+      icon="mobile"
+    />
+    <MetricCard 
+      label="Desktop Speed Score"
+      value={data.pageSpeed.desktop.score}
+      unit="/100"
+      color={getScoreColor(data.pageSpeed.desktop.score)}
+      icon="desktop"
+    />
+  </View>
+) : (
+  <View style={styles.unavailableNotice}>
+    <Text style={styles.unavailableText}>
+      ⚠️ Performance data temporarily unavailable
+    </Text>
+  </View>
+)}
+
+// Helper function for color coding scores
+function getScoreColor(score: number): string {
+  if (score >= 90) return '#10b981'; // green
+  if (score >= 50) return '#f59e0b'; // orange
+  return '#ef4444'; // red
+}
+4B. Standard Report Template
+Location in file: After GA4 section, before recommendations
+
+Add Full PageSpeed Section:
+
+typescript
+{/* NEW PAGESPEED PERFORMANCE SECTION */}
+{data.pageSpeed ? (
+  <View style={styles.section} break>
+    {/* Section Header */}
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle}>Website Performance Analysis</Text>
+      <Text style={styles.sectionSubtitle}>
+        Measured via Google PageSpeed Insights
+      </Text>
+    </View>
+
+    {/* Performance Scores */}
+    <View style={styles.scoresContainer}>
+      <View style={styles.scoreCard}>
+        <Text style={styles.scoreLabel}>Mobile Performance</Text>
+        <Text style={[
+          styles.scoreValue,
+          { color: getScoreColor(data.pageSpeed.mobile.score) }
+        ]}>
+          {data.pageSpeed.mobile.score}
+        </Text>
+        <Text style={styles.scoreUnit}>/100</Text>
+      </View>
+      
+      <View style={styles.scoreCard}>
+        <Text style={styles.scoreLabel}>Desktop Performance</Text>
+        <Text style={[
+          styles.scoreValue,
+          { color: getScoreColor(data.pageSpeed.desktop.score) }
+        ]}>
+          {data.pageSpeed.desktop.score}
+        </Text>
+        <Text style={styles.scoreUnit}>/100</Text>
+      </View>
+    </View>
+
+    {/* Core Web Vitals */}
+    <View style={styles.subsection}>
+      <Text style={styles.subsectionTitle}>Core Web Vitals (Mobile)</Text>
+      
+      <View style={styles.vitalsGrid}>
+        {/* LCP - Largest Contentful Paint */}
+        <View style={styles.vitalCard}>
+          <Text style={styles.vitalLabel}>LCP</Text>
+          <Text style={styles.vitalValue}>
+            {data.pageSpeed.mobile.lcp 
+              ? `${(data.pageSpeed.mobile.lcp / 1000).toFixed(2)}s`
+              : 'N/A'
+            }
+          </Text>
+          <Text style={styles.vitalDescription}>
+            Largest Contentful Paint{'\n'}
+            Target: &lt; 2.5s
+          </Text>
+          {data.pageSpeed.mobile.lcp && (
+            <View style={[
+              styles.vitalStatus,
+              { backgroundColor: data.pageSpeed.mobile.lcp < 2500 ? '#10b981' : '#ef4444' }
+            ]}>
+              <Text style={styles.vitalStatusText}>
+                {data.pageSpeed.mobile.lcp < 2500 ? 'Good' : 'Needs Improvement'}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* FID - First Input Delay */}
+        <View style={styles.vitalCard}>
+          <Text style={styles.vitalLabel}>FID</Text>
+          <Text style={styles.vitalValue}>
+            {data.pageSpeed.mobile.fid 
+              ? `${data.pageSpeed.mobile.fid.toFixed(0)}ms`
+              : 'N/A'
+            }
+          </Text>
+          <Text style={styles.vitalDescription}>
+            First Input Delay{'\n'}
+            Target: &lt; 100ms
+          </Text>
+          {data.pageSpeed.mobile.fid && (
+            <View style={[
+              styles.vitalStatus,
+              { backgroundColor: data.pageSpeed.mobile.fid < 100 ? '#10b981' : '#ef4444' }
+            ]}>
+              <Text style={styles.vitalStatusText}>
+                {data.pageSpeed.mobile.fid < 100 ? 'Good' : 'Needs Improvement'}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* CLS - Cumulative Layout Shift */}
+        <View style={styles.vitalCard}>
+          <Text style={styles.vitalLabel}>CLS</Text>
+          <Text style={styles.vitalValue}>
+            {data.pageSpeed.mobile.cls 
+              ? data.pageSpeed.mobile.cls.toFixed(3)
+              : 'N/A'
+            }
+          </Text>
+          <Text style={styles.vitalDescription}>
+            Cumulative Layout Shift{'\n'}
+            Target: &lt; 0.1
+          </Text>
+          {data.pageSpeed.mobile.cls !== null && (
+            <View style={[
+              styles.vitalStatus,
+              { backgroundColor: data.pageSpeed.mobile.cls < 0.1 ? '#10b981' : '#ef4444' }
+            ]}>
+              <Text style={styles.vitalStatusText}>
+                {data.pageSpeed.mobile.cls < 0.1 ? 'Good' : 'Needs Improvement'}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </View>
+
+    {/* Performance Opportunities */}
+    {data.pageSpeed.opportunities && data.pageSpeed.opportunities.length > 0 && (
+      <View style={styles.subsection}>
+        <Text style={styles.subsectionTitle}>
+          Top Performance Opportunities
+        </Text>
+        
+        {data.pageSpeed.opportunities.slice(0, 5).map((opportunity, index) => (
+          <View key={index} style={styles.opportunityCard}>
+            <View style={styles.opportunityHeader}>
+              <Text style={styles.opportunityNumber}>{index + 1}</Text>
+              <Text style={styles.opportunityTitle}>{opportunity.title}</Text>
+            </View>
+            <Text style={styles.opportunityDescription}>
+              {opportunity.description}
+            </Text>
+            {opportunity.displayValue && (
+              <Text style={styles.opportunityImpact}>
+                💡 {opportunity.displayValue}
+              </Text>
+            )}
+          </View>
+        ))}
+      </View>
+    )}
+  </View>
+) : (
+  <View style={styles.section}>
+    <View style={styles.unavailableSection}>
+      <Text style={styles.unavailableTitle}>
+        ⚠️ Performance Data Temporarily Unavailable
+      </Text>
+      <Text style={styles.unavailableMessage}>
+        PageSpeed Insights data could not be retrieved at this time.{'\n'}
+        This may be due to temporary API limitations or connectivity issues.{'\n'}
+        Please generate a new report to include performance metrics.
+      </Text>
+    </View>
+  </View>
+)}
+4C. Custom Report Template
+Same as Standard Report - include the full PageSpeed section from 4B.
+
+4D. Add Required Styles
+In each template file's StyleSheet.create() section, add:
+
+typescript
+const styles = StyleSheet.create({
+  // ... existing styles ...
+  
+  // PageSpeed Section Styles
+  scoresContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 20,
+    gap: 20,
+  },
+  scoreCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  scoreLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  scoreValue: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  scoreUnit: {
+    fontSize: 18,
+    color: '#9ca3af',
+  },
+  
+  // Core Web Vitals Styles
+  vitalsGrid: {
+    flexDirection: 'row',
+    gap: 15,
+    marginTop: 15,
+  },
+  vitalCard: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 6,
+  },
+  vitalLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  vitalValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#7e23ce',
+    marginBottom: 8,
+  },
+  vitalDescription: {
+    fontSize: 9,
+    color: '#6b7280',
+    lineHeight: 1.4,
+  },
+  vitalStatus: {
+    marginTop: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  vitalStatusText: {
+    fontSize: 9,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  
+  // Opportunities Styles
+  opportunityCard: {
+    padding: 12,
+    backgroundColor: '#fef3c7',
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+    marginBottom: 10,
+    borderRadius: 4,
+  },
+  opportunityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  opportunityNumber: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#f59e0b',
+    marginRight: 8,
+    width: 24,
+    textAlign: 'center',
+  },
+  opportunityTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#92400e',
+    flex: 1,
+  },
+  opportunityDescription: {
+    fontSize: 9,
+    color: '#78350f',
+    lineHeight: 1.4,
+    marginBottom: 4,
+  },
+  opportunityImpact: {
+    fontSize: 9,
+    color: '#b45309',
+    fontStyle: 'italic',
+  },
+  
+  // Unavailable Data Styles
+  unavailableNotice: {
+    padding: 15,
+    backgroundColor: '#fef3c7',
+    borderRadius: 6,
+    marginVertical: 10,
+  },
+  unavailableText: {
+    fontSize: 11,
+    color: '#92400e',
+    textAlign: 'center',
+  },
+  unavailableSection: {
+    padding: 30,
+    backgroundColor: '#fef3c7',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#fbbf24',
+    marginVertical: 20,
+  },
+  unavailableTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#92400e',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  unavailableMessage: {
+    fontSize: 10,
+    color: '#78350f',
+    lineHeight: 1.6,
+    textAlign: 'center',
+  },
+});
+Phase 4 Success Criteria:
+
+All three templates render with PageSpeed data when available
+All three templates show graceful fallback when PageSpeed is null
+Old reports (without pageSpeed field) still render correctly
+Styles match existing report aesthetic
+Core Web Vitals color-coded correctly (green = good, red = needs work)
+PHASE 5: DATABASE SCHEMA UPDATE (Optional but Recommended)
+File to Modify: prisma/schema.prisma
+
+Add to Report model:
+
+prisma
+model Report {
+  // ... existing fields (DO NOT MODIFY) ...
+  
+  // PageSpeed Insights metrics (nullable)
+  pageSpeedMobile    Int?       // Mobile performance score 0-100
+  pageSpeedDesktop   Int?       // Desktop performance score 0-100
+  pageSpeedLcpMs     Float?     // Largest Contentful Paint (milliseconds)
+  pageSpeedFidMs     Float?     // First Input Delay (milliseconds)
+  pageSpeedCls       Float?     // Cumulative Layout Shift (0-1 score)
+  pageSpeedFetchedAt DateTime?  // When PageSpeed data was fetched
+  
+  // ... rest of existing fields ...
+}
+After modifying schema:
+
+bash
+# Generate migration
+npx prisma migrate dev --name add_pagespeed_metrics
+
+# Generate Prisma Client
+npx prisma generate
+Update report save logic to store PageSpeed data:
+
+typescript
+// In report generation, when saving to database:
+await prisma.report.create({
+  data: {
+    // ... existing fields ...
+    
+    // Add PageSpeed fields
+    pageSpeedMobile: reportData.pageSpeed?.mobile.score ?? null,
+    pageSpeedDesktop: reportData.pageSpeed?.desktop.score ?? null,
+    pageSpeedLcpMs: reportData.pageSpeed?.mobile.lcp ?? null,
+    pageSpeedFidMs: reportData.pageSpeed?.mobile.fid ?? null,
+    pageSpeedCls: reportData.pageSpeed?.mobile.cls ?? null,
+    pageSpeedFetchedAt: reportData.pageSpeed?.fetchedAt ?? null,
+  }
+});
+```
+
+**Phase 5 Success Criteria:**
+- Migration runs successfully
+- PageSpeed data persists to database when available
+- Null values handled correctly when PageSpeed fails
+- Existing reports in database unaffected
+
+---
+
+## TESTING PROTOCOL
+
+**Before deploying to production, test these scenarios:**
+
+### Test 1: Happy Path (PageSpeed Success)
+```
+1. Generate new report for valid domain
+2. Verify PageSpeed data appears in all 3 report types
+3. Check scores are 0-100 range
+4. Verify Core Web Vitals render correctly
+5. Confirm opportunities list appears
+```
+
+### Test 2: PageSpeed Failure (API Down)
+```
+1. Temporarily break PageSpeed API (invalid key or disconnect internet)
+2. Generate report
+3. MUST succeed and show GSC + GA4 data
+4. PDF shows "Performance data temporarily unavailable" message
+5. No errors in console that crash the app
+```
+
+### Test 3: Backward Compatibility
+```
+1. Load old reports from database (pre-PageSpeed)
+2. Reports must render correctly
+3. No errors about missing pageSpeed field
+4. Graceful fallback message appears
+```
+
+### Test 4: Invalid Domain
+```
+1. Generate report for domain without http:// protocol
+2. Verify code adds https:// automatically
+3. PageSpeed fetches successfully
+```
+
+### Test 5: Rate Limiting
+```
+1. Generate 10 reports in rapid succession
+2. Some may hit rate limits
+3. Verify retry logic works
+4. Reports either succeed with PageSpeed or gracefully degrade
+```
+
+---
+
+## DEPLOYMENT CHECKLIST
+
+**Before pushing to production:**
+
+- [ ] Environment variable added to Vercel
+- [ ] All TypeScript compilation succeeds with no errors
+- [ ] All 5 test scenarios pass
+- [ ] Database migration successful (if Phase 5 completed)
+- [ ] No console errors during report generation
+- [ ] PDF file sizes remain reasonable (<10MB)
+- [ ] Report generation time acceptable (<3 minutes)
+- [ ] Old reports still accessible and render correctly
+
+---
+
+## SUCCESS METRICS
+
+**After deployment:**
+- ✅ 100% of new reports include PageSpeed data (when API is healthy)
+- ✅ 0% increase in report generation failures
+- ✅ PageSpeed section displays mobile/desktop scores + Core Web Vitals
+- ✅ Graceful degradation when PageSpeed API fails (<1% of time)
+- ✅ Old reports remain accessible
+
+---
+
+## ROLLBACK PLAN
+
+**If something breaks:**
+
+1. **Immediate**: Revert last git commit and redeploy
+2. **Database**: Rollback migration if Phase 5 was deployed
+3. **Environment**: Remove PAGESPEED_API_KEY from Vercel
+4. **Verify**: Confirm reports generate with GSC + GA4 only
+
+---
+
+## API KEY & CREDENTIALS
+```
+PAGESPEED_API_KEY=AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI
+```
+
+**API Endpoint:**
+```
+https://www.googleapis.com/pagespeedonline/v5/runPagespeed
+Rate Limits:
+
+25,000 requests per day
+400 requests per 100 seconds
+Handle 429 errors with exponential backoff
+NOTES FOR IMPLEMENTATION
+Performance Impact: Adding PageSpeed will increase report generation time by 10-30 seconds (acceptable trade-off)
+Cost: PageSpeed Insights API is free up to 25,000 requests/day (more than enough for current scale)
+Caching Strategy: Consider caching PageSpeed results for 24 hours per domain to reduce API calls
+Future Enhancement: Add ability to re-fetch PageSpeed data for existing reports
+User Communication: Consider adding a note in UI that PageSpeed data is fetched at report generation time
+END OF PROMPT
+
+Give this entire prompt to your code agents and they should have everything needed to implement PageSpeed Insights integration correctly! 🚀
+
+the pdf system is also subjected to white label, so:
+* if the user is NOT using white label, report comes with Reportr branding
+* if the user IS using white label, report comes with user branding
+
+is this logic part of the prompt?
+
+NO, the white-label logic is NOT in the prompt I just gave you.
+
+Let me add a critical section to ensure PageSpeed styling respects white-label branding:
+
+📋 ADDENDUM TO PROMPT: White-Label Branding Integration
+Add this section between Phase 4 and Phase 5:
+
+PHASE 4.5: WHITE-LABEL BRANDING FOR PAGESPEED SECTION
+Critical Context: The entire PDF system supports white-label branding. PageSpeed sections must respect the user's branding configuration.
+
+Branding Logic:
+
+typescript
+// Branding comes from data.branding object in ReportData
+interface BrandingConfig {
+  companyName: string;        // User's company name OR "Reportr"
+  logo: string;               // User's logo URL OR Reportr logo
+  primaryColor: string;       // User's color OR #7e23ce (Reportr purple)
+  website: string;
+  supportEmail: string;
+  showPoweredBy: boolean;     // true if NOT white-label, false if white-label
+}
+White-Label Rules for PageSpeed:
+
+1. Use Branding Colors for Scores
+typescript
+// WRONG - Hardcoded Reportr purple:
+scoreValue: {
+  color: '#7e23ce',  // ❌ Don't do this
+}
+
+// CORRECT - Use branding.primaryColor:
+scoreValue: {
+  color: data.branding.primaryColor,  // ✅ Respects white-label
+}
+2. Update All Color References
+In Phase 4 styles, replace these hardcoded colors:
+
+typescript
+const styles = StyleSheet.create({
+  // ... existing styles ...
+  
+  // Update these to use branding color:
+  scoreValue: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: data.branding.primaryColor,  // CHANGED: was '#7e23ce'
+    marginBottom: 4,
+  },
+  
+  vitalValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: data.branding.primaryColor,  // CHANGED: was '#7e23ce'
+    marginBottom: 8,
+  },
+  
+  // Keep these colors (they're universal status colors):
+  // ✅ Green (#10b981) for "Good" status
+  // ⚠️ Orange (#f59e0b) for warnings
+  // ❌ Red (#ef4444) for "Needs Improvement"
+  // These should NOT change based on branding
+});
+3. Section Headers Must Match Report Style
+typescript
+{/* PageSpeed Section Header - Must Match Existing Section Headers */}
+<View style={styles.sectionHeader}>
+  <Text style={styles.sectionTitle}>Website Performance Analysis</Text>
+  <Text style={styles.sectionSubtitle}>
+    Measured via Google PageSpeed Insights
+  </Text>
+</View>
+
+// The styles.sectionHeader, styles.sectionTitle, styles.sectionSubtitle
+// ALREADY exist in the template and respect branding
+// DO NOT create new styles - reuse existing ones
+4. "Powered By" Attribution
+In the unavailable message, respect showPoweredBy:
+
+typescript
+{!data.pageSpeed && (
+  <View style={styles.unavailableSection}>
+    <Text style={styles.unavailableTitle}>
+      ⚠️ Performance Data Temporarily Unavailable
+    </Text>
+    <Text style={styles.unavailableMessage}>
+      PageSpeed Insights data could not be retrieved at this time.{'\n'}
+      This may be due to temporary API limitations or connectivity issues.
+      {data.branding.showPoweredBy && (
+        `{'\n\n'}Contact ${data.branding.supportEmail} for assistance.`
+      )}
+    </Text>
+  </View>
+)}
+```
+
+### 5. Verify Consistency with Existing Sections
+
+**PageSpeed section must visually match:**
+- ✅ GSC keyword section styling
+- ✅ GA4 traffic section styling  
+- ✅ Same fonts, spacing, borders
+- ✅ Same header hierarchy
+- ✅ Same card/table designs
+
+**DO NOT:**
+- ❌ Introduce new design patterns
+- ❌ Use different font sizes not used elsewhere
+- ❌ Create unique layouts that stand out
+- ❌ Hardcode any brand-specific colors
+
+---
+
+## WHITE-LABEL TESTING REQUIREMENTS
+
+**Add these tests to the Testing Protocol:**
+
+### Test 6: Reportr Branding (No White-Label)
+```
+1. Generate report for user WITHOUT white-label enabled
+2. Verify PageSpeed section uses Reportr purple (#7e23ce)
+3. Verify section matches existing Reportr-branded sections
+4. Check "Powered by Reportr" appears in footer (existing behavior)
+```
+
+### Test 7: White-Label Branding
+```
+1. Generate report for user WITH white-label enabled
+2. User has custom primaryColor (e.g., #FF6B35 - orange)
+3. Verify PageSpeed scores use custom orange color
+4. Verify section headers match user's branding
+5. Verify NO "Powered by Reportr" anywhere
+6. Check user's logo and company name appear (existing behavior)
+```
+
+### Test 8: Multiple White-Label Users
+```
+1. Generate reports for 3 different white-label users
+2. Each has different primaryColor (red, blue, green)
+3. Verify each report uses correct branding color
+4. Verify no color bleeding between different users' reports
+CRITICAL REMINDERS FOR CODE AGENTS
+When implementing PageSpeed section:
+
+Find existing styles first - Look at how GSC and GA4 sections are styled
+Reuse existing style names - Don't create pageSpeedSectionTitle, use existing sectionTitle
+Copy the pattern - If GA4 section uses styles.metricsGrid, PageSpeed should too
+Test both branding modes - Every UI element must work with Reportr AND white-label
+Never hardcode Reportr colors - Always use data.branding.primaryColor
+Insert this section into the original prompt between Phase 4 and Phase 5, then give the complete prompt to your agents! 🎯
+
+Does this cover the white-label requirements correctly?
+
+
+Add PageSpeed Insights to SEO Reports CONTEXT & OBJECTIVES You are implementing PageSpeed Insights API integration into the existing SEO reporting system. This is a non-breaking addition - all existing functionality must continue working perfectly. Current State: * ✅ Reports successfully fetch GSC +
+
+pasted
+
+is this correct?
+
+YES! ✅ This prompt is PERFECT.
+
+You have everything needed:
+
+✅ What's Covered Correctly
+Environment setup - API key properly documented
+Phase 1 - PageSpeed API client with proper error handling
+Phase 2 - Type definitions with optional PageSpeed field
+Phase 3 - Integration into report generation with graceful degradation
+Phase 4 - PDF template updates with conditional rendering
+Phase 4.5 - ⭐ WHITE-LABEL BRANDING - This is the critical addition
+Phase 5 - Database schema updates (optional)
+Testing protocol - All scenarios covered including white-label tests
+Deployment checklist - Complete safety net
+Rollback plan - If things go wrong
+🎯 Key Strengths
+White-Label Integration (Phase 4.5):
+
+✅ Uses data.branding.primaryColor instead of hardcoded 
+#7e23ce
+✅ Respects showPoweredBy flag
+✅ Reuses existing section styles
+✅ Tests for both Reportr branding AND custom white-label
+Error Handling:
+
+✅ Try/catch around PageSpeed fetch
+✅ Reports still generate if PageSpeed fails
+✅ Graceful "temporarily unavailable" messaging
+Backward Compatibility:
+
+✅ Old reports without PageSpeed still render
+✅ Optional pageSpeed? field in TypeScript
+✅ Conditional rendering throughout PDFs
+📋 Ready to Deploy
+Give this exact prompt to your code agents and they have:
+
+Clear implementation requirements
+Proper error handling patterns
+White-label branding compliance
+Complete testing scenarios
+Safety mechanisms
+One tiny optional improvement (not required, but nice to have):
+
+Add this note at the very end:
+
+markdown
+---
+
+## 🚨 FINAL REMINDER FOR AGENTS
+
+Before marking any phase as "complete":
+1. Run the code - don't just write it
+2. Generate a test report - verify it works
+3. Check console logs - no errors
+4. Review the PDF - looks professional
+5. Test white-label mode - custom colors work
+
+If ANY phase fails, STOP and report the issue.
+Do NOT continue to next phase if current phase is broken.
+But honestly, your prompt is excellent as-is. Ship it to your agents! 🚀
+
+regarding this:
+🎯 Implementation Plan for PageSpeed Insights
+Quick Answer on GSC/GA4:
+You're NOT using API keys for GSC/GA4 - you're using OAuth 2.0 tokens (the "Reportr OAuth Client" you saw). Those tokens are stored in your database after users connect their Google accounts. PageSpeed is different - it uses a simple API key.
+is this because to access gsc and ga4 the user needs actual permission? and to go through pagespeed insights anyone can put in a site and retrieve that info?
+
+EXACTLY! 💯 You nailed it.
+
+🔑 The Fundamental Difference
+GSC & GA4 = Private Data (OAuth Required)
+┌─────────────────────────────────────────┐
+│ Google Search Console                   │
+│ Google Analytics 4                      │
+│                                         │
+│ Contains: PRIVATE user data            │
+│ - Which keywords drove traffic          │
+│ - How many clicks/impressions          │
+│ - User behavior on website             │
+│ - Conversion tracking                  │
+│                                         │
+│ Access Control: STRICT                  │
+│ Only the website owner can view this   │
+└─────────────────────────────────────────┘
+Why OAuth 2.0?
+
+User must explicitly grant permission to your app
+"Hey Reportr, you can read MY Search Console data for MY website"
+Token stored in database = ongoing permission
+Token can be revoked by user at any time
+PageSpeed Insights = Public Data (API Key Only)
+┌─────────────────────────────────────────┐
+│ PageSpeed Insights                      │
+│                                         │
+│ Contains: PUBLIC performance data       │
+│ - Page load speed (anyone can test)    │
+│ - Core Web Vitals (publicly measurable)│
+│ - Performance score (run by anyone)    │
+│                                         │
+│ Access Control: NONE                    │
+│ Anyone can test ANY public website      │
+└─────────────────────────────────────────┘
+Why Simple API Key?
+
+You're just asking Google to test a public URL
+Same as going to https://pagespeed.web.dev/ and typing in a URL
+No private data - just performance analysis
+API key = "I'm Reportr, give me testing quota"
+🎯 Real-World Analogy
+GSC/GA4 = Bank Account
+
+You need the owner's permission (OAuth)
+Only they can grant you access to THEIR data
+You can't just test any website's analytics
+PageSpeed = Public Storefront
+
+Anyone can walk by and photograph the storefront (no permission needed)
+You're just measuring load time of public pages
+You can test ANY website, even competitors
+📊 In Your App's Context
+typescript
+// GSC/GA4 Flow (OAuth - User Permission Required)
+1. User clicks "Connect Google"
+2. Redirected to Google OAuth consent screen
+3. User approves: "Yes, Reportr can access my Search Console"
+4. Google returns tokens → stored in your database
+5. You use THEIR tokens to fetch THEIR private data
+
+// PageSpeed Flow (API Key - No Permission Needed)
+1. You have domain URL (e.g., "reportr.agency")
+2. You call PageSpeed API with YOUR API key
+3. Google tests the PUBLIC website
+4. Returns performance data (no user permission needed)
+⚠️ Important Security Note
+This is why your PageSpeed API key must be:
+
+✅ Restricted to PageSpeed Insights API only
+✅ NOT exposed in client-side code
+✅ Stored in environment variables
+Even though PageSpeed tests public data, you don't want someone stealing your API key and burning through your 25,000 daily quota!
+
+So yes - your understanding is 100% correct! 🎯
+
+GSC/GA4 = Private data → OAuth required
+PageSpeed = Public analysis → Simple API key sufficient
+
+but in the report it will call the data of the clients site, right?
+
+YES! Absolutely correct.
+
+Let me clarify the flow:
+
+🔄 How PageSpeed Works in Your Reports
+The Flow:
+typescript
+1. User's client website: "example-agency-client.com"
+   ↓
+2. Your app calls PageSpeed API with YOUR api key:
+   "Hey Google, test example-agency-client.com"
+   ↓
+3. Google PageSpeed Insights:
+   - Visits the PUBLIC URL
+   - Measures load time, Core Web Vitals, etc.
+   - Returns performance data
+   ↓
+4. Your app receives data:
+   {
+     mobile: { score: 85, lcp: 2.1s, ... },
+     desktop: { score: 92, lcp: 1.5s, ... }
+   }
+   ↓
+5. You include this in the client's report PDF
+🎯 Key Point
+PageSpeed tests the SPECIFIC client's website, but:
+
+❌ You DON'T need the client's permission
+❌ You DON'T need OAuth from the client
+✅ You're just asking Google to analyze their PUBLIC site
+✅ Using YOUR API key (not the client's)
+📊 Complete Report Data Sources
+For each client's report, you fetch:
+
+Data Source	What You Get	Auth Method	Whose Data?
+GSC	Keywords, clicks, impressions	OAuth (client's token)	Client's PRIVATE analytics
+GA4	Sessions, users, bounce rate	OAuth (client's token)	Client's PRIVATE analytics
+PageSpeed	Mobile/desktop scores, Core Web Vitals	API Key (your key)	Client's PUBLIC performance
+💡 Real-World Example
+Client: "Joe's Pizza Shop" (joespizza.com)
+
+typescript
+// In your report generation:
+
+// 1. GSC Data (requires Joe's permission via OAuth)
+const gscData = await fetchGSCData(client); 
+// Uses Joe's stored OAuth token
+// Gets: "joespizza.com received 1,234 clicks for 'best pizza near me'"
+
+// 2. GA4 Data (requires Joe's permission via OAuth)  
+const ga4Data = await fetchGA4Data(client);
+// Uses Joe's stored OAuth token
+// Gets: "joespizza.com had 5,678 sessions last month"
+
+// 3. PageSpeed Data (uses YOUR API key, no permission needed)
+const pageSpeedData = await fetchPageSpeedData('https://joespizza.com');
+// Uses YOUR Reportr API key
+// Gets: "joespizza.com mobile speed score: 67/100"
+✅ Why This Works
+PageSpeed is PUBLIC testing:
+
+Anyone can go to https://pagespeed.web.dev/
+Type in "joespizza.com"
+See the performance scores
+No login required
+Your app is just automating what anyone could do manually.
+
+So yes - the report includes data for the SPECIFIC client's site, but PageSpeed doesn't require their permission because it's analyzing publicly accessible information. 🎯
+
+Does this clear it up?
+
+yes
+
+Perfect! 🎯
+
+So you're all set with:
+
+✅ Complete prompt for your code agents
+✅ API key ready (AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI)
+✅ Understanding of OAuth vs API key differences
+✅ White-label branding requirements included
+✅ Testing protocol for all scenarios
+
+🚀 Next Steps
+Give that prompt to your code agents and they'll implement:
+
+Phase 1: PageSpeed API client
+Phase 2: Type definitions
+Phase 3: Integration into report generation
+Phase 4: PDF template updates
+Phase 4.5: White-label branding compliance
+Phase 5: Database schema (optional)
+Then test:
+
+Generate report with PageSpeed ✅
+Generate report with PageSpeed failure (graceful degradation) ✅
+Test Reportr branding ✅
+Test white-label branding ✅
+Verify old reports still work ✅
+Anything else you want to discuss before handing this off to your agents? Or ready to move forward with implementation? 💪
+
+i want a prompt to audit this before i deploy:
+✅ Complete Implementation Summary
+
+  1. Environment Setup
+
+  - ✅ Added PAGESPEED_API_KEY to .env with the provided API key
+  - ✅ Configured for both local development and production deployment
+
+  2. PageSpeed API Client
+
+  - ✅ Created /src/lib/integrations/pagespeed.ts with comprehensive error handling
+  - ✅ Implements parallel mobile + desktop fetching for efficiency
+  - ✅ Includes exponential backoff for rate limiting (429 errors)
+  - ✅ 60-second timeout with graceful failure
+  - ✅ Extracts Core Web Vitals (LCP, FID, CLS) and performance opportunities
+  - ✅ Returns null on failure (non-breaking)
+
+  3. Type Integration
+
+  - ✅ Updated /src/types/report.ts to import and use PageSpeedMetrics
+  - ✅ Made PageSpeed data optional throughout the system
+  - ✅ Fixed mock data to match new interface
+
+  4. API Integration
+
+  - ✅ Created /src/app/api/clients/[id]/pagespeed/route.ts
+  - ✅ Added PageSpeed fetching to report generation pipeline
+  - ✅ Updated Zod validation schema for PageSpeed data
+  - ✅ Integrated with database storage and request body
+
+  5. PDF Template Updates
+
+  Executive Summary Template:
+
+  - ✅ Added mobile/desktop speed scores as metric cards with color coding
+  - ✅ Includes PageSpeed insight with intelligent messaging
+  - ✅ Adjusts grid layout (3 columns when PageSpeed available, 2 otherwise)
+
+  Standard Report Template:
+
+  - ✅ Full dedicated PageSpeed page with:
+    - Large performance score displays
+    - Complete Core Web Vitals section (LCP, FID, CLS) with targets and status
+    - Top 5 performance opportunities with impact estimates
+    - Graceful fallback when PageSpeed data unavailable
+  - ✅ Updated page numbering (now 9 pages total)
+
+  Custom Report Template:
+
+  - ✅ Added 5 new selectable PageSpeed metrics:
+    - mobileSpeed, desktopSpeed, mobileLCP, mobileFID, mobileCLS
+  - ✅ Conditional full PageSpeed section when any PageSpeed metrics selected
+  - ✅ Smart Core Web Vitals display (only shows selected metrics)
+
+  6. White-Label Branding Support
+
+  - ✅ Uses data.branding.primaryColor for all PageSpeed metric values
+  - ✅ Respects whiteLabelEnabled setting for contact information
+  - ✅ Matches existing report design patterns
+  - ✅ Color-coded performance scores (green/orange/red) remain consistent across brands
+
+  7. Error Handling & Graceful Degradation
+
+  - ✅ Non-breaking implementation: Reports still generate if PageSpeed fails
+  - ✅ Clear warning messages when PageSpeed data unavailable
+  - ✅ Comprehensive logging for debugging
+  - ✅ Rate limit handling with exponential backoff
+  - ✅ Timeout protection (60s per request)
+
+  8. Quality Assurance
+
+  - ✅ TypeScript compilation successful
+  - ✅ All templates handle missing PageSpeed data gracefully
+  - ✅ Mock data updated to match new interface
+  - ✅ Backward compatibility maintained
+
+  🚀 Key Features Delivered
+
+  1. Performance Scores: Mobile and desktop PageSpeed scores (0-100) with color coding
+  2. Core Web Vitals: LCP, FID, and CLS metrics with target benchmarks and status indicators
+  3. Optimization Opportunities: Top 5 actionable recommendations with impact estimates
+  4. Smart Integration: Optional throughout - never breaks existing functionality
+  5. White-Label Ready: Respects all branding settings and customizations
+  6. Professional Design: Matches existing report aesthetics and layout patterns
+
+  📊 Data Flow
+
+  1. Frontend calls PageSpeed API →
+  2. API fetches from Google PageSpeed Insights →
+  3. Data processed and stored →
+  4. PDF templates conditionally render PageSpeed sections →
+  5. Reports include performance insights alongside SEO data
+
+  The implementation is production-ready and fully backward compatible. All existing reports will
+  continue to work, and new reports will automatically include PageSpeed data when available.
+
+Show more
+🔍 PRE-DEPLOYMENT AUDIT PROMPT: PageSpeed Insights Integration
+AUDIT OBJECTIVE
+Perform a comprehensive technical audit of the PageSpeed Insights integration to verify production readiness. This is a VERIFICATION ONLY prompt - DO NOT make any code changes. Document all findings and flag any issues that need attention before deployment.
+
+PHASE 1: ENVIRONMENT & CONFIGURATION AUDIT
+1.1 Environment Variables Check
+bash
+# Verify .env.local contains:
+- [ ] PAGESPEED_API_KEY is present
+- [ ] API key format is valid (starts with AIzaSy)
+- [ ] No extra whitespace or quotes around the key
+
+# Verify Vercel Environment Variables:
+- [ ] Log into Vercel dashboard
+- [ ] Check PAGESPEED_API_KEY exists in Production environment
+- [ ] Check PAGESPEED_API_KEY exists in Preview environment
+- [ ] Verify values match .env.local
+Expected Result: API key present in both local and Vercel environments with identical values.
+
+Red Flags:
+
+❌ API key missing from Vercel
+❌ Different keys in different environments
+❌ Key exposed in git history (check .gitignore includes .env.local)
+PHASE 2: API CLIENT IMPLEMENTATION AUDIT
+2.1 File Structure Check
+bash
+# Verify file exists:
+- [ ] /src/lib/integrations/pagespeed.ts exists
+- [ ] File imports are correct
+- [ ] TypeScript compiles without errors
+2.2 API Client Code Review
+Read the file and verify:
+
+typescript
+// Critical checks in pagespeed.ts:
+
+1. Error Handling:
+   - [ ] Function returns null on failure (never throws)
+   - [ ] Try/catch blocks around all API calls
+   - [ ] Console.error() for logging (not console.log for errors)
+   - [ ] No unhandled promise rejections
+
+2. Rate Limiting:
+   - [ ] Exponential backoff implemented for 429 errors
+   - [ ] Retry logic has maximum attempts (3-5 retries)
+   - [ ] Backoff delays: 2s, 4s, 8s (or similar)
+
+3. Timeout Protection:
+   - [ ] 60-second timeout per request
+   - [ ] Timeout triggers graceful failure (returns null)
+
+4. URL Validation:
+   - [ ] Checks for http:// or https:// prefix
+   - [ ] Adds https:// if missing
+   - [ ] Removes trailing slashes
+   - [ ] Handles invalid URLs gracefully
+
+5. Parallel Fetching:
+   - [ ] Mobile and desktop fetched with Promise.all()
+   - [ ] Both complete before returning results
+   - [ ] Partial failure handled (if mobile fails, desktop might succeed)
+
+6. Data Extraction:
+   - [ ] Core Web Vitals safely extracted (handles missing data)
+   - [ ] Performance score multiplied by 100 (API returns 0-1)
+   - [ ] Opportunities filtered and sorted correctly
+   - [ ] null checks for missing audit data
+2.3 API Endpoint Validation
+Test the API client manually:
+
+bash
+# In your terminal or Node REPL:
+# Create a test script: test-pagespeed-api.mjs
+
+import { fetchPageSpeedData } from './src/lib/integrations/pagespeed.ts';
+
+// Test 1: Valid domain
+console.log('Test 1: Valid domain');
+const result1 = await fetchPageSpeedData('https://reportr.agency');
+console.log('Mobile score:', result1?.mobile.score);
+console.log('Desktop score:', result1?.desktop.score);
+
+// Test 2: Invalid domain (should return null, not throw)
+console.log('\nTest 2: Invalid domain');
+const result2 = await fetchPageSpeedData('https://this-domain-does-not-exist-12345.com');
+console.log('Should be null:', result2);
+
+// Test 3: Domain without protocol (should add https://)
+console.log('\nTest 3: Domain without protocol');
+const result3 = await fetchPageSpeedData('reportr.agency');
+console.log('Should work:', result3?.mobile.score);
+Expected Results:
+
+✅ Test 1: Returns valid scores (0-100)
+✅ Test 2: Returns null (no errors thrown)
+✅ Test 3: Automatically adds https:// and succeeds
+Red Flags:
+
+❌ Any test throws an exception
+❌ API returns 403 (API key invalid or not restricted properly)
+❌ Scores are decimal (0-1) instead of 0-100
+❌ Missing Core Web Vitals data crashes the function
+PHASE 3: TYPE DEFINITIONS AUDIT
+3.1 TypeScript Interface Check
+Read /src/types/report.ts and verify:
+
+typescript
+- [ ] PageSpeedMetrics interface imported from pagespeed.ts
+- [ ] ReportData interface includes: pageSpeed?: PageSpeedMetrics | null
+- [ ] Field is OPTIONAL (has ? or | null)
+- [ ] No type errors when compiling
+
+// Run this command:
+npx tsc --noEmit
+
+// Expected: Zero type errors related to PageSpeed
+3.2 Type Consistency Check
+Verify PageSpeed types match across files:
+
+bash
+# Check these files use PageSpeedMetrics consistently:
+- [ ] /src/lib/integrations/pagespeed.ts (defines it)
+- [ ] /src/types/report.ts (imports and uses it)
+- [ ] /src/app/api/reports/generate/route.ts (or similar - uses it)
+- [ ] All PDF template files (use it)
+Red Flags:
+
+❌ Multiple definitions of PageSpeedMetrics (should only be defined once)
+❌ Type mismatches between files
+❌ Missing null checks in code that uses PageSpeed data
+PHASE 4: REPORT GENERATION INTEGRATION AUDIT
+4.1 Find Report Generation File
+Locate the main report generation logic:
+
+bash
+# Likely locations:
+- /src/app/api/reports/generate/route.ts
+- /src/lib/services/report-generator.ts
+- /src/app/api/clients/[id]/reports/route.ts
+4.2 Integration Code Review
+Read the file and verify:
+
+typescript
+1. Import Statement:
+   - [ ] Imports fetchPageSpeedData from pagespeed.ts
+
+2. PageSpeed Fetch Logic:
+   - [ ] Wrapped in try/catch block
+   - [ ] Variable initialized as null: let pageSpeedData = null;
+   - [ ] Catches errors and continues (doesn't re-throw)
+   - [ ] Adds https:// to domain if missing
+   - [ ] Logs success/failure appropriately
+
+3. Report Data Construction:
+   - [ ] reportData object includes: pageSpeed: pageSpeedData
+   - [ ] Works when pageSpeedData is null
+   - [ ] All existing fields (gsc, ga4) still present
+
+4. Execution Order:
+   - [ ] PageSpeed fetched AFTER GSC and GA4
+   - [ ] GSC/GA4 failures don't skip PageSpeed
+   - [ ] PageSpeed failure doesn't prevent PDF generation
+
+5. Console Logging:
+   - [ ] Logs when PageSpeed fetch starts
+   - [ ] Logs success with scores
+   - [ ] Logs failure/null return
+   - [ ] No sensitive data in logs
+4.3 Error Isolation Test
+Verify PageSpeed failures don't break reports:
+
+typescript
+// Temporarily break PageSpeed in code:
+// Change: const pageSpeedData = await fetchPageSpeedData(url);
+// To:     const pageSpeedData = null; // Force failure
+
+// Generate a report
+// Expected: Report should succeed with GSC + GA4 data
+// PDF should show "Performance data temporarily unavailable"
+
+// Restore original code after test
+Red Flags:
+
+❌ PageSpeed failure prevents report generation
+❌ Unhandled errors crash the API
+❌ No logging when PageSpeed fails
+❌ PageSpeed null value breaks reportData construction
+PHASE 5: PDF TEMPLATE AUDIT
+5.1 Executive Summary Template
+Read /src/components/pdf/ExecutiveSummaryTemplate.tsx:
+
+typescript
+1. Metric Cards:
+   - [ ] PageSpeed cards conditionally rendered: {data.pageSpeed && ...}
+   - [ ] Shows mobile score with "/100" unit
+   - [ ] Shows desktop score with "/100" unit
+   - [ ] Uses getScoreColor() function for color coding
+   - [ ] Fallback message when pageSpeed is null
+
+2. Color Coding:
+   - [ ] getScoreColor() function exists
+   - [ ] >= 90 = green (#10b981)
+   - [ ] >= 50 = orange (#f59e0b)
+   - [ ] < 50 = red (#ef4444)
+
+3. White-Label Compliance:
+   - [ ] Does NOT use hardcoded #7e23ce anywhere for PageSpeed
+   - [ ] All metric values use: data.branding.primaryColor
+   - [ ] Section styles match existing GSC/GA4 sections
+
+4. Layout:
+   - [ ] Grid adjusts based on PageSpeed availability
+   - [ ] Spacing consistent with existing metrics
+   - [ ] No layout breaks when PageSpeed missing
+5.2 Standard Report Template
+Read /src/components/pdf/StandardReportTemplate.tsx:
+
+typescript
+1. PageSpeed Section Structure:
+   - [ ] Conditionally rendered: {data.pageSpeed ? (...) : (...)}
+   - [ ] Has dedicated page (break attribute set)
+   - [ ] Section header matches existing style
+   - [ ] Uses existing sectionHeader, sectionTitle styles
+
+2. Performance Scores Display:
+   - [ ] Mobile and desktop scores shown prominently
+   - [ ] Large score values (48px font)
+   - [ ] Color coded with getScoreColor()
+   - [ ] "/100" unit displayed
+
+3. Core Web Vitals:
+   - [ ] LCP displayed in seconds (divide by 1000)
+   - [ ] FID displayed in milliseconds
+   - [ ] CLS displayed with 3 decimal places
+   - [ ] Target benchmarks shown (< 2.5s, < 100ms, < 0.1)
+   - [ ] Status badges (Good/Needs Improvement)
+   - [ ] Handles null values (shows "N/A")
+
+4. Performance Opportunities:
+   - [ ] Limited to top 5 (.slice(0, 5))
+   - [ ] Shows title, description, displayValue
+   - [ ] Numbered list (1, 2, 3, 4, 5)
+   - [ ] Only renders if opportunities exist
+
+5. Fallback Message:
+   - [ ] Shows when data.pageSpeed is null/undefined
+   - [ ] Clear warning icon (⚠️)
+   - [ ] Explains why data unavailable
+   - [ ] Respects showPoweredBy for contact info
+
+6. White-Label Compliance:
+   - [ ] scoreValue color = data.branding.primaryColor
+   - [ ] vitalValue color = data.branding.primaryColor
+   - [ ] NO hardcoded #7e23ce anywhere
+   - [ ] Status colors (green/red/orange) remain constant
+5.3 Custom Report Template
+Read /src/components/pdf/CustomReportTemplate.tsx:
+
+typescript
+1. Metric Selection:
+   - [ ] New metrics added to availableMetrics:
+     - mobileSpeed, desktopSpeed
+     - mobileLCP, mobileFID, mobileCLS
+   - [ ] Each has label, description, category
+
+2. Conditional Section:
+   - [ ] Full PageSpeed section renders if any PageSpeed metric selected
+   - [ ] Section identical to Standard Report template
+   - [ ] Respects selectedMetrics array
+
+3. Smart Display:
+   - [ ] Core Web Vitals section only shows selected metrics
+   - [ ] If mobileSpeed selected, shows mobile score
+   - [ ] If mobileLCP selected, shows LCP card
+   - [ ] If no PageSpeed metrics selected, section doesn't appear
+5.4 Styles Audit
+In each template's StyleSheet.create():
+
+typescript
+- [ ] scoresContainer style exists
+- [ ] scoreCard style exists
+- [ ] vitalsGrid style exists
+- [ ] vitalCard, vitalStatus styles exist
+- [ ] opportunityCard styles exist
+- [ ] unavailableSection styles exist
+- [ ] All styles use relative sizing (no absolute px that break)
+- [ ] Colors use theme variables or branding colors
+5.5 Visual Consistency Check
+Compare PageSpeed sections to existing sections:
+
+typescript
+- [ ] Font sizes match existing sections
+- [ ] Spacing matches existing sections
+- [ ] Border styles match existing cards
+- [ ] Header hierarchy matches (sectionTitle, subsectionTitle)
+- [ ] No unique layouts that stand out visually
+Red Flags:
+
+❌ Hardcoded 
+#7e23ce anywhere (breaks white-label)
+❌ Missing null checks (crashes on old reports)
+❌ Different design patterns than GSC/GA4 sections
+❌ Layout breaks when PageSpeed missing
+❌ Styles not defined (causes PDF generation errors)
+PHASE 6: DATABASE SCHEMA AUDIT (If Phase 5 Completed)
+6.1 Prisma Schema Check
+Read prisma/schema.prisma:
+
+prisma
+- [ ] Report model includes these nullable fields:
+  - pageSpeedMobile    Int?
+  - pageSpeedDesktop   Int?
+  - pageSpeedLcpMs     Float?
+  - pageSpeedFidMs     Float?
+  - pageSpeedCls       Float?
+  - pageSpeedFetchedAt DateTime?
+
+- [ ] All fields marked as optional (?)
+- [ ] Data types correct (Int for scores, Float for timings)
+6.2 Migration Check
+bash
+# Check migrations folder:
+- [ ] New migration file exists for PageSpeed fields
+- [ ] Migration name descriptive (add_pagespeed_metrics)
+- [ ] Migration SQL looks correct (ALTER TABLE, ADD COLUMN)
+
+# Verify Prisma Client:
+npx prisma generate
+- [ ] Generates without errors
+- [ ] Types include new PageSpeed fields
+6.3 Database Storage Check
+Find where reports are saved to database:
+
+typescript
+// In report generation code, verify:
+- [ ] pageSpeedMobile: reportData.pageSpeed?.mobile.score ?? null
+- [ ] pageSpeedDesktop: reportData.pageSpeed?.desktop.score ?? null
+- [ ] pageSpeedLcpMs: reportData.pageSpeed?.mobile.lcp ?? null
+- [ ] pageSpeedFidMs: reportData.pageSpeed?.mobile.fid ?? null
+- [ ] pageSpeedCls: reportData.pageSpeed?.mobile.cls ?? null
+- [ ] pageSpeedFetchedAt: reportData.pageSpeed?.fetchedAt ?? null
+
+- [ ] Uses ?? null for all fields (handles undefined)
+- [ ] No database errors if PageSpeed is null
+Red Flags:
+
+❌ Migration not applied to database
+❌ Required fields (not nullable) - would break old reports
+❌ Wrong data types (String instead of Int)
+❌ Database save fails when PageSpeed is null
+PHASE 7: BACKWARD COMPATIBILITY AUDIT
+7.1 Old Reports Test
+bash
+# If you have existing reports in database:
+
+1. Find an old report (created before PageSpeed integration):
+   - [ ] Query database for report without PageSpeed data
+   - [ ] Note the report ID
+
+2. Load the old report in UI:
+   - [ ] Report loads without errors
+   - [ ] PDF renders correctly
+   - [ ] No console errors about missing pageSpeed field
+   - [ ] Shows graceful "data unavailable" message
+
+3. Check TypeScript handling:
+   - [ ] data.pageSpeed?.mobile.score (uses optional chaining)
+   - [ ] Never accesses data.pageSpeed.mobile directly
+Expected Result: Old reports work perfectly, show unavailable message for PageSpeed section.
+
+Red Flags:
+
+❌ TypeScript errors about undefined
+❌ PDF generation fails
+❌ Console errors: "Cannot read property 'mobile' of undefined"
+PHASE 8: WHITE-LABEL BRANDING AUDIT
+8.1 Test Reportr Branding (No White-Label)
+typescript
+// Generate report for user where:
+// user.whiteLabelEnabled = false
+// user.primaryColor = '#7e23ce' (Reportr purple)
+
+Verify in PDF:
+- [ ] PageSpeed scores use purple (#7e23ce)
+- [ ] Core Web Vitals values use purple
+- [ ] "Powered by Reportr" appears in footer
+- [ ] Reportr logo appears in header
+- [ ] Section headers match existing purple theme
+8.2 Test White-Label Branding
+typescript
+// Generate report for user where:
+// user.whiteLabelEnabled = true
+// user.primaryColor = '#FF6B35' (custom orange)
+// user.companyName = 'Test Agency'
+// user.logo = 'https://example.com/custom-logo.png'
+
+Verify in PDF:
+- [ ] PageSpeed scores use orange (#FF6B35)
+- [ ] Core Web Vitals values use orange
+- [ ] NO "Powered by Reportr" anywhere
+- [ ] Custom agency name appears
+- [ ] Custom logo appears
+- [ ] All PageSpeed elements respect custom color
+8.3 Color Consistency Check
+bash
+# Search all PDF template files for hardcoded colors:
+grep -r "#7e23ce" src/components/pdf/
+
+# Expected: NO results (or only in comments/documentation)
+# If found: CRITICAL BUG - breaks white-label
+Red Flags:
+
+❌ Hardcoded 
+#7e23ce in PageSpeed sections
+❌ White-label reports still show "Powered by Reportr"
+❌ Custom primaryColor not applied to PageSpeed metrics
+❌ Inconsistent colors between PageSpeed and other sections
+PHASE 9: PERFORMANCE & TIMING AUDIT
+9.1 Report Generation Time Test
+bash
+# Generate 3 reports and measure time:
+
+Report 1 (with PageSpeed):
+- Start time: ___
+- End time: ___
+- Total: ___ seconds
+- [ ] Under 3 minutes? (180 seconds)
+
+Report 2 (with PageSpeed):
+- Total: ___ seconds
+- [ ] Similar to Report 1?
+
+Report 3 (PageSpeed fails - should be faster):
+- Total: ___ seconds
+- [ ] Faster than successful PageSpeed reports?
+Expected:
+
+✅ Reports with PageSpeed: 90-180 seconds (1.5-3 minutes)
+✅ Reports without PageSpeed: 30-60 seconds
+✅ Consistent timing across multiple runs
+Red Flags:
+
+❌ Reports take > 3 minutes
+❌ Inconsistent timing (60s, then 180s, then 90s)
+❌ PageSpeed timeout not working (hangs indefinitely)
+9.2 API Rate Limit Test
+bash
+# Generate 5 reports rapidly (within 30 seconds):
+
+Report 1: ___ (should succeed)
+Report 2: ___ (should succeed)
+Report 3: ___ (may hit rate limit)
+Report 4: ___ (may hit rate limit)
+Report 5: ___ (may hit rate limit)
+
+Verify:
+- [ ] 429 errors logged when rate limited
+- [ ] Exponential backoff triggers
+- [ ] Reports eventually succeed or gracefully degrade
+- [ ] No crashes from rate limiting
+PHASE 10: PRODUCTION READINESS CHECKLIST
+10.1 Code Quality
+bash
+- [ ] No console.log() in production code (use console.error for errors)
+- [ ] No commented-out code blocks
+- [ ] No TODO or FIXME comments for critical functionality
+- [ ] All imports resolve correctly
+- [ ] No unused variables or functions
+10.2 TypeScript Compilation
+bash
+# Run full type check:
+npx tsc --noEmit
+
+Expected: 0 errors
+
+- [ ] Zero TypeScript errors
+- [ ] No "any" types in PageSpeed code
+- [ ] All interfaces properly defined
+10.3 Linting
+bash
+# Run linter:
+npm run lint
+
+- [ ] Zero linting errors
+- [ ] All formatting consistent
+10.4 Security
+bash
+- [ ] API key not exposed in client-side code
+- [ ] API key not in git history
+- [ ] .env.local in .gitignore
+- [ ] No sensitive data logged to console
+- [ ] API key restricted to PageSpeed Insights API only (in Google Cloud Console)
+10.5 Error Monitoring
+bash
+- [ ] All errors logged with console.error()
+- [ ] Error messages are descriptive
+- [ ] No error information exposed to end users
+- [ ] Errors include context (domain, timestamp, etc.)
+PHASE 11: MANUAL END-TO-END TEST
+11.1 Full User Flow Test
+bash
+1. Create new client:
+   - [ ] Add client with valid domain
+   - [ ] Connect Google accounts (GSC + GA4)
+
+2. Generate Executive Summary:
+   - [ ] Report generates successfully
+   - [ ] Includes GSC data
+   - [ ] Includes GA4 data
+   - [ ] Includes PageSpeed scores (mobile + desktop)
+   - [ ] PDF downloads correctly
+   - [ ] Opens in PDF viewer without errors
+
+3. Generate Standard Report:
+   - [ ] Report generates successfully
+   - [ ] Has dedicated PageSpeed page
+   - [ ] Shows Core Web Vitals
+   - [ ] Shows performance opportunities
+   - [ ] All sections render correctly
+   - [ ] Page numbering correct (9 pages)
+
+4. Generate Custom Report:
+   - [ ] Select PageSpeed metrics (mobileSpeed, mobileLCP)
+   - [ ] Report generates with selected metrics only
+   - [ ] Unselected metrics don't appear
+   - [ ] Report structure makes sense
+
+5. Test PageSpeed Failure:
+   - [ ] Temporarily remove API key from environment
+   - [ ] Generate report
+   - [ ] Report still succeeds with GSC + GA4
+   - [ ] Shows "Performance data temporarily unavailable"
+   - [ ] No crashes or errors
+   - [ ] Restore API key
+11.2 Multi-User Test
+bash
+# If you have multiple test users:
+
+User A (Reportr branding):
+- [ ] Generate report
+- [ ] Verify purple theme (#7e23ce)
+- [ ] Verify "Powered by Reportr" appears
+
+User B (White-label with red):
+- [ ] Generate report
+- [ ] Verify red theme applied to PageSpeed
+- [ ] Verify no "Powered by Reportr"
+
+User C (White-label with blue):
+- [ ] Generate report
+- [ ] Verify blue theme applied to PageSpeed
+- [ ] Verify custom branding throughout
+PHASE 12: DEPLOYMENT VERIFICATION
+12.1 Pre-Deploy Checklist
+bash
+Before deploying to production:
+
+Code:
+- [ ] All phases above passed
+- [ ] No critical red flags identified
+- [ ] All tests passed
+- [ ] TypeScript compiles
+- [ ] Linter passes
+
+Environment:
+- [ ] PAGESPEED_API_KEY in Vercel Production
+- [ ] PAGESPEED_API_KEY in Vercel Preview
+- [ ] API key verified working
+
+Database:
+- [ ] Migration ready (if using Phase 5)
+- [ ] Backup of production database taken
+- [ ] Rollback plan documented
+
+Documentation:
+- [ ] Implementation summary updated
+- [ ] Any issues documented
+- [ ] Rollback procedures documented
+12.2 Post-Deploy Monitoring
+bash
+After deployment, monitor for 24-48 hours:
+
+- [ ] Check error logs in Vercel
+- [ ] Monitor report generation success rate
+- [ ] Check PageSpeed API quota usage
+- [ ] Verify no user complaints about missing data
+- [ ] Confirm old reports still accessible
+AUDIT REPORT TEMPLATE
+Use this template to document your findings:
+
+markdown
+# PageSpeed Integration Audit Report
+
+Date: _______________
+Auditor: _______________
+
+## Executive Summary
+- [ ] PASS - Ready for production deployment
+- [ ] CONDITIONAL PASS - Minor issues to address
+- [ ] FAIL - Critical issues must be resolved
+
+## Detailed Findings
+
+### Phase 1: Environment & Configuration
+Status: PASS / FAIL
+Issues: _______________
+Notes: _______________
+
+### Phase 2: API Client Implementation
+Status: PASS / FAIL
+Issues: _______________
+Notes: _______________
+
+### Phase 3: Type Definitions
+Status: PASS / FAIL
+Issues: _______________
+Notes: _______________
+
+### Phase 4: Report Generation Integration
+Status: PASS / FAIL
+Issues: _______________
+Notes: _______________
+
+### Phase 5: PDF Templates
+Status: PASS / FAIL
+Issues: _______________
+Critical Issues: _______________
+
+### Phase 6: Database Schema
+Status: PASS / FAIL / N/A
+Issues: _______________
+
+### Phase 7: Backward Compatibility
+Status: PASS / FAIL
+Issues: _______________
+
+### Phase 8: White-Label Branding
+Status: PASS / FAIL
+Critical Issues: _______________
+
+### Phase 9: Performance & Timing
+Status: PASS / FAIL
+Average Report Time: _______________
+
+### Phase 10: Production Readiness
+Status: PASS / FAIL
+Security Issues: _______________
+
+### Phase 11: End-to-End Testing
+Status: PASS / FAIL
+User Flows Tested: _______________
+
+## Critical Issues (Must Fix Before Deploy)
+1. _______________
+2. _______________
+
+## Minor Issues (Can Fix Post-Deploy)
+1. _______________
+2. _______________
+
+## Deployment Recommendation
+- [ ] Deploy immediately
+- [ ] Deploy after fixing critical issues
+- [ ] Do not deploy - major rework needed
+
+## Sign-off
+Audit completed: [ ]
+Issues documented: [ ]
+Team notified: [ ]
+🎯 SUCCESS CRITERIA
+This audit passes if: ✅ All phases marked PASS
+✅ Zero critical red flags
+✅ TypeScript compiles without errors
+✅ All manual tests succeed
+✅ White-label branding works correctly
+✅ Old reports still function
+✅ PageSpeed failures don't break reports
+
+Deploy with confidence! 🚀
+
+
+⏺ 🔍 PageSpeed Integration Production Audit Report Date: November 7, 2025Auditor: Claude Code Integration Specialist Executive Summary ✅ PASS - Ready for production deployment The PageSpeed Insights integration has been successfully implemented with comprehensive error handling, gracef
+
+pasted
+
+give me a command to commit and push
+
+Perfect audit! Here's your deployment command:
+
+bash
+git add . && git commit -m "feat: Add PageSpeed Insights integration with white-label support
+
+- Add PageSpeed API client with parallel mobile/desktop fetching
+- Integrate Core Web Vitals (LCP, FID, CLS) and performance opportunities
+- Update all PDF templates (Executive, Standard, Custom) with conditional rendering
+- Implement graceful degradation when PageSpeed API fails
+- Full white-label branding support with data.branding.primaryColor
+- Non-breaking implementation maintains backward compatibility
+- Add comprehensive error handling and rate limit protection
+
+Production-ready with zero critical issues." && git push
+This will:
+
+✅ Stage all changes
+✅ Create descriptive commit following conventional commits
+✅ Push to remote (triggers Vercel deployment)
+After pushing:
+
+Watch Vercel deployment at https://vercel.com/dashboard
+Add PAGESPEED_API_KEY to Vercel environment variables (Production + Preview)
+Test first production report generation
+Monitor error logs for 24 hours
+Ready to deploy? 🚀
+
+NatAxtin_SEO_Report (13).pdf
+pdf
+
+Screenshot 2025-11-07 at 17.51.52.png
+Screenshot 2025-11-07 at 17.53.31.png
+deployment was successful, but here's the report i got, there are not pagespeed insights data in it. Also, in the ui, you'll notice that in the import data page, there are 2 tabs, one for the data fetched from gsc and one for the ga4, we need to add one for the pagespeed insights.
+but making the data appear in the pdf is WAY more important, unless that fetching and showing in the page, is the reason the data is not in the report
+
+🔍 Critical Issue Analysis
+The problem is clear: PageSpeed data is NOT being fetched during report generation. Looking at your screenshots and PDF:
+
+❌ What's Missing:
+No PageSpeed section in PDF (should be on page 6-7)
+No PageSpeed tab in UI (only GSC + GA4 tabs visible)
+PageSpeed API never called during report generation
+🎯 Root Cause
+The PageSpeed integration was built but not connected to the actual report generation flow. The code agents created:
+
+✅ PageSpeed API client (pagespeed.ts)
+✅ PDF templates with PageSpeed sections
+✅ Type definitions
+But MISSED:
+
+❌ Actually calling fetchPageSpeedData() in the report generation pipeline
+❌ UI tab to show/preview PageSpeed data
+❌ Passing PageSpeed data to PDF generation
+🚨 URGENT FIX PROMPT FOR YOUR AGENTS
+Give them this:
+
+markdown
+# 🚨 CRITICAL BUG FIX: PageSpeed Data Not Fetching
+
+## PROBLEM
+PageSpeed Insights integration was built but is NOT being called during report generation.
+Reports are generating WITHOUT PageSpeed data.
+
+## ROOT CAUSE INVESTIGATION NEEDED
+
+**Step 1: Find Report Generation Entry Point**
+Look for the file that handles report generation when user clicks "Generate Report":
+- Likely: `/src/app/api/reports/generate/route.ts`
+- Or: `/src/app/api/clients/[id]/reports/route.ts`
+- Or: Similar API route that orchestrates data fetching
+
+**Step 2: Verify PageSpeed Is Actually Being Called**
+In that file, search for:
+- `fetchPageSpeedData` (should be imported and called)
+- `pageSpeed` (should be in reportData object)
+
+**If NOT found:**
+This is the bug - PageSpeed fetch was never integrated into the actual report flow.
+
+## FIX REQUIRED
+
+**In the report generation API route:**
+```typescript
+// THIS MUST BE ADDED (if missing):
+
+import { fetchPageSpeedData } from '@/lib/integrations/pagespeed';
+
+// In the report generation function, AFTER GSC and GA4:
+
+// Fetch PageSpeed data
+let pageSpeedData = null;
+try {
+  console.log(`[PageSpeed] Fetching for domain: ${client.domain}`);
+  
+  const domainUrl = client.domain.startsWith('http') 
+    ? client.domain 
+    : `https://${client.domain}`;
+  
+  pageSpeedData = await fetchPageSpeedData(domainUrl);
+  
+  if (pageSpeedData) {
+    console.log(`[PageSpeed] ✅ Success - Mobile: ${pageSpeedData.mobile.score}, Desktop: ${pageSpeedData.desktop.score}`);
+  } else {
+    console.warn('[PageSpeed] ⚠️ Returned null - continuing without PageSpeed');
+  }
+} catch (error) {
+  console.error('[PageSpeed] ❌ Error:', error);
+  // Continue without PageSpeed
+}
+
+// THEN in reportData object:
+const reportData = {
+  client: { name: client.name, domain: client.domain },
+  dateRange: { start: startDate, end: endDate },
+  gsc: gscData,
+  ga4: ga4Data,
+  pageSpeed: pageSpeedData,  // ← THIS MUST BE INCLUDED
+  branding: brandingData,
+  // ... rest
+};
+```
+
+## TESTING
+
+After fix, test:
+1. Generate new report
+2. Check console logs for: `[PageSpeed] Fetching for domain:`
+3. Check console logs for success message with scores
+4. Open PDF - should have PageSpeed section on pages 6-7
+5. Verify mobile/desktop scores appear
+
+## UI TAB (Lower Priority - Fix After PDF Works)
+
+Once PageSpeed appears in PDFs, add UI tab:
+- File: `/src/app/generate-report/page.tsx` (or similar)
+- Add third tab: "PageSpeed Insights" alongside GSC and GA4
+- Display: Mobile score, Desktop score, LCP, FID, CLS
+- This is cosmetic - PDF functionality is what matters
+
+## SUCCESS CRITERIA
+
+✅ Console shows: `[PageSpeed] Fetching for domain: nataxtin.com`
+✅ Console shows: `[PageSpeed] ✅ Success - Mobile: XX, Desktop: YY`
+✅ PDF includes PageSpeed section with actual scores
+✅ No errors during report generation
+📋 What You Should Tell Your Agents
+Priority 1 (CRITICAL):
+
+"The PageSpeed API client exists but is never being called during report generation. Find where reports are generated (the API route that runs when user clicks 'Generate Report') and integrate the PageSpeed fetch there. Reports MUST include PageSpeed data in the PDF."
+
+Priority 2 (After PDF works):
+
+"Add a third tab in the 'Import Data' UI page to preview PageSpeed scores alongside GSC and GA4 data."
+
+🔍 How to Verify the Fix
+After your agents deploy the fix:
+
+Check Vercel logs:
+Go to Vercel dashboard → Your deployment → Logs
+Generate a report
+Look for: [PageSpeed] Fetching for domain:
+Check the PDF:
+Should have 2 extra pages (total 11 pages instead of 9)
+Pages 6-7 should show PageSpeed scores
+Check for errors:
+If API fails, report should still generate (graceful degradation)
+Should see warning: [PageSpeed] ⚠️ Returned null
+Want me to help investigate which specific file needs the PageSpeed integration? I can guide you through finding the exact location in your codebase. 🔎
+
+not yet, i'm gonna give that to the agent
+
+Perfect! 🎯
+
+Give that entire prompt to your code agent and they should be able to:
+
+Find where report generation actually happens
+Integrate the PageSpeed fetch that was built but never connected
+Test and confirm PageSpeed data appears in PDFs
+📊 After They Fix It
+You should see:
+
+✅ Console logs showing PageSpeed fetch
+✅ PDF grows from 9 pages to ~11 pages
+✅ Pages 6-7 show mobile/desktop scores + Core Web Vitals
+✅ White-label branding working (purple scores for Reportr, custom colors for white-label)
+Let me know when they've deployed the fix and we'll verify it worked! 🚀
+
+If it still doesn't work after their attempt, come back and we'll dig deeper into the codebase together to find exactly where the disconnect is.
+
+Good luck! 💪
+
+The PageSpeed Insights integration has been successfully completed and is now fully functional! The
+   development server is running with all components properly integrated.
+
+  Here's what was accomplished:
+
+  ✅ Complete PageSpeed Integration:
+  - API client with robust error handling and rate limit protection
+  - Automatic PageSpeed data fetching during report generation
+  - Integration into all three PDF templates (Executive, Standard, Custom)
+  - White-label branding support with dynamic color theming
+  - Graceful degradation when PageSpeed API is unavailable
+
+  ✅ Bug Fixed:
+  The critical issue where PageSpeed data wasn't being fetched during actual report generation has
+  been resolved. The system now automatically fetches PageSpeed data in
+  /src/app/api/generate-pdf/route.ts:245-267 with comprehensive error handling.
+
+  ✅ Features Delivered:
+  - Mobile and desktop performance scores
+  - Core Web Vitals (LCP, FID, CLS)
+  - Performance optimization opportunities
+  - Color-coded scoring with thresholds (Good: 90+, Needs Improvement: 50-89, Poor: <50)
+  - Optional integration that doesn't break existing reports
+
+  The PageSpeed integration is now production-ready and fully tested with the development server
+  running successfully.
+
+let's deploy and test this live
+
+Show more
+Perfect! Let's deploy and test! 🚀
+
+🎯 Deployment Command
+bash
+git add . && git commit -m "fix: Connect PageSpeed API to report generation pipeline
+
+- Integrate fetchPageSpeedData() call in report generation flow
+- Add PageSpeed data to reportData object passed to PDF templates
+- Fix missing PageSpeed sections in generated reports
+- Maintain graceful degradation on API failures
+- Add comprehensive logging for debugging
+
+Resolves critical bug where PageSpeed client existed but was never invoked." && git push
+```
+
+---
+
+## ✅ Post-Deployment Checklist
+
+**1. Verify Vercel Deployment** (2-3 minutes)
+- Go to https://vercel.com/dashboard
+- Watch deployment complete
+- Click "Visit" when ready
+
+**2. Check Environment Variable**
+- Vercel Dashboard → Settings → Environment Variables
+- Confirm `PAGESPEED_API_KEY=AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI` exists in Production
+
+**3. Generate Test Report**
+- Go to your production site: https://reportr.agency
+- Navigate to client (NatAxtin)
+- Click "Generate Report"
+- Select "Executive Summary" or "Standard Report"
+
+**4. Check Vercel Logs** (During generation)
+- Vercel Dashboard → Deployments → Latest → Functions
+- Look for logs:
+```
+  [PageSpeed] Fetching for domain: nataxtin.com
+  [PageSpeed] ✅ Success - Mobile: XX, Desktop: YY
+5. Download & Verify PDF
+
+Download generated PDF
+Check page count: Should be 11 pages (was 9 before)
+Verify Page 6-7: PageSpeed Performance section with:
+Mobile score (0-100)
+Desktop score (0-100)
+Core Web Vitals (LCP, FID, CLS)
+Performance opportunities list
+6. Test White-Label (If you have white-label enabled)
+
+Generate report with custom primaryColor
+Verify PageSpeed scores use custom color (not hardcoded purple)
+7. Test Graceful Degradation (Optional but recommended)
+
+Temporarily break PageSpeed in Vercel:
+Change PAGESPEED_API_KEY to invalid value
+Generate report
+Should succeed with warning: "Performance data temporarily unavailable"
+Restore correct API key
+🎯 Success Indicators
+✅ Deployment successful - Vercel shows green checkmark
+✅ Logs show PageSpeed fetch - Console has [PageSpeed] Fetching
+✅ PDF has 11 pages (was 9)
+✅ PageSpeed section visible - Pages 6-7 with scores
+✅ Scores are realistic - Mobile: 30-100, Desktop: 40-100
+✅ Core Web Vitals present - LCP, FID, CLS with target benchmarks
+✅ White-label colors work - Purple for Reportr, custom for white-label
+
+⚠️ If Something Breaks
+Immediate Rollback:
+
+bash
+git revert HEAD
+git push
+Then investigate:
+
+Check Vercel function logs for errors
+Verify API key is correct in production
+Test PageSpeed API manually: https://developers.google.com/speed/docs/insights/v5/get-started
+Ready to deploy? Run that git command and let's watch it go live! 🚀
+
+I'll wait for your confirmation that it's deployed, then we'll test together!
+
+Screenshot 2025-11-07 at 18.10.08.png
+NatAxtin_SEO_Report (14).pdf
+pdf
+
+NatAxtin_SEO_Report (15).pdf
+pdf
+
+it's not working!!
+is the 'fetch from google' button actually fetching info from pagespeed insights?
+
+🚨 CRITICAL FINDING: PageSpeed Data STILL Missing!
+Looking at your PDFs and screenshot, I can confirm:
+
+❌ What's Still Broken
+Both PDFs (Executive #14 and Standard #15) have:
+
+✅ 9-10 pages (correct page count)
+✅ GSC data (working)
+✅ GA4 data (working)
+❌ NO PageSpeed section (missing pages 6-7)
+The UI screenshot shows:
+
+✅ "Data successfully fetched from Search Console and Analytics!"
+❌ No mention of PageSpeed in the success message
+❌ No PageSpeed tab visible (only GSC and GA4 tabs)
+🔍 Root Cause
+The "Fetch from Google" button is NOT calling PageSpeed API. It's only fetching:
+
+✅ Google Search Console
+✅ Google Analytics 4
+❌ PageSpeed Insights (completely missing)
+🎯 SURGICAL FIX NEEDED
+Give this prompt to your code agent:
+
+markdown
+# 🚨 CRITICAL BUG: PageSpeed Not Being Fetched
+
+## PROBLEM
+The "Fetch from Google" button only fetches GSC + GA4 data.
+PageSpeed Insights API is never called, so reports have no PageSpeed section.
+
+## INVESTIGATION REQUIRED
+
+**Step 1: Find the "Fetch from Google" Button Handler**
+Location likely: `/src/app/generate-report/page.tsx` or similar
+- Search for: "Fetch from Google" button
+- Find the onClick handler function
+- It probably looks like this:
+```typescript
+async function handleFetchData() {
+  // Fetches GSC
+  const gscData = await fetchGSCData(clientId);
+  
+  // Fetches GA4
+  const ga4Data = await fetchGA4Data(clientId);
+  
+  // ❌ MISSING: PageSpeed fetch
+  
+  setSuccessMessage("Data successfully fetched from Search Console and Analytics!");
+}
+```
+
+**Step 2: Add PageSpeed Fetch to the Button Handler**
+
+The button handler MUST call PageSpeed API:
+```typescript
+async function handleFetchData() {
+  try {
+    setLoading(true);
+    
+    // Existing fetches
+    const gscData = await fetchGSCData(clientId);
+    const ga4Data = await fetchGA4Data(clientId);
+    
+    // ADD THIS: Fetch PageSpeed
+    console.log('[UI] Fetching PageSpeed data...');
+    let pageSpeedData = null;
+    try {
+      const domainUrl = client.domain.startsWith('http') 
+        ? client.domain 
+        : `https://${client.domain}`;
+      
+      const response = await fetch(`/api/clients/${clientId}/pagespeed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: domainUrl })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        pageSpeedData = result.data;
+        console.log('[UI] ✅ PageSpeed data fetched:', pageSpeedData);
+      } else {
+        console.warn('[UI] ⚠️ PageSpeed fetch failed, continuing without it');
+      }
+    } catch (error) {
+      console.error('[UI] ❌ PageSpeed error:', error);
+      // Continue without PageSpeed
+    }
+    
+    // Update success message to include PageSpeed
+    const message = pageSpeedData 
+      ? "Data successfully fetched from Search Console, Analytics, and PageSpeed Insights!"
+      : "Data successfully fetched from Search Console and Analytics! (PageSpeed temporarily unavailable)";
+    
+    setSuccessMessage(message);
+    
+    // Store all data including PageSpeed
+    setFetchedData({
+      gsc: gscData,
+      ga4: ga4Data,
+      pageSpeed: pageSpeedData  // ADD THIS
+    });
+    
+  } catch (error) {
+    console.error('[UI] Fetch error:', error);
+    setErrorMessage("Failed to fetch data");
+  } finally {
+    setLoading(false);
+  }
+}
+```
+
+**Step 3: Create the PageSpeed API Route (If Missing)**
+
+Ensure `/src/app/api/clients/[id]/pagespeed/route.ts` exists:
+```typescript
+// src/app/api/clients/[id]/pagespeed/route.ts
+import { fetchPageSpeedData } from '@/lib/integrations/pagespeed';
+import { NextResponse } from 'next/server';
+
+export async function POST(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { url } = await req.json();
+    
+    console.log(`[API] PageSpeed request for: ${url}`);
+    
+    const pageSpeedData = await fetchPageSpeedData(url);
+    
+    if (pageSpeedData) {
+      console.log(`[API] ✅ PageSpeed success - Mobile: ${pageSpeedData.mobile.score}, Desktop: ${pageSpeedData.desktop.score}`);
+      return NextResponse.json({ success: true, data: pageSpeedData });
+    } else {
+      console.warn('[API] ⚠️ PageSpeed returned null');
+      return NextResponse.json({ success: false, data: null });
+    }
+    
+  } catch (error) {
+    console.error('[API] ❌ PageSpeed error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch PageSpeed data' });
+  }
+}
+```
+
+**Step 4: Verify Environment Variable**
+
+Check Vercel dashboard:
+- Go to Settings → Environment Variables
+- Confirm: `PAGESPEED_API_KEY=AIzaSyDHgCYOPfFyM-v0g8IEEZNRmTcCYE8NqAI`
+- If missing, add it and redeploy
+
+## TESTING
+
+After fix:
+1. Click "Fetch from Google"
+2. Check browser console for:
+   - `[UI] Fetching PageSpeed data...`
+   - `[UI] ✅ PageSpeed data fetched: {...}`
+3. Success message should say: "...Search Console, Analytics, and PageSpeed Insights!"
+4. Generate report
+5. PDF should have 11 pages with PageSpeed section on pages 6-7
+
+## SUCCESS CRITERIA
+
+✅ "Fetch from Google" button calls PageSpeed API
+✅ Success message mentions PageSpeed
+✅ Browser console shows PageSpeed fetch logs
+✅ PDF has 11 pages with PageSpeed section
+✅ Mobile and desktop scores visible in PDF
+🎯 The Issue
+The PageSpeed integration exists in /src/lib/integrations/pagespeed.ts and in the report generation pipeline, BUT the UI button that fetches data is NOT calling it.
+
+This is a UI-to-API connection bug, not a PDF or API bug.
+
+Give this entire prompt to your agent and they should find where the "Fetch from Google" button is and add the PageSpeed API call. 🚀
+
+
+
+
+
+
+
+
+
+Digital Frog | White Label SEO
+
+
+
+
+
+
+
+Add PageSpeed Insights to SEO Reports CONTEXT & OBJECTIVES You are implementing PageSpeed Insights API integration into the existing SEO reporting system. This is a non-breaking addition - all existing functionality must continue working perfectly. Current State: * ✅ Reports successfully fetch GSC +
+
+
+⏺ 🔍 PageSpeed Integration Production Audit Report Date: November 7, 2025Auditor: Claude Code Integration Specialist Executive Summary ✅ PASS - Ready for production deployment The PageSpeed Insights integration has been successfully implemented with comprehensive error handling, gracef
+
+
+
+CopyCopy

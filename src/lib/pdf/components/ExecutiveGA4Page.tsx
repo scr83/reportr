@@ -198,6 +198,38 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
               Number of completed conversion events tracked on your website
             </Text>
           </View>
+
+          {/* Mobile Speed (if PageSpeed data available) */}
+          {data.pageSpeedData && (
+            <View style={styles.metricCard}>
+              <Text style={[styles.metricValue, { 
+                color: data.pageSpeedData.mobile.score >= 90 ? '#10b981' : 
+                       data.pageSpeedData.mobile.score >= 50 ? '#f59e0b' : '#ef4444' 
+              }]}>
+                {data.pageSpeedData.mobile.score}/100
+              </Text>
+              <Text style={styles.metricLabel}>Mobile Speed</Text>
+              <Text style={styles.metricDescription}>
+                PageSpeed mobile performance score affects user experience and SEO
+              </Text>
+            </View>
+          )}
+
+          {/* Desktop Speed (if PageSpeed data available) */}
+          {data.pageSpeedData && (
+            <View style={styles.metricCard}>
+              <Text style={[styles.metricValue, { 
+                color: data.pageSpeedData.desktop.score >= 90 ? '#10b981' : 
+                       data.pageSpeedData.desktop.score >= 50 ? '#f59e0b' : '#ef4444' 
+              }]}>
+                {data.pageSpeedData.desktop.score}/100
+              </Text>
+              <Text style={styles.metricLabel}>Desktop Speed</Text>
+              <Text style={styles.metricDescription}>
+                PageSpeed desktop performance score for search engine rankings
+              </Text>
+            </View>
+          )}
         </View>
 
 
