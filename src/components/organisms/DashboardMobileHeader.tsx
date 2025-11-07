@@ -86,7 +86,7 @@ export const DashboardMobileHeader: React.FC<DashboardMobileHeaderProps> = ({
           <div className="flex h-8 w-8 items-center justify-center rounded-md" style={{ backgroundColor: 'var(--primary-color)' }}>
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-semibold text-gray-900">SEO Reports</span>
+          <span className="text-lg font-semibold text-gray-900">Reportr</span>
         </div>
       )
     }
