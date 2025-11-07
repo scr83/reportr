@@ -319,7 +319,9 @@ export default function GenerateReportPage() {
     try {
       // Fetch GSC data
       const gscRes = await fetch(
-        `/api/clients/${reportData.clientId}/google/search-console?startDate=${reportData.startDate}&endDate=${reportData.endDate}`
+        `/api/clients/${reportData.clientId}/google/search-console?startDate=${reportData.startDate}&endDate=${reportData.endDate}`, {
+          credentials: 'include'
+        }
       )
       
       let gscData = null
@@ -348,7 +350,9 @@ export default function GenerateReportPage() {
       const metricsToRequest = fieldsToShow.map(field => field.id).join(',')
       
       const ga4Res = await fetch(
-        `/api/clients/${reportData.clientId}/google/analytics?startDate=${reportData.startDate}&endDate=${reportData.endDate}&metrics=${metricsToRequest}`
+        `/api/clients/${reportData.clientId}/google/analytics?startDate=${reportData.startDate}&endDate=${reportData.endDate}&metrics=${metricsToRequest}`, {
+          credentials: 'include'
+        }
       )
       
       let ga4Data = null
@@ -363,9 +367,15 @@ export default function GenerateReportPage() {
       // Fetch PageSpeed data (optional - will not break report if it fails)
       let pageSpeedData = null
       try {
-        console.log('[REPORT-GEN] Fetching PageSpeed data...')
+        console.log('[REPORT-GEN] Fetching PageSpeed data for client:', reportData.clientId)
         const pageSpeedRes = await fetch(
-          `/api/clients/${reportData.clientId}/pagespeed`
+          `/api/clients/${reportData.clientId}/pagespeed`, {
+            method: 'GET',
+            credentials: 'include',  // Ensure cookies are sent
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
         )
         
         if (pageSpeedRes.ok) {
