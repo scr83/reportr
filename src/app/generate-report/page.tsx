@@ -1192,7 +1192,7 @@ export default function GenerateReportPage() {
                 PageSpeed Data Not Available
               </Typography>
               <Typography className="text-sm text-gray-600 mb-4">
-                Click "Fetch from Google" to load PageSpeed Insights data for this client.
+                Click &ldquo;Fetch from Google&rdquo; to load PageSpeed Insights data for this client.
               </Typography>
               <div className="text-xs text-gray-500">
                 <p>PageSpeed analysis includes:</p>
@@ -1309,7 +1309,7 @@ export default function GenerateReportPage() {
                     💡 Performance Opportunities
                   </Typography>
                   <div className="space-y-3">
-                    {pageSpeedData.opportunities.slice(0, 3).map((opportunity, index) => (
+                    {pageSpeedData.opportunities.slice(0, 3).map((opportunity: {title: string; description: string; displayValue?: string}, index: number) => (
                       <div key={index} className="bg-white border border-blue-200 rounded-lg p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
