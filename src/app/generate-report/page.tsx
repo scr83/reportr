@@ -1327,6 +1327,9 @@ export default function GenerateReportPage() {
               {/* Data freshness */}
               <div className="text-center text-xs text-gray-500">
                 Data fetched on {pageSpeedData.fetchedAt ? new Date(pageSpeedData.fetchedAt).toLocaleString() : 'Unknown'}
+                <div className="text-green-600 font-medium mt-1">
+                  ✓ This data will be identical in your PDF report
+                </div>
               </div>
             </>
           )}
@@ -1780,6 +1783,9 @@ export default function GenerateReportPage() {
               {pageSpeedData.fetchedAt && (
                 <div className="text-center text-xs text-gray-500">
                   PageSpeed data from {new Date(pageSpeedData.fetchedAt).toLocaleString()}
+                  <div className="text-green-600 font-medium mt-1">
+                    ✓ This data will be identical in your PDF report
+                  </div>
                 </div>
               )}
             </div>

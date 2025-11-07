@@ -345,32 +345,9 @@ export async function POST(request: NextRequest) {
       domain: client.domain
     })
     
-    // Step 3.5: Fetch PageSpeed data automatically (optional - will not break report if fails)
-    let autoFetchedPageSpeedData = null
-    try {
-      console.log(`[REPORT-GEN] Auto-fetching PageSpeed data for client: ${client.name}`)
-      
-      if (client.domain) {
-        // Ensure domain has protocol
-        const domainUrl = client.domain.startsWith('http') 
-          ? client.domain 
-          : `https://${client.domain}`
-        
-        autoFetchedPageSpeedData = await fetchPageSpeedData(domainUrl)
-        
-        if (autoFetchedPageSpeedData) {
-          console.log(`[REPORT-GEN] ✅ PageSpeed Success - Mobile: ${autoFetchedPageSpeedData.mobile.score}, Desktop: ${autoFetchedPageSpeedData.desktop.score}`)
-        } else {
-          console.warn('[REPORT-GEN] ⚠️ PageSpeed returned null - continuing without PageSpeed data')
-        }
-      } else {
-        console.warn('[REPORT-GEN] ⚠️ Client has no domain configured - skipping PageSpeed fetch')
-      }
-      
-    } catch (error) {
-      console.error('[REPORT-GEN] ❌ PageSpeed fetch error:', error)
-      // Continue without PageSpeed - don't break the report
-    }
+    // CRITICAL FIX: REMOVED auto-fetch logic that causes data mismatch between preview and PDF
+    // PageSpeed data is now ONLY used from the request body to ensure consistency
+    console.log(`[REPORT-GEN] Using PageSpeed data from request body to maintain preview-PDF consistency`)
     
     // Step 4: Merge GA4 data intelligently
     console.log('12. Processing GA4 data...')
@@ -478,8 +455,8 @@ export async function POST(request: NextRequest) {
       // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
       selectedMetrics: validatedData.selectedMetrics || [],
       
-      // Add PageSpeed data (use auto-fetched if available, otherwise use provided data)
-      pageSpeedData: autoFetchedPageSpeedData || validatedData.pageSpeedData || null,
+      // CRITICAL FIX: Use ONLY the PageSpeed data from request body to ensure preview = PDF
+      pageSpeedData: validatedData.pageSpeedData || null,
     }
     
     // Generate PDF using React-PDF
@@ -547,21 +524,16 @@ export async function POST(request: NextRequest) {
       // Complete GA4 data (including dynamic fields)
       ga4Data: mergedGA4Data,
       
-      // PageSpeed data (use auto-fetched if available, otherwise use provided data)
-      pageSpeedData: autoFetchedPageSpeedData ? {
-        ...autoFetchedPageSpeedData,
-        fetchedAt: autoFetchedPageSpeedData.fetchedAt instanceof Date 
-          ? autoFetchedPageSpeedData.fetchedAt.toISOString()
-          : autoFetchedPageSpeedData.fetchedAt
-      } : validatedData.pageSpeedData,
+      // CRITICAL FIX: Store ONLY the PageSpeed data from request body (no auto-fetch)
+      pageSpeedData: validatedData.pageSpeedData,
       
       // Additional metadata
       generatedAt: processingStarted.toISOString(),
       dataSourceInfo: {
         hasGSC: !!validatedData.gscData,
         hasGA4: !!validatedData.ga4Data,
-        hasPageSpeed: !!(autoFetchedPageSpeedData || validatedData.pageSpeedData),
-        pageSpeedAutoFetched: !!autoFetchedPageSpeedData,
+        hasPageSpeed: !!validatedData.pageSpeedData,
+        pageSpeedFromRequest: !!validatedData.pageSpeedData,
         metricsCount: Object.keys(mergedGA4Data).length,
         hasCustomFields: !!validatedData.customFields?.length,
         selectedMetricsCount: validatedData.selectedMetrics?.length || 0
