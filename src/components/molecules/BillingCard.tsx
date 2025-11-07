@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Card, Typography, Button } from '@/components/atoms'
 import { CreditCard, Calendar, DollarSign, ExternalLink, AlertTriangle } from 'lucide-react'
 import { BillingData } from '@/hooks/useBilling'
+import { UpgradeModal } from '@/components/organisms/UpgradeModal'
+import { Plan } from '@prisma/client'
 
 interface BillingCardProps {
   data: BillingData
@@ -10,6 +12,7 @@ interface BillingCardProps {
 
 export function BillingCard({ data, loading }: BillingCardProps) {
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   
   if (loading) {
@@ -193,14 +196,14 @@ export function BillingCard({ data, loading }: BillingCardProps) {
             </button>
           ) : subscription.plan !== 'FREE' ? (
             <button
-              onClick={() => window.location.href = '/pricing'}
+              onClick={() => setShowUpgradeModal(true)}
               className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
             >
               Complete Payment Setup
             </button>
           ) : (
             <button
-              onClick={() => window.location.href = '/pricing'}
+              onClick={() => setShowUpgradeModal(true)}
               className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
             >
               Upgrade to Premium
@@ -257,6 +260,16 @@ export function BillingCard({ data, loading }: BillingCardProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          currentPlan={subscription.plan as Plan}
+          context="general"
+        />
       )}
     </Card>
   )
