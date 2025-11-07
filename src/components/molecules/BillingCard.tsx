@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, Typography, Button } from '@/components/atoms'
-import { CreditCard, Calendar, DollarSign, ExternalLink } from 'lucide-react'
+import { CreditCard, Calendar, DollarSign, ExternalLink, AlertTriangle } from 'lucide-react'
 import { BillingData } from '@/hooks/useBilling'
 
 interface BillingCardProps {
@@ -9,6 +9,9 @@ interface BillingCardProps {
 }
 
 export function BillingCard({ data, loading }: BillingCardProps) {
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  
   if (loading) {
     return (
       <Card className="p-6">
@@ -60,6 +63,38 @@ export function BillingCard({ data, loading }: BillingCardProps) {
     if (subscription.paypalSubscriptionId) {
       // Redirect to PayPal subscription management
       window.open('https://www.paypal.com/myaccount/autopay/', '_blank')
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    setCancelling(true)
+    
+    try {
+      const response = await fetch('/api/subscription/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription')
+      }
+
+      // Show success message
+      alert('Subscription cancelled successfully. You will retain access until the end of your billing period.')
+      
+      // Refresh page to update UI
+      window.location.reload()
+      
+    } catch (error: any) {
+      console.error('Cancel error:', error)
+      alert(error.message || 'Failed to cancel subscription. Please try again.')
+    } finally {
+      setCancelling(false)
+      setShowCancelModal(false)
     }
   }
 
@@ -127,32 +162,102 @@ export function BillingCard({ data, loading }: BillingCardProps) {
         )}
 
         {/* Action Buttons */}
-        <div className="flex space-x-3 pt-2">
+        <div className="space-y-3 pt-2">
+          {/* Payment management for paid users */}
           {subscription.plan !== 'FREE' && subscription.paypalSubscriptionId && (
-            <Button
-              onClick={handleManageSubscription}
-              variant="outline"
-              size="sm"
-              className="flex items-center"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Manage Subscription
-            </Button>
+            <div className="space-y-3">
+              <p className="text-sm text-gray-600">
+                Your subscription is managed through PayPal
+              </p>
+              
+              <div className="flex space-x-3">
+                <Button
+                  onClick={handleManageSubscription}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center flex-1"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Manage Payment Method
+                  <ExternalLink className="h-3.5 w-3.5 ml-2 text-gray-400" />
+                </Button>
+                
+                <Button
+                  onClick={() => setShowCancelModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center flex-1 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                >
+                  Cancel Subscription
+                </Button>
+              </div>
+            </div>
           )}
           
+          {/* Upgrade button for FREE users */}
           {subscription.plan === 'FREE' && (
             <a
               href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-09S98046PD2685338ND3AO4Q"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center btn-primary-themed text-sm"
+              className="inline-flex items-center justify-center btn-primary-themed text-sm w-full py-2.5"
             >
               <DollarSign className="h-4 w-4 mr-2" />
-              Upgrade Plan
+              Upgrade to Premium
             </a>
           )}
         </div>
       </div>
+
+      {/* Cancel Subscription Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold">Cancel Subscription?</h3>
+            </div>
+            
+            <div className="mb-6 space-y-3">
+              <p className="text-gray-700">
+                Are you sure you want to cancel your subscription?
+              </p>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800 font-medium mb-2">
+                  What happens when you cancel:
+                </p>
+                <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
+                  <li>Access continues until end of billing period</li>
+                  <li>No refunds for remaining time</li>
+                  <li>Your data will be preserved</li>
+                  <li>You can reactivate anytime</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                variant="outline"
+                className="flex-1"
+              >
+                Keep Subscription
+              </Button>
+              <Button
+                onClick={handleCancelSubscription}
+                disabled={cancelling}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
+                {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   )
 }
