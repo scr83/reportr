@@ -1530,104 +1530,258 @@ export default function GenerateReportPage() {
       </div>
 
       {/* Metrics Display */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
-        {/* GSC Metrics */}
-        <div>
-          <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
-            Google Search Console
-          </Typography>
-          <div className="space-y-3">
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Total Clicks</span>
-              <span className="font-medium">{reportData.gscData.totalClicks || '—'}</span>
+      <div className="space-y-8 mb-8">
+        {/* First Row: GSC and GA4 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* GSC Metrics */}
+          <div>
+            <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
+              Google Search Console
+            </Typography>
+            <div className="space-y-3">
+              <div className="flex justify-between py-2 border-b border-gray-200">
+                <span className="text-gray-600">Total Clicks</span>
+                <span className="font-medium">{reportData.gscData.totalClicks || '—'}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-gray-200">
+                <span className="text-gray-600">Total Impressions</span>
+                <span className="font-medium">{reportData.gscData.totalImpressions || '—'}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-gray-200">
+                <span className="text-gray-600">Average CTR</span>
+                <span className="font-medium">{reportData.gscData.averageCTR ? `${reportData.gscData.averageCTR}%` : '—'}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">Average Position</span>
+                <span className="font-medium">{reportData.gscData.averagePosition || '—'}</span>
+              </div>
+              
+              {/* Top Queries Table Preview */}
+              {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
+                <div className="mt-4">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Top Search Queries:</div>
+                  {renderTopQueries(reportData.gscData.topQueries)}
+                </div>
+              )}
             </div>
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Total Impressions</span>
-              <span className="font-medium">{reportData.gscData.totalImpressions || '—'}</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-gray-200">
-              <span className="text-gray-600">Average CTR</span>
-              <span className="font-medium">{reportData.gscData.averageCTR ? `${reportData.gscData.averageCTR}%` : '—'}</span>
-            </div>
-            <div className="flex justify-between py-2">
-              <span className="text-gray-600">Average Position</span>
-              <span className="font-medium">{reportData.gscData.averagePosition || '—'}</span>
+          </div>
+
+          {/* GA4 Metrics - Dynamic */}
+          <div>
+            <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
+              Google Analytics 4
+            </Typography>
+            <div className="space-y-3">
+              {(() => {
+                const fieldsToShow = getFieldsForReportType()
+                
+                if (fieldsToShow.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-gray-500">
+                      No metrics selected for preview
+                    </div>
+                  )
+                }
+                
+                return fieldsToShow.map((field, index) => {
+                  const value = formData[field.id]
+                  const isLast = index === fieldsToShow.length - 1
+                  
+                  return (
+                    <div key={field.id} className={`${!isLast ? 'border-b border-gray-200 pb-3 mb-3' : ''}`}>
+                      <div className="flex justify-between items-start py-2">
+                        <span className="text-gray-600">{field.label}</span>
+                        <span className="font-medium">
+                          {value ? (
+                            // Special handling for JSON fields
+                            field.id === 'topLandingPages' && typeof value === 'string' ? (
+                              <div className="text-right">
+                                <span className="text-purple-600 text-sm">View table below ↓</span>
+                              </div>
+                            ) : field.id === 'deviceBreakdown' && typeof value === 'string' ? (
+                              <div className="text-right">
+                                <span className="text-purple-600 text-sm">View table below ↓</span>
+                              </div>
+                            ) : typeof value === 'object' ? (
+                              JSON.stringify(value)
+                            ) : (
+                              value
+                            )
+                          ) : '—'}
+                        </span>
+                      </div>
+                      
+                      {/* Render special tables for complex data */}
+                      {field.id === 'topLandingPages' && value && typeof value === 'string' && (
+                        renderTopLandingPages(value)
+                      )}
+                      {field.id === 'deviceBreakdown' && value && typeof value === 'string' && (
+                        renderDeviceBreakdown(value)
+                      )}
+                    </div>
+                  )
+                })
+              })()}
             </div>
             
-            {/* Top Queries Table Preview */}
-            {reportData.gscData.topQueries && reportData.gscData.topQueries.trim() && (
-              <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">Top Search Queries:</div>
-                {renderTopQueries(reportData.gscData.topQueries)}
+            {/* Show message if no data */}
+            {Object.keys(formData).length === 0 && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="text-sm text-yellow-800">
+                  💡 No data fetched yet. Go back to Step 2 and fetch data from Google APIs to see preview.
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* GA4 Metrics - Dynamic */}
+        {/* Second Row: PageSpeed Insights (Full Width) */}
         <div>
           <Typography variant="h3" className="text-lg font-semibold text-gray-900 mb-4">
-            Google Analytics 4
+            PageSpeed Insights
           </Typography>
-          <div className="space-y-3">
-            {(() => {
-              const fieldsToShow = getFieldsForReportType()
-              
-              if (fieldsToShow.length === 0) {
-                return (
-                  <div className="text-center py-8 text-gray-500">
-                    No metrics selected for preview
+          
+          {!pageSpeedData ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div className="text-center text-gray-500">
+                <div className="mb-2">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <Typography className="font-medium text-gray-700 mb-1">
+                  No PageSpeed data available
+                </Typography>
+                <Typography className="text-sm text-gray-600">
+                  Fetch data from Google APIs in Step 2 to see PageSpeed performance metrics
+                </Typography>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Performance Scores Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-600 font-medium">📱 Mobile Performance</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getScoreColor(pageSpeedData.mobile.score)}`}>
+                      {pageSpeedData.mobile.score}/100
+                    </span>
                   </div>
-                )
-              }
-              
-              return fieldsToShow.map((field, index) => {
-                const value = formData[field.id]
-                const isLast = index === fieldsToShow.length - 1
+                  <div className="text-center">
+                    <div className={`text-3xl font-bold ${getScoreColor(pageSpeedData.mobile.score).split(' ')[0]}`}>
+                      {pageSpeedData.mobile.score}
+                    </div>
+                    <div className="text-sm text-gray-500">{getScoreLabel(pageSpeedData.mobile.score)}</div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-gray-600 font-medium">🖥️ Desktop Performance</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getScoreColor(pageSpeedData.desktop.score)}`}>
+                      {pageSpeedData.desktop.score}/100
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-3xl font-bold ${getScoreColor(pageSpeedData.desktop.score).split(' ')[0]}`}>
+                      {pageSpeedData.desktop.score}
+                    </div>
+                    <div className="text-sm text-gray-500">{getScoreLabel(pageSpeedData.desktop.score)}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Core Web Vitals */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <Typography className="font-semibold text-gray-900 mb-3">
+                  ⚡ Core Web Vitals (Mobile)
+                </Typography>
                 
-                return (
-                  <div key={field.id} className={`${!isLast ? 'border-b border-gray-200 pb-3 mb-3' : ''}`}>
-                    <div className="flex justify-between items-start py-2">
-                      <span className="text-gray-600">{field.label}</span>
-                      <span className="font-medium">
-                        {value ? (
-                          // Special handling for JSON fields
-                          field.id === 'topLandingPages' && typeof value === 'string' ? (
-                            <div className="text-right">
-                              <span className="text-purple-600 text-sm">View table below ↓</span>
-                            </div>
-                          ) : field.id === 'deviceBreakdown' && typeof value === 'string' ? (
-                            <div className="text-right">
-                              <span className="text-purple-600 text-sm">View table below ↓</span>
-                            </div>
-                          ) : typeof value === 'object' ? (
-                            JSON.stringify(value)
-                          ) : (
-                            value
-                          )
-                        ) : '—'}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* LCP */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">LCP</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.lcp, {good: 2500, poor: 4000}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
                       </span>
                     </div>
-                    
-                    {/* Render special tables for complex data */}
-                    {field.id === 'topLandingPages' && value && typeof value === 'string' && (
-                      renderTopLandingPages(value)
-                    )}
-                    {field.id === 'deviceBreakdown' && value && typeof value === 'string' && (
-                      renderDeviceBreakdown(value)
+                    <div className="text-xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.lcp, 's')}
+                    </div>
+                    <div className="text-xs text-gray-500">Largest Contentful Paint</div>
+                  </div>
+
+                  {/* FID */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">FID</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.fid, {good: 100, poor: 300}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.fid, 'ms')}
+                    </div>
+                    <div className="text-xs text-gray-500">First Input Delay</div>
+                  </div>
+
+                  {/* CLS */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">CLS</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getCWVStatusColor(getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}))}`}>
+                        {getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}) === 'good' ? 'Good' : 
+                         getCWVStatus(pageSpeedData.mobile.cls, {good: 0.1, poor: 0.25}) === 'needs-improvement' ? 'Needs Work' : 'Poor'}
+                      </span>
+                    </div>
+                    <div className="text-xl font-bold text-gray-900">
+                      {formatCWVValue(pageSpeedData.mobile.cls, '')}
+                    </div>
+                    <div className="text-xs text-gray-500">Cumulative Layout Shift</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Opportunities Preview */}
+              {pageSpeedData.opportunities && pageSpeedData.opportunities.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <Typography className="font-semibold text-gray-900 mb-3">
+                    💡 Top Performance Opportunities
+                  </Typography>
+                  <div className="space-y-2">
+                    {pageSpeedData.opportunities.slice(0, 3).map((opportunity: {title: string; description: string; displayValue?: string}, index: number) => (
+                      <div key={index} className="bg-white border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <Typography className="text-sm font-medium text-gray-900 mb-1">
+                              {index + 1}. {opportunity.title}
+                            </Typography>
+                            {opportunity.displayValue && (
+                              <Typography className="text-xs font-medium text-blue-600">
+                                {opportunity.displayValue}
+                              </Typography>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {pageSpeedData.opportunities.length > 3 && (
+                      <div className="text-center text-xs text-gray-500 pt-2">
+                        + {pageSpeedData.opportunities.length - 3} more opportunities in full report
+                      </div>
                     )}
                   </div>
-                )
-              })
-            })()}
-          </div>
-          
-          {/* Show message if no data */}
-          {Object.keys(formData).length === 0 && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="text-sm text-yellow-800">
-                💡 No data fetched yet. Go back to Step 2 and fetch data from Google APIs to see preview.
-              </div>
+                </div>
+              )}
+
+              {/* Data freshness indicator */}
+              {pageSpeedData.fetchedAt && (
+                <div className="text-center text-xs text-gray-500">
+                  PageSpeed data from {new Date(pageSpeedData.fetchedAt).toLocaleString()}
+                </div>
+              )}
             </div>
           )}
         </div>
