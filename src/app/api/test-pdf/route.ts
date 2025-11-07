@@ -352,7 +352,8 @@ export async function GET(request: NextRequest) {
           fid: 12,   // ms
           cls: 0.023 // score
         },
-        opportunities: generateOpportunities(opportunitiesCount)
+        opportunities: generateOpportunities(opportunitiesCount),
+        fetchedAt: new Date().toISOString()
       }
     };
     
