@@ -1,7 +1,9 @@
 import React from 'react';
 import { Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../types';
-import { formatNumber, formatPercentage, formatDecimal, getFooterText } from './styles';
+import { formatNumber, formatPercentage, formatDecimal } from './styles';
+import { ReportHeader } from '../../../components/pdf/components/ReportHeader';
+import { ReportFooter } from '../../../components/pdf/components/ReportFooter';
 
 interface ExecutiveGA4PageProps {
   data: ReportData;
@@ -15,36 +17,6 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
       padding: 40,
       backgroundColor: '#FFFFFF',
       fontFamily: 'Helvetica',
-    },
-    header: {
-      marginBottom: 30,
-      paddingBottom: 15,
-      borderBottomWidth: 2,
-      borderBottomColor: primaryColor,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    headerLeft: {
-      flex: 1,
-    },
-    headerRight: {
-      alignItems: 'flex-end',
-    },
-    clientName: {
-      fontSize: 14,
-      fontWeight: 'bold',
-      color: primaryColor,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: '#1F2937',
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 12,
-      color: '#6B7280',
     },
     metricsGrid: {
       flexDirection: 'row',
@@ -120,47 +92,18 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
       color: '#374151',
       flex: 1,
     },
-    footer: {
-      position: 'absolute',
-      bottom: 20,
-      left: 40,
-      right: 40,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingTop: 15,
-      borderTopWidth: 1,
-      borderTopColor: '#E5E7EB',
-    },
-    footerLeft: {
-      fontSize: 10,
-      color: '#6B7280',
-    },
-    footerCenter: {
-      fontSize: 10,
-      color: '#6B7280',
-    },
-    footerRight: {
-      fontSize: 10,
-      color: '#6B7280',
-    },
   });
 
   return (
     <>
       {/* Page 1: Core GA4 Metrics */}
       <Page style={styles.page}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.title}>Google Analytics 4 Metrics</Text>
-            <Text style={styles.subtitle}>
-              Website performance data for {data.clientDomain} | {data.reportPeriod.startDate} - {data.reportPeriod.endDate}
-            </Text>
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={styles.clientName}>{data.clientName}</Text>
-          </View>
-        </View>
+        <ReportHeader
+          title="Google Analytics 4 Metrics"
+          subtitle={`Website performance data for ${data.clientDomain} | ${data.reportPeriod.startDate} - ${data.reportPeriod.endDate}`}
+          clientName={data.clientName}
+          branding={data.branding}
+        />
 
         <View style={styles.metricsGrid}>
           {/* Total Users */}
@@ -199,45 +142,12 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
             </Text>
           </View>
 
-          {/* Mobile Speed (if PageSpeed data available) */}
-          {data.pageSpeedData && (
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, { 
-                color: data.pageSpeedData.mobile.score >= 90 ? '#10b981' : 
-                       data.pageSpeedData.mobile.score >= 50 ? '#f59e0b' : '#ef4444' 
-              }]}>
-                {data.pageSpeedData.mobile.score}/100
-              </Text>
-              <Text style={styles.metricLabel}>Mobile Speed</Text>
-              <Text style={styles.metricDescription}>
-                PageSpeed mobile performance score affects user experience and SEO
-              </Text>
-            </View>
-          )}
-
-          {/* Desktop Speed (if PageSpeed data available) */}
-          {data.pageSpeedData && (
-            <View style={styles.metricCard}>
-              <Text style={[styles.metricValue, { 
-                color: data.pageSpeedData.desktop.score >= 90 ? '#10b981' : 
-                       data.pageSpeedData.desktop.score >= 50 ? '#f59e0b' : '#ef4444' 
-              }]}>
-                {data.pageSpeedData.desktop.score}/100
-              </Text>
-              <Text style={styles.metricLabel}>Desktop Speed</Text>
-              <Text style={styles.metricDescription}>
-                PageSpeed desktop performance score for search engine rankings
-              </Text>
-            </View>
-          )}
         </View>
 
 
-        {/* Show fallback message only if ALL data is missing */}
-        {(!data.gscMetrics?.topKeywords || data.gscMetrics.topKeywords.length === 0) &&
-         (!data.gscMetrics?.topPages || data.gscMetrics.topPages.length === 0) &&
-         (!data.gscMetrics?.topCountries || data.gscMetrics.topCountries.length === 0) &&
-         (!data.gscMetrics?.deviceBreakdown || data.gscMetrics.deviceBreakdown.length === 0) && (
+        {/* Show fallback message only if core GSC data is missing */}
+        {(!data.gscMetrics || 
+          (data.gscMetrics.clicks === 0 && data.gscMetrics.impressions === 0)) && (
           <View style={{
             backgroundColor: '#FEF3C7',
             borderWidth: 1,
@@ -265,15 +175,7 @@ export const ExecutiveGA4Page: React.FC<ExecutiveGA4PageProps> = ({ data }) => {
           </View>
         )}
 
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerLeft}>{getFooterText(data.branding)}</Text>
-          <Text style={styles.footerCenter}>
-            {data.branding.whiteLabelEnabled && data.branding.companyName ? data.branding.companyName : 'Generated by Reportr'}
-          </Text>
-          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => 
-            `Page ${pageNumber} of ${totalPages}`
-          } />
-        </View>
+        <ReportFooter branding={data.branding} />
       </Page>
 
     </>

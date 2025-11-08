@@ -1,55 +1,69 @@
-import React from 'react'
-import { View, Text, Image } from '@react-pdf/renderer'
-import { BrandingConfig } from '@/types/report'
-import { createPDFStyles, createStyleSheet } from '../BaseTemplate'
+import React from 'react';
+import { View, Text, StyleSheet } from '@react-pdf/renderer';
 
 interface ReportHeaderProps {
-  branding: BrandingConfig
-  clientName: string
-  pageTitle?: string
-  showLogo?: boolean
+  title: string;
+  subtitle?: string;
+  clientName?: string;
+  branding?: {
+    primaryColor?: string;
+  };
 }
 
-export function ReportHeader({ branding, clientName, pageTitle, showLogo = true }: ReportHeaderProps) {
-  const pdfStyles = createPDFStyles(branding)
-  const styles = createStyleSheet(pdfStyles)
+export const ReportHeader: React.FC<ReportHeaderProps> = ({ 
+  title, 
+  subtitle, 
+  clientName, 
+  branding 
+}) => {
+  const primaryColor = branding?.primaryColor || '#7e23ce';
   
+  const styles = StyleSheet.create({
+    header: {
+      marginBottom: 30,
+      paddingBottom: 15,
+      borderBottomWidth: 2,
+      borderBottomColor: primaryColor,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerRight: {
+      alignItems: 'flex-end',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#1F2937',
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 12,
+      color: '#6B7280',
+    },
+    clientName: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: primaryColor,
+    },
+  });
+
   return (
     <View style={styles.header}>
-      {/* Left side - Logo and Agency Info */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-        {showLogo && branding.logo && (
-          <Image 
-            src={branding.logo} 
-            style={{ 
-              width: 40, 
-              height: 20, 
-              objectFit: 'contain',
-              marginRight: 12
-            }}
-          />
+      <View style={styles.headerLeft}>
+        <Text style={styles.title}>{title}</Text>
+        {subtitle && (
+          <Text style={styles.subtitle}>{subtitle}</Text>
         )}
-        <View>
-          <Text style={[styles.h4, { marginBottom: 2, color: pdfStyles.colors.primary }]}>
-            {branding.companyName}
-          </Text>
-          <Text style={[styles.bodySmall, { color: pdfStyles.colors.textLight }]}>
-            {branding.website}
-          </Text>
+      </View>
+      {clientName && (
+        <View style={styles.headerRight}>
+          <Text style={styles.clientName}>{clientName}</Text>
         </View>
-      </View>
-      
-      {/* Right side - Client and Page Info */}
-      <View style={{ textAlign: 'right' }}>
-        <Text style={[styles.h4, { marginBottom: 2 }]}>
-          {clientName}
-        </Text>
-        {pageTitle && (
-          <Text style={[styles.bodySmall, { color: pdfStyles.colors.textLight }]}>
-            {pageTitle}
-          </Text>
-        )}
-      </View>
+      )}
     </View>
-  )
-}
+  );
+};

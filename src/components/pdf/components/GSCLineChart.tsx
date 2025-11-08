@@ -230,19 +230,6 @@ export function GSCLineChart({
             </G>
           ))}
 
-          {/* Y-axis title */}
-          <Text
-            x={15}
-            y={height / 2}
-            style={{ 
-              fontSize: 10, 
-              fill: pdfStyles.colors.text, 
-              textAnchor: 'middle',
-              transform: `rotate(-90 15 ${height / 2})`
-            }}
-          >
-            {yAxisLabel}
-          </Text>
 
           {/* Chart border */}
           <Path

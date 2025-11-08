@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, View, Text } from '@react-pdf/renderer';
+import { Page, View, Text, Image } from '@react-pdf/renderer';
 import { styles, createBrandedStyles } from './styles';
 import { ReportData } from '../types';
 
@@ -9,6 +9,18 @@ interface CoverPageProps {
 
 export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
   const brandedStyles = createBrandedStyles(data.branding.primaryColor);
+  
+  // Determine which logo to display
+  const getLogoUrl = () => {
+    // For white-label enabled users, use their logo if available, otherwise fall back to Reportr logo
+    if (data.branding.whiteLabelEnabled || data.branding.enabled) {
+      return data.branding.logo || 'https://reportr.agency/logo-purple.png';
+    }
+    // For non-white-label users, always use Reportr logo
+    return 'https://reportr.agency/logo-purple.png';
+  };
+  
+  const logoUrl = getLogoUrl();
   
   // Format date range
   const formatDate = (dateString: string) => {
@@ -33,6 +45,17 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
   return (
     <Page size="A4" style={styles.page}>
       <View style={styles.coverPage}>
+        {/* Logo */}
+        <Image
+          src={logoUrl}
+          style={{
+            width: 120,
+            height: 60,
+            objectFit: 'contain',
+            marginBottom: 30,
+          }}
+        />
+        
         {/* Main Report Title */}
         <Text style={[styles.coverTitle, brandedStyles.brandPrimary]}>
           {reportTypeTitle}
@@ -64,13 +87,10 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
           </Text>
         )}
 
-        {/* Agency Contact Info for White-Label Users */}
-        {(data.branding.whiteLabelEnabled || data.branding.enabled) && (data.branding.website || data.branding.email || data.branding.supportEmail) && (
+        {/* Agency Contact Info for White-Label Users - Website only, no email */}
+        {(data.branding.whiteLabelEnabled || data.branding.enabled) && data.branding.website && (
           <Text style={styles.coverAgencyContact}>
-            {[
-              data.branding.website?.replace(/^https?:\/\//, ''), 
-              data.branding.supportEmail || data.branding.email
-            ].filter(Boolean).join(' | ')}
+            {data.branding.website.replace(/^https?:\/\//, '')}
           </Text>
         )}
         
@@ -87,18 +107,13 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
             )}
           </View>
           
-          <View style={styles.alignCenter}>
-            {data.branding.email && (
-              <Text style={styles.brandingWebsite}>
-                {data.branding.email}
-              </Text>
-            )}
-            {data.branding.phone && (
+          {data.branding.phone && (
+            <View style={styles.alignCenter}>
               <Text style={styles.brandingWebsite}>
                 {data.branding.phone}
               </Text>
-            )}
-          </View>
+            </View>
+          )}
         </View>
       </View>
     </Page>

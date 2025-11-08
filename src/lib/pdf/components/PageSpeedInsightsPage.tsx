@@ -188,9 +188,10 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
   return (
     <Page size="A4" style={baseStyles.page}>
       <ReportHeader
-        branding={branding}
+        title="PageSpeed Insights"
+        subtitle={`Performance analysis for ${data.clientName}`}
         clientName={data.clientName}
-        pageTitle="PageSpeed Insights"
+        branding={branding}
       />
       
       <View style={baseStyles.container}>
@@ -333,8 +334,6 @@ export const PageSpeedInsightsPage: React.FC<PageSpeedInsightsPageProps> = ({ da
       
       <ReportFooter
         branding={branding}
-        pageNumber={pageNumber}
-        totalPages={totalPages}
       />
     </Page>
   );
