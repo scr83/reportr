@@ -80,7 +80,7 @@ export function GSCPerformancePage({
       <ReportHeader
         branding={branding}
         clientName={clientName}
-        pageTitle="Search Console Performance"
+        title="Search Console Performance"
       />
       
       <View style={styles.container}>

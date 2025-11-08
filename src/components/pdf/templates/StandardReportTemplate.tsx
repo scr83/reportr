@@ -111,7 +111,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Executive Summary"
+          title="Executive Summary"
         />
         
         <View style={styles.container}>
@@ -173,7 +173,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Search Console Performance"
+          title="Search Console Performance"
         />
         
         <View style={styles.container}>
@@ -220,7 +220,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Website Analytics"
+          title="Website Analytics"
         />
         
         <View style={styles.container}>
@@ -267,7 +267,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
           <ReportHeader
             branding={data.branding}
             clientName={data.clientName}
-            pageTitle="Website Performance"
+            title="Website Performance"
           />
           
           <View style={styles.container}>
@@ -616,7 +616,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
           <ReportHeader
             branding={data.branding}
             clientName={data.clientName}
-            pageTitle="Website Performance"
+            title="Website Performance"
           />
           
           <View style={styles.container}>
@@ -671,7 +671,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Audience Insights"
+          title="Audience Insights"
         />
         
         <View style={styles.container}>
@@ -752,7 +752,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Insights & Recommendations"
+          title="Insights & Recommendations"
         />
         
         <View style={styles.container}>
@@ -829,7 +829,7 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Report Summary"
+          title="Report Summary"
         />
         
         <View style={styles.container}>

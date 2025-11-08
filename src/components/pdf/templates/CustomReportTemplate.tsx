@@ -144,7 +144,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Custom Report Overview"
+          title="Custom Report Overview"
         />
         
         <View style={styles.container}>
@@ -225,7 +225,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
           <ReportHeader
             branding={data.branding}
             clientName={data.clientName}
-            pageTitle="Detailed Metrics"
+            title="Detailed Metrics"
           />
           
           <View style={styles.container}>
@@ -287,7 +287,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
           <ReportHeader
             branding={data.branding}
             clientName={data.clientName}
-            pageTitle="Detailed Data Analysis"
+            title="Detailed Data Analysis"
           />
           
           <View style={styles.container}>
@@ -388,7 +388,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
           <ReportHeader
             branding={data.branding}
             clientName={data.clientName}
-            pageTitle="Website Performance"
+            title="Website Performance"
           />
           
           <View style={styles.container}>
@@ -693,7 +693,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Report Summary"
+          title="Report Summary"
         />
         
         <View style={styles.container}>

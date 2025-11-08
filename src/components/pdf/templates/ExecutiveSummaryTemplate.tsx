@@ -93,7 +93,7 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Executive Summary"
+          title="Executive Summary"
         />
         
         <View style={styles.container}>
@@ -200,7 +200,7 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
         <ReportHeader
           branding={data.branding}
           clientName={data.clientName}
-          pageTitle="Recommendations"
+          title="Recommendations"
         />
         
         <View style={styles.container}>
