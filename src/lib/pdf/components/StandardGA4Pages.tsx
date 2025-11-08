@@ -222,8 +222,8 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           </View>
 
 
-          {/* Device Breakdown Title */}
-          <View style={styles.metricCard3}>
+          {/* Device Breakdown - Expanded to fill space */}
+          <View style={styles.metricCard}>
             <Text style={styles.metricLabelSmall}>Device Breakdown</Text>
             {data.ga4Metrics.deviceBreakdown ? (
               (() => {
