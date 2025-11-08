@@ -179,13 +179,6 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
             )}
             
             
-            {metrics.organicTraffic && (
-              <KeyInsight
-                title="Organic Traffic Performance"
-                description={`${formatNumber(metrics.organicTraffic)} organic visitors shows your SEO efforts are generating results. Continue building on this foundation.`}
-                priority="low"
-              />
-            )}
           </>
         )}
       </View>
