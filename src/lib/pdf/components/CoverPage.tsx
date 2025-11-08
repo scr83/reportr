@@ -12,12 +12,15 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data }) => {
   
   // Determine which logo to display
   const getLogoUrl = () => {
+    // Default Reportr logo as data URI
+    const defaultReportrLogo = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMjAwIDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDwhLS0gUHVycGxlIGJhY2tncm91bmQgcm91bmRlZCByZWN0YW5nbGUgLS0+CiAgPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzdjM2FlZCIgeD0iMTAiIHk9IjIwIi8+CiAgCiAgPCEtLSBCYXJDaGFydDMgaWNvbiBzaW1wbGlmaWVkIC0gdGhyZWUgYXNjZW5kaW5nIGJhcnMgLS0+CiAgPHJlY3Qgd2lkdGg9IjYiIGhlaWdodD0iMTIiIGZpbGw9IndoaXRlIiB4PSIxNyIgeT0iMzQiLz4KICA8cmVjdCB3aWR0aD0iNiIgaGVpZ2h0PSIxOCIgZmlsbD0id2hpdGUiIHg9IjI2IiB5PSIyOCIvPgogIDxyZWN0IHdpZHRoPSI2IiBoZWlnaHQ9IjI0IiBmaWxsPSJ3aGl0ZSIgeD0iMzUiIHk9IjIyIi8+CiAgCiAgPCEtLSBSZXBvcnRyIHRleHQgLS0+CiAgPHRleHQgeD0iNjAiIHk9IjQ4IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMTExODI3Ij5SZXBvcnRyPC90ZXh0Pgo8L3N2Zz4=';
+    
     // For white-label enabled users, use their logo if available, otherwise fall back to Reportr logo
     if (data.branding.whiteLabelEnabled || data.branding.enabled) {
-      return data.branding.logo || 'https://reportr.agency/logo-purple.png';
+      return data.branding.logo || defaultReportrLogo;
     }
     // For non-white-label users, always use Reportr logo
-    return 'https://reportr.agency/logo-purple.png';
+    return defaultReportrLogo;
   };
   
   const logoUrl = getLogoUrl();
