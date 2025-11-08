@@ -224,7 +224,7 @@ export const StandardGA4Pages: React.FC<StandardGA4PagesProps> = ({ data }) => {
           {/* Organic Traffic */}
           <View style={styles.metricCard3}>
             <Text style={styles.metricValueSmall}>
-              {formatNumber(data.ga4Metrics.organicTraffic)}
+              {formatNumber(data.ga4Metrics.organicTraffic || 0)}
             </Text>
             <Text style={styles.metricLabelSmall}>Organic Traffic</Text>
             <Text style={styles.metricDescriptionSmall}>

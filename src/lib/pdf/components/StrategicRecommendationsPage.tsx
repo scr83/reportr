@@ -274,10 +274,10 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
 
         {/* Footer Question */}
         <Text style={styles.contactQuestion}>
-          Questions about this report? Contact {data.branding.companyName || 'your agency'}
+          Questions about this report? Contact {(!data.branding.whiteLabelEnabled && !data.branding.enabled) ? 'Reportr' : (data.branding.companyName || 'your agency')}
         </Text>
         <Text style={[styles.contactInfo, {color: primaryColor}]}>
-          {data.branding.email || data.branding.website}
+          {(!data.branding.whiteLabelEnabled && !data.branding.enabled) ? 'hello@reportr.agency' : (data.branding.supportEmail || data.branding.email || data.branding.website)}
         </Text>
 
         <View style={styles.footer} fixed>
