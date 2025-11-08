@@ -108,7 +108,10 @@ function PricingTiers() {
         'Advanced SEO analytics',
         'Google Search Console',
         'Google Analytics 4',
-        'Custom branding',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
+        { text: 'AI Insights', badge: 'Coming Soon' },
+        'Custom branding (for white label users)',
+        'Custom report templates',
         'Priority email support (24hrs)',
         'API access'
       ],
@@ -131,6 +134,8 @@ function PricingTiers() {
         'Up to 15 clients',
         '75 reports per month',
         'Everything in Starter',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
+        { text: 'AI Insights', badge: 'Coming Soon' },
         'Custom report templates',
         'Priority support',
         'Team collaboration',
@@ -155,6 +160,8 @@ function PricingTiers() {
         'Up to 50 clients',
         '250 reports per month',
         'Everything in Professional',
+        { text: 'PageSpeed Insights', badge: 'Coming Soon' },
+        { text: 'AI Insights', badge: 'Coming Soon' },
         { text: 'Custom Domain', badge: 'Coming Soon' },
         'Dedicated account manager',
         'Custom integrations',
@@ -369,6 +376,7 @@ function FeatureComparison() {
         { name: 'Google Search Console', free: true, starter: true, pro: true, enterprise: true },
         { name: 'Google Analytics 4', free: true, starter: true, pro: true, enterprise: true },
         { name: 'PageSpeed Insights', free: 'Coming Soon', starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
+        { name: 'AI Insights', free: false, starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
       ]
     },
     {
@@ -377,7 +385,7 @@ function FeatureComparison() {
         { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true },
         { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true },
         { name: 'White-Label Branding', free: false, starter: '+$20/mo', pro: '+$20/mo', enterprise: '+$20/mo' },
-        { name: 'Custom Report Templates', free: false, starter: false, pro: true, enterprise: true },
+        { name: 'Custom Report Templates', free: false, starter: true, pro: true, enterprise: true },
         { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
       ]
     },
@@ -519,7 +527,11 @@ function FAQ() {
     },
     {
       question: 'Do you offer annual billing?',
-      answer: 'Yes! Annual billing is available with a 20% discount. Contact us at jump@digitalfrog.co for annual pricing details.'
+      answer: 'Yes! Annual billing is available with a 20% discount. Contact us at sales@reportr.agency for annual pricing details.'
+    },
+    {
+      question: 'Do all plans include AI insights?',
+      answer: 'No, our free forever plan does not include AI Insights. AI insights are only available for paid plans, does not include the free 14-day trial'
     },
     {
       question: 'Can I add more clients to my plan?',
@@ -547,7 +559,7 @@ function FAQ() {
     },
     {
       question: 'Do you offer discounts for non-profits or educators?',
-      answer: 'Yes! We offer 30% off for qualifying non-profit organizations and educational institutions. Contact us at jump@digitalfrog.co with proof of status.'
+      answer: 'Yes! We offer 30% off for qualifying non-profit organizations and educational institutions. Contact us at sales@reportr.agency with proof of status.'
     }
   ]
 
@@ -580,7 +592,7 @@ function FAQ() {
       <div className="mt-12 text-center">
         <p className="text-gray-600 mb-4">Still have questions?</p>
         <a
-          href="mailto:jump@digitalfrog.co"
+          href="mailto:sales@reportr.agency"
           className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
         >
           Contact Us
