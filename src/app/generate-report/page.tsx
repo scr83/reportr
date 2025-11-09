@@ -1878,6 +1878,7 @@ export default function GenerateReportPage() {
           onClose={() => setIsMetricModalOpen(false)}
           selectedMetrics={selectedMetrics}
           onSave={(metrics: string[]) => setSelectedMetrics(metrics)}
+          clientId={reportData.clientId}
         />
       </div>
     </DashboardLayout>

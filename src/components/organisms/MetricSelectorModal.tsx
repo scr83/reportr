@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { AddCustomMetricModal } from '@/components/organisms/AddCustomMetricModal';
+import { CustomMetric } from '@/types/custom-metrics';
 
 interface MetricSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedMetrics: string[];
   onSave: (metrics: string[]) => void;
+  clientId?: string;
 }
 
 // Mock metric categories and options
@@ -67,11 +70,40 @@ export default function MetricSelectorModal({
   isOpen,
   onClose,
   selectedMetrics,
-  onSave
+  onSave,
+  clientId
 }: MetricSelectorModalProps) {
   const [localSelection, setLocalSelection] = useState<string[]>(selectedMetrics);
+  
+  // Custom metrics state
+  const [customMetrics, setCustomMetrics] = useState<CustomMetric[]>([]);
+  const [showAddCustomModal, setShowAddCustomModal] = useState(false);
+  const [isLoadingCustom, setIsLoadingCustom] = useState(false);
 
   const MAX_METRICS = 15;
+
+  // Load custom metrics when modal opens
+  useEffect(() => {
+    async function loadCustomMetrics() {
+      if (!clientId || !isOpen) return;
+      
+      setIsLoadingCustom(true);
+      try {
+        const response = await fetch(`/api/clients/${clientId}/custom-metrics`);
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.metrics)) {
+          setCustomMetrics(data.metrics);
+        }
+      } catch (error) {
+        console.error('Failed to load custom metrics:', error);
+      } finally {
+        setIsLoadingCustom(false);
+      }
+    }
+    
+    loadCustomMetrics();
+  }, [clientId, isOpen]);
 
   const toggleMetric = (metricId: string) => {
     if (localSelection.includes(metricId)) {
@@ -119,6 +151,11 @@ export default function MetricSelectorModal({
               localSelection.length >= MAX_METRICS ? 'text-red-600' : 'text-primary-themed'
             }`}>
               Selected: {localSelection.length} / {MAX_METRICS}
+              {customMetrics.length > 0 && (
+                <span className="ml-2 text-xs text-gray-500 font-normal">
+                  ({customMetrics.filter(m => localSelection.includes(m.id)).length} custom)
+                </span>
+              )}
             </div>
             {localSelection.length >= MAX_METRICS && (
               <div className="text-xs text-red-600">
@@ -173,6 +210,93 @@ export default function MetricSelectorModal({
                 </div>
               </div>
             ))}
+
+            {/* Custom Metrics Section */}
+            {clientId && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">⚙️</span>
+                    <h3 className="text-lg font-semibold text-gray-900">Custom Metrics</h3>
+                    <span className="text-xs text-gray-500 ml-2">
+                      (Your GA4 custom metrics)
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowAddCustomModal(true)}
+                    className="text-sm font-medium text-primary-themed hover:text-primary-themed-dark transition"
+                  >
+                    + Add Custom Metric
+                  </button>
+                </div>
+                
+                {isLoadingCustom ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin h-6 w-6 border-2 border-primary-themed border-t-transparent rounded-full"></div>
+                    <p className="text-sm text-gray-500 mt-2">Loading custom metrics...</p>
+                  </div>
+                ) : customMetrics.length === 0 ? (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <p className="text-gray-600 mb-2">No custom metrics yet</p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Add GA4 custom metrics to track in your reports
+                    </p>
+                    <button
+                      onClick={() => setShowAddCustomModal(true)}
+                      className="px-4 py-2 bg-primary-themed text-white text-sm rounded-lg hover:bg-primary-themed-dark transition"
+                    >
+                      Add Your First Custom Metric
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {customMetrics.map((metric) => {
+                      const isSelected = localSelection.includes(metric.id);
+                      const isDisabled = !isSelected && localSelection.length >= MAX_METRICS;
+
+                      return (
+                        <label
+                          key={metric.id}
+                          className={`flex items-start p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-primary-themed bg-primary-themed-light'
+                              : isDisabled
+                              ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                              : 'border-gray-200 hover:border-primary-themed'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => !isDisabled && toggleMetric(metric.id)}
+                            disabled={isDisabled}
+                            className="mt-1 w-4 h-4 text-primary-themed"
+                          />
+                          <div className="ml-3 flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="font-medium text-gray-900 text-sm">
+                                {metric.displayName}
+                              </div>
+                              <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded font-normal">
+                                Custom
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1 font-mono">
+                              {metric.apiName}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <svg className="w-5 h-5 text-primary-themed flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -201,6 +325,20 @@ export default function MetricSelectorModal({
           </div>
         </div>
       </div>
+
+      {/* Add Custom Metric Modal */}
+      {showAddCustomModal && clientId && (
+        <AddCustomMetricModal
+          clientId={clientId}
+          onSave={(newMetric) => {
+            // Add to local state
+            setCustomMetrics([...customMetrics, newMetric]);
+            // Close modal
+            setShowAddCustomModal(false);
+          }}
+          onCancel={() => setShowAddCustomModal(false)}
+        />
+      )}
     </div>
   );
 }
