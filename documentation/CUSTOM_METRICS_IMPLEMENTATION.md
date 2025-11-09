@@ -3869,6 +3869,1025 @@ Before committing, verify:
 All 6 must pass!
 
 
+# TASK: Integrate Custom Metrics into Metric Selector (Step 6 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom)
+- ✅ PDF generation with white-label branding
+- ✅ **Metric selector with 30+ predefined metrics** ← DO NOT BREAK THIS
+- ✅ PayPal billing
+- ✅ Custom metrics API and modal component
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Integrate the AddCustomMetricModal into the existing metric selector modal. Add a "Custom Metrics" section where users can add, view, and select their custom metrics. This is the FIRST time users will actually see custom metrics in the app.
+
+## What You Need to Do
+
+### 1. Find the Metric Selector Component
+**First, locate the file** that contains the metric selector modal. It's likely named one of:
+- `/src/components/organisms/MetricSelectorModal.tsx`
+- `/src/components/organisms/MetricSelector.tsx`
+- `/src/app/reports/MetricSelector.tsx`
+- Or similar
+
+Search for files containing "MetricSelector" or "metric" in the components folder.
+
+### 2. Add Imports at Top of File
+Once you find the metric selector file, add these imports at the top:
+```typescript
+import { useState, useEffect } from 'react'; // May already exist
+import { AddCustomMetricModal } from '@/components/organisms/AddCustomMetricModal';
+import { CustomMetric } from '@/types/custom-metrics';
+```
+
+### 3. Add State Variables
+Inside the component (after existing state declarations), add:
+```typescript
+// Custom metrics state
+const [customMetrics, setCustomMetrics] = useState<CustomMetric[]>([]);
+const [showAddCustomModal, setShowAddCustomModal] = useState(false);
+const [isLoadingCustom, setIsLoadingCustom] = useState(false);
+```
+
+### 4. Add useEffect to Load Custom Metrics
+Add this useEffect after the state declarations:
+```typescript
+// Load custom metrics when modal opens
+useEffect(() => {
+  async function loadCustomMetrics() {
+    if (!clientId) return;
+    
+    setIsLoadingCustom(true);
+    try {
+      const response = await fetch(`/api/clients/${clientId}/custom-metrics`);
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.metrics)) {
+        setCustomMetrics(data.metrics);
+      }
+    } catch (error) {
+      console.error('Failed to load custom metrics:', error);
+    } finally {
+      setIsLoadingCustom(false);
+    }
+  }
+  
+  loadCustomMetrics();
+}, [clientId]);
+```
+
+### 5. Add Custom Metrics Section to Render
+Find where the existing metric categories are rendered (look for the list of predefined metrics).
+
+Add this NEW section AFTER all existing categories but BEFORE the modal close/save buttons:
+```tsx
+{/* Custom Metrics Section */}
+<div className="mt-8 pt-6 border-t border-gray-200">
+  <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center gap-2">
+      <span className="text-2xl">⚙️</span>
+      <h3 className="text-lg font-semibold text-gray-900">Custom Metrics</h3>
+      <span className="text-xs text-gray-500 ml-2">
+        (Your GA4 custom metrics)
+      </span>
+    </div>
+    <button
+      onClick={() => setShowAddCustomModal(true)}
+      className="text-sm font-medium text-brand-600 hover:text-brand-700 transition"
+    >
+      + Add Custom Metric
+    </button>
+  </div>
+  
+  {isLoadingCustom ? (
+    <div className="text-center py-8">
+      <div className="inline-block animate-spin h-6 w-6 border-2 border-brand-600 border-t-transparent rounded-full"></div>
+      <p className="text-sm text-gray-500 mt-2">Loading custom metrics...</p>
+    </div>
+  ) : customMetrics.length === 0 ? (
+    <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+      <p className="text-gray-600 mb-2">No custom metrics yet</p>
+      <p className="text-sm text-gray-500 mb-4">
+        Add GA4 custom metrics to track in your reports
+      </p>
+      <button
+        onClick={() => setShowAddCustomModal(true)}
+        className="px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition"
+      >
+        Add Your First Custom Metric
+      </button>
+    </div>
+  ) : (
+    <div className="grid grid-cols-2 gap-3">
+      {customMetrics.map((metric) => (
+        <label
+          key={metric.id}
+          className={`
+            relative p-4 border-2 rounded-lg cursor-pointer transition-all
+            ${selectedMetrics.includes(metric.id)
+              ? 'border-brand-600 bg-brand-50'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
+            }
+          `}
+        >
+          <input
+            type="checkbox"
+            checked={selectedMetrics.includes(metric.id)}
+            onChange={() => {
+              if (selectedMetrics.includes(metric.id)) {
+                setSelectedMetrics(selectedMetrics.filter(id => id !== metric.id));
+              } else {
+                setSelectedMetrics([...selectedMetrics, metric.id]);
+              }
+            }}
+            className="sr-only"
+          />
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="font-medium text-gray-900 flex items-center gap-2">
+                {metric.displayName}
+                <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded font-normal">
+                  Custom
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1 font-mono">
+                {metric.apiName}
+              </p>
+            </div>
+            {selectedMetrics.includes(metric.id) && (
+              <svg className="w-5 h-5 text-brand-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            )}
+          </div>
+        </label>
+      ))}
+    </div>
+  )}
+</div>
+
+{/* Add Custom Metric Modal */}
+{showAddCustomModal && (
+  <AddCustomMetricModal
+    clientId={clientId}
+    onSave={(newMetric) => {
+      // Add to local state
+      setCustomMetrics([...customMetrics, newMetric]);
+      // Close modal
+      setShowAddCustomModal(false);
+    }}
+    onCancel={() => setShowAddCustomModal(false)}
+  />
+)}
+```
+
+### 6. Update Selected Metrics Counter
+Find where the selected metrics counter is displayed (usually shows "Selected: X / 15").
+
+Update it to account for custom metrics:
+```tsx
+<p className="text-sm text-gray-600">
+  Selected: {selectedMetrics.length} / 15
+  {customMetrics.length > 0 && (
+    <span className="ml-2 text-xs text-gray-500">
+      ({customMetrics.filter(m => selectedMetrics.includes(m.id)).length} custom)
+    </span>
+  )}
+</p>
+```
+
+## Success Criteria
+- ✅ Custom Metrics section appears at bottom of metric selector
+- ✅ "Add Custom Metric" button works (opens modal)
+- ✅ Custom metrics load from API on modal open
+- ✅ Can add new custom metric via modal
+- ✅ New metric appears in list immediately
+- ✅ Can select/deselect custom metrics (checkbox works)
+- ✅ Selected custom metrics included in count
+- ✅ **All existing predefined metrics still work**
+- ✅ **Existing report generation still works**
+- ✅ TypeScript compiles without errors
+
+## What NOT to Do
+- ❌ Do NOT modify existing predefined metric categories
+- ❌ Do NOT change existing metric selection logic for predefined metrics
+- ❌ Do NOT modify report generation code yet (Step 8)
+- ❌ Do NOT add delete functionality yet (Step 10)
+- ❌ Do NOT modify PDF templates yet (Step 9)
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only modified the metric selector component file
+- [ ] Existing predefined metrics still selectable
+- [ ] Can still generate reports with predefined metrics only
+- [ ] Custom metrics section appears correctly
+- [ ] Add button opens modal successfully
+- [ ] TypeScript compiles: `npm run build`
+- [ ] No console errors
+- [ ] Test: Generate report with ONLY predefined metrics - still works
+- [ ] Test: Select custom metric + predefined metrics - selection works
+
+## Testing Steps
+
+### Test 1: Existing Functionality Unchanged
+```
+1. Open metric selector for any client
+2. Verify all existing predefined metrics are visible
+3. Select 3-4 predefined metrics
+4. Generate a report
+5. Verify report generates successfully
+✅ Must pass before proceeding
+```
+
+### Test 2: Custom Metrics Integration
+```
+1. Open metric selector
+2. Scroll to bottom - see "Custom Metrics" section
+3. Click "+ Add Custom Metric"
+4. Modal opens
+5. Add a test metric:
+   - Display Name: "Test Metric"
+   - API Name: "activeUsers"
+6. Save
+7. Modal closes, metric appears in list
+8. Click checkbox to select it
+9. Verify counter updates (shows "1 custom")
+✅ New functionality working
+```
+
+### Test 3: Combined Selection
+```
+1. Select 2 predefined metrics
+2. Select 1 custom metric
+3. Verify counter shows "3 / 15 (1 custom)"
+4. Save selection (don't generate report yet)
+✅ Selection logic working
+```
+
+## Verification Commands
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server
+npm run dev
+
+# 3. Test in browser:
+# - Open metric selector
+# - Verify custom section appears
+# - Add a custom metric
+# - Select it
+# - Generate report with ONLY predefined metrics (should still work)
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/components/organisms/[MetricSelector file]
+git commit -m "feat(ui): integrate custom metrics into metric selector
+
+- Added Custom Metrics section to metric selector modal
+- Load custom metrics from API on mount
+- Add button opens AddCustomMetricModal
+- Can select custom metrics alongside predefined ones
+- Updated counter to show custom metric count
+- All existing predefined metrics unchanged
+- No impact on report generation yet (Step 8)"
+```
+
+## If Something Goes Wrong
+
+**Can't Find Metric Selector File:**
+```bash
+# Search for it
+find src -name "*Metric*" -type f
+# Or
+grep -r "MetricSelector" src/
+```
+
+**Import Errors:**
+```bash
+# Verify paths are correct
+# Check that AddCustomMetricModal was created in Step 5
+ls src/components/organisms/AddCustomMetricModal.tsx
+```
+
+**Existing Metrics Broken:**
+```bash
+# IMMEDIATELY revert
+git checkout -- .
+# Report to user what broke
+```
+
+**Custom Section Not Showing:**
+- Verify you added it in the correct place (inside modal, after existing categories)
+- Check browser console for React errors
+- Verify clientId prop is being passed correctly
+
+## Questions to Ask Me
+If you encounter:
+- Cannot locate metric selector component file
+- Import path issues
+- Existing metric selection breaks
+- TypeScript errors with state management
+- ANY errors when generating reports with predefined metrics
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 7 will update the report generation system to recognize custom metrics alongside predefined ones. That's when custom metrics will actually appear in generated reports!
+
+## Final Verification
+Before committing, test this COMPLETE flow:
+
+1. ✅ Open metric selector
+2. ✅ Select 2-3 predefined metrics
+3. ✅ Generate report → Works perfectly
+4. ✅ Open metric selector again
+5. ✅ See "Custom Metrics" section
+6. ✅ Add a custom metric → Success
+7. ✅ See custom metric in list
+8. ✅ Select it → Checkbox works
+9. ✅ Select 2 predefined + 1 custom → Counter shows "(1 custom)"
+10. ✅ Close modal → Selection persists
+
+All 10 must pass!
+
+
+# TASK: Update Metric Mapping System for Custom Metrics (Step 7 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ **Report generation with predefined metrics** ← CRITICAL - DO NOT BREAK
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with predefined AND custom metrics
+- ✅ PayPal billing
+- ✅ Custom metrics API and UI
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Add helper functions to the analytics integration layer so the system can recognize and handle custom metrics alongside predefined metrics. This is pure helper code - NO changes to existing functionality, just adding new lookup capabilities.
+
+## What You Need to Do
+
+### 1. Find the Analytics Integration File
+**Locate the file** that contains `METRIC_MAPPING`. It's likely:
+- `/src/lib/integrations/analytics.ts`
+- `/src/lib/google/analytics.ts`
+- `/src/lib/services/analytics.ts`
+
+Search for "METRIC_MAPPING" in the codebase.
+
+### 2. Add Import at Top
+At the top of the file, add:
+```typescript
+import { CustomMetric } from '@/types/custom-metrics';
+```
+
+### 3. Add Helper Functions
+**IMPORTANT**: Add these AFTER the existing `METRIC_MAPPING` object definition. Do NOT modify METRIC_MAPPING itself.
+```typescript
+/**
+ * Get metric configuration for either predefined or custom metrics
+ * 
+ * @param metricId - The metric ID to look up (e.g., "users" or "custom_1")
+ * @param customMetrics - Array of custom metrics from client
+ * @returns Metric configuration object or null if not found
+ */
+export function getMetricConfig(
+  metricId: string,
+  customMetrics: CustomMetric[] = []
+): any {
+  // First, check if it's a predefined metric
+  if (METRIC_MAPPING[metricId]) {
+    return METRIC_MAPPING[metricId];
+  }
+  
+  // Then check if it's a custom metric
+  const customMetric = customMetrics.find(m => m.id === metricId);
+  if (customMetric) {
+    return {
+      apiName: customMetric.apiName,
+      displayName: customMetric.displayName,
+      description: 'Custom GA4 metric',
+      category: 'custom',
+      format: customMetric.format,
+      isCustom: true
+    };
+  }
+  
+  // Not found
+  return null;
+}
+
+/**
+ * Build array of GA4 API metric names from selected metric IDs
+ * Handles both predefined and custom metrics
+ * 
+ * @param selectedMetrics - Array of metric IDs (e.g., ["users", "sessions", "custom_1"])
+ * @param customMetrics - Array of custom metrics from client
+ * @returns Array of GA4 API metric names (e.g., ["activeUsers", "sessions", "customEvent:test"])
+ */
+export function buildMetricsForGA4Request(
+  selectedMetrics: string[],
+  customMetrics: CustomMetric[] = []
+): string[] {
+  return selectedMetrics
+    .map(metricId => {
+      const config = getMetricConfig(metricId, customMetrics);
+      
+      if (!config) {
+        console.warn(`Unknown metric: ${metricId}, skipping`);
+        return null;
+      }
+      
+      return config.apiName;
+    })
+    .filter((apiName): apiName is string => apiName !== null);
+}
+```
+
+### 4. Verify File Structure
+After adding the functions, your file should look like:
+```typescript
+// Imports at top
+import { CustomMetric } from '@/types/custom-metrics';
+// ... other existing imports
+
+// Existing METRIC_MAPPING object (unchanged)
+export const METRIC_MAPPING = {
+  users: {
+    apiName: 'activeUsers',
+    // ... rest of config
+  },
+  // ... all other predefined metrics
+};
+
+// NEW: Helper functions (added below METRIC_MAPPING)
+export function getMetricConfig(...) { ... }
+export function buildMetricsForGA4Request(...) { ... }
+
+// Any other existing functions below...
+```
+
+### 5. Test the Helper Functions
+
+Create a simple test to verify the functions work:
+
+**Option A - In Browser Console** (after starting dev server):
+```javascript
+// This won't actually work in console, but shows the logic we're testing
+// You'll test this properly in Step 8 when we use these functions
+
+// Test predefined metric lookup
+const config1 = getMetricConfig('users', []);
+console.log(config1); // Should return METRIC_MAPPING['users']
+
+// Test custom metric lookup
+const customMetrics = [{
+  id: 'custom_1',
+  apiName: 'customEvent:test',
+  displayName: 'Test Metric',
+  category: 'custom',
+  format: 'number',
+  isCustom: true
+}];
+
+const config2 = getMetricConfig('custom_1', customMetrics);
+console.log(config2); // Should return custom metric config
+
+// Test building GA4 request
+const apiNames = buildMetricsForGA4Request(
+  ['users', 'sessions', 'custom_1'],
+  customMetrics
+);
+console.log(apiNames); 
+// Should return: ['activeUsers', 'sessions', 'customEvent:test']
+```
+
+**Option B - Just verify TypeScript compiles** (simplest):
+```bash
+npm run build
+```
+
+If it compiles without errors, the functions are syntactically correct. They'll be properly tested in Step 8 when we actually use them.
+
+## Success Criteria
+- ✅ Helper functions added after METRIC_MAPPING
+- ✅ CustomMetric type imported
+- ✅ TypeScript compiles without errors
+- ✅ No modifications to existing METRIC_MAPPING object
+- ✅ No modifications to any existing functions
+- ✅ **Existing report generation still works** (with predefined metrics only)
+- ✅ No runtime errors when starting dev server
+
+## What NOT to Do
+- ❌ Do NOT modify the existing METRIC_MAPPING object
+- ❌ Do NOT modify any existing functions in the file
+- ❌ Do NOT modify report generation code yet (Step 8)
+- ❌ Do NOT modify PDF templates yet (Step 9)
+- ❌ Do NOT add these functions to any other files yet
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only ONE file modified (the analytics integration file)
+- [ ] METRIC_MAPPING object unchanged
+- [ ] Only added new functions (no existing functions modified)
+- [ ] TypeScript compiles: `npm run build`
+- [ ] Dev server starts without errors
+- [ ] Test: Generate report with predefined metrics - still works perfectly
+- [ ] No console errors when starting server
+
+## Testing Steps
+
+### Test 1: Verify Compilation
+```bash
+# Should complete without errors
+npm run build
+```
+
+### Test 2: Verify Server Starts
+```bash
+# Should start without errors
+npm run dev
+# Check browser console for any errors
+```
+
+### Test 3: Verify Existing Reports Work
+
+Log in to app
+Navigate to any client
+Generate a report with ONLY predefined metrics
+Verify report generates successfully
+Download PDF
+Verify PDF looks correct
+✅ Must pass - this proves we didn't break anything
+
+
+### Test 4: Verify Functions Exist (Optional)
+```bash
+# Check that functions were exported
+grep -n "export function getMetricConfig" src/lib/integrations/analytics.ts
+grep -n "export function buildMetricsForGA4Request" src/lib/integrations/analytics.ts
+
+# Both should return line numbers
+```
+
+## Verification Commands
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Verify functions exported
+grep "export function" src/lib/integrations/analytics.ts
+
+# 3. Start dev server and check for errors
+npm run dev
+
+# 4. Test existing functionality
+# Generate a report with predefined metrics - should work perfectly
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/lib/integrations/analytics.ts  # or wherever METRIC_MAPPING is
+git commit -m "feat(lib): add custom metric lookup helpers
+
+- Added getMetricConfig() to look up predefined or custom metrics
+- Added buildMetricsForGA4Request() to build GA4 API metric arrays
+- Supports mixed predefined + custom metric selections
+- No changes to existing METRIC_MAPPING or functions
+- Helper functions ready for Step 8 (report generation)
+- No impact on existing functionality"
+```
+
+## If Something Goes Wrong
+
+**Can't Find METRIC_MAPPING File:**
+```bash
+# Search for it
+grep -r "METRIC_MAPPING" src/lib/
+# Or
+find src -name "*.ts" -exec grep -l "METRIC_MAPPING" {} \;
+```
+
+**TypeScript Errors After Adding Functions:**
+```bash
+# Check the error
+npm run build
+
+# Common issues:
+# 1. Verify CustomMetric import path is correct
+# 2. Check function syntax (missing braces, semicolons)
+# 3. Verify return types are correct
+```
+
+**Existing Reports Break:**
+```bash
+# IMMEDIATELY REVERT
+git checkout -- .
+
+# Report what broke to user
+```
+
+## Questions to Ask Me
+If you encounter:
+- Cannot locate METRIC_MAPPING file
+- TypeScript compilation errors
+- Import path issues with CustomMetric
+- Existing report generation breaks
+- ANY console errors when starting server
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 8 will use these helper functions in the actual report generation code to fetch custom metric data from GA4. That's when custom metrics will start working in reports!
+
+## Final Verification
+Before committing, verify:
+
+1. ✅ TypeScript compiles with no errors
+2. ✅ Dev server starts with no errors
+3. ✅ Helper functions added (check with grep)
+4. ✅ METRIC_MAPPING unchanged
+5. ✅ Generate report with predefined metrics - works perfectly
+6. ✅ No console errors anywhere
+
+All 6 must pass!
+
+
+# TASK: Fetch Custom Metrics in Report Generation (Step 8 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ **Report generation with predefined metrics** ← CRITICAL - DO NOT BREAK
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with custom metrics
+- ✅ PayPal billing
+- ✅ Custom metrics API, UI, and helper functions
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Update the report generation code to fetch custom metrics from the database and include their data from GA4 in the report. This makes custom metrics actually work in reports (though they won't show in PDF yet - that's Step 9).
+
+## What You Need to Do
+
+### 1. Find the Report Generation File
+**Locate the file** that generates reports. Look for:
+- `/src/lib/services/report-generator.ts`
+- `/src/app/api/reports/generate/route.ts`
+- `/src/app/api/reports/[id]/generate/route.ts`
+- Or similar
+
+Search for files that call GA4 API or fetch analytics data.
+
+### 2. Add Imports at Top
+Add these imports:
+```typescript
+import { CustomMetric } from '@/types/custom-metrics';
+import { getMetricConfig, buildMetricsForGA4Request } from '@/lib/integrations/google-analytics';
+```
+
+### 3. Locate the Client Fetch
+Find where the client is fetched from the database. It probably looks like:
+```typescript
+const client = await prisma.client.findUnique({
+  where: { id: clientId },
+  // ... other options
+});
+```
+
+### 4. Extract Custom Metrics from Client
+**Right after** the client fetch, add:
+```typescript
+// Get custom metrics configuration from client
+const customMetrics = (client.customMetrics as CustomMetric[]) || [];
+
+console.log(`📊 Generating report with ${customMetrics.length} custom metrics`);
+```
+
+### 5. Update GA4 Data Fetching
+Find where GA4 metrics are being fetched. Look for code that builds the GA4 request.
+
+**BEFORE (existing code - find this pattern):**
+```typescript
+// Existing code that builds GA4 metrics array
+const metrics = selectedMetrics.map(metricId => {
+  const config = METRIC_MAPPING[metricId];
+  return { name: config.apiName };
+});
+```
+
+**REPLACE with (using our new helper):**
+```typescript
+// Build GA4 metrics array (supports both predefined and custom)
+const metricApiNames = buildMetricsForGA4Request(selectedMetrics, customMetrics);
+
+console.log('🔍 GA4 API metrics:', metricApiNames);
+
+const metrics = metricApiNames.map(apiName => ({ name: apiName }));
+```
+
+### 6. Update Response Mapping
+Find where GA4 response data is mapped back to metric IDs.
+
+**BEFORE (existing code - find this pattern):**
+```typescript
+// Existing code that maps GA4 response
+const ga4Data: Record<string, any> = {};
+selectedMetrics.forEach((metricId, index) => {
+  ga4Data[metricId] = response.data.rows?.[0]?.metricValues?.[index]?.value || '0';
+});
+```
+
+**KEEP THIS (it should work as-is)**. The mapping by index will automatically work for custom metrics too since they're in the same selectedMetrics array.
+
+### 7. Pass Custom Metrics to Report Data
+Find where the report data object is constructed. It should look like:
+```typescript
+const reportData = {
+  clientName: client.name,
+  clientDomain: client.domain,
+  reportType: 'custom',
+  selectedMetrics,
+  ga4Data,
+  gscData,
+  // ... other data
+};
+```
+
+**Add customMetrics to this object:**
+```typescript
+const reportData = {
+  clientName: client.name,
+  clientDomain: client.domain,
+  reportType: 'custom',
+  selectedMetrics,
+  customMetrics, // NEW: Pass custom metrics config to PDF
+  ga4Data,
+  gscData,
+  // ... other data
+};
+```
+
+### 8. Add Error Handling
+Wrap the GA4 API call in try-catch to handle invalid custom metrics gracefully:
+```typescript
+try {
+  // Existing GA4 API call
+  const ga4Response = await fetchGA4Data({
+    propertyId: client.gaPropertyId,
+    accessToken: client.accessToken,
+    metrics: metrics,
+    dateRange: { startDate, endDate }
+  });
+  
+  // Map response data
+  selectedMetrics.forEach((metricId, index) => {
+    const value = ga4Response.rows?.[0]?.metricValues?.[index]?.value || '0';
+    ga4Data[metricId] = value;
+  });
+  
+} catch (error) {
+  console.error('GA4 API error (may include custom metrics):', error);
+  
+  // If GA4 fails, fill all metrics with '0' so report doesn't break
+  selectedMetrics.forEach(metricId => {
+    if (!ga4Data[metricId]) {
+      ga4Data[metricId] = '0';
+    }
+  });
+}
+```
+
+## Success Criteria
+- ✅ Custom metrics loaded from client database
+- ✅ Helper functions used correctly
+- ✅ GA4 request includes custom metric API names
+- ✅ Response mapped correctly (custom metrics get their data)
+- ✅ Custom metrics config passed to reportData
+- ✅ Error handling prevents report failure
+- ✅ **Existing reports with predefined metrics still work perfectly**
+- ✅ TypeScript compiles without errors
+- ✅ No runtime errors when generating reports
+
+## What NOT to Do
+- ❌ Do NOT modify the PDF templates yet (Step 9)
+- ❌ Do NOT change existing report types (Executive, Standard)
+- ❌ Do NOT modify the GA4 API client itself
+- ❌ Do NOT change how predefined metrics work
+- ❌ Do NOT modify authentication or client management
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only modified report generation file
+- [ ] Used helper functions from Step 7
+- [ ] Custom metrics extracted from client
+- [ ] GA4 request builder uses buildMetricsForGA4Request()
+- [ ] Custom metrics config passed to reportData
+- [ ] Error handling added
+- [ ] TypeScript compiles: `npm run build`
+- [ ] Test: Generate report with ONLY predefined metrics - still works
+- [ ] Test: Generate report with 1 custom + 2 predefined - works
+- [ ] No console errors
+
+## Testing Steps
+
+### Test 1: Existing Functionality (CRITICAL)
+```
+1. Log in to app
+2. Navigate to any client
+3. Select ONLY predefined metrics (e.g., users, sessions, bounceRate)
+4. Generate Custom Report
+5. Verify report generates successfully
+6. Check console logs - should show "0 custom metrics"
+7. Download PDF (won't show custom metrics yet, that's Step 9)
+✅ MUST PASS - proves we didn't break existing reports
+```
+
+### Test 2: Mixed Metrics (NEW)
+```
+1. Navigate to same client
+2. Add a custom metric:
+   - Display Name: "Test Metric"
+   - API Name: "activeUsers" (use a valid GA4 metric)
+3. Select 2 predefined metrics + 1 custom metric
+4. Generate Custom Report
+5. Check console logs:
+   - Should show "Generating report with 1 custom metrics"
+   - Should show "GA4 API metrics: [array with 3 items]"
+6. Wait for report to complete
+7. Check browser DevTools Network tab - GA4 API call should succeed
+✅ NEW - proves custom metrics are being fetched
+```
+
+### Test 3: Invalid Custom Metric (Error Handling)
+```
+1. Add a custom metric with INVALID API name:
+   - Display Name: "Bad Metric"
+   - API Name: "fake_metric_that_does_not_exist"
+2. Select it + 1 predefined metric
+3. Generate report
+4. Should NOT crash
+5. Check console - should show error but report completes
+6. Custom metric should show '0' in report
+✅ Proves error handling works
+```
+
+## Verification Commands
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server
+npm run dev
+
+# 3. Check console logs during report generation
+# Should see:
+# - "📊 Generating report with X custom metrics"
+# - "🔍 GA4 API metrics: [...]"
+
+# 4. Test all 3 scenarios above
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/lib/services/report-generator.ts  # or wherever it is
+git commit -m "feat(reports): fetch custom metrics in report generation
+
+- Load custom metrics from client database
+- Use buildMetricsForGA4Request() helper to build GA4 API calls
+- Include custom metric data in GA4 requests
+- Pass customMetrics config to report data for PDF rendering
+- Add error handling for invalid custom metrics (default to 0)
+- Existing predefined metric reports unchanged
+- Custom metrics now functional in report data (PDF display in Step 9)"
+```
+
+## If Something Goes Wrong
+
+**Can't Find Report Generation File:**
+```bash
+# Search for it
+grep -r "generateReport" src/
+grep -r "fetchGA4Data" src/
+find src -name "*report*.ts" -type f
+```
+
+**TypeScript Errors:**
+```bash
+# Check imports
+npm run build
+
+# Verify helper functions are exported
+grep "export function" src/lib/integrations/google-analytics.ts
+```
+
+**Existing Reports Break:**
+```bash
+# IMMEDIATELY REVERT
+git checkout -- .
+
+# Test existing reports again
+# Report exactly what broke
+```
+
+**GA4 API Errors:**
+- Check browser console Network tab
+- Verify custom metric API names are valid
+- Ensure error handling catches and logs the error
+- Report should still complete with '0' values
+
+## Questions to Ask Me
+If you encounter:
+- Cannot locate report generation file
+- Import path issues with helper functions
+- GA4 API integration unclear
+- Existing predefined metric reports break
+- TypeScript compilation errors
+- ANY runtime errors during report generation
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 9 will update the PDF template to actually DISPLAY custom metrics in the generated PDF. Right now custom metrics are fetched but not shown - Step 9 makes them visible!
+
+## Final Verification
+Before committing, test this complete flow:
+
+1. ✅ Generate report with ONLY predefined metrics → Works perfectly
+2. ✅ Add a custom metric with valid GA4 API name
+3. ✅ Select 2 predefined + 1 custom
+4. ✅ Generate report → Completes successfully
+5. ✅ Check console logs → Shows custom metrics being processed
+6. ✅ Check Network tab → GA4 API called with custom metric
+7. ✅ No errors in console
+8. ✅ Report data includes customMetrics array
+
+All 8 must pass!
+
+
 
 
 
