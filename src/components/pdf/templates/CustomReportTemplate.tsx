@@ -9,6 +9,7 @@ import { MetricGrid } from '../components/MetricCard'
 import { DataTable } from '../components/DataTable'
 import { SectionTitle, InsightBox } from '../components/SectionTitle'
 import { GSCPerformancePage } from '../components/GSCPerformancePage'
+import { CustomMetric } from '@/types/custom-metrics'
 
 export function CustomReportTemplate({ data }: PDFTemplateProps) {
   const pdfStyles = createPDFStyles(data.branding)
@@ -26,6 +27,9 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
   
   // Get selected metrics and organize them
   const selectedMetrics = data.selectedMetrics || []
+  
+  // Extract custom metrics from data
+  const customMetricsList = (data.customMetrics || []) as CustomMetric[];
   
   // Define all available metrics with their sources
   const allMetrics = {
@@ -86,7 +90,22 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
         description: 'Cumulative Layout Shift (mobile)',
         source: 'pagespeed'
       }
-    } : {})
+    } : {}),
+    
+    // Custom metrics from database
+    ...customMetricsList.reduce((acc, customMetric) => {
+      // Get the custom metric value from GA4 data
+      const metricValue = data.ga4Data?.[customMetric.apiName as keyof typeof data.ga4Data] || 0;
+      
+      acc[customMetric.id] = {
+        value: metricValue,
+        title: customMetric.displayName,
+        description: `Custom metric: ${customMetric.displayName}`,
+        source: 'custom'
+      };
+      
+      return acc;
+    }, {} as Record<string, any>)
   }
   
   // Filter metrics based on selection
@@ -114,6 +133,7 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
   // Group metrics by source
   const ga4Metrics = displayMetrics.filter(m => m.source === 'ga4')
   const gscMetrics = displayMetrics.filter(m => m.source === 'gsc')
+  const customMetrics = displayMetrics.filter(m => m.source === 'custom')
   
   // Calculate number of pages needed
   const metricsPerPage = 8
@@ -268,6 +288,15 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
                 title="Search Visibility"
                 content={`Your search performance generated ${data.gscData?.totalClicks || 0} clicks from ${data.gscData?.totalImpressions || 0} impressions, achieving a ${(data.gscData?.averageCTR || 0).toFixed(2)}% CTR with an average position of ${(data.gscData?.averagePosition || 0).toFixed(1)}.`}
                 type="info"
+                branding={data.branding}
+              />
+            )}
+            
+            {customMetrics.length > 0 && (
+              <InsightBox
+                title="Custom Metrics"
+                content={`This report includes ${customMetrics.length} custom metric${customMetrics.length > 1 ? 's' : ''}: ${customMetrics.map(m => m.title).join(', ')}. These metrics provide additional insights specific to your business objectives and goals.`}
+                type="success"
                 branding={data.branding}
               />
             )}
@@ -723,6 +752,12 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
             {gscMetrics.length > 0 && (
               <Text style={[styles.body, { marginBottom: 12 }]}>
                 • Search visibility generated {data.gscData?.totalClicks || 0} clicks from {data.gscData?.totalImpressions || 0} impressions
+              </Text>
+            )}
+            
+            {customMetrics.length > 0 && (
+              <Text style={[styles.body, { marginBottom: 12 }]}>
+                • Custom metrics analysis: {customMetrics.map(m => `${m.title} (${m.value})`).join(', ')}
               </Text>
             )}
             

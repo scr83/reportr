@@ -1,6 +1,7 @@
 // PDF Report Generation Types
 
 import type { PageSpeedMetrics } from '@/lib/integrations/pagespeed'
+import type { CustomMetric } from '@/types/custom-metrics'
 
 export interface BrandingConfig {
   companyName: string
@@ -126,6 +127,7 @@ export interface ReportData {
   
   // For custom reports (variable metrics)
   selectedMetrics?: string[]
+  customMetrics?: CustomMetric[]
   customFields?: Array<{
     title: string
     content: string
