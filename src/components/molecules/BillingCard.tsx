@@ -187,51 +187,105 @@ export function BillingCard({ data, loading }: BillingCardProps) {
           </div>
         )}
 
-        {/* Payment Management Section - Always Visible */}
-        <div className="space-y-3 mt-6 pt-6 border-t">
-          {/* Status Message */}
-          <p className="text-sm text-gray-600 mb-3">
-            {subscription.plan !== 'FREE' ? (
-              subscription.paypalSubscriptionId ? (
-                <>Your subscription is managed through PayPal</>
-              ) : (
-                <>Your subscription can be cancelled below</>
-              )
-            ) : (
-              <>Upgrade to access payment management features</>
-            )}
-          </p>
-          
-          {/* Manage Payment Method Button */}
-          <a
-            href="https://www.paypal.com/myaccount/autopay"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-          >
-            <CreditCard className="h-4 w-4" />
-            Manage Payment Method
-            <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
-          </a>
+        {/* Payment Management Section */}
+        <div className="space-y-4 mt-6 pt-6 border-t">
+          {/* STATE 1: FREE user OR user without active subscription - SHOW UPGRADE FLOW */}
+          {(subscription.plan === 'FREE' || !subscription.paypalSubscriptionId) && subscription.status !== 'cancelled' && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Set up your payment method to manage your subscription
+              </p>
+              
+              {/* Manage Payment Method button */}
+              <a
+                href="https://www.paypal.com/myaccount/autopay"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                <CreditCard className="h-4 w-4" />
+                Manage Payment Method
+                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+              </a>
+              
+              {/* Complete Payment Setup button - THE CRITICAL ONE */}
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
+              >
+                Complete Payment Setup
+              </button>
+            </div>
+          )}
 
-          {/* Cancel Subscription Button - Show for all paid plans */}
-          {subscription.plan !== 'FREE' ? (
-            <button
-              onClick={() => setShowCancelModal(true)}
-              disabled={subscription.status === 'cancelled'}
-              className="w-full px-4 py-2.5 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {subscription.status === 'cancelled' 
-                ? 'Subscription Cancelled' 
-                : 'Cancel Subscription'}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-            >
-              Upgrade to Premium
-            </button>
+          {/* STATE 2: Active paid subscription - SHOW CANCEL OPTION */}
+          {subscription.plan !== 'FREE' && 
+           subscription.status === 'active' && 
+           subscription.paypalSubscriptionId && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Your subscription is managed through PayPal
+              </p>
+              
+              {/* Manage Payment Method */}
+              <a
+                href="https://www.paypal.com/myaccount/autopay"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                <CreditCard className="h-4 w-4" />
+                Manage Payment Method
+                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+              </a>
+              
+              {/* Cancel Subscription Section */}
+              <div className="pt-6 border-t border-gray-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Cancel Subscription
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Cancel anytime. You&apos;ll retain full access until the end of your billing period.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowCancelModal(true)}
+                    className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors font-medium"
+                  >
+                    Cancel Plan
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STATE 3: Cancelled subscription - SHOW WARNING */}
+          {subscription.status === 'cancelled' && subscription.subscriptionEndDate && (
+            <div className="space-y-4">
+              {/* Amber warning box is already shown above - just show payment method for reactivation */}
+              <p className="text-sm text-gray-600">
+                Your subscription has been cancelled. You can still manage your payment method for future reactivation.
+              </p>
+              
+              {/* Optional: Manage payment for reactivation */}
+              <a
+                href="https://www.paypal.com/myaccount/autopay"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                <CreditCard className="h-4 w-4" />
+                Manage Payment Method
+                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+              </a>
+              
+              {/* Optional: Show reactivate message */}
+              <p className="text-xs text-gray-500 text-center">
+                Want to keep your subscription? Contact support to reactivate.
+              </p>
+            </div>
           )}
         </div>
       </div>
