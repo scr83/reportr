@@ -4,6 +4,7 @@ import { CreditCard, Calendar, DollarSign, ExternalLink, AlertTriangle } from 'l
 import { BillingData } from '@/hooks/useBilling'
 import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Plan } from '@prisma/client'
+import toast from 'react-hot-toast'
 
 interface BillingCardProps {
   data: BillingData
@@ -63,6 +64,31 @@ export function BillingCard({ data, loading }: BillingCardProps) {
   }
 
 
+  // Handle cancel button click - ALWAYS visible for legal compliance
+  const handleCancelClick = () => {
+    // Check if user has active subscription
+    if (subscription.plan === 'FREE' || !subscription.paypalSubscriptionId) {
+      // Show friendly message - no subscription to cancel
+      toast('You don\'t have an active subscription to cancel.', { 
+        icon: 'ℹ️', 
+        duration: 3000 
+      })
+      return
+    }
+    
+    if (subscription.status === 'cancelled') {
+      // Already cancelled
+      toast('Your subscription is already cancelled.', { 
+        icon: 'ℹ️', 
+        duration: 3000 
+      })
+      return
+    }
+    
+    // Has active subscription - show cancel modal
+    setShowCancelModal(true)
+  }
+
   const handleCancelSubscription = async () => {
     setCancelling(true)
     
@@ -89,14 +115,14 @@ export function BillingCard({ data, loading }: BillingCardProps) {
           })
         : 'the end of your billing period'
 
-      alert(`Subscription cancelled successfully. You will retain access until ${accessDate}.`)
+      toast.success(`Subscription cancelled successfully. You will retain access until ${accessDate}.`)
       
       // Refresh page to update UI
       window.location.reload()
       
     } catch (error: any) {
       console.error('Cancel error:', error)
-      alert(error.message || 'Failed to cancel subscription. Please try again.')
+      toast.error(error.message || 'Failed to cancel subscription. Please try again.')
     } finally {
       setCancelling(false)
       setShowCancelModal(false)
@@ -187,106 +213,39 @@ export function BillingCard({ data, loading }: BillingCardProps) {
           </div>
         )}
 
-        {/* Payment Management Section */}
+        {/* Payment Management Section - ALWAYS SHOW ALL THREE BUTTONS (LEGAL REQUIREMENT) */}
         <div className="space-y-4 mt-6 pt-6 border-t">
-          {/* STATE 1: FREE user OR user without active subscription - SHOW UPGRADE FLOW */}
-          {(subscription.plan === 'FREE' || !subscription.paypalSubscriptionId) && subscription.status !== 'cancelled' && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Set up your payment method to manage your subscription
-              </p>
-              
-              {/* Manage Payment Method button */}
-              <a
-                href="https://www.paypal.com/myaccount/autopay"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                <CreditCard className="h-4 w-4" />
-                Manage Payment Method
-                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
-              </a>
-              
-              {/* Complete Payment Setup button - THE CRITICAL ONE */}
-              <button
-                onClick={() => setShowUpgradeModal(true)}
-                className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
-              >
-                Complete Payment Setup
-              </button>
-            </div>
-          )}
-
-          {/* STATE 2: Active paid subscription - SHOW CANCEL OPTION */}
-          {subscription.plan !== 'FREE' && 
-           subscription.status === 'active' && 
-           subscription.paypalSubscriptionId && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Your subscription is managed through PayPal
-              </p>
-              
-              {/* Manage Payment Method */}
-              <a
-                href="https://www.paypal.com/myaccount/autopay"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                <CreditCard className="h-4 w-4" />
-                Manage Payment Method
-                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
-              </a>
-              
-              {/* Cancel Subscription Section */}
-              <div className="pt-6 border-t border-gray-200">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">
-                      Cancel Subscription
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Cancel anytime. You&apos;ll retain full access until the end of your billing period.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowCancelModal(true)}
-                    className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors font-medium"
-                  >
-                    Cancel Plan
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STATE 3: Cancelled subscription - SHOW WARNING */}
-          {subscription.status === 'cancelled' && subscription.subscriptionEndDate && (
-            <div className="space-y-4">
-              {/* Amber warning box is already shown above - just show payment method for reactivation */}
-              <p className="text-sm text-gray-600">
-                Your subscription has been cancelled. You can still manage your payment method for future reactivation.
-              </p>
-              
-              {/* Optional: Manage payment for reactivation */}
-              <a
-                href="https://www.paypal.com/myaccount/autopay"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                <CreditCard className="h-4 w-4" />
-                Manage Payment Method
-                <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
-              </a>
-              
-              {/* Optional: Show reactivate message */}
-              <p className="text-xs text-gray-500 text-center">
-                Want to keep your subscription? Contact support to reactivate.
-              </p>
-            </div>
-          )}
+          <p className="text-sm text-gray-600">
+            Set up your payment method to manage your subscription
+          </p>
+          
+          {/* BUTTON 1: Manage Payment Method - ALWAYS VISIBLE */}
+          <a
+            href="https://www.paypal.com/myaccount/autopay"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          >
+            <CreditCard className="h-4 w-4" />
+            Manage Payment Method
+            <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
+          </a>
+          
+          {/* BUTTON 2: Complete Payment Setup - ALWAYS VISIBLE */}
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
+          >
+            Complete Payment Setup
+          </button>
+          
+          {/* BUTTON 3: Cancel Subscription - ALWAYS VISIBLE (LEGAL REQUIREMENT) */}
+          <button
+            onClick={handleCancelClick}
+            className="w-full px-4 py-2.5 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors font-medium"
+          >
+            Cancel Subscription
+          </button>
         </div>
       </div>
 
