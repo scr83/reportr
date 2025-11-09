@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     // Get user with billing data
-    const user = await db.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
         id: true,
@@ -25,6 +25,8 @@ export async function GET() {
         paypalSubscriptionId: true,
         subscriptionStatus: true,
         paypalCustomerId: true,
+        cancelledAt: true,
+        subscriptionEndDate: true,
         payments: {
           orderBy: { createdAt: 'desc' },
           take: 10, // Last 10 payments
@@ -53,7 +55,9 @@ export async function GET() {
         billingCycleStart: user.billingCycleStart,
         billingCycleEnd: user.billingCycleEnd,
         paypalSubscriptionId: user.paypalSubscriptionId,
-        paypalCustomerId: user.paypalCustomerId
+        paypalCustomerId: user.paypalCustomerId,
+        cancelledAt: user.cancelledAt,
+        subscriptionEndDate: user.subscriptionEndDate
       },
       payments: user.payments
     })

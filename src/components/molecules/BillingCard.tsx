@@ -80,8 +80,16 @@ export function BillingCard({ data, loading }: BillingCardProps) {
         throw new Error(data.error || 'Failed to cancel subscription')
       }
 
-      // Show success message
-      alert('Subscription cancelled successfully. You will retain access until the end of your billing period.')
+      // Show success message with access details
+      const accessDate = data.accessUntil 
+        ? new Date(data.accessUntil).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        : 'the end of your billing period'
+
+      alert(`Subscription cancelled successfully. You will retain access until ${accessDate}.`)
       
       // Refresh page to update UI
       window.location.reload()
@@ -149,8 +157,29 @@ export function BillingCard({ data, loading }: BillingCardProps) {
           </div>
         )}
 
+        {/* Cancellation Status Message */}
+        {subscription.status === 'cancelled' && subscription.subscriptionEndDate && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-amber-900">
+                  Subscription Cancelled
+                </h3>
+                <p className="mt-1 text-sm text-amber-700">
+                  Your subscription is cancelled. You&apos;ll retain access to {subscription.plan} features until{' '}
+                  <strong>{formatDate(subscription.subscriptionEndDate)}</strong>. After that, your account 
+                  will automatically switch to the FREE plan.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Free Plan Message */}
-        {subscription.plan === 'FREE' && (
+        {subscription.plan === 'FREE' && subscription.status !== 'cancelled' && (
           <div className="bg-blue-50 p-4 rounded-lg">
             <Typography className="text-sm text-blue-800">
               You&apos;re currently on the free plan. Upgrade to unlock more features and generate unlimited reports.
@@ -217,10 +246,10 @@ export function BillingCard({ data, loading }: BillingCardProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 rounded-full">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+              <div className="p-2 bg-amber-100 rounded-full">
+                <AlertTriangle className="h-6 w-6 text-amber-600" />
               </div>
-              <h3 className="text-xl font-bold">Cancel Subscription?</h3>
+              <h3 className="text-xl font-bold text-amber-900">Cancel {getPlanDisplayName(subscription.plan)}?</h3>
             </div>
             
             <div className="mb-6 space-y-3">
@@ -228,17 +257,27 @@ export function BillingCard({ data, loading }: BillingCardProps) {
                 Are you sure you want to cancel your subscription?
               </p>
               
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800 font-medium mb-2">
-                  What happens when you cancel:
-                </p>
-                <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
-                  <li>Access continues until end of billing period</li>
-                  <li>No refunds for remaining time</li>
-                  <li>Your data will be preserved</li>
-                  <li>You can reactivate anytime</li>
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <p className="font-medium text-gray-900 text-sm">What happens next:</p>
+                <ul className="text-sm text-gray-600 space-y-1.5">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span>You&apos;ll keep full access until the end of your current billing period</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-600 mt-0.5">→</span>
+                    <span>After that, you&apos;ll be downgraded to the FREE plan</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">✗</span>
+                    <span>FREE plan limits: 1 client, 5 reports/month</span>
+                  </li>
                 </ul>
               </div>
+
+              <p className="text-xs text-gray-500">
+                You can reactivate your subscription anytime before the billing period ends.
+              </p>
             </div>
 
             <div className="flex gap-3">
