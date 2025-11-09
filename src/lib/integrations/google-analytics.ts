@@ -213,7 +213,8 @@ export async function getAnalyticsData(
   startDate: string,
   endDate: string,
   propertyId?: string,
-  requestedMetrics?: string[] // NEW: Array of metric IDs from frontend
+  requestedMetrics?: string[], // NEW: Array of metric IDs from frontend
+  customMetrics?: CustomMetric[] // NEW: Custom metrics configuration
 ): Promise<AnalyticsData> {
   try {
     // Get client with property ID
@@ -243,18 +244,12 @@ export async function getAnalyticsData(
     const auth = await createAuthenticatedGoogleClient(clientId);
     const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
 
-    // Map requested metric IDs to GA4 metric names
-    const validMetrics = ['totalUsers', 'sessions', 'bounceRate', 'conversions', 'newUsers', 'engagedSessions', 'engagementRate', 'sessionsPerUser', 'screenPageViewsPerSession', 'averageSessionDuration', 'eventCount', 'screenPageViews', 'ecommercePurchases', 'totalRevenue'];
-    
+    // Build GA4 metrics array (supports both predefined and custom)
     const metricsToFetch = requestedMetrics && requestedMetrics.length > 0
-      ? requestedMetrics
-          .map(id => METRIC_MAPPING[id])
-          .filter((name): name is string => Boolean(name))
-          .filter(name => validMetrics.includes(name)) // Filter to valid metrics only
-          .filter((name, index, arr) => arr.indexOf(name) === index) // Remove duplicates
+      ? buildMetricsForGA4Request(requestedMetrics, customMetrics || [])
       : ['totalUsers', 'sessions', 'bounceRate', 'conversions']; // Default metrics
 
-    console.log('Fetching GA4 metrics:', { requestedMetrics, metricsToFetch });
+    console.log('🔍 GA4 metrics for API request:', { requestedMetrics, metricsToFetch, customMetricsCount: customMetrics?.length || 0 });
 
     // Build metrics array for GA4 API
     const metrics = metricsToFetch.map(name => ({ name }));

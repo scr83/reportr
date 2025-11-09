@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAnalyticsData } from '@/lib/integrations/google-analytics';
+import { getAnalyticsData, buildMetricsForGA4Request } from '@/lib/integrations/google-analytics';
 import { GoogleTokenError } from '@/lib/utils/refresh-google-token';
 import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth-helpers';
+import { CustomMetric } from '@/types/custom-metrics';
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +45,8 @@ export async function GET(
         id: true,
         googleRefreshToken: true,
         ga4PropertyId: true,
-        ga4PropertyName: true
+        ga4PropertyName: true,
+        customMetrics: true
       }
     });
 
@@ -72,29 +74,61 @@ export async function GET(
       );
     }
 
+    // Get custom metrics configuration from client
+    const customMetrics = (client.customMetrics as unknown as CustomMetric[]) || [];
+
+    console.log(`📊 Generating report with ${customMetrics.length} custom metrics`);
+
     // Parse metrics if provided
     const requestedMetrics = metricsParam 
       ? metricsParam.split(',').map(m => m.trim()).filter(Boolean)
       : undefined;
 
+    // Use helper function to build GA4 metrics array (supports both predefined and custom)
+    const actualMetricsToFetch = requestedMetrics 
+      ? buildMetricsForGA4Request(requestedMetrics, customMetrics)
+      : undefined;
+
+    console.log('🔍 GA4 API metrics:', actualMetricsToFetch);
+
     console.log(`Fetching GA4 data for client ${clientId}`, {
       property: client.ga4PropertyId,
       dateRange: `${startDate} to ${endDate}`,
-      metrics: requestedMetrics || 'default (4 metrics)'
+      frontendMetrics: requestedMetrics || 'default (4 metrics)',
+      ga4ApiMetrics: actualMetricsToFetch || 'default',
+      customMetricsCount: customMetrics.length
     });
     
-    const data = await getAnalyticsData(
-      client.id,
-      startDate,
-      endDate,
-      propertyId || undefined,
-      requestedMetrics
-    );
-    
-    return NextResponse.json({
-      success: true,
-      data
-    });
+    try {
+      const data = await getAnalyticsData(
+        client.id,
+        startDate,
+        endDate,
+        propertyId || undefined,
+        requestedMetrics,
+        customMetrics
+      );
+      
+      return NextResponse.json({
+        success: true,
+        data,
+        customMetrics // Pass custom metrics config to frontend for PDF generation
+      });
+    } catch (ga4Error: any) {
+      console.error('GA4 API error (may include custom metrics):', ga4Error);
+      
+      // If GA4 fails, provide helpful error message
+      if (ga4Error.message?.includes('not a valid metric')) {
+        return NextResponse.json({
+          error: 'Some metrics are invalid. This may be caused by custom metrics that don\'t exist in your GA4 property.',
+          details: ga4Error.message,
+          customMetricsCount: customMetrics.length
+        }, { status: 400 });
+      }
+      
+      // Re-throw for general error handling
+      throw ga4Error;
+    }
   } catch (error: any) {
     console.error('Google Analytics API error:', error);
     
