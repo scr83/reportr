@@ -112,7 +112,6 @@ function PricingTiers() {
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
         'Custom branding (for white label users)',
-        'Custom report templates',
         'Priority email support (24hrs)',
         'API access'
       ],
@@ -137,7 +136,6 @@ function PricingTiers() {
         'Everything in Starter',
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
-        'Custom report templates',
         'Priority support',
         'Team collaboration',
         'Advanced analytics'
@@ -165,7 +163,6 @@ function PricingTiers() {
         { text: 'AI Insights', badge: 'Coming Soon' },
         { text: 'Custom Domain', badge: 'Coming Soon' },
         'Dedicated account manager',
-        'Custom integrations',
         'Priority support',
         '99.9% uptime SLA',
         'White-glove onboarding'
@@ -405,9 +402,8 @@ function FeatureComparison() {
     {
       category: 'Advanced Features',
       items: [
-        { name: 'Team Members', free: '1 user', starter: '1 user', pro: '3 users', enterprise: '10 users' },
-        { name: 'Data Retention', free: '6 months', starter: '12 months', pro: '24 months', enterprise: 'Unlimited' },
-        { name: 'Report Scheduling', free: false, starter: false, pro: 'Coming Soon', enterprise: 'Coming Soon' },
+        { name: 'Team Members', free: '1 user', starter: '1 user', pro: '1 user', enterprise: '1 user' },
+        { name: 'Data Retention', free: 'Unlimited', starter: 'Unlimited', pro: 'Unlimited', enterprise: 'Unlimited' },
       ]
     },
     {
