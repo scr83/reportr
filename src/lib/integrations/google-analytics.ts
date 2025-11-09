@@ -1,6 +1,7 @@
 import { getValidAccessToken, GoogleTokenError, createAuthenticatedGoogleClient } from '@/lib/utils/refresh-google-token';
 import { prisma } from '@/lib/prisma';
 import { google } from 'googleapis';
+import { CustomMetric } from '@/types/custom-metrics';
 
 // Map frontend metric IDs to GA4 API metric names
 const METRIC_MAPPING: Record<string, string> = {
@@ -39,6 +40,72 @@ const METRIC_MAPPING: Record<string, string> = {
   'topExitPages': 'sessions', // Grouped by exitPage dimension
   'screenPageViews': 'screenPageViews'
 };
+
+/**
+ * Get metric configuration for either predefined or custom metrics
+ * 
+ * @param metricId - The metric ID to look up (e.g., "users" or "custom_1")
+ * @param customMetrics - Array of custom metrics from client
+ * @returns Metric configuration object or null if not found
+ */
+export function getMetricConfig(
+  metricId: string,
+  customMetrics: CustomMetric[] = []
+): any {
+  // First, check if it's a predefined metric
+  if (METRIC_MAPPING[metricId]) {
+    return {
+      apiName: METRIC_MAPPING[metricId],
+      displayName: metricId, // Use the frontend ID as display name for predefined metrics
+      description: 'Predefined GA4 metric',
+      category: 'predefined',
+      format: 'number',
+      isCustom: false
+    };
+  }
+  
+  // Then check if it's a custom metric
+  const customMetric = customMetrics.find(m => m.id === metricId);
+  if (customMetric) {
+    return {
+      apiName: customMetric.apiName,
+      displayName: customMetric.displayName,
+      description: 'Custom GA4 metric',
+      category: 'custom',
+      format: customMetric.format,
+      isCustom: true
+    };
+  }
+  
+  // Not found
+  return null;
+}
+
+/**
+ * Build array of GA4 API metric names from selected metric IDs
+ * Handles both predefined and custom metrics
+ * 
+ * @param selectedMetrics - Array of metric IDs (e.g., ["users", "sessions", "custom_1"])
+ * @param customMetrics - Array of custom metrics from client
+ * @returns Array of GA4 API metric names (e.g., ["totalUsers", "sessions", "customEvent:test"])
+ */
+export function buildMetricsForGA4Request(
+  selectedMetrics: string[],
+  customMetrics: CustomMetric[] = []
+): string[] {
+  return selectedMetrics
+    .map(metricId => {
+      const config = getMetricConfig(metricId, customMetrics);
+      
+      if (!config) {
+        console.warn(`Unknown metric: ${metricId}, skipping`);
+        return null;
+      }
+      
+      return config.apiName;
+    })
+    .filter((apiName): apiName is string => apiName !== null);
+}
 
 export interface AnalyticsLandingPage {
   page: string;
