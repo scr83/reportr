@@ -368,7 +368,19 @@ function PricingTiers() {
 
 // Feature comparison table
 function FeatureComparison() {
-  const features = [
+  interface FeatureItem {
+    name: string;
+    free: boolean | string;
+    starter: boolean | string;
+    pro: boolean | string;
+    enterprise: boolean | string;
+    badge?: string;
+  }
+
+  const features: Array<{
+    category: string;
+    items: FeatureItem[];
+  }> = [
     {
       category: 'Core Features',
       items: [
