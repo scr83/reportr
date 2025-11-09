@@ -33,9 +33,9 @@ export async function POST(req: Request) {
     }
 
     // Check if user has active subscription
-    if (!user.paypalSubscriptionId) {
+    if (user.plan === 'FREE') {
       return NextResponse.json(
-        { error: 'No active subscription found' },
+        { error: 'No active subscription to cancel' },
         { status: 400 }
       );
     }
@@ -52,22 +52,33 @@ export async function POST(req: Request) {
       });
     }
 
-    // Cancel subscription in PayPal
-    console.log('Cancelling PayPal subscription:', user.paypalSubscriptionId);
-    
-    await paypalClient.cancelSubscription(
-      user.paypalSubscriptionId,
-      'User requested cancellation'
-    );
+    let subscriptionEndDate: Date;
 
-    // Get subscription details to determine billing cycle end date
-    const subscriptionDetails = await paypalClient.getSubscriptionDetails(
-      user.paypalSubscriptionId
-    );
+    // Handle PayPal subscription cancellation if subscription exists
+    if (user.paypalSubscriptionId) {
+      // Cancel subscription in PayPal
+      console.log('Cancelling PayPal subscription:', user.paypalSubscriptionId);
+      
+      await paypalClient.cancelSubscription(
+        user.paypalSubscriptionId,
+        'User requested cancellation'
+      );
 
-    const subscriptionEndDate = subscriptionDetails.billing_info.next_billing_time
-      ? new Date(subscriptionDetails.billing_info.next_billing_time)
-      : user.billingCycleEnd || new Date();
+      // Get subscription details to determine billing cycle end date
+      const subscriptionDetails = await paypalClient.getSubscriptionDetails(
+        user.paypalSubscriptionId
+      );
+
+      subscriptionEndDate = subscriptionDetails.billing_info.next_billing_time
+        ? new Date(subscriptionDetails.billing_info.next_billing_time)
+        : user.billingCycleEnd || new Date();
+    } else {
+      // No PayPal subscription - handle manual/trial cancellation
+      console.log('Cancelling non-PayPal subscription for user:', user.id);
+      
+      // Use billing cycle end or set to end of current day
+      subscriptionEndDate = user.billingCycleEnd || new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+    }
 
     // Update database with cancellation tracking
     await prisma.user.update({

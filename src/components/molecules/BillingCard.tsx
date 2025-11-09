@@ -191,10 +191,12 @@ export function BillingCard({ data, loading }: BillingCardProps) {
         <div className="space-y-3 mt-6 pt-6 border-t">
           {/* Status Message */}
           <p className="text-sm text-gray-600 mb-3">
-            {subscription.paypalSubscriptionId ? (
-              <>Your subscription is managed through PayPal</>
-            ) : subscription.plan !== 'FREE' ? (
-              <>Set up your payment method to manage your subscription</>
+            {subscription.plan !== 'FREE' ? (
+              subscription.paypalSubscriptionId ? (
+                <>Your subscription is managed through PayPal</>
+              ) : (
+                <>Your subscription can be cancelled below</>
+              )
             ) : (
               <>Upgrade to access payment management features</>
             )}
@@ -212,8 +214,8 @@ export function BillingCard({ data, loading }: BillingCardProps) {
             <ExternalLink className="h-3.5 w-3.5 text-gray-400" />
           </a>
 
-          {/* Cancel Subscription Button - Only if has PayPal subscription */}
-          {subscription.paypalSubscriptionId ? (
+          {/* Cancel Subscription Button - Show for all paid plans */}
+          {subscription.plan !== 'FREE' ? (
             <button
               onClick={() => setShowCancelModal(true)}
               disabled={subscription.status === 'cancelled'}
@@ -222,13 +224,6 @@ export function BillingCard({ data, loading }: BillingCardProps) {
               {subscription.status === 'cancelled' 
                 ? 'Subscription Cancelled' 
                 : 'Cancel Subscription'}
-            </button>
-          ) : subscription.plan !== 'FREE' ? (
-            <button
-              onClick={() => setShowUpgradeModal(true)}
-              className="w-full px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-            >
-              Complete Payment Setup
             </button>
           ) : (
             <button
