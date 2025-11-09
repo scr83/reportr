@@ -21,7 +21,10 @@ export async function POST(req: Request) {
         id: true,
         plan: true,
         paypalSubscriptionId: true,
-        subscriptionStatus: true
+        subscriptionStatus: true,
+        cancelledAt: true,
+        subscriptionEndDate: true,
+        billingCycleEnd: true,
       }
     });
 
@@ -32,23 +35,48 @@ export async function POST(req: Request) {
     // Check if user has active subscription
     if (!user.paypalSubscriptionId) {
       return NextResponse.json(
-        { error: 'No active subscription to cancel' },
+        { error: 'No active subscription found' },
         { status: 400 }
       );
+    }
+
+    // Check if subscription is already cancelled
+    if (user.subscriptionStatus === 'cancelled' && user.cancelledAt) {
+      return NextResponse.json({
+        success: true,
+        message: 'Subscription is already cancelled',
+        accessUntil: user.subscriptionEndDate?.toISOString(),
+        currentPlan: user.plan,
+        downgradePlan: 'FREE',
+        alreadyCancelled: true,
+      });
     }
 
     // Cancel subscription in PayPal
     console.log('Cancelling PayPal subscription:', user.paypalSubscriptionId);
     
-    await paypalClient.cancelSubscription(user.paypalSubscriptionId);
+    await paypalClient.cancelSubscription(
+      user.paypalSubscriptionId,
+      'User requested cancellation'
+    );
 
-    // Update database - set status to cancelled but keep access until period ends
+    // Get subscription details to determine billing cycle end date
+    const subscriptionDetails = await paypalClient.getSubscriptionDetails(
+      user.paypalSubscriptionId
+    );
+
+    const subscriptionEndDate = subscriptionDetails.billing_info.next_billing_time
+      ? new Date(subscriptionDetails.billing_info.next_billing_time)
+      : user.billingCycleEnd || new Date();
+
+    // Update database with cancellation tracking
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        subscriptionStatus: 'cancelled'
-        // Note: Don't change plan yet - user keeps access until period ends
-        // PayPal webhook will handle final downgrade when period expires
+        subscriptionStatus: 'cancelled',
+        cancelledAt: new Date(),
+        subscriptionEndDate: subscriptionEndDate,
+        // Keep current plan - they retain access until end date
       }
     });
 
@@ -56,13 +84,65 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription cancelled successfully'
+      message: 'Subscription cancelled successfully',
+      accessUntil: subscriptionEndDate.toISOString(),
+      currentPlan: user.plan,
+      downgradePlan: 'FREE',
     });
 
   } catch (error: any) {
     console.error('Cancel subscription error:', error);
+
+    // Handle specific PayPal errors
+    if (error.message?.includes('SUBSCRIPTION_NOT_FOUND')) {
+      // Subscription doesn't exist in PayPal but exists in our DB
+      // Update our database to reflect the reality
+      try {
+        const session = await getServerSession(authOptions);
+        if (session?.user?.id) {
+          await prisma.user.update({
+            where: { id: session.user.id },
+            data: {
+              subscriptionStatus: 'inactive',
+              paypalSubscriptionId: null,
+            },
+          });
+        }
+      } catch (dbError) {
+        console.error('Error updating database after PayPal error:', dbError);
+      }
+
+      return NextResponse.json(
+        { error: 'Subscription not found in PayPal. Your account has been updated.' },
+        { status: 400 }
+      );
+    }
+
+    if (error.message?.includes('SUBSCRIPTION_STATUS_NOT_SUPPORTED')) {
+      return NextResponse.json(
+        { error: 'Subscription cannot be cancelled in its current state' },
+        { status: 400 }
+      );
+    }
+
+    if (error.message?.includes('access token')) {
+      return NextResponse.json(
+        { error: 'Payment service temporarily unavailable. Please try again.' },
+        { status: 503 }
+      );
+    }
+
+    // Network or other errors
+    if (error.message?.includes('fetch')) {
+      return NextResponse.json(
+        { error: 'Unable to process cancellation. Please try again.' },
+        { status: 503 }
+      );
+    }
+
+    // Generic error
     return NextResponse.json(
-      { error: error.message || 'Failed to cancel subscription' },
+      { error: error.message || 'Failed to cancel subscription. Please try again or contact support.' },
       { status: 500 }
     );
   }

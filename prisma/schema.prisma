@@ -28,6 +28,8 @@ model User {
   paypalCustomerId     String?   @unique
   paypalSubscriptionId String?   @unique
   subscriptionStatus   String    @default("free")
+  cancelledAt          DateTime? // When subscription was cancelled
+  subscriptionEndDate  DateTime? // When access actually ends (end of billing period)
   website              String?
   supportEmail         String?
   

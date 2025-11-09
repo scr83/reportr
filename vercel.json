@@ -3,5 +3,11 @@
     "app/api/generate-pdf/route.ts": {
       "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/process-cancellations",
+      "schedule": "0 2 * * *"
+    }
+  ]
 }

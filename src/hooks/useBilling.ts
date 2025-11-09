@@ -19,6 +19,8 @@ export interface BillingData {
     billingCycleEnd: string | null
     paypalSubscriptionId: string | null
     paypalCustomerId: string | null
+    cancelledAt: string | null
+    subscriptionEndDate: string | null
   }
   payments: PaymentHistory[]
 }
