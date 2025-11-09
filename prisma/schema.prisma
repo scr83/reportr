@@ -96,6 +96,7 @@ model Client {
   ga4PropertyId                String?
   ga4PropertyName              String?
   gscSiteName                  String?
+  customMetrics                Json?     // Stores array of custom metric objects
   lastDataFetch                DateTime?
   user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   reports                      Report[]
