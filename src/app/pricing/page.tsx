@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'
 import { Check, X } from 'lucide-react'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
+import { Badge } from '@/components/atoms/Badge'
 
 // Helper component for brand mentions
 const BrandLink = ({ children }: { children: React.ReactNode }) => (
@@ -377,16 +378,24 @@ function FeatureComparison() {
         { name: 'Google Analytics 4', free: true, starter: true, pro: true, enterprise: true },
         { name: 'PageSpeed Insights', free: true, starter: true, pro: true, enterprise: true },
         { name: 'AI Insights', free: false, starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
+        { name: 'API Access', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
       ]
     },
     {
       category: 'Branding & Customization',
       items: [
-        { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true },
-        { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true },
         { name: 'White-Label Branding', free: false, starter: '+$20/mo', pro: '+$20/mo', enterprise: '+$20/mo' },
-        { name: 'Custom Report Templates', free: false, starter: true, pro: true, enterprise: true },
+        { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
+        { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
         { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
+      ]
+    },
+    {
+      category: 'Advanced Features',
+      items: [
+        { name: 'Team Members', free: '1 user', starter: '1 user', pro: '3 users', enterprise: '10 users' },
+        { name: 'Data Retention', free: '6 months', starter: '12 months', pro: '24 months', enterprise: 'Unlimited' },
+        { name: 'Report Scheduling', free: false, starter: false, pro: 'Coming Soon', enterprise: 'Coming Soon' },
       ]
     },
     {
@@ -452,7 +461,14 @@ function FeatureComparison() {
                   {category.items.map((item, itemIndex) => (
                     <tr key={itemIndex} className="border-t border-gray-200 hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm text-gray-700">
-                        {item.name}
+                        <div className="flex items-center gap-2">
+                          <span>{item.name}</span>
+                          {item.badge && (
+                            <Badge variant="neutral" size="sm" className="bg-gray-100 text-gray-600 border-gray-200">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         {renderCell(item.free)}
