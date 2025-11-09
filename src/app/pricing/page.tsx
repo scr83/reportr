@@ -137,7 +137,6 @@ function PricingTiers() {
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
         'Priority support',
-        'Team collaboration',
         'Advanced analytics'
       ],
       cta: 'Start 14-Day Trial',
@@ -403,7 +402,6 @@ function FeatureComparison() {
       category: 'Advanced Features',
       items: [
         { name: 'Team Members', free: '1 user', starter: '1 user', pro: '1 user', enterprise: '1 user' },
-        { name: 'Data Retention', free: 'Unlimited', starter: 'Unlimited', pro: 'Unlimited', enterprise: 'Unlimited' },
       ]
     },
     {
