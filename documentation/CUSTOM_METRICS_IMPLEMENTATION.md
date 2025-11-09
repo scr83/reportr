@@ -2372,6 +2372,1514 @@ These are deliberate omissions to keep Phase 1 simple and deployable quickly!
 
 ---
 
+PROMPTS FOR IMPLEMEMTATION
+
+# TASK: Add Custom Metrics Database Field (Step 1 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current reports (Executive, Standard, Custom) must continue working exactly as they do now
+2. **DO NOT MODIFY WORKING CODE** - If code is working, leave it alone unless explicitly instructed
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality, not changing existing features
+4. **TEST EXISTING FEATURES** - After every change, verify existing report generation still works
+5. **ROLLBACK READY** - If anything breaks, immediately revert your changes
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom reports)
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector modal with 30+ predefined metrics
+- ✅ PayPal subscription billing
+- ✅ Plan limits and tier restrictions
+
+### If You Break Something:
+1. Stop immediately
+2. Revert your changes: `git checkout -- .`
+3. Report the error to me
+4. Do NOT attempt to fix existing code without permission
+
+---
+
+## Objective
+Add a new `customMetrics` JSON field to the Client model in the Prisma schema to store user-defined GA4 custom metrics. This is a foundation-only change with ZERO impact on existing functionality.
+
+## What You Need to Do
+
+### 1. Locate and Modify Prisma Schema
+**File**: `/prisma/schema.prisma`
+
+Find the `Client` model and add ONE new field:
+```prisma
+model Client {
+  id              String    @id @default(cuid())
+  name            String
+  domain          String
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Google API tokens
+  gscSiteUrl      String?
+  gaPropertyId    String?
+  accessToken     String?
+  refreshToken    String?
+  
+  // NEW: Add this line after refreshToken
+  customMetrics   Json?     // Stores array of custom metric objects
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reports         Report[]
+}
+```
+
+**Important**: 
+- Add the field AFTER `refreshToken` and BEFORE `createdAt`
+- Use exact field name: `customMetrics` (camelCase)
+- Type must be: `Json?` (capital J, with question mark for optional)
+- Add the comment exactly as shown
+- **DO NOT MODIFY ANY OTHER FIELDS IN THIS MODEL**
+- **DO NOT MODIFY ANY OTHER MODELS**
+
+### 2. Create Database Migration
+Run these commands in order:
+```bash
+# Create migration
+npx prisma migrate dev --name add_custom_metrics_field
+
+# Regenerate Prisma Client
+npx prisma generate
+```
+
+### 3. Verify Changes
+After running the commands above, verify:
+
+1. **Check migration file created**: Look in `/prisma/migrations/` for a new folder with today's timestamp
+2. **Check Prisma Client updated**: Run `npx prisma studio` and verify the Client table shows the new `customMetrics` column
+3. **Verify existing data intact**: In Prisma Studio, check that all existing Client records are unchanged (customMetrics will be null - that's correct!)
+
+### 4. CRITICAL: Test Existing Functionality
+Before committing, verify these still work:
+```bash
+# Start dev server
+npm run dev
+
+# In browser, test:
+1. Log in to the application
+2. Navigate to a client
+3. Try generating ANY type of report (Executive, Standard, or Custom)
+4. Verify report generates successfully
+5. Verify PDF downloads correctly
+```
+
+**If ANY of the above fails, STOP and revert your changes immediately.**
+
+## Expected Output
+
+You should see output like:
+✔ Generated Prisma Client
+✓ Migration created successfully
+✓ Applied migration: 20250109_add_custom_metrics_field
+
+## Verification Steps
+
+1. Open Prisma Studio:
+```bash
+   npx prisma studio
+```
+
+2. Navigate to the `Client` table
+
+3. Verify you see a `customMetrics` column (it will be empty/null for all existing records - that's correct!)
+
+4. **IMPORTANT**: Check 2-3 existing client records and verify ALL their other fields are unchanged
+
+## Success Criteria
+- ✅ Prisma schema file updated with new field
+- ✅ Migration created in `/prisma/migrations/`
+- ✅ Prisma Client regenerated (no TypeScript errors)
+- ✅ Column visible in Prisma Studio
+- ✅ Existing client records unchanged (customMetrics is null)
+- ✅ **Existing report generation still works**
+- ✅ **No TypeScript compilation errors**
+- ✅ **Application starts without errors**
+
+## What NOT to Do
+- ❌ Do NOT modify any other models
+- ❌ Do NOT change any existing fields
+- ❌ Do NOT add seed data
+- ❌ Do NOT modify any application code (yet)
+- ❌ Do NOT change any API routes
+- ❌ Do NOT touch PDF generation code
+- ❌ Do NOT modify metric selector UI
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only `schema.prisma` and migration files modified
+- [ ] No changes to any `.ts`, `.tsx`, or `.js` files
+- [ ] Application compiles without errors: `npm run build`
+- [ ] Existing report generation tested and working
+- [ ] No new TypeScript errors in VS Code
+- [ ] Prisma Client regenerated successfully
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add prisma/schema.prisma prisma/migrations/
+git commit -m "feat(db): add customMetrics field to Client model for GA4 custom metrics storage
+
+- Added optional Json field to store custom metric configurations
+- No changes to existing functionality
+- All existing reports continue working normally"
+```
+
+## If Something Goes Wrong
+
+**Migration Conflict:**
+```bash
+# If migration fails due to conflicts
+npx prisma migrate reset  # WARNING: This resets dev database
+npx prisma migrate dev
+```
+
+**Need to Rollback:**
+```bash
+# Revert schema changes
+git checkout HEAD -- prisma/schema.prisma
+
+# Delete the migration folder you just created
+rm -rf prisma/migrations/[TIMESTAMP]_add_custom_metrics_field
+
+# Regenerate client
+npx prisma generate
+```
+
+## Questions to Ask Me
+If you encounter:
+- Migration conflicts
+- Existing `customMetrics` field already present
+- Database connection errors
+- TypeScript errors after running prisma generate
+- ANY errors when testing existing report generation
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 2 will add TypeScript type definitions for custom metrics. This step makes NO changes to application logic.
+
+# TASK: Add Custom Metric Type Definitions (Step 2 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom)
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with predefined metrics
+- ✅ PayPal billing
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Create TypeScript type definitions for custom metrics. This is a types-only addition with ZERO runtime impact on existing functionality.
+
+## What You Need to Do
+
+### 1. Create New Types File
+**New File**: `/src/types/custom-metrics.ts`
+
+Create this file with the following content:
+```typescript
+/**
+ * Custom Metric Type Definitions
+ * 
+ * These types define the structure for user-defined GA4 custom metrics
+ * that can be added to Custom Reports alongside predefined metrics.
+ */
+
+/**
+ * CustomMetric - The complete custom metric object stored in the database
+ * and used throughout the application
+ */
+export interface CustomMetric {
+  id: string;              // Unique identifier: "custom_1", "custom_2", etc.
+  apiName: string;         // GA4 API metric name: e.g., "customEvent:newsletter_signup"
+  displayName: string;     // User-friendly name: e.g., "Newsletter Signups"
+  category: 'custom';      // Always 'custom' to distinguish from predefined metrics
+  format: 'number';        // Default format (Phase 1 only supports 'number')
+  isCustom: true;          // Flag to easily identify custom metrics
+}
+
+/**
+ * CustomMetricInput - Simplified input type for creating new custom metrics
+ * Used in forms and API requests
+ */
+export interface CustomMetricInput {
+  apiName: string;         // The GA4 metric API name
+  displayName: string;     // The display name for reports
+}
+
+/**
+ * Type guard to check if a metric is a custom metric
+ */
+export function isCustomMetric(metric: any): metric is CustomMetric {
+  return (
+    typeof metric === 'object' &&
+    metric !== null &&
+    'isCustom' in metric &&
+    metric.isCustom === true
+  );
+}
+```
+
+### 2. Update Types Index (If It Exists)
+**Check if this file exists**: `/src/types/index.ts`
+
+**If it EXISTS**, add this export to the END of the file:
+```typescript
+export * from './custom-metrics';
+```
+
+**If it DOES NOT exist**, skip this step.
+
+### 3. Verify TypeScript Compilation
+Run these commands to ensure no errors:
+```bash
+# Check TypeScript compilation
+npm run build
+
+# Or if that doesn't work, try:
+npx tsc --noEmit
+```
+
+**Expected Result**: Should compile with NO errors (warnings are OK).
+
+## Expected Output
+
+After running `npm run build` or `npx tsc --noEmit`, you should see:
+✓ Compiled successfully
+
+Or no output (which means success for tsc --noEmit).
+
+## Verification Steps
+
+1. **File created**: Verify `/src/types/custom-metrics.ts` exists
+2. **No TypeScript errors**: Run `npm run build` successfully
+3. **Existing code unaffected**: No changes to any other files
+4. **Can import types**: Test import in your terminal/REPL:
+```typescript
+   import { CustomMetric } from '@/types/custom-metrics'
+   // Should not error
+```
+
+## Success Criteria
+- ✅ New file `/src/types/custom-metrics.ts` created
+- ✅ All type definitions included (CustomMetric, CustomMetricInput, isCustomMetric)
+- ✅ TypeScript compiles without errors
+- ✅ No modifications to any existing files (except possibly types/index.ts)
+- ✅ Application still runs: `npm run dev` works
+
+## What NOT to Do
+- ❌ Do NOT modify any existing type files
+- ❌ Do NOT add these types to component files yet
+- ❌ Do NOT create any runtime code (only types)
+- ❌ Do NOT modify any API routes
+- ❌ Do NOT touch any UI components
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only new file created (and possibly types/index.ts modified)
+- [ ] No changes to any component files
+- [ ] No changes to any API route files
+- [ ] TypeScript compiles: `npm run build` succeeds
+- [ ] Application starts: `npm run dev` works
+- [ ] No new errors in console
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/types/custom-metrics.ts
+# If you modified types/index.ts, also add it:
+# git add src/types/index.ts
+
+git commit -m "feat(types): add CustomMetric type definitions
+
+- Added CustomMetric interface for user-defined GA4 metrics
+- Added CustomMetricInput for form/API inputs
+- Added type guard helper function
+- Types only, no runtime changes"
+```
+
+## If Something Goes Wrong
+
+**TypeScript Errors:**
+```bash
+# Check what's causing the error
+npm run build
+
+# If it's in the new file, fix the syntax
+# If it's in existing files, you broke something - REVERT:
+git checkout -- .
+```
+
+**File Already Exists:**
+If `/src/types/custom-metrics.ts` already exists, tell me - do NOT overwrite it.
+
+## Questions to Ask Me
+If you encounter:
+- Existing custom-metrics.ts file
+- TypeScript compilation errors
+- Import path issues (@/types vs relative paths)
+- Conflicts with existing type definitions
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 3 will create a read-only API endpoint that returns an empty array of custom metrics (testing the infrastructure without affecting existing reports).
+
+## Final Verification Command
+Before committing, run this to ensure nothing broke:
+```bash
+# Should complete without errors
+npm run build && echo "✅ Step 2 Complete - TypeScript types added successfully"
+```
+
+
+
+# TASK: Create Read-Only Custom Metrics API Endpoint (Step 3 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom)
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with predefined metrics
+- ✅ PayPal billing
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Create a read-only API endpoint that returns custom metrics for a client. Initially, this will return an empty array since no custom metrics exist yet. This tests the API infrastructure without affecting existing functionality.
+
+## What You Need to Do
+
+### 1. Create API Route Directory Structure
+**New Directory**: `/src/app/api/clients/[id]/custom-metrics/`
+
+Create this directory path if it doesn't exist.
+
+### 2. Create API Route File
+**New File**: `/src/app/api/clients/[id]/custom-metrics/route.ts`
+
+Create this file with the following content:
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+
+/**
+ * GET /api/clients/[id]/custom-metrics
+ * 
+ * Fetches custom metrics for a specific client.
+ * Returns empty array initially since no custom metrics exist yet.
+ * 
+ * Security:
+ * - Requires authentication
+ * - Verifies user owns the client
+ * 
+ * @returns {success: boolean, metrics: CustomMetric[]}
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      );
+    }
+    
+    // Fetch client and verify ownership
+    const client = await prisma.client.findUnique({
+      where: { 
+        id: params.id,
+        userId: session.user.id  // Ensures user owns this client
+      }
+    });
+    
+    if (!client) {
+      return NextResponse.json(
+        { error: 'Client not found' }, 
+        { status: 404 }
+      );
+    }
+    
+    // Get custom metrics from client
+    // Will be empty array initially since customMetrics is null
+    const customMetrics = client.customMetrics || [];
+    
+    return NextResponse.json({
+      success: true,
+      metrics: customMetrics
+    });
+    
+  } catch (error) {
+    console.error('Error fetching custom metrics:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### 3. Verify File Structure
+Your directory structure should now look like:
+/src/app/api/clients/[id]/
+├── custom-metrics/
+│   └── route.ts          ← NEW FILE
+└── (other existing client routes)
+
+### 4. Test the API Endpoint Locally
+
+**Start the dev server:**
+```bash
+npm run dev
+```
+
+**Test the endpoint:**
+
+Option A - Using curl (if you have a session cookie):
+```bash
+# Replace CLIENT_ID with an actual client ID from your database
+curl http://localhost:3000/api/clients/[CLIENT_ID]/custom-metrics \
+  -H "Cookie: [your-session-cookie]"
+```
+
+Option B - Using browser:
+1. Log in to your app
+2. Open browser DevTools (F12)
+3. Go to Console tab
+4. Run this:
+```javascript
+fetch('/api/clients/[CLIENT_ID]/custom-metrics')
+  .then(r => r.json())
+  .then(console.log)
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "metrics": []
+}
+```
+
+### 5. Test Error Cases
+
+**Test unauthorized access (should fail):**
+```bash
+# Without authentication cookie
+curl http://localhost:3000/api/clients/fake-id/custom-metrics
+
+# Expected: {"error": "Unauthorized"}
+```
+
+**Test non-existent client (should fail):**
+```bash
+# With valid session but fake client ID
+curl http://localhost:3000/api/clients/nonexistent-id/custom-metrics \
+  -H "Cookie: [your-session-cookie]"
+
+# Expected: {"error": "Client not found"}
+```
+
+## Success Criteria
+- ✅ New directory structure created
+- ✅ New route.ts file created with GET handler
+- ✅ TypeScript compiles without errors
+- ✅ API returns 200 with empty array for valid client
+- ✅ API returns 401 without authentication
+- ✅ API returns 404 for non-existent client
+- ✅ **Existing API routes still work** (test by generating a report)
+- ✅ No changes to any existing files
+
+## What NOT to Do
+- ❌ Do NOT modify any existing API routes
+- ❌ Do NOT add POST/PUT/DELETE handlers yet (Step 4)
+- ❌ Do NOT modify any UI components
+- ❌ Do NOT change authentication logic
+- ❌ Do NOT touch report generation code
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only new files created in `/src/app/api/clients/[id]/custom-metrics/`
+- [ ] No modifications to existing API routes
+- [ ] TypeScript compiles: `npm run build` succeeds
+- [ ] Dev server starts: `npm run dev` works
+- [ ] Test existing functionality: Generate a report (any type) - still works
+- [ ] API endpoint returns expected response (empty array)
+- [ ] No console errors when starting server
+
+## Verification Commands
+
+Run these before committing:
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server and verify no errors
+npm run dev
+
+# 3. In another terminal, test the endpoint
+# (Replace CLIENT_ID with real ID from Prisma Studio)
+curl http://localhost:3000/api/clients/[CLIENT_ID]/custom-metrics
+
+# 4. Test existing functionality
+# Open browser, log in, generate any report - should work normally
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/app/api/clients/[id]/custom-metrics/route.ts
+git commit -m "feat(api): add GET endpoint for custom metrics
+
+- Created /api/clients/[id]/custom-metrics endpoint
+- Returns empty array initially (no custom metrics yet)
+- Includes authentication and ownership verification
+- Read-only endpoint, no writes yet
+- No impact on existing functionality"
+```
+
+## If Something Goes Wrong
+
+**TypeScript Errors:**
+```bash
+# Check the error
+npm run build
+
+# Common issues:
+# - Check import paths are correct (@/lib/auth, @/lib/db)
+# - Verify authOptions and prisma are exported from their files
+# - If imports fail, you may need to check your tsconfig paths
+```
+
+**Server Won't Start:**
+```bash
+# Check for syntax errors
+npm run build
+
+# Revert if needed
+git checkout -- .
+```
+
+**API Returns 500 Error:**
+- Check server console for error details
+- Verify database connection works
+- Verify authOptions is properly configured
+
+## Questions to Ask Me
+If you encounter:
+- Import path errors (@/lib/auth or @/lib/db not found)
+- Authentication issues (authOptions not working)
+- Database connection errors
+- Existing custom-metrics route already exists
+- ANY errors when testing existing report generation
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 4 will add the POST endpoint to save custom metrics (write functionality). Still no UI changes yet.
+
+## Final Verification
+Before committing, ensure:
+1. ✅ New endpoint accessible and returns `{"success": true, "metrics": []}`
+2. ✅ Existing reports still generate successfully
+3. ✅ No TypeScript errors
+4. ✅ Dev server starts without errors
+5. ✅ Only new files added, no existing files modified
+
+
+# TASK: Add Write Endpoint for Custom Metrics (Step 4 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom)
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with predefined metrics
+- ✅ PayPal billing
+- ✅ GET /api/clients/[id]/custom-metrics endpoint (Step 3)
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Add a POST handler to the existing custom metrics API endpoint to allow saving custom metrics. This enables writing data to the database while maintaining all existing functionality.
+
+## What You Need to Do
+
+### 1. Modify Existing API Route File
+**File to Modify**: `/src/app/api/clients/[id]/custom-metrics/route.ts`
+
+Add the POST handler AFTER the existing GET handler (don't modify GET):
+```typescript
+import { CustomMetric } from '@/types/custom-metrics';
+
+// Existing GET handler stays unchanged above...
+
+/**
+ * POST /api/clients/[id]/custom-metrics
+ * 
+ * Saves custom metrics for a specific client.
+ * Replaces entire customMetrics array (not appending).
+ * 
+ * Security:
+ * - Requires authentication
+ * - Verifies user owns the client
+ * - Limits to 10 custom metrics per client
+ * 
+ * @body {customMetrics: CustomMetric[]}
+ * @returns {success: boolean, customMetrics: CustomMetric[]}
+ */
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      );
+    }
+    
+    // Parse request body
+    const body = await req.json();
+    const { customMetrics } = body;
+    
+    // Validate input - must be array
+    if (!Array.isArray(customMetrics)) {
+      return NextResponse.json(
+        { error: 'customMetrics must be an array' },
+        { status: 400 }
+      );
+    }
+    
+    // Limit to 10 custom metrics per client
+    if (customMetrics.length > 10) {
+      return NextResponse.json(
+        { error: 'Maximum 10 custom metrics allowed per client' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate each metric has required fields
+    for (const metric of customMetrics) {
+      if (!metric.id || !metric.apiName || !metric.displayName) {
+        return NextResponse.json(
+          { error: 'Each metric must have id, apiName, and displayName' },
+          { status: 400 }
+        );
+      }
+    }
+    
+    // Update client with custom metrics
+    const client = await prisma.client.update({
+      where: {
+        id: params.id,
+        userId: session.user.id  // Ensures user owns this client
+      },
+      data: {
+        customMetrics: customMetrics
+      }
+    });
+    
+    return NextResponse.json({
+      success: true,
+      customMetrics: client.customMetrics
+    });
+    
+  } catch (error) {
+    console.error('Error saving custom metrics:', error);
+    
+    // Check if it's a Prisma "not found" error
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Client not found or access denied' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### 2. Verify File Structure
+After modification, your file should have:
+```typescript
+// Imports at top
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { CustomMetric } from '@/types/custom-metrics';
+
+// GET handler (existing from Step 3)
+export async function GET(...) { ... }
+
+// POST handler (new from Step 4)
+export async function POST(...) { ... }
+```
+
+### 3. Test the POST Endpoint
+
+**Start dev server:**
+```bash
+npm run dev
+```
+
+**Test saving custom metrics:**
+
+In browser console (after logging in):
+```javascript
+// Test POST - Save one custom metric
+fetch('/api/clients/[YOUR_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    customMetrics: [
+      {
+        id: 'custom_1',
+        apiName: 'activeUsers',
+        displayName: 'Test Metric',
+        category: 'custom',
+        format: 'number',
+        isCustom: true
+      }
+    ]
+  })
+})
+.then(r => r.json())
+.then(data => console.log('✅ POST Response:', data))
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "customMetrics": [
+    {
+      "id": "custom_1",
+      "apiName": "activeUsers",
+      "displayName": "Test Metric",
+      "category": "custom",
+      "format": "number",
+      "isCustom": true
+    }
+  ]
+}
+```
+
+**Then verify GET still works:**
+```javascript
+// Test GET - Should return the saved metric
+fetch('/api/clients/[YOUR_CLIENT_ID]/custom-metrics')
+.then(r => r.json())
+.then(data => console.log('✅ GET Response:', data))
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "metrics": [
+    {
+      "id": "custom_1",
+      "apiName": "activeUsers",
+      "displayName": "Test Metric",
+      "category": "custom",
+      "format": "number",
+      "isCustom": true
+    }
+  ]
+}
+```
+
+### 4. Test Validation
+
+**Test max limit (should fail):**
+```javascript
+// Try to save 11 metrics (limit is 10)
+const tooManyMetrics = Array.from({length: 11}, (_, i) => ({
+  id: `custom_${i}`,
+  apiName: 'activeUsers',
+  displayName: `Test ${i}`,
+  category: 'custom',
+  format: 'number',
+  isCustom: true
+}));
+
+fetch('/api/clients/[YOUR_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ customMetrics: tooManyMetrics })
+})
+.then(r => r.json())
+.then(data => console.log('Expected error:', data))
+
+// Expected: {"error": "Maximum 10 custom metrics allowed per client"}
+```
+
+**Test invalid input (should fail):**
+```javascript
+// Try to save invalid format
+fetch('/api/clients/[YOUR_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ customMetrics: 'not-an-array' })
+})
+.then(r => r.json())
+.then(data => console.log('Expected error:', data))
+
+// Expected: {"error": "customMetrics must be an array"}
+```
+
+## Success Criteria
+- ✅ POST handler added to existing route file
+- ✅ GET handler unchanged and still works
+- ✅ Can save custom metrics successfully
+- ✅ Saved metrics persist (GET returns them)
+- ✅ Validation works (max 10 metrics, must be array)
+- ✅ Proper error responses (400 for validation, 401 for auth, 404 for not found)
+- ✅ TypeScript compiles without errors
+- ✅ **Existing report generation still works**
+- ✅ No changes to any other files
+
+## What NOT to Do
+- ❌ Do NOT modify the existing GET handler
+- ❌ Do NOT create a new file (modify existing route.ts)
+- ❌ Do NOT add DELETE handler yet (Step 10)
+- ❌ Do NOT modify any UI components
+- ❌ Do NOT touch report generation code
+- ❌ Do NOT change authentication logic
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only modified `/src/app/api/clients/[id]/custom-metrics/route.ts`
+- [ ] GET handler still works (test it)
+- [ ] POST handler works (test it)
+- [ ] Validation works (test max limit)
+- [ ] TypeScript compiles: `npm run build`
+- [ ] Dev server starts without errors
+- [ ] Test existing functionality: Generate a report - still works
+- [ ] No console errors
+
+## Verification Commands
+
+Run these before committing:
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server
+npm run dev
+
+# 3. Test in browser console (after logging in):
+# - Test POST (save metric)
+# - Test GET (retrieve metric)
+# - Test validation (try to save 11 metrics)
+# - Test existing report generation still works
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/app/api/clients/[id]/custom-metrics/route.ts
+git commit -m "feat(api): add POST endpoint to save custom metrics
+
+- Added POST handler to existing custom-metrics route
+- Validates input (max 10 metrics, required fields)
+- Saves customMetrics array to client record
+- GET handler unchanged and working
+- Proper error handling and validation
+- No impact on existing functionality"
+```
+
+## If Something Goes Wrong
+
+**TypeScript Errors:**
+```bash
+# Check what's wrong
+npm run build
+
+# If import errors, verify CustomMetric type is exported
+# If Prisma errors, verify prisma generate ran in Step 1
+```
+
+**POST Returns 500 Error:**
+- Check server console for detailed error
+- Verify Prisma client is working
+- Verify database connection
+
+**Can't Find Client:**
+- Verify you're using correct client ID
+- Verify you're logged in (session exists)
+- Check Prisma Studio that client exists and belongs to your user
+
+## Questions to Ask Me
+If you encounter:
+- Type errors with CustomMetric import
+- Prisma update errors
+- Authentication issues
+- ANY errors when testing existing report generation
+- Validation not working as expected
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 5 will create the UI modal component for adding custom metrics (still not integrated anywhere, just the component). Still no impact on existing features.
+
+## Final Verification
+Before committing, test this complete flow:
+
+1. ✅ POST a custom metric → Success
+2. ✅ GET custom metrics → Returns saved metric
+3. ✅ POST again with different metrics → Replaces previous (not appends)
+4. ✅ Try to POST 11 metrics → Error response
+5. ✅ Generate any existing report type → Still works perfectly
+
+All 5 must pass before committing!
+
+
+# TASK: Create Add Custom Metric Modal Component (Step 5 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ Report generation (Executive, Standard, Custom)
+- ✅ PDF generation with white-label branding
+- ✅ Metric selector with predefined metrics
+- ✅ PayPal billing
+- ✅ Custom metrics API (GET and POST endpoints)
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Create a standalone modal component for adding custom metrics. This component will NOT be integrated into the app yet (Step 6), so it will have ZERO impact on existing functionality. We're just building the component in isolation.
+
+## What You Need to Do
+
+### 1. Create New Modal Component
+**New File**: `/src/components/organisms/AddCustomMetricModal.tsx`
+
+Create this file with the following content:
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { CustomMetric } from '@/types/custom-metrics';
+
+interface AddCustomMetricModalProps {
+  clientId: string;
+  onSave: (metric: CustomMetric) => void;
+  onCancel: () => void;
+}
+
+/**
+ * Modal for adding a single custom GA4 metric
+ * 
+ * Users enter:
+ * - Display Name: How metric appears in reports
+ * - API Name: The exact GA4 metric API name
+ * 
+ * Phase 1: Manual entry only (no validation against GA4)
+ */
+export function AddCustomMetricModal({ 
+  clientId, 
+  onSave, 
+  onCancel 
+}: AddCustomMetricModalProps) {
+  const [apiName, setApiName] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  async function handleSave() {
+    // Basic validation
+    if (!apiName.trim() || !displayName.trim()) {
+      setError('Both fields are required');
+      return;
+    }
+    
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      // Create new custom metric object
+      const newMetric: CustomMetric = {
+        id: `custom_${Date.now()}`,
+        apiName: apiName.trim(),
+        displayName: displayName.trim(),
+        category: 'custom',
+        format: 'number',
+        isCustom: true
+      };
+      
+      // Save to API
+      const response = await fetch(
+        `/api/clients/${clientId}/custom-metrics`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            customMetrics: [newMetric]
+          })
+        }
+      );
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save metric');
+      }
+      
+      // Success - notify parent
+      onSave(newMetric);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error saving metric. Please try again.');
+      console.error('Save custom metric error:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 mx-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Add Custom Metric
+        </h2>
+        
+        <div className="space-y-4">
+          {/* Display Name Input */}
+          <div>
+            <label 
+              htmlFor="displayName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Display Name
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="e.g., Newsletter Signups"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"
+              disabled={isSaving}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              How this metric will appear in your reports
+            </p>
+          </div>
+          
+          {/* GA4 API Name Input */}
+          <div>
+            <label 
+              htmlFor="apiName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              GA4 Metric API Name
+            </label>
+            <input
+              id="apiName"
+              type="text"
+              value={apiName}
+              onChange={(e) => setApiName(e.target.value)}
+              placeholder="e.g., customEvent:newsletter_signup"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"
+              disabled={isSaving}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              The exact metric name from your GA4 property
+            </p>
+          </div>
+          
+          {/* Help Text */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-900 font-medium mb-2">
+              💡 How to find your GA4 metric names:
+            </p>
+            <ol className="text-xs text-blue-800 space-y-1 ml-4 list-decimal">
+              <li>Go to your GA4 property</li>
+              <li>Navigate to <strong>Admin → Custom definitions</strong></li>
+              <li>Find your custom metric</li>
+              <li>Copy the API name (e.g., "customEvent:newsletter_signup")</li>
+            </ol>
+            
+              href="https://support.google.com/analytics/answer/10075209"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-600 hover:text-blue-700 underline mt-2 inline-block"
+            >
+              Learn more about GA4 custom metrics →
+            </a>
+          </div>
+          
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-900">{error}</p>
+            </div>
+          )}
+        </div>
+        
+        {/* Actions */}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSaving}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSaving || !apiName.trim() || !displayName.trim()}
+          >
+            {isSaving ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle 
+                    className="opacity-25" 
+                    cx="12" 
+                    cy="12" 
+                    r="10" 
+                    stroke="currentColor" 
+                    strokeWidth="4" 
+                    fill="none" 
+                  />
+                  <path 
+                    className="opacity-75" 
+                    fill="currentColor" 
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" 
+                  />
+                </svg>
+                Saving...
+              </span>
+            ) : (
+              'Add Metric'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 2. Verify Component Structure
+Your file structure should now have:
+```
+/src/components/organisms/
+├── AddCustomMetricModal.tsx  ← NEW FILE
+└── (other existing organisms)
+```
+
+### 3. Create Test Page (Optional but Recommended)
+To test the component in isolation without affecting the real app:
+
+**New File**: `/src/app/test-custom-metrics/page.tsx`
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { AddCustomMetricModal } from '@/components/organisms/AddCustomMetricModal';
+
+export default function TestCustomMetricsPage() {
+  const [showModal, setShowModal] = useState(false);
+  const [savedMetrics, setSavedMetrics] = useState<any[]>([]);
+  
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">
+          Test Custom Metrics Modal
+        </h1>
+        <p className="text-gray-600 mb-6">
+          This is a test page to verify the AddCustomMetricModal component.
+          This page will NOT be accessible in production.
+        </p>
+        
+        <button
+          onClick={() => setShowModal(true)}
+          className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
+        >
+          Open Add Metric Modal
+        </button>
+        
+        {savedMetrics.length > 0 && (
+          <div className="mt-6 p-4 bg-white rounded-lg border">
+            <h2 className="font-semibold mb-2">Saved Metrics:</h2>
+            <pre className="text-sm bg-gray-100 p-2 rounded overflow-auto">
+              {JSON.stringify(savedMetrics, null, 2)}
+            </pre>
+          </div>
+        )}
+        
+        {showModal && (
+          <AddCustomMetricModal
+            clientId="test-client-id"
+            onSave={(metric) => {
+              console.log('Metric saved:', metric);
+              setSavedMetrics([...savedMetrics, metric]);
+              setShowModal(false);
+            }}
+            onCancel={() => setShowModal(false)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### 4. Test the Component
+
+**Start dev server:**
+```bash
+npm run dev
+```
+
+**Test the modal:**
+1. Navigate to: `http://localhost:3000/test-custom-metrics`
+2. Click "Open Add Metric Modal"
+3. Verify modal appears with correct styling
+4. Try to save without filling fields → Should show error
+5. Fill both fields and save → Should close modal and show saved metric
+6. Check browser console for any errors
+
+**Expected behavior:**
+- ✅ Modal opens with overlay
+- ✅ Both input fields work
+- ✅ Help text displays correctly
+- ✅ Validation prevents empty submission
+- ✅ Save button shows loading state
+- ✅ Cancel button closes modal
+- ✅ Success closes modal and returns metric
+
+### 5. Verify Existing App Unchanged
+
+**Critical test:**
+1. Navigate to `/dashboard` or `/clients`
+2. Verify everything looks normal
+3. Try generating a report
+4. Verify report generation still works
+
+The test page at `/test-custom-metrics` should NOT be linked anywhere in the app.
+
+## Success Criteria
+- ✅ New component file created
+- ✅ Test page created (optional)
+- ✅ TypeScript compiles without errors
+- ✅ Component renders correctly
+- ✅ Form validation works
+- ✅ API call structure is correct (doesn't need to work yet)
+- ✅ **Existing app completely unchanged**
+- ✅ **Existing report generation still works**
+
+## What NOT to Do
+- ❌ Do NOT integrate this modal into any existing pages
+- ❌ Do NOT modify the metric selector modal yet (Step 6)
+- ❌ Do NOT add navigation links to test page
+- ❌ Do NOT modify any existing components
+- ❌ Do NOT touch report generation code
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only new files created (component + optional test page)
+- [ ] No modifications to existing components
+- [ ] TypeScript compiles: `npm run build`
+- [ ] Dev server starts without errors
+- [ ] Modal works in test page
+- [ ] Existing pages (dashboard, clients, reports) unchanged
+- [ ] Test existing functionality: Generate a report - still works
+- [ ] No console errors on existing pages
+
+## Verification Commands
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server
+npm run dev
+
+# 3. Test modal at: http://localhost:3000/test-custom-metrics
+# 4. Test existing pages still work (dashboard, generate report)
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/components/organisms/AddCustomMetricModal.tsx
+git add src/app/test-custom-metrics/page.tsx  # If you created it
+
+git commit -m "feat(ui): add AddCustomMetricModal component
+
+- Created standalone modal for adding custom metrics
+- Includes form validation and loading states
+- Help text with GA4 instructions
+- Test page for isolated component testing
+- Not integrated into app yet (Step 6)
+- No impact on existing functionality"
+```
+
+## If Something Goes Wrong
+
+**TypeScript Errors:**
+```bash
+# Check imports
+npm run build
+
+# Common issues:
+# - Verify CustomMetric type is importable
+# - Check brand-500/brand-600 colors exist in Tailwind config
+# - Verify React types are installed
+```
+
+**Styling Issues:**
+```bash
+# If brand colors don't work, temporarily use:
+# bg-purple-600, bg-purple-700, ring-purple-500
+# (We'll fix brand colors in Step 10 polish)
+```
+
+**Modal Not Displaying:**
+- Check z-index (should be z-50)
+- Verify fixed positioning
+- Check browser console for errors
+
+## Questions to Ask Me
+If you encounter:
+- Tailwind brand color class not found
+- TypeScript import errors
+- Modal styling issues
+- ANY errors when testing existing report generation
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 6 will integrate this modal into the existing metric selector modal. That's when users will actually see it in the app.
+
+## Final Verification
+Before committing, verify:
+
+1. ✅ Modal component created successfully
+2. ✅ Test page works (modal opens, validates, saves)
+3. ✅ TypeScript compiles with no errors
+4. ✅ Existing dashboard/clients pages unchanged
+5. ✅ Existing report generation still works perfectly
+6. ✅ No console errors on any page
+
+All 6 must pass!
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## 📚 Resources & References
 
 ### GA4 Documentation
