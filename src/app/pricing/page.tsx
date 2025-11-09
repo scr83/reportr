@@ -112,8 +112,7 @@ function PricingTiers() {
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
         'Custom branding (for white label users)',
-        'Priority email support (24hrs)',
-        'API access'
+        'Priority email support (24hrs)'
       ],
       cta: 'Start 14-Day Trial',
       ctaLink: whiteLabelEnabled.starter 
