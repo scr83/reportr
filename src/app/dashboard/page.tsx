@@ -171,6 +171,7 @@ function DashboardContent() {
     // Check for verification success
     const verified = searchParams?.get('verified')
     const unlocked = searchParams?.get('unlocked')
+    const refresh = searchParams?.get('refresh')
     
     if (verified === 'true') {
       if (unlocked === 'true') {
@@ -181,10 +182,18 @@ function DashboardContent() {
         setSuccessMessage('✅ Email verified successfully! Your 14-day trial has started.');
       }
       
+      // Force session refresh if refresh=1 parameter is present
+      if (refresh === '1') {
+        console.log('🔄 Forcing session refresh after email verification...')
+        // Use router.refresh() to force a full page refresh which will trigger NextAuth JWT callback
+        router.refresh()
+      }
+      
       // Clear the URL params
       const url = new URL(window.location.href)
       url.searchParams.delete('verified')
       url.searchParams.delete('unlocked') // NEW
+      url.searchParams.delete('refresh')
       window.history.replaceState({}, '', url.toString())
       
       // Auto-hide success message after 5 seconds
@@ -246,7 +255,7 @@ function DashboardContent() {
     }
 
     fetchDashboardData()
-  }, [searchParams])
+  }, [searchParams, router])
 
   // Check if upgrade prompt should be shown
   useEffect(() => {
