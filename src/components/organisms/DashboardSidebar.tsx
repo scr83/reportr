@@ -207,7 +207,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       {/* User Menu */}
       <div className="px-4 pb-4 border-t border-gray-200 pt-4">
-        <UserMenu />
+        <div>
+          {console.log('=== Sidebar Debug ===')}
+          {console.log('About to render UserMenu')}
+          {console.log('======================')}
+          <UserMenu />
+          {console.log('UserMenu component rendered')}
+        </div>
       </div>
     </div>
   )

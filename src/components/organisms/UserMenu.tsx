@@ -9,13 +9,45 @@ export function UserMenu() {
   const { data: session, status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
 
+  // 🔍 DEBUG LOGGING
+  console.log('=== UserMenu Debug ===')
+  console.log('Session status:', status)
+  console.log('Session data:', session)
+  console.log('Session user:', session?.user)
+  console.log('Email verified:', session?.user?.emailVerified)
+  console.log('User ID:', session?.user?.id)
+  console.log('Should render menu:', !!session)
+  console.log('======================')
+
   if (status === 'loading') {
+    console.log('🔄 UserMenu: Status loading, showing skeleton')
     return (
       <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
     )
   }
 
-  if (!session) return null
+  if (!session) {
+    console.log('❌ UserMenu: No session, returning null')
+    // 🔍 FORCE RENDER TEST - Show even when no session
+    console.log('🧪 FORCE RENDER: Creating test user menu')
+    return (
+      <div className="relative bg-yellow-100 border-2 border-yellow-400 p-2 rounded">
+        <div className="text-xs text-yellow-800 mb-2">🚨 FORCE RENDER TEST</div>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-50">
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500"
+          >
+            <User className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-sm font-medium text-gray-900">
+            No Session User
+          </span>
+        </div>
+      </div>
+    )
+  }
+  
+  console.log('✅ UserMenu: Rendering menu with session')
 
   const handleLogout = async () => {
     setIsOpen(false)
