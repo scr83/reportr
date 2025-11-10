@@ -522,6 +522,21 @@ export default function GenerateReportPage() {
       return
     }
 
+    // Check if user can generate more reports (FREE tier limits)
+    try {
+      const usageResponse = await fetch('/api/usage')
+      if (usageResponse.ok) {
+        const usage = await usageResponse.json()
+        if (usage.reports.isAtLimit) {
+          alert(`You've reached your limit of ${usage.reports.limit} reports this month on the ${usage.planName} plan. Please upgrade to generate more reports.`)
+          return
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check usage limits:', error)
+      // Continue with report generation if we can't check limits
+    }
+
     setIsGenerating(true)
     
     try {
