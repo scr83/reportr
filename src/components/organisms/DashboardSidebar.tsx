@@ -65,11 +65,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setImageError(true)
   }
 
-  // 🔍 DEBUG LOGGING - Before return
-  console.log('=== Sidebar Debug ===')
-  console.log('About to render UserMenu')
-  console.log('======================')
-
   const renderLogo = () => {
     if (loading) {
       return (

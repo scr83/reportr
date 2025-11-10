@@ -184,8 +184,6 @@ function DashboardContent() {
       
       // Force session refresh if refresh=1 parameter is present
       if (refresh === '1') {
-        console.log('🔄 Forcing session refresh after email verification...')
-        // Use router.refresh() to force a full page refresh which will trigger NextAuth JWT callback
         router.refresh()
       }
       
