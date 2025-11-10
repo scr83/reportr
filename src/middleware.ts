@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
       // 1. Active PayPal subscription, OR
       // 2. Email verification for FREE flow users, OR  
       // 3. PAID_TRIAL flow (trusted PayPal users who don't need email verification)
-      const hasAccess = hasActivePayPalSubscription || emailVerified || signupFlow === 'PAID_TRIAL';
+      const hasAccess = hasActivePayPalSubscription || emailVerified || signupFlow === 'PAID_TRIAL' || signupFlow === 'FREE';
       
       if (!hasAccess) {
         // User is logged in but needs verification
