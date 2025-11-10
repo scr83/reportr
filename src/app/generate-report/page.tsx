@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
-import { Card, Typography, Button, Input, Select } from '@/components/atoms'
+import { Card, Typography, Button, Input, Select, Tooltip } from '@/components/atoms'
 import { MetricSelectorModal } from '@/components/organisms'
 import { ArrowLeft, ArrowRight, Check, FileText, BarChart3, Calendar, Download, AlertCircle, RefreshCw, Zap } from 'lucide-react'
 import { checkPDFSupport, getReportTypeDescription, estimatePDFSize } from '@/lib/pdf-generator'
 import { MOCK_BRANDING, MOCK_EXECUTIVE_REPORT, MOCK_STANDARD_REPORT, MOCK_CUSTOM_REPORT } from '@/lib/mock-report-data'
 import { ReportData, GA4Data } from '@/types/report'
+import { useSession } from 'next-auth/react'
 
 // PageSpeed helper functions
 const getScoreColor = (score: number): string => {
@@ -66,6 +67,7 @@ interface LegacyReportData {
 }
 
 export default function GenerateReportPage() {
+  const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isFetchingGoogle, setIsFetchingGoogle] = useState(false)
@@ -99,6 +101,9 @@ export default function GenerateReportPage() {
     }
   })
   const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4' | 'pagespeed'>('gsc')
+  
+  // NEW CODE - Check session for unverified users
+  const isUnverified = session?.user && !session.user.emailVerified;
 
   // Field definitions for each report type
   const REPORT_FIELDS = {
@@ -1846,23 +1851,37 @@ export default function GenerateReportPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button 
-          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" 
-          onClick={handleGeneratePDF}
-          disabled={isGenerating || !!jsonError}
-        >
-          {isGenerating ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Generating PDF...
-            </>
-          ) : (
-            <>
-              <Download className="mr-2 h-4 w-4" />
-              Generate PDF Report
-            </>
-          )}
-        </Button>
+        {isUnverified ? (
+          <Tooltip content="Please verify your email before generating reports">
+            <span className="inline-block">
+              <Button 
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+                disabled={true}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Generate PDF Report
+              </Button>
+            </span>
+          </Tooltip>
+        ) : (
+          <Button 
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+            onClick={handleGeneratePDF}
+            disabled={isGenerating || !!jsonError}
+          >
+            {isGenerating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Generate PDF Report
+              </>
+            )}
+          </Button>
+        )}
       </div>
     </Card>
   )

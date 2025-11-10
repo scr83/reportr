@@ -19,6 +19,19 @@ export async function POST(request: NextRequest) {
   try {
     let user = await requireUser();
     
+    // ✅ NEW CHECK - Email verification requirement (ADD THIS)
+    if (!user.emailVerified) {
+      console.log(`Blocked unverified user ${user.id} from adding client`);
+      return NextResponse.json(
+        { 
+          error: 'Please verify your email before adding clients',
+          requiresVerification: true,
+          verificationRequired: true
+        },
+        { status: 403 }
+      );
+    }
+    
     // Check trial expiry and possibly downgrade user
     const trialStatus = await checkTrialExpiry(user.id);
     if (trialStatus.expired) {

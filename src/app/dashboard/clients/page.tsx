@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/templates/DashboardLayout'
-import { Card, Typography, Button, Input, Alert } from '@/components/atoms'
+import { Card, Typography, Button, Input, Alert, Tooltip } from '@/components/atoms'
 import { Modal } from '@/components/organisms'
 import { PropertyManagementModal } from '@/components/organisms/PropertyManagementModal'
 import { ManageClientModal } from '@/components/organisms/ManageClientModal'
 import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Users, Plus, Globe, Calendar, Link as LinkIcon, CheckCircle, XCircle, AlertCircle, BarChart, Settings, Search } from 'lucide-react'
 import { Plan } from '@prisma/client'
+import { useSession } from 'next-auth/react'
 
 interface Client {
   id: string
@@ -48,6 +49,7 @@ interface FormErrors {
 
 export default function ClientsPage() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [clients, setClients] = useState<Client[]>([])
   const [usageStats, setUsageStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -76,6 +78,9 @@ export default function ClientsPage() {
   
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+  // NEW CODE - Check session for unverified users
+  const isUnverified = session?.user && !session.user.emailVerified;
 
   // Fetch clients on mount
   useEffect(() => {
@@ -216,7 +221,9 @@ export default function ClientsPage() {
 
       if (!res.ok) {
         const errorData = await res.json()
-        if (res.status === 403 && errorData.upgradeRequired) {
+        if (res.status === 403 && errorData.verificationRequired) {
+          setError('Please verify your email before adding clients. Check your inbox for the verification link.')
+        } else if (res.status === 403 && errorData.upgradeRequired) {
           setError(`${errorData.error} - Upgrade your plan to add more clients.`)
         } else {
           throw new Error(errorData.error || 'Failed to create client')
@@ -387,6 +394,18 @@ export default function ClientsPage() {
               <Plus className="h-4 w-4 mr-2" />
               Upgrade to Add More
             </Button>
+          ) : isUnverified ? (
+            <Tooltip content="Please verify your email before adding clients">
+              <span className="inline-block w-full sm:w-auto">
+                <Button 
+                  disabled 
+                  className="opacity-50 cursor-not-allowed min-h-[44px] w-full sm:w-auto"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Client
+                </Button>
+              </span>
+            </Tooltip>
           ) : (
             <Button className="btn-primary-themed min-h-[44px] w-full sm:w-auto" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -591,10 +610,24 @@ export default function ClientsPage() {
                     <Typography className="text-gray-600 mb-4">
                       Start by adding your first client to begin generating SEO reports.
                     </Typography>
-                    <Button className="btn-primary-themed" onClick={() => setIsModalOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Your First Client
-                    </Button>
+                    {isUnverified ? (
+                      <Tooltip content="Please verify your email before adding clients">
+                        <span className="inline-block">
+                          <Button 
+                            disabled 
+                            className="opacity-50 cursor-not-allowed"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Your First Client
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    ) : (
+                      <Button className="btn-primary-themed" onClick={() => setIsModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Your First Client
+                      </Button>
+                    )}
                   </>
                 )}
               </div>

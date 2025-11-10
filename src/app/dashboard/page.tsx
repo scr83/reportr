@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/templates/DashboardLayout'
 import { Card, Typography, Button } from '@/components/atoms'
 import { UsageProgressBar } from '@/components/molecules/UsageProgressBar'
 import { TrialCountdown } from '@/components/molecules/TrialCountdown'
+import { EmailVerificationBanner } from '@/components/molecules/EmailVerificationBanner'
 import { UpgradeModal } from '@/components/organisms/UpgradeModal'
 import { Users, FileText, TrendingUp, Plus, ExternalLink, UserCheck } from 'lucide-react'
 import { Plan } from '@prisma/client'
@@ -15,6 +16,7 @@ import {
   getNextTier, 
   shouldShowTrialCountdown 
 } from '@/lib/utils/trial-helpers'
+import { useSession } from 'next-auth/react'
 
 interface Client {
   id: string
@@ -84,6 +86,7 @@ interface UserData {
 function DashboardContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session } = useSession()
   const [clients, setClients] = useState<Client[]>([])
   const [reports, setReports] = useState<Report[]>([])
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
@@ -100,6 +103,31 @@ function DashboardContent() {
     setUpgradeLimitInfo(limitInfo)
     setShowUpgradePrompt(true)
   }
+
+  // NEW CODE - Resend email function
+  const handleResendEmail = async () => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to resend verification email');
+      }
+      
+      console.log('Verification email resent successfully');
+    } catch (error) {
+      console.error('Failed to resend verification email:', error);
+      throw error; // Let the component handle the error display
+    }
+  };
+
+  // NEW CODE - Check session for unverified users
+  const isUnverified = session?.user && !session.user.emailVerified;
 
   // Calculate stats from real data
   const stats = [
@@ -142,11 +170,21 @@ function DashboardContent() {
   useEffect(() => {
     // Check for verification success
     const verified = searchParams?.get('verified')
+    const unlocked = searchParams?.get('unlocked')
+    
     if (verified === 'true') {
-      setSuccessMessage('✅ Email verified successfully! Your 14-day trial has started.')
-      // Clear the URL param
+      if (unlocked === 'true') {
+        // NEW MESSAGE for users who just unlocked features
+        setSuccessMessage('✅ Email verified! You can now add clients and generate reports.');
+      } else {
+        // EXISTING MESSAGE for normal verification
+        setSuccessMessage('✅ Email verified successfully! Your 14-day trial has started.');
+      }
+      
+      // Clear the URL params
       const url = new URL(window.location.href)
       url.searchParams.delete('verified')
+      url.searchParams.delete('unlocked') // NEW
       window.history.replaceState({}, '', url.toString())
       
       // Auto-hide success message after 5 seconds
@@ -230,6 +268,14 @@ function DashboardContent() {
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8">
+        {/* NEW CODE - Verification banner for unverified users */}
+        {isUnverified && session?.user?.email && (
+          <EmailVerificationBanner 
+            email={session.user.email}
+            onResend={handleResendEmail}
+          />
+        )}
+        
         {/* Success Message */}
         {successMessage && (
           <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700">

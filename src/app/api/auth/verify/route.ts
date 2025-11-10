@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
     
     // Create response with redirect
     const response = NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?verified=true`
+      `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?verified=true&unlocked=true`
     );
     
     // Set the NextAuth session token cookie

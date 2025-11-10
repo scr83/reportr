@@ -91,6 +91,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     let user = await requireUser()
+    
+    // ✅ NEW CHECK - Email verification requirement (ADD THIS)
+    if (!user.emailVerified) {
+      console.log(`Blocked unverified user ${user.id} from generating report`);
+      return NextResponse.json(
+        { 
+          error: 'Please verify your email before generating reports',
+          requiresVerification: true,
+          verificationRequired: true
+        },
+        { status: 403 }
+      );
+    }
+    
     const body = await request.json()
     const validatedData = createReportSchema.parse(body)
     
