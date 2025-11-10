@@ -4888,13 +4888,1313 @@ Before committing, test this complete flow:
 All 8 must pass!
 
 
+# TASK: Display Custom Metrics in PDF Reports (Step 9 of 10)
+
+## 🚨 CRITICAL SAFETY RULES - READ FIRST
+
+### Non-Negotiable Requirements:
+1. **DO NOT BREAK EXISTING FUNCTIONALITY** - All current features must continue working
+2. **DO NOT MODIFY WORKING CODE** - If it works, don't touch it unless explicitly told
+3. **ADDITIVE ONLY** - You are ONLY adding new functionality
+4. **TEST AFTER CHANGES** - Verify existing features still work after your changes
+5. **ROLLBACK READY** - If anything breaks, immediately revert
+
+### What's Currently Working (DO NOT BREAK):
+- ✅ User authentication and sessions
+- ✅ Client management (add, edit, delete)
+- ✅ Google OAuth connection (GSC, GA4)
+- ✅ **Report generation with predefined metrics** ← CRITICAL - DO NOT BREAK
+- ✅ **PDF generation with white-label branding** ← CRITICAL - DO NOT BREAK
+- ✅ Metric selector with custom metrics
+- ✅ Custom metrics fetched in report generation
+- ✅ PayPal billing
+
+### If You Break Something:
+1. Stop immediately
+2. Revert changes: `git checkout -- .`
+3. Report error to user
+4. Do NOT attempt fixes without permission
+
+---
+
+## Objective
+Update the CustomReportTemplate PDF component to display custom metrics alongside predefined metrics. The template is already dynamic and ready - we just need to merge custom metrics into the existing `allMetrics` object. This is the MINIMAL change needed.
+
+## What You Need to Do
+
+### 1. Locate the PDF Template
+**Find the file**: `/src/components/pdf/templates/CustomReportTemplate.tsx`
+
+This is the ONLY file we need to modify.
+
+### 2. Find the allMetrics Object
+Search for the line that defines `allMetrics`. It should be around line 42-80 and look like:
+```typescript
+// Define all available metrics with their sources
+const allMetrics = {
+  // Basic metrics
+  users: { value: data.ga4Data?.users || 0, title: 'Total Users', description: '...', source: 'ga4' },
+  sessions: { value: data.ga4Data?.sessions || 0, title: 'Total Sessions', description: '...', source: 'ga4' },
+  // ... many more predefined metrics
+}
+```
+
+### 3. Add Custom Metrics Import
+At the TOP of the file, add:
+```typescript
+import { CustomMetric } from '@/types/custom-metrics';
+```
+
+### 4. Extract Custom Metrics from Data
+**Right BEFORE the allMetrics object definition**, add:
+```typescript
+// Get custom metrics from report data
+const customMetricsList = (data.customMetrics || []) as CustomMetric[];
+
+console.log(`📄 PDF rendering with ${customMetricsList.length} custom metrics`);
+```
+
+### 5. Merge Custom Metrics into allMetrics
+**Find the closing brace of the allMetrics object**, then add this IMMEDIATELY AFTER all the predefined metrics but BEFORE the closing brace:
+```typescript
+const allMetrics = {
+  // ... all existing predefined metrics stay here ...
+  users: { ... },
+  sessions: { ... },
+  // ... all other existing metrics ...
+  
+  // NEW: Dynamically add custom metrics
+  ...customMetricsList.reduce((acc, customMetric) => {
+    acc[customMetric.id] = {
+      value: data.ga4Data?.[customMetric.id] || 0,
+      title: customMetric.displayName,
+      description: 'Custom GA4 metric',
+      source: 'ga4_custom',
+      isCustom: true
+    };
+    return acc;
+  }, {} as Record<string, any>)
+};
+```
+
+**IMPORTANT**: The spread operator `...` merges custom metrics into the existing object. Don't replace any existing metrics - just ADD to them.
+
+### 6. Add Optional Custom Badge (Optional Enhancement)
+Find where metrics are displayed in the PDF (look for metric rendering code). If you can easily find it, add a small badge:
+```tsx
+// In metric display section
+<Text style={styles.metricName}>
+  {metric.title}
+  {metric.isCustom && (
+    <Text style={styles.customBadge}> (Custom)</Text>
+  )}
+</Text>
+```
+
+And add this style:
+```typescript
+const styles = StyleSheet.create({
+  // ... existing styles ...
+  
+  customBadge: {
+    fontSize: 9,
+    color: '#7e23ce', // Brand purple
+    fontWeight: 'bold',
+    fontStyle: 'italic'
+  }
+});
+```
+
+**If you can't easily find the metric display section, SKIP THIS STEP** - it's optional polish.
+
+## Expected Result
+
+After this change:
+- `allMetrics` object will contain BOTH predefined AND custom metrics
+- Custom metrics will have `isCustom: true` flag
+- Custom metrics will have `source: 'ga4_custom'`
+- The existing dynamic rendering will automatically handle them
+
+## Success Criteria
+- ✅ Custom metrics merged into allMetrics object
+- ✅ Custom metrics have correct structure (value, title, description, source, isCustom)
+- ✅ TypeScript compiles without errors
+- ✅ **PDF generation with predefined metrics still works**
+- ✅ **PDF generation with custom metrics shows them in the PDF**
+- ✅ No modifications to existing predefined metrics
+- ✅ No changes to PDF layout logic (it's already dynamic)
+
+## What NOT to Do
+- ❌ Do NOT modify existing predefined metric definitions
+- ❌ Do NOT change the PDF layout or structure
+- ❌ Do NOT modify other report templates (Executive, Standard)
+- ❌ Do NOT add page breaks or new sections
+- ❌ Do NOT change how the dynamic rendering works
+
+## Safety Checklist Before Commit
+
+Go through this checklist:
+- [ ] Only modified CustomReportTemplate.tsx
+- [ ] Only added code (didn't remove or change existing metrics)
+- [ ] Used spread operator to merge custom metrics
+- [ ] TypeScript compiles: `npm run build`
+- [ ] Test: Generate PDF with ONLY predefined metrics - still works
+- [ ] Test: Generate PDF with 1 custom + 2 predefined - custom shows up
+- [ ] PDF layout looks correct (no weird spacing or breaks)
+- [ ] No console errors during PDF generation
+
+## Testing Steps
+
+### Test 1: Existing PDFs Unchanged (CRITICAL)
+```
+1. Log in to app
+2. Navigate to any client
+3. Select ONLY predefined metrics (e.g., users, sessions, bounceRate)
+4. Generate Custom Report
+5. Wait for PDF generation
+6. Download PDF
+7. Open PDF - verify it looks exactly as before
+8. Verify all selected metrics are displayed
+✅ MUST PASS - proves we didn't break existing PDFs
+```
+
+### Test 2: Custom Metrics in PDF (NEW)
+```
+1. Navigate to same client
+2. Add a custom metric:
+   - Display Name: "Newsletter Signups"
+   - API Name: "activeUsers" (or any valid GA4 metric)
+3. Select 2 predefined metrics + 1 custom metric
+4. Generate Custom Report
+5. Wait for PDF generation (might take a bit longer)
+6. Download PDF
+7. Open PDF - look for all 3 metrics
+8. Verify custom metric displays with its display name
+9. (Optional) Verify "(Custom)" badge appears
+✅ NEW - proves custom metrics appear in PDF
+```
+
+### Test 3: Multiple Custom Metrics
+```
+1. Add 2 more custom metrics
+2. Select 2 predefined + 3 custom (5 total)
+3. Generate report
+4. Download PDF
+5. Verify all 5 metrics display correctly
+6. Verify layout adapts (should already work due to dynamic rendering)
+✅ Proves multiple custom metrics work
+```
+
+## Verification Commands
+```bash
+# 1. Check TypeScript compilation
+npm run build
+
+# 2. Start dev server
+npm run dev
+
+# 3. Generate PDFs and verify:
+# - Console should show: "📄 PDF rendering with X custom metrics"
+# - PDF should include custom metrics
+# - PDF should look good (no layout issues)
+```
+
+## Git Commit Message
+After verification, use this commit message:
+```bash
+git add src/components/pdf/templates/CustomReportTemplate.tsx
+git commit -m "feat(pdf): display custom metrics in PDF reports
+
+- Merge custom metrics into allMetrics object dynamically
+- Custom metrics display with their user-defined names
+- Added 'Custom' source type for metric grouping
+- Optional custom badge for visual distinction
+- Existing predefined metrics unchanged
+- PDF layout automatically adapts (already dynamic)
+- Custom metrics now fully functional end-to-end!"
+```
+
+## If Something Goes Wrong
+
+**TypeScript Errors:**
+```bash
+# Check compilation
+npm run build
+
+# Common issue: Import path wrong
+# Verify: import { CustomMetric } from '@/types/custom-metrics';
+```
+
+**PDF Generation Fails:**
+```bash
+# Check browser console for React-PDF errors
+# Look for errors in Network tab
+# Check server logs for PDF generation errors
+
+# If PDF fails, REVERT IMMEDIATELY:
+git checkout -- src/components/pdf/templates/CustomReportTemplate.tsx
+```
+
+**Custom Metrics Don't Show:**
+- Check console: Does it say "0 custom metrics"? If so, data isn't reaching PDF
+- Check: Is `data.customMetrics` being passed from Step 8?
+- Verify: Custom metrics exist in `data.ga4Data` object
+
+**Layout Breaks:**
+```bash
+# If PDF layout looks wrong, REVERT:
+git checkout -- src/components/pdf/templates/CustomReportTemplate.tsx
+
+# Report exactly what broke
+```
+
+## Questions to Ask Me
+If you encounter:
+- TypeScript errors with CustomMetric import
+- Can't find allMetrics object definition
+- PDF generation errors
+- Layout issues in generated PDF
+- Custom metrics don't appear in PDF
+- ANY existing PDF functionality breaks
+
+**STOP and ask me before proceeding.**
+
+## Next Step Preview
+After this is complete and verified, Step 10 will add polish and error handling (delete custom metrics, better validation, loading states, etc.). But after Step 9, the feature is **FULLY FUNCTIONAL end-to-end**!
+
+## Final Verification
+Before committing, test this complete end-to-end flow:
+
+1. ✅ Add a custom metric via UI
+2. ✅ Select it + 2 predefined metrics
+3. ✅ Generate Custom Report
+4. ✅ Wait for completion
+5. ✅ Download PDF
+6. ✅ Open PDF → All 3 metrics visible
+7. ✅ Custom metric shows correct display name
+8. ✅ Layout looks good
+9. ✅ Generate another report with ONLY predefined → Still works perfectly
+10. ✅ No console errors anywhere
+
+All 10 must pass! This is the culmination of Steps 1-9! 🎉
+
+
+AUDIT PROMPT
+
+# QA TASK: Comprehensive Audit of Custom Metrics Feature (Phase 1)
+
+## 🎯 Audit Objective
+Perform a complete end-to-end audit of the newly implemented Custom Metrics feature to verify:
+1. All functionality works as specified
+2. No existing features were broken
+3. Edge cases are handled properly
+4. User experience is smooth
+5. Error handling is robust
+
+## 📋 SCOPE OF AUDIT
+
+### Features Implemented (Steps 1-9):
+- Database schema changes (customMetrics field on Client model)
+- TypeScript type definitions (CustomMetric interface)
+- API endpoints (GET and POST for custom metrics)
+- UI components (AddCustomMetricModal)
+- Metric selector integration
+- Report generation with custom metrics
+- PDF display of custom metrics
+
+### What This Feature Should Do:
+✅ Allow users to add GA4 custom metrics manually (up to 10 per client)
+✅ Save custom metrics to database per client
+✅ Display custom metrics in metric selector alongside predefined metrics
+✅ Select custom metrics for Custom Reports (mixed with predefined)
+✅ Fetch custom metric data from Google Analytics 4 API
+✅ Display custom metrics in generated PDF reports
+✅ Handle errors gracefully (invalid metrics show as "0")
+
+### What This Feature Should NOT Do:
+❌ Validate GA4 metric names before saving (Phase 2 feature)
+❌ Auto-discover available GA4 metrics (Phase 2 feature)
+❌ Allow editing custom metrics (can only add)
+❌ Allow deleting custom metrics (Step 10 feature, not yet built)
+❌ Work in Executive or Standard report types (Custom Reports only)
+
+---
+
+## 🧪 TEST PLAN
+
+### TEST SUITE 1: Database & Types
+**Objective**: Verify database schema and TypeScript types are correct
+
+#### Test 1.1: Database Schema
+```sql
+-- In Prisma Studio or database client
+SELECT column_name, data_type, is_nullable 
+FROM information_schema.columns 
+WHERE table_name = 'Client' 
+AND column_name = 'customMetrics';
+
+Expected:
+- Column exists
+- Type: jsonb (PostgreSQL) or json (other databases)
+- Nullable: YES
+```
+
+#### Test 1.2: TypeScript Compilation
+```bash
+# Run TypeScript compiler
+npm run build
+
+Expected:
+- ✅ Build succeeds with no errors
+- ✅ No type errors related to CustomMetric
+- ✅ All files compile successfully
+```
+
+#### Test 1.3: Type Definitions
+```typescript
+// Check file exists and exports types
+// File: /src/types/custom-metrics.ts
+
+Verify exports:
+- CustomMetric interface
+- CustomMetricInput interface
+- isCustomMetric() type guard function
+
+Expected:
+- ✅ All three exports present
+- ✅ CustomMetric has all required fields
+- ✅ Types match documentation
+```
+
+---
+
+### TEST SUITE 2: API Endpoints
+**Objective**: Verify API endpoints work correctly with proper authentication and validation
+
+#### Test 2.1: GET Endpoint - Unauthenticated
+```bash
+# Test without authentication
+curl http://localhost:3000/api/clients/test-id/custom-metrics
+
+Expected Response:
+Status: 401 Unauthorized
+Body: {"error": "Unauthorized"}
+```
+
+#### Test 2.2: GET Endpoint - Valid Request (Empty)
+```bash
+# Test with authentication (logged in via browser)
+# Use browser DevTools Console:
+fetch('/api/clients/[REAL_CLIENT_ID]/custom-metrics')
+  .then(r => r.json())
+  .then(console.log)
+
+Expected Response:
+Status: 200 OK
+Body: {
+  "success": true,
+  "metrics": []
+}
+```
+
+#### Test 2.3: POST Endpoint - Invalid Input
+```javascript
+// Test with invalid data
+fetch('/api/clients/[REAL_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ customMetrics: 'not-an-array' })
+})
+.then(r => r.json())
+.then(console.log)
+
+Expected Response:
+Status: 400 Bad Request
+Body: {"error": "customMetrics must be an array"}
+```
+
+#### Test 2.4: POST Endpoint - Valid Single Metric
+```javascript
+// Test saving one custom metric
+fetch('/api/clients/[REAL_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    customMetrics: [{
+      id: 'custom_test_1',
+      apiName: 'activeUsers',
+      displayName: 'Test Metric',
+      category: 'custom',
+      format: 'number',
+      isCustom: true
+    }]
+  })
+})
+.then(r => r.json())
+.then(console.log)
+
+Expected Response:
+Status: 200 OK
+Body: {
+  "success": true,
+  "customMetrics": [{ ... saved metric ... }]
+}
+```
+
+#### Test 2.5: POST Endpoint - Exceeds Limit
+```javascript
+// Test saving 11 metrics (limit is 10)
+const metrics = Array.from({length: 11}, (_, i) => ({
+  id: `custom_${i}`,
+  apiName: 'activeUsers',
+  displayName: `Metric ${i}`,
+  category: 'custom',
+  format: 'number',
+  isCustom: true
+}));
+
+fetch('/api/clients/[REAL_CLIENT_ID]/custom-metrics', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ customMetrics: metrics })
+})
+.then(r => r.json())
+.then(console.log)
+
+Expected Response:
+Status: 400 Bad Request
+Body: {"error": "Maximum 10 custom metrics allowed per client"}
+```
+
+#### Test 2.6: GET After POST - Persistence
+```javascript
+// Verify saved metric persists
+// After Test 2.4, run GET again
+fetch('/api/clients/[REAL_CLIENT_ID]/custom-metrics')
+  .then(r => r.json())
+  .then(console.log)
+
+Expected Response:
+Status: 200 OK
+Body: {
+  "success": true,
+  "metrics": [{ ... previously saved metric ... }]
+}
+```
+
+---
+
+### TEST SUITE 3: UI Components
+**Objective**: Verify UI components render and function correctly
+
+#### Test 3.1: AddCustomMetricModal - Renders
+Manual Test Steps:
+
+Navigate to test page: /test-custom-metrics
+Click "Open Add Metric Modal"
+
+Expected:
+
+✅ Modal appears with overlay
+✅ Two input fields visible
+✅ Help text displays with GA4 instructions
+✅ Cancel and Add buttons visible
+✅ Add button disabled until both fields filled
+
+
+#### Test 3.2: AddCustomMetricModal - Validation
+Manual Test Steps:
+
+Open modal
+Click "Add Metric" without filling fields
+
+Expected:
+
+✅ Error message: "Both fields are required"
+✅ Modal stays open
+✅ No API call made
+
+Then:
+3. Fill Display Name only
+4. Click "Add Metric"
+Expected:
+
+✅ Same error (both fields required)
+
+Then:
+5. Fill both fields
+6. Click "Add Metric"
+Expected:
+
+✅ API call made
+✅ Loading spinner appears
+✅ Modal closes on success
+✅ Metric appears in parent component
+
+
+#### Test 3.3: AddCustomMetricModal - Cancel
+Manual Test Steps:
+
+Open modal
+Fill both fields
+Click "Cancel"
+
+Expected:
+
+✅ Modal closes
+✅ No API call made
+✅ No metric saved
+✅ Form resets
+
+
+#### Test 3.4: Metric Selector Integration - Custom Section Appears
+Manual Test Steps:
+
+Log in to application
+Navigate to any client
+Click "Generate Custom Report"
+Scroll to bottom of metric selector
+
+Expected:
+
+✅ "Custom Metrics" section visible
+✅ Section icon: ⚙️
+✅ "+ Add Custom Metric" button visible
+✅ Empty state shows if no custom metrics
+
+
+#### Test 3.5: Metric Selector - Loading State
+Manual Test Steps:
+
+Open metric selector
+Observe Custom Metrics section on load
+
+Expected:
+
+✅ Loading spinner shows briefly
+✅ "Loading custom metrics..." text appears
+✅ Then either empty state or metric list appears
+
+
+#### Test 3.6: Metric Selector - Add Button Works
+Manual Test Steps:
+
+In Custom Metrics section, click "+ Add Custom Metric"
+
+Expected:
+
+✅ AddCustomMetricModal opens
+✅ Modal overlay appears
+✅ Metric selector modal remains in background
+
+
+#### Test 3.7: Metric Selector - New Metric Appears
+Manual Test Steps:
+
+Add a custom metric via modal
+Save successfully
+
+Expected:
+
+✅ Modal closes
+✅ New metric appears in Custom Metrics list immediately
+✅ Metric shows display name
+✅ Metric shows API name below (smaller text)
+✅ "Custom" badge visible
+✅ Checkbox is unchecked by default
+
+
+#### Test 3.8: Metric Selector - Selection Works
+Manual Test Steps:
+
+Have 1+ custom metrics visible
+Click checkbox to select custom metric
+
+Expected:
+
+✅ Checkbox becomes checked
+✅ Card changes appearance (border/background)
+✅ Counter updates: "Selected: X / 15 (1 custom)"
+
+Then:
+3. Click checkbox again to deselect
+Expected:
+
+✅ Checkbox becomes unchecked
+✅ Card returns to normal appearance
+✅ Counter updates: custom count decreases
+
+
+#### Test 3.9: Metric Selector - Counter Accuracy
+Manual Test Steps:
+
+Select 2 predefined metrics
+Select 1 custom metric
+
+Expected:
+
+✅ Counter shows: "Selected: 3 / 15 (1 custom)"
+
+Then:
+3. Select 2 more predefined, 2 more custom
+Expected:
+
+✅ Counter shows: "Selected: 7 / 15 (3 custom)"
+
+
+#### Test 3.10: Metric Selector - Mixed Selection Persists
+Manual Test Steps:
+
+Select 2 predefined + 1 custom
+Close metric selector modal
+Reopen metric selector
+
+Expected:
+
+✅ Previously selected metrics still checked
+✅ Both predefined and custom selections persist
+✅ Counter shows correct count
+
+
+---
+
+### TEST SUITE 4: Report Generation
+**Objective**: Verify custom metrics are fetched and included in reports
+
+#### Test 4.1: Report with Predefined Metrics Only (Regression Test)
+Manual Test Steps:
+
+Navigate to any client
+Open metric selector
+Select ONLY predefined metrics (e.g., users, sessions, bounceRate)
+Do NOT select any custom metrics
+Click "Generate Report"
+
+Expected:
+
+✅ Report generates successfully
+✅ No errors in console
+✅ Console shows: "📊 Generating report with 0 custom metrics"
+✅ Report completes in normal time (~30-60 sec)
+✅ PDF downloads successfully
+
+CRITICAL: This proves we didn't break existing functionality
+
+#### Test 4.2: Report with Valid Custom Metric
+Manual Test Steps:
+
+Add custom metric:
+
+Display Name: "Test Active Users"
+API Name: "activeUsers" (valid GA4 metric)
+
+
+Select this custom metric + 2 predefined metrics
+Generate report
+
+Expected:
+
+✅ Console shows: "📊 Generating report with 1 custom metrics"
+✅ Console shows: "🔍 GA4 API metrics: [array including 'activeUsers']"
+✅ Report generates successfully
+✅ No errors during generation
+✅ PDF downloads
+
+Check Network Tab:
+
+✅ GA4 API request includes custom metric
+✅ Response returns data for all 3 metrics
+
+
+#### Test 4.3: Report with Invalid Custom Metric
+Manual Test Steps:
+
+Add custom metric with INVALID name:
+
+Display Name: "Fake Metric"
+API Name: "totally_fake_metric_name"
+
+
+Select this custom metric + 1 predefined metric
+Generate report
+
+Expected:
+
+✅ Report generation starts
+✅ Console may show GA4 error (acceptable)
+✅ Report STILL COMPLETES (doesn't crash)
+✅ PDF downloads
+✅ Custom metric shows "0" in PDF (acceptable)
+
+CRITICAL: Invalid metrics shouldn't break report generation
+
+#### Test 4.4: Report with Multiple Custom Metrics
+Manual Test Steps:
+
+Add 3 custom metrics (all with valid GA4 names like activeUsers, sessions, etc.)
+Select all 3 custom + 2 predefined
+Generate report
+
+Expected:
+
+✅ Console shows: "📊 Generating report with 3 custom metrics"
+✅ GA4 API includes all 5 metrics
+✅ Report generates successfully
+✅ PDF includes all 5 metrics
+
+
+#### Test 4.5: Report with Maximum Custom Metrics
+Manual Test Steps:
+
+Add 10 custom metrics (max limit)
+Select all 10 custom metrics only (no predefined)
+Generate report
+
+Expected:
+
+✅ Report generates
+✅ Console shows: "📊 Generating report with 10 custom metrics"
+✅ GA4 API includes 10 metrics
+✅ PDF downloads
+
+Note: PDF might look sparse without GSC/PageSpeed data (acceptable)
+
+---
+
+### TEST SUITE 5: PDF Display
+**Objective**: Verify custom metrics appear correctly in generated PDFs
+
+#### Test 5.1: PDF with Predefined Metrics Only (Regression)
+Manual Test Steps:
+
+Generate report with ONLY predefined metrics
+Download PDF
+Open PDF and review
+
+Expected:
+
+✅ All selected predefined metrics visible
+✅ Layout looks normal (unchanged from before)
+✅ No "custom" badges or sections (since no custom metrics)
+✅ PDF formatting perfect
+
+CRITICAL: PDFs with no custom metrics should look identical to before
+
+#### Test 5.2: PDF with One Custom Metric
+Manual Test Steps:
+
+Generate report with 2 predefined + 1 custom metric
+Download PDF
+Open PDF and review
+
+Expected in PDF:
+
+✅ All 3 metrics visible
+✅ Custom metric shows user-defined Display Name
+✅ Custom metric shows data value (or 0)
+✅ Custom metric may have "Custom" badge/indicator
+✅ Layout adapts properly (no weird spacing)
+✅ Performance analysis section includes custom metric
+✅ Key findings mention custom metric
+
+
+#### Test 5.3: PDF with Multiple Custom Metrics
+Manual Test Steps:
+
+Generate report with 2 predefined + 3 custom
+Download PDF
+Open PDF
+
+Expected:
+
+✅ All 5 metrics display
+✅ All custom metrics show their Display Names
+✅ All custom metrics show values
+✅ Custom metrics appear in relevant sections
+✅ PDF doesn't look cluttered
+✅ Layout remains professional
+
+
+#### Test 5.4: PDF Layout with Many Metrics
+Manual Test Steps:
+
+Select 5 predefined + 5 custom (10 total)
+Generate report
+Review PDF
+
+Expected:
+
+✅ All 10 metrics fit in PDF
+✅ Layout adapts (possibly multiple pages)
+✅ No overlapping text
+✅ All metric values readable
+✅ Professional appearance maintained
+
+
+#### Test 5.5: Custom Metric with Zero Data
+Manual Test Steps:
+
+Add custom metric with valid but zero-data API name
+Generate report
+Review PDF
+
+Expected:
+
+✅ Custom metric appears in PDF
+✅ Shows "0" as value
+✅ No error messages in PDF
+✅ PDF looks normal (not broken)
+
+
+---
+
+### TEST SUITE 6: Edge Cases & Error Handling
+**Objective**: Verify system handles edge cases gracefully
+
+#### Test 6.1: No GA4 Connection
+Manual Test Steps:
+
+Use a client with NO Google Analytics connected
+Try to add custom metric
+
+Expected:
+
+✅ Can still add custom metric (saves to DB)
+✅ Report generation fails with standard "Connect GA4" error
+✅ Custom metrics remain saved for after connection
+
+
+#### Test 6.2: GA4 Connection Lost
+Manual Test Steps:
+
+Add custom metrics successfully
+Revoke Google Analytics access
+Try to generate report with custom metrics
+
+Expected:
+
+✅ Report generation fails gracefully
+✅ Error message about GA4 connection
+✅ Custom metrics still in database
+✅ Can reconnect GA4 and try again
+
+
+#### Test 6.3: Duplicate Custom Metrics
+Manual Test Steps:
+
+Add custom metric: "Newsletter" / "customEvent:newsletter"
+Add same custom metric again: "Newsletter" / "customEvent:newsletter"
+
+Expected:
+
+✅ Both save successfully (no duplicate prevention in Phase 1)
+✅ Both appear in list with different IDs
+✅ Both can be selected
+✅ Both show same data in PDF
+
+Note: This is known behavior, not a bug (can be improved in Phase 2)
+
+#### Test 6.4: Very Long Display Name
+Manual Test Steps:
+
+Add custom metric with 50+ character display name
+
+Expected:
+
+✅ Saves successfully
+✅ Displays in UI (may truncate with ellipsis)
+✅ Shows full name in PDF
+✅ PDF layout adapts (wraps text if needed)
+
+
+#### Test 6.5: Special Characters in Names
+Manual Test Steps:
+
+Add custom metric:
+
+Display Name: "Test & Metric (With $pecial Ch@rs!)"
+API Name: "customEvent:test_metric"
 
 
 
+Expected:
+
+✅ Saves successfully
+✅ Displays correctly in UI
+✅ Shows correctly in PDF
+✅ No encoding issues
 
 
+#### Test 6.6: Rapid Adding of Metrics
+Manual Test Steps:
+
+Quickly add 5 custom metrics in succession (fast clicking)
+
+Expected:
+
+✅ All 5 save successfully
+✅ All 5 appear in list
+✅ No race conditions
+✅ No duplicate entries
+✅ All have unique IDs
 
 
+#### Test 6.7: Browser Refresh During Report Generation
+Manual Test Steps:
+
+Start generating report with custom metrics
+Refresh browser mid-generation
+
+Expected:
+
+✅ Report generation continues (or restarts)
+✅ Custom metrics still selected
+✅ No data corruption
+✅ Can complete report successfully
+
+
+---
+
+### TEST SUITE 7: Cross-Browser & Device Testing
+**Objective**: Verify feature works across browsers and devices
+
+#### Test 7.1: Chrome Desktop
+Test in Google Chrome (latest):
+
+✅ All UI components render correctly
+✅ Modal displays properly
+✅ Report generation works
+✅ PDF downloads successfully
+
+
+#### Test 7.2: Firefox Desktop
+Test in Mozilla Firefox (latest):
+
+✅ All UI components render correctly
+✅ Modal displays properly
+✅ Report generation works
+✅ PDF downloads successfully
+
+
+#### Test 7.3: Safari Desktop
+Test in Safari (latest):
+
+✅ All UI components render correctly
+✅ Modal displays properly
+✅ Report generation works
+✅ PDF downloads successfully
+
+
+#### Test 7.4: Mobile Safari (iOS)
+Test on iPhone/iPad:
+
+✅ Metric selector usable on mobile
+✅ Modal displays (not cut off)
+✅ Can type in input fields
+✅ Can select metrics
+✅ Report generation works
+
+
+#### Test 7.5: Mobile Chrome (Android)
+Test on Android device:
+
+✅ Metric selector usable on mobile
+✅ Modal displays properly
+✅ Can interact with all elements
+✅ Report generation works
+
+
+---
+
+### TEST SUITE 8: Performance & Scalability
+**Objective**: Verify feature performs well under load
+
+#### Test 8.1: Report Generation Time - No Custom Metrics
+Test Steps:
+
+Generate report with 5 predefined metrics
+Measure time to completion
+
+Baseline: ~30-60 seconds (existing performance)
+Expected: No change from baseline
+
+#### Test 8.2: Report Generation Time - With Custom Metrics
+Test Steps:
+
+Generate report with 3 predefined + 2 custom
+Measure time to completion
+
+Expected:
+
+✅ <10 seconds difference from baseline
+✅ Custom metrics don't significantly slow generation
+
+
+#### Test 8.3: PDF File Size - With Custom Metrics
+Test Steps:
+
+Generate PDF with 5 predefined metrics
+Note file size
+Generate PDF with 3 predefined + 2 custom
+Compare file sizes
+
+Expected:
+
+✅ File size increase < 500KB
+✅ PDFs remain under 10MB total
+
+
+#### Test 8.4: UI Responsiveness - Many Custom Metrics
+Test Steps:
+
+Add 10 custom metrics
+Open metric selector
+Scroll through custom metrics list
+
+Expected:
+
+✅ UI remains responsive
+✅ No lag when selecting/deselecting
+✅ Smooth scrolling
+
+
+---
+
+### TEST SUITE 9: Data Integrity & Persistence
+**Objective**: Verify data saves and loads correctly
+
+#### Test 9.1: Custom Metrics Persist Across Sessions
+Test Steps:
+
+Add 2 custom metrics
+Log out
+Log back in
+Check client's custom metrics
+
+Expected:
+
+✅ Custom metrics still present
+✅ Display names correct
+✅ API names correct
+✅ Can still select and use them
+
+
+#### Test 9.2: Custom Metrics Isolated Per Client
+Test Steps:
+
+Add custom metric to Client A
+Navigate to Client B
+Check Client B's custom metrics
+
+Expected:
+
+✅ Client B has NO custom metrics from Client A
+✅ Each client has independent custom metrics
+✅ No data leakage between clients
+
+
+#### Test 9.3: Custom Metrics Survive Client Updates
+Test Steps:
+
+Add custom metrics to a client
+Edit client (change name, domain, etc.)
+Save client changes
+Check custom metrics
+
+Expected:
+
+✅ Custom metrics unchanged
+✅ Still accessible
+✅ Still work in reports
+
+
+---
+
+### TEST SUITE 10: Existing Features Regression
+**Objective**: CRITICAL - Verify nothing broke
+
+#### Test 10.1: Executive Reports Still Work
+Test Steps:
+
+Navigate to any client
+Generate Executive Report (not Custom)
+Review PDF
+
+Expected:
+
+✅ Executive report generates normally
+✅ No mention of custom metrics
+✅ Layout unchanged
+✅ All predefined metrics work
+
+
+#### Test 10.2: Standard Reports Still Work
+Test Steps:
+
+Generate Standard Report
+Review PDF
+
+Expected:
+
+✅ Standard report generates normally
+✅ No custom metrics section
+✅ All standard metrics present
+
+
+#### Test 10.3: Predefined Metric Selection Unchanged
+Test Steps:
+
+Open metric selector
+Select only predefined metrics
+Verify behavior identical to before feature
+
+Expected:
+
+✅ All predefined categories present
+✅ Selection works normally
+✅ Counter works
+✅ No visual changes to predefined section
+
+
+#### Test 10.4: Client Management Unchanged
+Test Steps:
+
+Create new client
+Edit existing client
+Delete client
+
+Expected:
+
+✅ All CRUD operations work normally
+✅ No errors related to customMetrics field
+✅ Custom metrics deleted with client (cascade)
+
+
+#### Test 10.5: Google OAuth Still Works
+Test Steps:
+
+Disconnect Google Analytics from a client
+Reconnect Google Analytics
+
+Expected:
+
+✅ OAuth flow works normally
+✅ Custom metrics unaffected
+✅ Can use custom metrics after reconnect
+
+
+#### Test 10.6: PayPal Billing Unchanged
+Test Steps:
+
+View subscription status
+Upgrade/downgrade plan (if test environment allows)
+
+Expected:
+
+✅ Billing works normally
+✅ Plan limits enforce correctly
+✅ Custom metrics feature available to all tiers
+
+
+---
+
+## 📊 REPORTING REQUIREMENTS
+
+### For Each Test:
+Document:
+1. Test ID and name
+2. Result: ✅ PASS / ❌ FAIL / ⚠️ ISSUE
+3. Screenshots (for UI tests)
+4. Console logs (for functionality tests)
+5. Error messages (if any failures)
+6. Actual vs Expected behavior
+
+### Summary Report Format:
+Custom Metrics QA Audit Report
+Executive Summary
+
+Total Tests: [X]
+Passed: [X]
+Failed: [X]
+Issues Found: [X]
+
+Critical Issues
+[List any blocking issues]
+Non-Critical Issues
+[List any minor issues]
+Test Results by Suite
+[Breakdown by test suite]
+Recommendations
+[Ship / Fix Issues / Additional Testing Needed]
+Screenshots & Evidence
+[Attach relevant screenshots]
+
+---
+
+## 🚨 CRITICAL PASS CRITERIA
+
+The feature is ready to ship ONLY IF:
+1. ✅ ALL Test Suite 10 (Regression) tests pass (nothing broke)
+2. ✅ Test 4.1 (Report with Predefined Only) passes (core functionality intact)
+3. ✅ Test 5.1 (PDF with Predefined Only) passes (PDFs unchanged)
+4. ✅ At least 90% of other tests pass
+5. ✅ No critical security vulnerabilities found
+6. ✅ No data corruption issues found
+
+---
+
+## 🔧 TESTING ENVIRONMENT
+
+### Required Setup:
+1. Development server running (`npm run dev`)
+2. Test database with at least 2 clients
+3. At least 1 client with Google Analytics connected
+4. Browser DevTools open (Network + Console tabs)
+5. Prisma Studio open for database verification
+
+### Test Data Needed:
+- Valid GA4 metric names (e.g., activeUsers, sessions, bounceRate)
+- Invalid GA4 metric names (e.g., fake_metric_xyz)
+- Various display names (short, long, special characters)
+
+---
+
+## ⏱️ ESTIMATED TIME
+
+- Test Suite 1-2 (Database & API): 30 minutes
+- Test Suite 3-4 (UI & Reports): 45 minutes
+- Test Suite 5-6 (PDF & Edge Cases): 45 minutes
+- Test Suite 7-8 (Cross-Browser & Performance): 30 minutes
+- Test Suite 9-10 (Data & Regression): 30 minutes
+- **Total: ~3 hours**
+
+---
+
+## 📝 DELIVERABLES
+
+1. Completed test results spreadsheet
+2. QA audit report (summary format above)
+3. Screenshots of critical tests
+4. Video recording of end-to-end flow (optional)
+5. List of bugs found (with severity ratings)
+6. Ship/No-Ship recommendation
+
+---
+
+## 🎯 SUCCESS METRICS
+
+Feature is considered SUCCESSFUL if:
+- ✅ All regression tests pass (existing features work)
+- ✅ Core user flows work end-to-end
+- ✅ PDFs display custom metrics correctly
+- ✅ Error handling is robust
+- ✅ No critical bugs found
+- ✅ Performance impact is minimal
+- ✅ UX is smooth and intuitive
+
+---
+
+BEGIN AUDIT NOW. Report findings in structured format above.
 
 
 
