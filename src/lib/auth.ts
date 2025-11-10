@@ -30,6 +30,22 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt'
   },
   callbacks: {
+    redirect: ({ url, baseUrl }) => {
+      // If the URL is trying to redirect to verify-email-prompt, redirect to dashboard instead
+      if (url.includes('/verify-email-prompt')) {
+        return `${baseUrl}/dashboard?onboarding=true`;
+      }
+      // For relative URLs, make them absolute
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // For same-origin URLs, allow them
+      if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      // Default to dashboard for external URLs
+      return `${baseUrl}/dashboard`;
+    },
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google' && user.email) {
         try {
