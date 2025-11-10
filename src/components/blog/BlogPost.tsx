@@ -54,6 +54,11 @@ function renderMarkdownContent(content: string): string {
       const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       return `<h1 id="${id}" class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight" style="word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;">${title}</h1>`
     })
+    // Handle images first (before links to avoid conflicts)
+    .replace(/!\[([^\]]*)\]\(([^)]+)(?:\s+"([^"]+)")?\)/g, (match, alt, src, title) => {
+      const titleAttr = title ? ` title="${title}"` : '';
+      return `<img src="${src}" alt="${alt}" class="w-full h-auto rounded-lg shadow-lg my-8 border border-gray-200"${titleAttr} />`;
+    })
     // Handle formatting
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
