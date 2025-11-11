@@ -353,12 +353,6 @@ export async function getAnalyticsData(
       });
     }
 
-    // 🔍 GA4 DEBUG - Result object after mapping
-    console.log('🔍 GA4 DEBUG - Result object after mapping:', JSON.stringify(result, null, 2));
-    console.log('🔍 GA4 DEBUG - Result.users value:', result.users);
-    console.log('🔍 GA4 DEBUG - Result.sessions value:', result.sessions);
-    console.log('🔍 GA4 DEBUG - Result keys:', Object.keys(result));
-
     // Handle special metrics that require separate API calls
     if (requestedMetrics?.includes('topLandingPages')) {
       result.topLandingPages = await getTopLandingPages(
@@ -385,11 +379,6 @@ export async function getAnalyticsData(
     const conversions = result.conversions || 0;
     const avgSessionDuration = result.avgSessionDuration || 0;
 
-    // 🔍 GA4 DEBUG - Extracted values
-    console.log('🔍 GA4 DEBUG - Extracted users:', users);
-    console.log('🔍 GA4 DEBUG - Extracted sessions:', sessions);
-    console.log('🔍 GA4 DEBUG - Extracted bounceRate:', bounceRate);
-
     // Parse landing pages
     const topLandingPages: AnalyticsLandingPage[] = landingPagesResponse.data.rows?.map((row: any) => ({
       page: row.dimensionValues?.[0]?.value || '',
@@ -413,16 +402,6 @@ export async function getAnalyticsData(
         data: { ga4PropertyId: propertyIdString }
       });
     }
-
-    // 🔍 GA4 DEBUG - Final return object
-    console.log('🔍 GA4 DEBUG - Final return object:', {
-      users,
-      sessions,
-      bounceRate,
-      conversions,
-      hasDynamicMetrics: !!result,
-      dynamicMetricsKeys: Object.keys(result)
-    });
 
     return {
       // Legacy format for backward compatibility
