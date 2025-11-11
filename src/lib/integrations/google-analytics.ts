@@ -93,18 +93,31 @@ export function buildMetricsForGA4Request(
   selectedMetrics: string[],
   customMetrics: CustomMetric[] = []
 ): string[] {
-  return selectedMetrics
+  // Valid predefined GA4 metrics (the original working set)
+  const validPredefinedMetrics = [
+    'totalUsers', 'sessions', 'bounceRate', 'conversions',
+    'newUsers', 'engagedSessions', 'engagementRate', 'sessionsPerUser',
+    'screenPageViewsPerSession', 'averageSessionDuration', 'eventCount',
+    'screenPageViews', 'ecommercePurchases', 'totalRevenue'
+  ];
+
+  const metricNames = selectedMetrics
     .map(metricId => {
       const config = getMetricConfig(metricId, customMetrics);
-      
       if (!config) {
         console.warn(`Unknown metric: ${metricId}, skipping`);
         return null;
       }
-      
       return config.apiName;
     })
-    .filter((apiName): apiName is string => apiName !== null);
+    .filter((apiName): apiName is string => apiName !== null)
+    .filter(name => 
+      validPredefinedMetrics.includes(name) ||  // Original 25 metrics
+      name.startsWith('customEvent:')            // User's custom metrics
+    )
+    .filter((name, index, arr) => arr.indexOf(name) === index); // Remove duplicates
+
+  return metricNames;
 }
 
 export interface AnalyticsLandingPage {
