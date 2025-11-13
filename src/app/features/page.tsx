@@ -1,6 +1,12 @@
 'use client'
 
+import type { Metadata } from 'next'
 import React from 'react'
+
+export const metadata: Metadata = {
+  title: 'SEO Reporting Features | Automated White Label Reports - Reportr',
+  description: 'Professional SEO reporting features: 30-second generation, white-label branding, Google API integration. See why agencies choose automated reports.',
+}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
