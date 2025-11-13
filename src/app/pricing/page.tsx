@@ -1,12 +1,6 @@
 'use client'
 
-import type { Metadata } from 'next'
 import React, { useState } from 'react'
-
-export const metadata: Metadata = {
-  title: 'SEO Reporting Pricing | White Label Reports from $29/month - Reportr',
-  description: 'Transparent SEO reporting pricing: Free forever plan, paid plans from $29/month. Compare features, save 95% time vs manual reports. Start free trial.',
-}
 import { useSession, signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Header, Footer } from '@/components/landing'

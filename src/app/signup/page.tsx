@@ -1,12 +1,6 @@
 'use client'
 
-import type { Metadata } from 'next'
 import React, { useEffect, Suspense } from 'react'
-
-export const metadata: Metadata = {
-  title: 'Start Free Trial | White Label SEO Reports - No Setup Fees - Reportr',
-  description: 'Start your free 14-day trial: Generate white-label SEO reports in minutes. No credit card required, full features access. Join 500+ agencies today.',
-}
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signIn } from 'next-auth/react'
 import { 

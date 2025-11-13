@@ -1,12 +1,6 @@
 'use client'
 
-import type { Metadata } from 'next'
 import React from 'react'
-
-export const metadata: Metadata = {
-  title: 'How Reportr Works | 3 Steps to Automated SEO Reports - Reportr',
-  description: 'How automated SEO reporting works: Connect APIs, customize branding, generate reports in 30 seconds. See the 3-step process. Try free for 14 days.',
-}
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
