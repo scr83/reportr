@@ -26,7 +26,7 @@ const features = [
   {
     icon: Zap,
     title: 'Automated Reports',
-    description: 'Generate professional SEO reports automatically with AI-powered insights and recommendations.',
+    description: 'Generate professional SEO reports automatically with automated insights and recommendations.',
     color: 'text-yellow-600 bg-yellow-100'
   },
   {

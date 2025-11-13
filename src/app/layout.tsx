@@ -14,7 +14,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: 'Reportr - Professional SEO Reports in Minutes',
-  description: 'Generate branded, AI-powered SEO reports for digital marketing agencies. Save time with automated reporting from Google Search Console, Analytics 4, and PageSpeed Insights.',
+  description: 'Generate branded, automated SEO reports for digital marketing agencies. Save time with automated reporting from Google Search Console, Analytics 4, and PageSpeed Insights.',
   keywords: 'SEO reports, digital marketing, agency tools, Google Search Console, analytics reporting, white label',
   authors: [{ name: 'Reportr' }],
   creator: 'Reportr',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Reportr - Professional SEO Reports in Minutes',
-    description: 'Generate branded, AI-powered SEO reports for digital marketing agencies. Save time with automated reporting.',
+    description: 'Generate branded, automated SEO reports for digital marketing agencies. Save time with automated reporting.',
     url: '/',
     siteName: 'Reportr',
     images: [
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Reportr - Professional SEO Reports in Minutes',
-    description: 'Generate branded, AI-powered SEO reports for digital marketing agencies.',
+    description: 'Generate branded, automated SEO reports for digital marketing agencies.',
     images: ['/twitter-image.jpg'],
   },
   robots: {

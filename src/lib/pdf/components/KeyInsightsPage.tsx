@@ -70,7 +70,7 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.title}>Key Insights</Text>
-          <Text style={styles.subtitle}>AI-powered insights based on your data analysis</Text>
+          <Text style={styles.subtitle}>automated insights based on your data analysis</Text>
         </View>
         <View style={styles.headerRight}>
           <Text style={styles.clientName}>{data.clientName}</Text>

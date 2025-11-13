@@ -34,7 +34,7 @@ const steps = [
     number: 3,
     icon: FileText,
     title: 'Generate Report',
-    description: 'Get a professional PDF report with AI-powered insights and recommendations in minutes.',
+    description: 'Get a professional PDF report with automated insights and recommendations in minutes.',
     color: 'from-green-500 to-green-600'
   }
 ]
