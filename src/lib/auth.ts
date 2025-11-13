@@ -67,10 +67,28 @@ export const authOptions: NextAuthOptions = {
             // Check if this email has already used a trial (abuse prevention)
             const hasTrialRecord = await hasUsedTrial(user.email);
             
-            // For new users, we start with 'FREE' flow by default
-            // PayPal users will get updated to 'PAID_TRIAL' when their subscription is activated
-            // This ensures proper email verification for free users while allowing PayPal users to skip it later
-            const signupFlow = 'FREE';
+            // 🔧 FIX: Detect paid trial intent from sessionStorage
+            // PayPal component sets 'PAID_TRIAL' before OAuth redirect
+            let signupFlow = 'FREE'; // Default to FREE
+            
+            try {
+              // Check if running in browser environment
+              if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
+                const storedFlow = sessionStorage.getItem('signupFlow');
+                if (storedFlow === 'PAID_TRIAL') {
+                  signupFlow = 'PAID_TRIAL';
+                  console.log('🎯 Detected PAID_TRIAL intent from sessionStorage');
+                  // Clear sessionStorage to prevent reuse
+                  sessionStorage.removeItem('signupFlow');
+                  console.log('🧹 Cleared sessionStorage signupFlow');
+                }
+              }
+            } catch (error) {
+              console.warn('⚠️  Could not access sessionStorage:', error);
+              // Fallback to FREE flow
+            }
+            
+            console.log(`👤 Creating new user: ${user.email}, signupFlow: ${signupFlow}`);
             
             existingUser = await prisma.user.create({
               data: {
@@ -91,19 +109,20 @@ export const authOptions: NextAuthOptions = {
               }
             });
 
-            // Send verification email for free flow users who haven't used a trial
-            // Note: PayPal users will have their signupFlow updated to 'PAID_TRIAL' during subscription activation
-            // and won't need verification since they're already verified via PayPal
-            if (!hasTrialRecord) {
-              console.log(`Sending verification email to new user ${user.email} (signup flow: ${signupFlow})`);
+            // 🔧 FIX: Send verification email ONLY for FREE flow users
+            // PAID_TRIAL users (PayPal) skip email verification entirely
+            if (!hasTrialRecord && signupFlow === 'FREE') {
+              console.log(`📧 Sending verification email to FREE user: ${user.email}`);
               const token = await generateVerificationToken(user.email);
               await sendVerificationEmail(
                 user.email,
                 user.name || 'there',
                 token
               );
+            } else if (signupFlow === 'PAID_TRIAL') {
+              console.log(`✅ Skipping verification email for PAID_TRIAL user: ${user.email}`);
             } else {
-              console.log(`Skipping verification email for ${user.email} (already used trial)`);
+              console.log(`⏭️  Skipping verification email for ${user.email} (already used trial)`);
             }
           } else {
             // For existing users, ensure PayPal subscribers are marked correctly

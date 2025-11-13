@@ -126,8 +126,11 @@ function DashboardContent() {
     }
   };
 
-  // NEW CODE - Check session for unverified users
-  const isUnverified = session?.user && !session.user.emailVerified;
+  // 🔧 FIX: Check session for unverified FREE users only
+  // PAID_TRIAL users should NOT see the verification banner
+  const isUnverified = session?.user && 
+                       !session.user.emailVerified && 
+                       session.user.signupFlow !== 'PAID_TRIAL';
 
   // Calculate stats from real data
   const stats = [

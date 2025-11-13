@@ -67,6 +67,11 @@ function PricingTiers() {
     if (session) {
       router.push('/dashboard')
     } else {
+      // 🔧 FIX: Set sessionStorage to mark FREE intent (for clarity)
+      if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('signupFlow', 'FREE');
+        console.log('📝 Set sessionStorage signupFlow = FREE');
+      }
       signIn('google', { callbackUrl: '/dashboard?flow=free' })
     }
   }

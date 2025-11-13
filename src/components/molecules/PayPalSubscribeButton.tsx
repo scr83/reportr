@@ -103,6 +103,10 @@ export function PayPalSubscribeButton({
   const handleGoogleSignIn = async () => {
     console.log('🔐 Initiating Google sign-in for PayPal subscription...');
     
+    // 🔧 FIX: Set sessionStorage to mark paid trial intent BEFORE OAuth
+    sessionStorage.setItem('signupFlow', 'PAID_TRIAL');
+    console.log('📝 Set sessionStorage signupFlow = PAID_TRIAL');
+    
     // Add URL parameter to persist subscription intent across redirect
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('subscribe', 'pending');
