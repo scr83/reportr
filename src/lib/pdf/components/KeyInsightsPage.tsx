@@ -122,15 +122,16 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
       <View style={[styles.insightBox, {backgroundColor: '#FEF3C7', borderColor: '#F59E0B'}]}>
         <Text style={[styles.insightTitle, {color: '#92400E'}]}>Traffic Distribution</Text>
         <Text style={styles.insightText}>
+          Organic search drives {formatNumber(data.gscMetrics.clicks)} clicks from {formatNumber(data.gscMetrics.impressions)} impressions{' '}
           {data.ga4Metrics.organicTraffic 
-            ? `Organic search drives ${formatNumber(data.ga4Metrics.organicTraffic)} sessions (${formatPercentage(data.ga4Metrics.organicTraffic / data.ga4Metrics.sessions)})` 
-            : 'Organic traffic data not available'}
+            ? `(${formatNumber(data.ga4Metrics.organicTraffic)} sessions)` 
+            : ''}
           {data.ga4Metrics.directTraffic 
             ? `, while direct traffic contributes ${formatNumber(data.ga4Metrics.directTraffic)} sessions` 
-            : ''}. This distribution shows{' '}
-          {data.ga4Metrics.organicTraffic && (data.ga4Metrics.organicTraffic / data.ga4Metrics.sessions) > 0.5 
-            ? 'strong SEO performance' 
-            : 'opportunity to improve organic visibility'}.
+            : ''}. Your CTR of {formatPercentage(data.gscMetrics.ctr)} indicates{' '}
+          {data.gscMetrics.ctr > 0.05 
+            ? 'strong search performance' 
+            : 'opportunity to improve click-through rates'}.
         </Text>
       </View>
 
