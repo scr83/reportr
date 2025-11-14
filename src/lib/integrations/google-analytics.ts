@@ -98,7 +98,8 @@ export function buildMetricsForGA4Request(
     'totalUsers', 'sessions', 'bounceRate', 'conversions',
     'newUsers', 'engagedSessions', 'engagementRate', 'sessionsPerUser',
     'screenPageViewsPerSession', 'averageSessionDuration', 'eventCount',
-    'screenPageViews', 'ecommercePurchases', 'totalRevenue'
+    'screenPageViews', 'ecommercePurchases', 'totalRevenue',
+    'sessionConversionRate', 'transactions'
   ];
 
   const metricNames = selectedMetrics
@@ -349,9 +350,19 @@ export async function getAnalyticsData(
         }
       });
 
+      console.log('🔍 Raw GA4 traffic sources response:', {
+        totalRows: trafficSourcesResponse.data.rows?.length || 0,
+        rows: trafficSourcesResponse.data.rows?.map((row: any) => ({
+          channelGroup: row.dimensionValues?.[0]?.value,
+          sessions: row.metricValues?.[0]?.value
+        }))
+      });
+
       trafficSourcesResponse.data.rows?.forEach((row: any) => {
         const channelGroup = row.dimensionValues?.[0]?.value || 'unknown';
         const sessions = parseInt(row.metricValues?.[0]?.value || '0', 10);
+
+        console.log('🔍 Processing channel:', channelGroup, 'with', sessions, 'sessions');
 
         switch (channelGroup) {
           case 'Organic Search':
