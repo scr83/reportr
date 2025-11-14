@@ -325,6 +325,64 @@ export async function getAnalyticsData(
       }
     });
 
+    // Fetch traffic source breakdown
+    let trafficBreakdown: {
+      organicTraffic: number;
+      directTraffic: number;
+      referralTraffic: number;
+      socialTraffic?: number;
+      paidTraffic?: number;
+      otherTraffic?: number;
+    } = {
+      organicTraffic: 0,
+      directTraffic: 0,
+      referralTraffic: 0
+    };
+
+    try {
+      const trafficSourcesResponse = await analyticsData.properties.runReport({
+        property: `properties/${propertyIdString}`,
+        requestBody: {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+          metrics: [{ name: 'sessions' }]
+        }
+      });
+
+      trafficSourcesResponse.data.rows?.forEach((row: any) => {
+        const channelGroup = row.dimensionValues?.[0]?.value || 'unknown';
+        const sessions = parseInt(row.metricValues?.[0]?.value || '0', 10);
+
+        switch (channelGroup) {
+          case 'Organic Search':
+            trafficBreakdown.organicTraffic = sessions;
+            break;
+          case 'Direct':
+            trafficBreakdown.directTraffic = sessions;
+            break;
+          case 'Referral':
+            trafficBreakdown.referralTraffic = sessions;
+            break;
+          case 'Organic Social':
+          case 'Paid Social':
+            trafficBreakdown.socialTraffic = (trafficBreakdown.socialTraffic || 0) + sessions;
+            break;
+          case 'Paid Search':
+          case 'Paid Shopping':
+          case 'Display':
+            trafficBreakdown.paidTraffic = (trafficBreakdown.paidTraffic || 0) + sessions;
+            break;
+          default:
+            trafficBreakdown.otherTraffic = (trafficBreakdown.otherTraffic || 0) + sessions;
+        }
+      });
+
+      console.log('🔍 GA4 traffic source breakdown:', trafficBreakdown);
+    } catch (error) {
+      console.error('Failed to fetch traffic sources:', error);
+      // Keep defaults if API call fails
+    }
+
     // Process response and map back to frontend IDs
     const result: Record<string, any> = {};
 
@@ -418,8 +476,11 @@ export async function getAnalyticsData(
         avgBounceRate: bounceRate * 100,
         totalConversions: conversions
       },
-      // NEW: Dynamic metrics data
-      dynamicMetrics: result
+      // NEW: Dynamic metrics data with traffic sources
+      dynamicMetrics: {
+        ...result,
+        ...trafficBreakdown  // Add traffic source data
+      }
     };
   } catch (error: any) {
     console.error('Google Analytics API error:', error);
