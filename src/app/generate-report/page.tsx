@@ -620,7 +620,7 @@ export default function GenerateReportPage() {
               // Existing parsing logic...
               if (['users', 'sessions', 'conversions', 'newUsers', 'engagedSessions'].includes(field.id)) {
                 dynamicGA4Data[field.id] = parseInt(value.toString().replace(/,/g, '')) || 0
-              } else if (['bounceRate', 'engagementRate', 'pagesPerSession', 'avgSessionDuration', 'organicTraffic'].includes(field.id)) {
+              } else if (['bounceRate', 'engagementRate', 'pagesPerSession', 'avgSessionDuration', 'organicTraffic', 'directTraffic', 'referralTraffic', 'socialTraffic', 'paidTraffic', 'sessionsPerUser'].includes(field.id)) {
                 dynamicGA4Data[field.id] = parseFloat(value.toString().replace(/[,%]/g, '')) || 0
               } else if (['topLandingPages', 'deviceBreakdown'].includes(field.id)) {
                 try {
