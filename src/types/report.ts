@@ -71,6 +71,8 @@ export interface GA4Data {
   pagesPerSession: number
   newUsers: number
   organicTraffic: number
+  directTraffic?: number
+  referralTraffic?: number
   topLandingPages: Array<{
     page: string
     sessions: number
