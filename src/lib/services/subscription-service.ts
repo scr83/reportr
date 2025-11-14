@@ -53,6 +53,17 @@ export class SubscriptionService {
         console.warn(`⚠️  PayPal subscription activated but trial activation failed: ${trialResult.error} (User: ${userId})`);
       }
 
+      // Extract billing dates from PayPal subscription details
+      const nextBillingTime = subscriptionDetails.billing_info?.next_billing_time;
+      const firstPaymentDate = nextBillingTime 
+        ? new Date(nextBillingTime) 
+        : new Date(); // Fallback for immediate payment (no trial)
+
+      const now = new Date();
+
+      // Determine if this is a trial subscription (payment date is in the future)
+      const hasTrial = firstPaymentDate > now;
+
       // Update user with subscription info and white-label status
       await prisma.user.update({
         where: { id: userId },
@@ -61,11 +72,26 @@ export class SubscriptionService {
           paypalSubscriptionId: paypalSubscriptionId,
           subscriptionStatus: 'active',
           planExpires: null, // Clear trial expiration
-          billingCycleStart: new Date(),
-          billingCycleEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          
+          // Billing cycle dates (THE FIX)
+          billingCycleStart: firstPaymentDate,
+          billingCycleEnd: new Date(firstPaymentDate.getTime() + 30 * 24 * 60 * 60 * 1000),
+          
+          // Trial tracking fields (BONUS: proper population)
+          trialStartDate: hasTrial ? now : null,
+          trialEndDate: hasTrial ? firstPaymentDate : null,
+          trialType: hasTrial ? 'PAYPAL' : null,
+          
           whiteLabelEnabled: isWhiteLabel, // Auto-enable white-label for WL plans
           signupFlow: 'PAID_TRIAL', // Mark as paid trial flow to skip email verification
         },
+      });
+
+      console.log('✅ Billing cycle dates:', {
+        billingCycleStart: firstPaymentDate.toISOString(),
+        billingCycleEnd: new Date(firstPaymentDate.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        hasTrial,
+        trialEndDate: hasTrial ? firstPaymentDate.toISOString() : null
       });
 
       // Create payment record
