@@ -113,7 +113,7 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
             : ''}. {data.ga4Metrics.newUsers ? formatNumber(data.ga4Metrics.newUsers) : 'N/A'} of your{' '}
           {formatNumber(data.ga4Metrics.users)} visitors were first-time users, representing a{' '}
           {data.ga4Metrics.newUsers 
-            ? formatPercentage((data.ga4Metrics.newUsers / data.ga4Metrics.users) * 100)
+            ? formatPercentage(data.ga4Metrics.newUsers / data.ga4Metrics.users)
             : 'N/A'} new visitor rate.
         </Text>
       </View>
@@ -123,7 +123,7 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
         <Text style={[styles.insightTitle, {color: '#92400E'}]}>Traffic Distribution</Text>
         <Text style={styles.insightText}>
           {data.ga4Metrics.organicTraffic 
-            ? `Organic search drives ${formatNumber(data.ga4Metrics.organicTraffic)} sessions (${formatPercentage((data.ga4Metrics.organicTraffic / data.ga4Metrics.sessions) * 100)})` 
+            ? `Organic search drives ${formatNumber(data.ga4Metrics.organicTraffic)} sessions (${formatPercentage(data.ga4Metrics.organicTraffic / data.ga4Metrics.sessions)})` 
             : 'Organic traffic data not available'}
           {data.ga4Metrics.directTraffic 
             ? `, while direct traffic contributes ${formatNumber(data.ga4Metrics.directTraffic)} sessions` 
@@ -138,17 +138,34 @@ export const KeyInsightsPage: React.FC<KeyInsightsPageProps> = ({ data }) => {
       <View style={[styles.insightBox, {backgroundColor: '#E0E7FF', borderColor: '#6366F1'}]}>
         <Text style={[styles.insightTitle, {color: '#4338CA'}]}>Device Usage Patterns</Text>
         <Text style={styles.insightText}>
-          {data.ga4Metrics.deviceBreakdown ? (
-            `Your audience primarily uses ${
-              data.ga4Metrics.deviceBreakdown.desktop > data.ga4Metrics.deviceBreakdown.mobile ? 'desktop' : 'mobile'
-            } devices (${
-              data.ga4Metrics.deviceBreakdown.desktop > data.ga4Metrics.deviceBreakdown.mobile 
-                ? formatPercentage(data.ga4Metrics.deviceBreakdown.desktop) 
-                : formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)
-            }). Mobile represents ${formatPercentage(data.ga4Metrics.deviceBreakdown.mobile)} of traffic, indicating ${
-              data.ga4Metrics.deviceBreakdown.mobile > 50 ? 'mobile-first behavior' : 'desktop preference'
-            }.`
-          ) : (
+          {data.ga4Metrics.deviceBreakdown ? (() => {
+            // Extract raw device session counts
+            const desktop = data.ga4Metrics.deviceBreakdown.desktop || 0;
+            const mobile = data.ga4Metrics.deviceBreakdown.mobile || 0;
+            const tablet = data.ga4Metrics.deviceBreakdown.tablet || 0;
+            
+            // Calculate total sessions
+            const totalSessions = desktop + mobile + tablet;
+            
+            // Handle case with no sessions
+            if (totalSessions === 0) {
+              return 'Device usage data not available for this reporting period.';
+            }
+            
+            // Calculate actual percentages (0-1 range for formatPercentage)
+            const desktopPercentage = desktop / totalSessions;
+            const mobilePercentage = mobile / totalSessions;
+            
+            // Determine which device type is primary
+            const isPrimaryDesktop = desktopPercentage > mobilePercentage;
+            const primaryDevice = isPrimaryDesktop ? 'desktop' : 'mobile';
+            const primaryPercentage = isPrimaryDesktop ? desktopPercentage : mobilePercentage;
+            const secondaryDevice = isPrimaryDesktop ? 'mobile' : 'desktop';
+            const secondaryPercentage = isPrimaryDesktop ? mobilePercentage : desktopPercentage;
+            
+            // Generate correct text with proper logic
+            return `Your audience primarily uses ${primaryDevice} devices (${formatPercentage(primaryPercentage)}). ${secondaryDevice.charAt(0).toUpperCase() + secondaryDevice.slice(1)} represents ${formatPercentage(secondaryPercentage)} of traffic${isPrimaryDesktop ? ', with opportunities for mobile optimization' : ', indicating mobile-first behavior'}.`;
+          })() : (
             'Device breakdown data helps optimize user experience across different platforms. Consider implementing device-specific optimizations to improve engagement rates.'
           )}
         </Text>
