@@ -49,6 +49,8 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
     pagesPerSession: { value: data.ga4Data?.pagesPerSession?.toFixed(1) || '0.0', title: 'Pages per Session', description: 'Page views per visit', source: 'ga4' },
     newUsers: { value: data.ga4Data?.newUsers || 0, title: 'New Users', description: 'First-time visitors', source: 'ga4' },
     organicTraffic: { value: data.ga4Data?.organicTraffic || 0, title: 'Organic Traffic', description: 'Search engine traffic (%)', source: 'ga4' },
+    directTraffic: { value: data.ga4Data?.directTraffic || 0, title: 'Direct Traffic', description: 'Direct website visits', source: 'ga4' },
+    referralTraffic: { value: data.ga4Data?.referralTraffic || 0, title: 'Referral Traffic', description: 'Traffic from other sites', source: 'ga4' },
     
     // Search Console metrics
     totalClicks: { value: data.gscData?.totalClicks || 0, title: 'Total Clicks', description: 'Clicks from search results', source: 'gsc' },
