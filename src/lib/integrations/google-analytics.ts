@@ -326,7 +326,7 @@ export async function getAnalyticsData(
     });
 
     // Fetch traffic source breakdown
-    let trafficBreakdown: {
+    const trafficBreakdown: {
       organicTraffic: number;
       directTraffic: number;
       referralTraffic: number;
