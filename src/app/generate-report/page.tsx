@@ -481,8 +481,14 @@ export default function GenerateReportPage() {
             const value = ga4Data.dynamicMetrics[field.id]
             if (value !== undefined) {
               // Format the value appropriately
-              if (typeof value === 'number' && ['users', 'newUsers', 'sessions', 'conversions'].includes(field.id)) {
-                newFormData[field.id] = value.toLocaleString()
+              if (['users', 'newUsers', 'sessions', 'conversions', 'engagedSessions'].includes(field.id)) {
+                const numValue = typeof value === 'number' ? value : parseFloat(value.toString().replace(/,/g, ''))
+                newFormData[field.id] = numValue.toLocaleString()
+              } else if (['bounceRate', 'engagementRate', 'pagesPerSession', 'avgSessionDuration', 
+                          'organicTraffic', 'directTraffic', 'referralTraffic', 'socialTraffic', 
+                          'paidTraffic', 'sessionsPerUser'].includes(field.id)) {
+                const numValue = typeof value === 'number' ? value : parseFloat(value.toString().replace(/[,%]/g, ''))
+                newFormData[field.id] = numValue.toString()
               } else if (typeof value === 'object') {
                 newFormData[field.id] = JSON.stringify(value, null, 2)
               } else {
