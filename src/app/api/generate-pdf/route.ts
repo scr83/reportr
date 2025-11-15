@@ -444,13 +444,13 @@ export async function POST(request: NextRequest) {
         bounceRate: mergedGA4Data.bounceRate || 0,
         conversions: mergedGA4Data.conversions || 0,
         
-        // Optional metrics for Standard/Custom reports
-        ...(mergedGA4Data.avgSessionDuration !== undefined && { avgSessionDuration: mergedGA4Data.avgSessionDuration }),
-        ...(mergedGA4Data.pagesPerSession !== undefined && { pagesPerSession: mergedGA4Data.pagesPerSession }),
-        ...(mergedGA4Data.newUsers !== undefined && { newUsers: mergedGA4Data.newUsers }),
-        ...(mergedGA4Data.organicTraffic !== undefined && { organicTraffic: mergedGA4Data.organicTraffic }),
-        ...((mergedGA4Data as any).topLandingPages && { topLandingPages: (mergedGA4Data as any).topLandingPages }),
-        ...((mergedGA4Data as any).deviceBreakdown && { deviceBreakdown: (mergedGA4Data as any).deviceBreakdown }),
+        // Dynamic inclusion - accepts ANY metric that has data
+        ...Object.fromEntries(
+          Object.entries(mergedGA4Data).filter(([key, value]) =>
+            !['users', 'sessions', 'bounceRate', 'conversions'].includes(key) &&
+            value !== undefined
+          )
+        )
       },
       
       // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
