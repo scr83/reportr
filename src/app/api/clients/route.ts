@@ -19,12 +19,17 @@ export async function POST(request: NextRequest) {
   try {
     let user = await requireUser();
     
-    // ✅ NEW CHECK - Email verification requirement (ADD THIS)
-    if (!user.emailVerified) {
+    // Allow access if user verified via email OR has active PayPal subscription
+    const isVerified = 
+      user.emailVerified || 
+      (user.signupFlow === 'PAID_TRIAL' && user.paypalSubscriptionId) ||
+      user.subscriptionStatus === 'active';
+
+    if (!isVerified) {
       console.log(`Blocked unverified user ${user.id} from adding client`);
       return NextResponse.json(
         { 
-          error: 'Please verify your email before adding clients',
+          error: 'Please verify your email or complete subscription to add clients',
           requiresVerification: true,
           verificationRequired: true
         },
