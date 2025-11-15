@@ -3,8 +3,6 @@ import type { Metadata } from 'next'
 import { Providers } from '@/components/providers/Providers'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
-import { Analytics } from "@vercel/analytics/next"
-
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -115,11 +113,6 @@ export default function RootLayout({
             {children}
           </ThemeProvider>
         </Providers>
-        <body className={`${inter.className} ${poppins.variable}`}>
-  <Providers>
-    <ThemeProvider>{children}</ThemeProvider>
-  </Providers>
-  <Analytics />
       </body>
     </html>
   )
