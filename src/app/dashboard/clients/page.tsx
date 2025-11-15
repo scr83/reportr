@@ -80,7 +80,9 @@ export default function ClientsPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // NEW CODE - Check session for unverified users
-  const isUnverified = session?.user && !session.user.emailVerified;
+  const isUnverified = session?.user && 
+                       !session.user.emailVerified && 
+                       session.user.signupFlow !== 'PAID_TRIAL';
 
   // Fetch clients on mount
   useEffect(() => {

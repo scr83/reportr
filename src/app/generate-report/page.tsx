@@ -103,7 +103,9 @@ export default function GenerateReportPage() {
   const [activeDataTab, setActiveDataTab] = useState<'gsc' | 'ga4' | 'pagespeed'>('gsc')
   
   // NEW CODE - Check session for unverified users
-  const isUnverified = session?.user && !session.user.emailVerified;
+  const isUnverified = session?.user && 
+                       !session.user.emailVerified && 
+                       session.user.signupFlow !== 'PAID_TRIAL';
 
   // Field definitions for each report type
   const REPORT_FIELDS = {
