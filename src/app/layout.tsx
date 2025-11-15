@@ -120,7 +120,6 @@ export default function RootLayout({
     <ThemeProvider>{children}</ThemeProvider>
   </Providers>
   <Analytics />
-</body>
       </body>
     </html>
   )
