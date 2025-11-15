@@ -406,6 +406,7 @@ function FeatureComparison() {
       category: 'Advanced Features',
       items: [
         { name: 'Team Members', free: '1 user', starter: '1 user', pro: '1 user', enterprise: '1 user' },
+        { name: 'Client Dashboard', free: 'Coming Soon', starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
       ]
     },
     {
