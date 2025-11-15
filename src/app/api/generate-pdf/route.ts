@@ -253,6 +253,7 @@ export async function POST(request: NextRequest) {
     console.log('3. Parsing request body...')
     const body = await request.json()
     
+    
     console.log('🔍 [PDF-API] PDF generation request received');
     console.log('🔍 [PDF-API] Request data structure:', {
       hasGscData: !!body.gscData,

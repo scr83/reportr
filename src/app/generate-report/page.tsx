@@ -506,17 +506,6 @@ export default function GenerateReportPage() {
           if (ga4Data.conversions) newFormData.conversions = ga4Data.conversions.toString()
         }
         
-        // Debug logging for Task 1: Verify formData Population
-        console.log('🔍 [DEBUG] formData after GA4 fetch:', {
-          directTraffic: newFormData.directTraffic,
-          referralTraffic: newFormData.referralTraffic,
-          sessionsPerUser: newFormData.sessionsPerUser,
-          engagedSessions: newFormData.engagedSessions,
-          directTrafficType: typeof newFormData.directTraffic,
-          referralTrafficType: typeof newFormData.referralTraffic,
-          allFormDataKeys: Object.keys(newFormData),
-          fullNewFormData: newFormData
-        });
 
         setFormData(newFormData)
 
@@ -764,29 +753,6 @@ export default function GenerateReportPage() {
       console.log('🔍 Type Check - organicTraffic type:', typeof requestBody.ga4Data?.organicTraffic);
       console.log('🔍 Type Check - organicTraffic value:', requestBody.ga4Data?.organicTraffic);
 
-      // Debug logging for Task 3: Verify PDF Generation Request Payload
-      console.log('🔍 [DEBUG] PDF Generation Request:', {
-        reportType: reportType,
-        fieldsToInclude: fieldsToInclude.map(f => f.id),
-        dynamicGA4Data: pdfReportData.ga4Data,
-        directTraffic: pdfReportData.ga4Data?.directTraffic,
-        referralTraffic: pdfReportData.ga4Data?.referralTraffic,
-        sessionsPerUser: pdfReportData.ga4Data?.sessionsPerUser,
-        engagedSessions: pdfReportData.ga4Data?.engagedSessions,
-        formDataSnapshot: {
-          directTraffic: formData.directTraffic,
-          referralTraffic: formData.referralTraffic,
-          sessionsPerUser: formData.sessionsPerUser,
-          engagedSessions: formData.engagedSessions
-        },
-        requestBodyGA4: requestBody.ga4Data,
-        requestBodyTrafficMetrics: {
-          directTraffic: requestBody.ga4Data?.directTraffic,
-          referralTraffic: requestBody.ga4Data?.referralTraffic,
-          sessionsPerUser: requestBody.ga4Data?.sessionsPerUser,
-          engagedSessions: requestBody.ga4Data?.engagedSessions
-        }
-      });
       
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
@@ -1652,18 +1618,6 @@ export default function GenerateReportPage() {
                   const value = formData[field.id]
                   const isLast = index === fieldsToShow.length - 1
                   
-                  // Debug logging for Task 2: Verify Preview Rendering Source
-                  if (['directTraffic', 'referralTraffic', 'sessionsPerUser', 'engagedSessions'].includes(field.id)) {
-                    console.log('🔍 [DEBUG] Preview rendering:', {
-                      fieldId: field.id,
-                      fieldLabel: field.label,
-                      valueFromFormData: formData[field.id],
-                      valueType: typeof formData[field.id],
-                      ga4DataValue: ga4Data?.dynamicMetrics?.[field.id],
-                      ga4DataType: typeof ga4Data?.dynamicMetrics?.[field.id],
-                      formDataKeys: Object.keys(formData)
-                    });
-                  }
                   
                   return (
                     <div key={field.id} className={`${!isLast ? 'border-b border-gray-200 pb-3 mb-3' : ''}`}>
