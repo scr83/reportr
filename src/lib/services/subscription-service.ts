@@ -20,6 +20,8 @@ export class SubscriptionService {
    * Activate a subscription after PayPal approval
    */
   async activateSubscription(data: SubscriptionData): Promise<void> {
+    console.log('💥 SUBSCRIPTION SERVICE CALLED:', data);
+    
     try {
       const { userId, paypalSubscriptionId, plan } = data;
 
@@ -64,8 +66,10 @@ export class SubscriptionService {
       // Determine if this is a trial subscription (payment date is in the future)
       const hasTrial = firstPaymentDate > now;
 
+      console.log('💥 About to update database...');
+
       // Update user with subscription info and white-label status
-      await prisma.user.update({
+      const result = await prisma.user.update({
         where: { id: userId },
         data: {
           plan: actualPlan,
@@ -86,6 +90,8 @@ export class SubscriptionService {
           signupFlow: 'PAID_TRIAL', // Mark as paid trial flow to skip email verification
         },
       });
+
+      console.log('💥 Database updated successfully:', result);
 
       console.log('✅ Billing cycle dates:', {
         billingCycleStart: firstPaymentDate.toISOString(),
