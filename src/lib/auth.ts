@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from '@/lib/prisma';
 import { generateVerificationToken, hasUsedTrial } from '@/lib/email-tokens';
 import { sendVerificationEmail } from '@/lib/email';
+import { cookies } from 'next/headers';
 
 declare module 'next-auth' {
   interface Session {
@@ -46,24 +47,21 @@ export const authOptions: NextAuthOptions = {
       // Default to dashboard for external URLs
       return `${baseUrl}/dashboard`;
     },
-    async signIn(params) {
-      const { user, account, profile } = params;
-      
-      // Try to access cookies from global headers context (if available)
-      let signupIntent = 'FREE'; // Default
-      try {
-        // Access cookies from Node.js request headers (if available in global context)
-        const headers = (global as any).__NEXT_REQUEST_HEADERS__;
-        const cookieHeader = headers?.cookie || '';
-        const signupIntentMatch = cookieHeader.match(/signupIntent=([^;]+)/);
-        signupIntent = signupIntentMatch ? signupIntentMatch[1] : 'FREE';
-        console.log('🍪 Detected signup intent from cookie:', signupIntent);
-      } catch (error) {
-        console.warn('⚠️ Could not access cookies via global context:', error);
-        // Fallback to FREE
-      }
+    async signIn({ user, account, profile }) {
       if (account?.provider === 'google' && user.email) {
         try {
+          // 🔧 FIX: Read signup intent from cookie using Next.js cookies API
+          let signupFlow = 'FREE'; // Default
+          try {
+            const cookieStore = cookies();
+            const signupIntent = cookieStore.get('signupIntent');
+            signupFlow = signupIntent?.value || 'FREE';
+            console.log('🍪 Detected signup intent from cookie:', signupFlow);
+          } catch (error) {
+            console.warn('⚠️ Could not access cookies:', error);
+            console.log('📝 Defaulting to FREE signup flow');
+          }
+
           // Check if user already exists
           let existingUser = await prisma.user.findUnique({
             where: { email: user.email },
@@ -81,9 +79,6 @@ export const authOptions: NextAuthOptions = {
           if (!existingUser) {
             // Check if this email has already used a trial (abuse prevention)
             const hasTrialRecord = await hasUsedTrial(user.email);
-            
-            // 🔧 FIX: Use signup intent from cookie (set by PayPal button)
-            const signupFlow = signupIntent; // Already extracted from cookie above
             
             console.log(`👤 Creating new user: ${user.email}, signupFlow: ${signupFlow}`);
             
