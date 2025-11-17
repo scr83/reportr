@@ -54,10 +54,7 @@ function PaymentSuccessContent() {
         // Use token as subscription ID if subscription_id not present
         const subId = subscriptionId || token;
 
-        console.log('🔍 PAYMENT SUCCESS PAGE LOADED');
-        console.log('🔍 URL:', window.location.href);
-        console.log('🔍 Subscription ID:', subId);
-        console.log('🔍 About to call activation API...');
+        console.log('🔄 Activating subscription:', subId);
 
         // Activate subscription on our backend
         const response = await fetch('/api/payments/activate-subscription', {
@@ -69,12 +66,9 @@ function PaymentSuccessContent() {
           }),
         });
 
-        console.log('🔍 Activation API response status:', response.status);
-        const data = await response.json();
-        console.log('🔍 Activation API response data:', data);
-
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to activate subscription');
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to activate subscription');
         }
 
         console.log('✅ Subscription activated successfully');

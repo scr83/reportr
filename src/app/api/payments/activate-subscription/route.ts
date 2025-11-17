@@ -10,13 +10,10 @@ import { subscriptionService } from '../../../../lib/services/subscription-servi
 import { Plan } from '@prisma/client';
 
 export async function POST(request: Request) {
-  console.log('🔥 ACTIVATION API CALLED!');
-  
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      console.log('🔥 Unauthorized - no session');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -24,7 +21,6 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    console.log('🔥 Request body:', body);
     const { subscriptionId, plan } = body;
 
     // Validate inputs

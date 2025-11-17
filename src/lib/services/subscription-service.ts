@@ -7,7 +7,6 @@ import { prisma } from '../prisma';
 import { paypalClient } from './paypal-client';
 import { Plan } from '@prisma/client';
 import { isWhiteLabelPlan, getTierFromPlanId, tierToPlan } from '../utils/paypal-plans';
-import { activateTrial } from '../trial-activation';
 
 interface SubscriptionData {
   userId: string;
@@ -20,8 +19,6 @@ export class SubscriptionService {
    * Activate a subscription after PayPal approval
    */
   async activateSubscription(data: SubscriptionData): Promise<void> {
-    console.log('💥 SUBSCRIPTION SERVICE CALLED:', data);
-    
     try {
       const { userId, paypalSubscriptionId, plan } = data;
 
@@ -36,24 +33,9 @@ export class SubscriptionService {
       // Convert tier to correct Prisma Plan enum
       const actualPlan = tierFromPlan ? tierToPlan(tierFromPlan) : plan;
 
-      console.log('Plan detection:', {
-        paypalPlanId,
-        isWhiteLabel,
-        tierFromPlan,
-        requestedPlan: plan,
-        actualPlan
-      });
 
-      // Activate trial using centralized function (for trial plans)
-      const trialResult = await activateTrial({
-        userId,
-        trialType: 'PAYPAL',
-        plan: actualPlan,
-      });
-
-      if (!trialResult.success) {
-        console.warn(`⚠️  PayPal subscription activated but trial activation failed: ${trialResult.error} (User: ${userId})`);
-      }
+      // Note: Trial fields are handled directly in the user update below
+      // No need for separate activateTrial call to avoid conflicts
 
       // Extract billing dates from PayPal subscription details
       const nextBillingTime = subscriptionDetails.billing_info?.next_billing_time;
@@ -66,7 +48,6 @@ export class SubscriptionService {
       // Determine if this is a trial subscription (payment date is in the future)
       const hasTrial = firstPaymentDate > now;
 
-      console.log('💥 About to update database...');
 
       // Update user with subscription info and white-label status
       const result = await prisma.user.update({
@@ -84,21 +65,14 @@ export class SubscriptionService {
           // Trial tracking fields (BONUS: proper population)
           trialStartDate: hasTrial ? now : null,
           trialEndDate: hasTrial ? firstPaymentDate : null,
-          trialType: hasTrial ? 'PAYPAL' : null,
+          trialType: 'PAYPAL', // Always mark PayPal users as PAYPAL type regardless of trial
+          trialUsed: true, // Mark trial as used for PayPal subscribers
           
           whiteLabelEnabled: isWhiteLabel, // Auto-enable white-label for WL plans
           signupFlow: 'PAID_TRIAL', // Mark as paid trial flow to skip email verification
         },
       });
 
-      console.log('💥 Database updated successfully:', result);
-
-      console.log('✅ Billing cycle dates:', {
-        billingCycleStart: firstPaymentDate.toISOString(),
-        billingCycleEnd: new Date(firstPaymentDate.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        hasTrial,
-        trialEndDate: hasTrial ? firstPaymentDate.toISOString() : null
-      });
 
       // Create payment record
       const lastPayment = subscriptionDetails.billing_info.last_payment;
