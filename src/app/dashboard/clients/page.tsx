@@ -79,8 +79,13 @@ export default function ClientsPage() {
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-  // NEW CODE - Check session for unverified users
-  const isUnverified = session?.user && !session.user.emailVerified;
+  // Check if user needs verification (PAID USERS GET PRIORITY)
+  const hasActivePayPalSubscription = session?.user?.paypalSubscriptionId && session?.user?.subscriptionStatus === 'active';
+  const isPaidTrialFlow = session?.user?.signupFlow === 'PAID_TRIAL';
+  const isFreeVerifiedUser = session?.user?.signupFlow === 'FREE' && session?.user?.emailVerified;
+  
+  const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || isFreeVerifiedUser;
+  const isUnverified = session?.user && !hasAccess;
 
   // Fetch clients on mount
   useEffect(() => {

@@ -19,9 +19,15 @@ export async function POST(request: NextRequest) {
   try {
     let user = await requireUser();
     
-    // ✅ NEW CHECK - Email verification requirement (ADD THIS)
-    if (!user.emailVerified) {
-      console.log(`Blocked unverified user ${user.id} from adding client`);
+    // ✅ CHECK ACCESS - Prioritize paid users, then email verification
+    const hasActivePayPalSubscription = user.paypalSubscriptionId && user.subscriptionStatus === 'active';
+    const isPaidTrialFlow = user.signupFlow === 'PAID_TRIAL';
+    const isFreeVerifiedUser = user.signupFlow === 'FREE' && user.emailVerified;
+    
+    const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || isFreeVerifiedUser;
+    
+    if (!hasAccess) {
+      console.log(`Blocked user ${user.id} from adding client - no access (PayPal: ${user.subscriptionStatus}, emailVerified: ${user.emailVerified}, signupFlow: ${user.signupFlow})`);
       return NextResponse.json(
         { 
           error: 'Please verify your email before adding clients',
