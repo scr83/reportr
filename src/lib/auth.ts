@@ -46,7 +46,22 @@ export const authOptions: NextAuthOptions = {
       // Default to dashboard for external URLs
       return `${baseUrl}/dashboard`;
     },
-    async signIn({ user, account, profile }) {
+    async signIn(params) {
+      const { user, account, profile } = params;
+      
+      // Try to access cookies from global headers context (if available)
+      let signupIntent = 'FREE'; // Default
+      try {
+        // Access cookies from Node.js request headers (if available in global context)
+        const headers = (global as any).__NEXT_REQUEST_HEADERS__;
+        const cookieHeader = headers?.cookie || '';
+        const signupIntentMatch = cookieHeader.match(/signupIntent=([^;]+)/);
+        signupIntent = signupIntentMatch ? signupIntentMatch[1] : 'FREE';
+        console.log('🍪 Detected signup intent from cookie:', signupIntent);
+      } catch (error) {
+        console.warn('⚠️ Could not access cookies via global context:', error);
+        // Fallback to FREE
+      }
       if (account?.provider === 'google' && user.email) {
         try {
           // Check if user already exists
@@ -67,26 +82,8 @@ export const authOptions: NextAuthOptions = {
             // Check if this email has already used a trial (abuse prevention)
             const hasTrialRecord = await hasUsedTrial(user.email);
             
-            // 🔧 FIX: Detect paid trial intent from sessionStorage
-            // PayPal component sets 'PAID_TRIAL' before OAuth redirect
-            let signupFlow = 'FREE'; // Default to FREE
-            
-            try {
-              // Check if running in browser environment
-              if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-                const storedFlow = sessionStorage.getItem('signupFlow');
-                if (storedFlow === 'PAID_TRIAL') {
-                  signupFlow = 'PAID_TRIAL';
-                  console.log('🎯 Detected PAID_TRIAL intent from sessionStorage');
-                  // Clear sessionStorage to prevent reuse
-                  sessionStorage.removeItem('signupFlow');
-                  console.log('🧹 Cleared sessionStorage signupFlow');
-                }
-              }
-            } catch (error) {
-              console.warn('⚠️  Could not access sessionStorage:', error);
-              // Fallback to FREE flow
-            }
+            // 🔧 FIX: Use signup intent from cookie (set by PayPal button)
+            const signupFlow = signupIntent; // Already extracted from cookie above
             
             console.log(`👤 Creating new user: ${user.email}, signupFlow: ${signupFlow}`);
             

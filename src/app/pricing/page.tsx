@@ -67,10 +67,10 @@ function PricingTiers() {
     if (session) {
       router.push('/dashboard')
     } else {
-      // 🔧 FIX: Set sessionStorage to mark FREE intent (for clarity)
-      if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('signupFlow', 'FREE');
-        console.log('📝 Set sessionStorage signupFlow = FREE');
+      // 🔧 FIX: Set cookie to mark FREE intent (server-accessible)
+      if (typeof window !== 'undefined') {
+        document.cookie = `signupIntent=FREE; path=/; max-age=1800; SameSite=Lax`;
+        console.log('📝 Set signupIntent cookie = FREE');
       }
       signIn('google', { callbackUrl: '/dashboard?flow=free' })
     }
