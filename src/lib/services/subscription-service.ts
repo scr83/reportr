@@ -60,7 +60,7 @@ export class SubscriptionService {
           
           // Billing cycle dates (THE FIX)
           billingCycleStart: firstPaymentDate,
-          billingCycleEnd: new Date(firstPaymentDate.getTime() + 30 * 24 * 60 * 60 * 1000),
+          billingCycleEnd: firstPaymentDate,
           
           // Trial tracking fields (BONUS: proper population)
           trialStartDate: hasTrial ? now : null,
