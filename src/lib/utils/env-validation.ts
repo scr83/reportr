@@ -4,18 +4,12 @@
  */
 
 interface PayPalPlanConfig {
-  starterPlan: string;
-  starterWlPlan: string;
-  proPlan: string;
-  proWlPlan: string;
-  agencyPlan: string;
-  agencyWlPlan: string;
   starterTrialPlan: string;
-  starterWlTrialPlan: string;
+  starterDirectPlan: string;
   proTrialPlan: string;
-  proWlTrialPlan: string;
+  proDirectPlan: string;
   agencyTrialPlan: string;
-  agencyWlTrialPlan: string;
+  agencyDirectPlan: string;
 }
 
 /**
@@ -26,18 +20,12 @@ export function validatePayPalEnvironment(): { isValid: boolean; missing: string
     PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
     PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
     PAYPAL_MODE: process.env.PAYPAL_MODE,
-    PAYPAL_STARTER_PLAN_ID: process.env.PAYPAL_STARTER_PLAN_ID,
-    PAYPAL_STARTER_WL_PLAN_ID: process.env.PAYPAL_STARTER_WL_PLAN_ID,
-    PAYPAL_PRO_PLAN_ID: process.env.PAYPAL_PRO_PLAN_ID,
-    PAYPAL_PRO_WL_PLAN_ID: process.env.PAYPAL_PRO_WL_PLAN_ID,
-    PAYPAL_AGENCY_PLAN_ID: process.env.PAYPAL_AGENCY_PLAN_ID,
-    PAYPAL_AGENCY_WL_PLAN_ID: process.env.PAYPAL_AGENCY_WL_PLAN_ID,
     PAYPAL_STARTER_TRIAL_PLAN_ID: process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
-    PAYPAL_STARTER_WL_TRIAL_PLAN_ID: process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID,
+    PAYPAL_STARTER_DIRECT_PLAN_ID: process.env.PAYPAL_STARTER_DIRECT_PLAN_ID,
     PAYPAL_PRO_TRIAL_PLAN_ID: process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
-    PAYPAL_PRO_WL_TRIAL_PLAN_ID: process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID,
+    PAYPAL_PRO_DIRECT_PLAN_ID: process.env.PAYPAL_PRO_DIRECT_PLAN_ID,
     PAYPAL_AGENCY_TRIAL_PLAN_ID: process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
-    PAYPAL_AGENCY_WL_TRIAL_PLAN_ID: process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID,
+    PAYPAL_AGENCY_DIRECT_PLAN_ID: process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID,
   };
 
   const missing = Object.entries(requiredVars)
@@ -61,18 +49,12 @@ export function getPayPalPlanConfig(): PayPalPlanConfig {
   }
 
   return {
-    starterPlan: process.env.PAYPAL_STARTER_PLAN_ID!,
-    starterWlPlan: process.env.PAYPAL_STARTER_WL_PLAN_ID!,
-    proPlan: process.env.PAYPAL_PRO_PLAN_ID!,
-    proWlPlan: process.env.PAYPAL_PRO_WL_PLAN_ID!,
-    agencyPlan: process.env.PAYPAL_AGENCY_PLAN_ID!,
-    agencyWlPlan: process.env.PAYPAL_AGENCY_WL_PLAN_ID!,
     starterTrialPlan: process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!,
-    starterWlTrialPlan: process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!,
+    starterDirectPlan: process.env.PAYPAL_STARTER_DIRECT_PLAN_ID!,
     proTrialPlan: process.env.PAYPAL_PRO_TRIAL_PLAN_ID!,
-    proWlTrialPlan: process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!,
+    proDirectPlan: process.env.PAYPAL_PRO_DIRECT_PLAN_ID!,
     agencyTrialPlan: process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!,
-    agencyWlTrialPlan: process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!,
+    agencyDirectPlan: process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID!,
   };
 }
 

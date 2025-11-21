@@ -54,12 +54,7 @@ function PricingTiers() {
   const { data: session, status } = useSession()
   const router = useRouter()
   
-  // State for white-label checkboxes
-  const [whiteLabelEnabled, setWhiteLabelEnabled] = useState<{[key: string]: boolean}>({
-    starter: false,
-    professional: false,
-    enterprise: false
-  })
+  // Removed white-label state - all paid plans include white-label by default
 
 
   // Handle authentication for FREE plan
@@ -103,7 +98,7 @@ function PricingTiers() {
     {
       name: 'STARTER',
       basePrice: 29,
-      whiteLabelPrice: 20,
+      whiteLabelPrice: 0,
       period: 'month',
       description: 'Perfect for freelancers',
       clients: 5,
@@ -115,21 +110,20 @@ function PricingTiers() {
         'Google Search Console',
         'Google Analytics 4',
         'PageSpeed Insights',
+        'White-label branding included',
+        'Custom logo, colors & company name',
         { text: 'AI Insights', badge: 'Coming Soon' },
-        'Custom branding (for white label users)',
         'Priority email support (24hrs)'
       ],
       cta: 'Start 14-Day Trial',
-      ctaLink: whiteLabelEnabled.starter 
-        ? '/subscribe?plan=starter-whitelabel'
-        : '/subscribe?plan=starter',
+      ctaLink: '/subscribe?plan=starter',
       popular: true, // STARTER IS MOST POPULAR
-      canAddWhiteLabel: true
+      canAddWhiteLabel: false
     },
     {
       name: 'PROFESSIONAL',
-      basePrice: 99,
-      whiteLabelPrice: 20,
+      basePrice: 59,
+      whiteLabelPrice: 0,
       period: 'month',
       description: 'For growing agencies',
       clients: 15,
@@ -138,22 +132,22 @@ function PricingTiers() {
         'Up to 15 clients',
         '75 reports per month',
         'Everything in Starter',
+        'White-label branding included',
+        'Custom logo, colors & company name',
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
         'Priority support',
         'Advanced analytics'
       ],
       cta: 'Start 14-Day Trial',
-      ctaLink: whiteLabelEnabled.professional
-        ? '/subscribe?plan=professional-whitelabel'
-        : '/subscribe?plan=professional',
+      ctaLink: '/subscribe?plan=professional',
       popular: false,
-      canAddWhiteLabel: true
+      canAddWhiteLabel: false
     },
     {
       name: 'AGENCY',
-      basePrice: 199,
-      whiteLabelPrice: 20,
+      basePrice: 99,
+      whiteLabelPrice: 0,
       period: 'month',
       description: 'For large agencies',
       clients: 50,
@@ -162,6 +156,8 @@ function PricingTiers() {
         'Up to 50 clients',
         '250 reports per month',
         'Everything in Professional',
+        'White-label branding included',
+        'Custom logo, colors & company name',
         'PageSpeed Insights',
         { text: 'AI Insights', badge: 'Coming Soon' },
         { text: 'Custom Domain', badge: 'Coming Soon' },
@@ -171,22 +167,16 @@ function PricingTiers() {
         'White-glove onboarding'
       ],
       cta: 'Start 14-Day Trial',
-      ctaLink: whiteLabelEnabled.agency
-        ? '/subscribe?plan=agency-whitelabel'
-        : '/subscribe?plan=agency',
+      ctaLink: '/subscribe?plan=agency',
       popular: false,
-      canAddWhiteLabel: true
+      canAddWhiteLabel: false
     }
   ]
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
       {tiers.map((tier) => {
-        const finalPrice = tier.basePrice + (
-          tier.canAddWhiteLabel && whiteLabelEnabled[tier.name.toLowerCase()]
-            ? tier.whiteLabelPrice
-            : 0
-        )
+        const finalPrice = tier.basePrice
         
         return (
           <div
@@ -238,30 +228,7 @@ function PricingTiers() {
               })}
             </ul>
 
-            {/* White-Label Add-On Checkbox */}
-            {tier.canAddWhiteLabel && (
-              <div className="mb-6 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={whiteLabelEnabled[tier.name.toLowerCase()]}
-                    onChange={(e) => setWhiteLabelEnabled({
-                      ...whiteLabelEnabled,
-                      [tier.name.toLowerCase()]: e.target.checked
-                    })}
-                    className="mt-1"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-semibold text-purple-900">
-                      Add White-Label Branding
-                    </span>
-                    <p className="text-xs text-purple-700">
-                      +$20/month - Replace all <BrandLink>Reportr</BrandLink> branding with yours
-                    </p>
-                  </div>
-                </label>
-              </div>
-            )}
+            {/* White-label is now included in all paid plans */}
 
             {/* BUTTONS */}
             {tier.name === 'FREE' ? (
@@ -276,10 +243,7 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* STARTER: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.starter ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W2526908999423DNEDY5TQ'
-                    : process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0SN795424D608834YNEDY4UY'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0X464499YG9822634NEQJ5XQ'}
                   planName="STARTER"
                   price={finalPrice}
                   isTrial={true}
@@ -287,10 +251,7 @@ function PricingTiers() {
                 
                 {/* STARTER: Subscribe Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.starter ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_STARTER_WL_PLAN_ID || 'P-2YF10717TE559492JND4NS5Y'
-                    : process.env.NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID || 'P-09S98046PD2685338ND3AO4Q'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_DIRECT_PLAN_ID || 'P-6PJ50716H4431863PNEQKBLQ'}
                   planName="STARTER"
                   price={finalPrice}
                 />
@@ -299,10 +260,7 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* PROFESSIONAL: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.professional ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_PRO_WL_TRIAL_PLAN_ID || 'P-9G486628TV699383DNEDY67Q'
-                    : process.env.NEXT_PUBLIC_PAYPAL_PRO_TRIAL_PLAN_ID || 'P-9LW168698M465441PNEDY6KQ'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_TRIAL_PLAN_ID || 'P-09P26662R8680522DNEQJ7XY'}
                   planName="PROFESSIONAL"
                   price={finalPrice}
                   isTrial={true}
@@ -310,10 +268,7 @@ function PricingTiers() {
                 
                 {/* PROFESSIONAL: Subscribe Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.professional ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_PRO_WL_PLAN_ID || 'P-7KR93055H1331572DND4NU7I'
-                    : process.env.NEXT_PUBLIC_PAYPAL_PRO_PLAN_ID || 'P-9JC023812E1399125ND4NUAY'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_DIRECT_PLAN_ID || 'P-90W906144W5364313NEQKB5I'}
                   planName="PROFESSIONAL"
                   price={finalPrice}
                 />
@@ -322,10 +277,7 @@ function PricingTiers() {
               <div className="space-y-3">
                 {/* AGENCY: Trial Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.agency ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_AGENCY_WL_TRIAL_PLAN_ID || 'P-4KW51269HY146730FNEDZALI'
-                    : process.env.NEXT_PUBLIC_PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-09W11474GA233304HNEDY7UI'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-7SU477161L382370MNEQKCQQ'}
                   planName="AGENCY"
                   price={finalPrice}
                   isTrial={true}
@@ -333,10 +285,7 @@ function PricingTiers() {
                 
                 {/* AGENCY: Subscribe Button */}
                 <PayPalSubscribeButton
-                  planId={(whiteLabelEnabled.agency ?? false)
-                    ? process.env.NEXT_PUBLIC_PAYPAL_AGENCY_WL_PLAN_ID || 'P-7JJ708823A489180TND4NWVI'
-                    : process.env.NEXT_PUBLIC_PAYPAL_AGENCY_PLAN_ID || 'P-6KN07205JA012891NND4NVSI'
-                  }
+                  planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_DIRECT_PLAN_ID || 'P-0KW62605U4011430FNEQKDCY'}
                   planName="AGENCY"
                   price={finalPrice}
                 />
@@ -396,7 +345,7 @@ function FeatureComparison() {
     {
       category: 'Branding & Customization',
       items: [
-        { name: 'White-Label Branding', free: false, starter: '+$20/mo', pro: '+$20/mo', enterprise: '+$20/mo' },
+        { name: 'White-Label Branding', free: false, starter: true, pro: true, enterprise: true },
         { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
         { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
         { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
@@ -520,13 +469,13 @@ function FAQ() {
       answer: 'Yes! All paid plans come with a 14-day free trial. A payment method is required to start, but you won\'t be charged for 14 days. You can cancel anytime during the trial with no charges.'
     },
     {
-      question: 'How does the white-label add-on work?',
+      question: 'How does white-label branding work?',
       answer: (
         <span>
-          White-label branding is available as a $20/month add-on for any paid plan (Starter, Professional, or Agency). 
-          When enabled, you can replace all <BrandLink>Reportr</BrandLink> branding with your agency&apos;s logo, colors, 
-          and company name in both the dashboard and generated PDF reports. Simply check the &quot;Add White-Label Branding&quot; 
-          box when subscribing.
+          White-label branding is now included with all paid plans (Starter, Professional, and Agency) at no additional cost! 
+          You can replace all <BrandLink>Reportr</BrandLink> branding with your agency&apos;s logo, colors, 
+          and company name in both the dashboard and generated PDF reports. Configure your branding in the settings 
+          after subscribing to any paid plan.
         </span>
       )
     },

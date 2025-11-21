@@ -12,14 +12,11 @@ import { prisma } from '../../../../lib/prisma';
 
 export const runtime = 'nodejs'
 
-// PayPal Plan IDs - Use SAME IDs as pricing page!
+// PayPal Plan IDs - New unified plans (all include white-label functionality)
 const PLAN_IDS = {
-  'STARTER': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0SN795424D608834YNEDY4UY', // Starter_Free_Trial
-  'STARTER_WL': process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID || 'P-91W2526908999423DNEDY5TQ', // Starter_WL_Free_Trial
-  'PROFESSIONAL': process.env.PAYPAL_PRO_TRIAL_PLAN_ID || 'P-9LW168698M465441PNEDY6KQ', // PRO_Free_Trial
-  'PROFESSIONAL_WL': process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID || 'P-9G486628TV699383DNEDY67Q', // PRO_WL_Free_Trial
-  'ENTERPRISE': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-09W11474GA233304HNEDY7UI', // Agency_Free_Trial
-  'ENTERPRISE_WL': process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID || 'P-4KW51269HY146730FNEDZALI', // Agency_WL_Free_Trial
+  'STARTER': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0X464499YG9822634NEQJ5XQ',
+  'PROFESSIONAL': process.env.PAYPAL_PRO_TRIAL_PLAN_ID || 'P-09P26662R8680522DNEQJ7XY',
+  'ENTERPRISE': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-7SU477161L382370MNEQKCQQ',
 };
 
 export async function POST(request: Request) {
@@ -38,7 +35,7 @@ export async function POST(request: Request) {
     console.log('📩 Upgrade request received:', body);
     
     let { targetPlan } = body;
-    const { addWhiteLabel } = body;
+    // Note: addWhiteLabel is ignored since all new plans include white-label functionality
 
     if (!targetPlan) {
       return NextResponse.json(
@@ -50,7 +47,7 @@ export async function POST(request: Request) {
     // Normalize plan name to uppercase
     targetPlan = targetPlan.toUpperCase();
     console.log('🎯 Target plan normalized:', targetPlan);
-    console.log('🏷️  Add white-label:', addWhiteLabel);
+    console.log('🏷️  All new plans include white-label functionality');
 
     // 3. Get user with current subscription
     const user = await prisma.user.findUnique({
@@ -71,8 +68,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Determine new plan ID (same logic for all scenarios)
-    const newPlanId = getPlanId(targetPlan, addWhiteLabel);
+    // 4. Determine new plan ID (all new plans include white-label functionality)
+    const newPlanId = getPlanId(targetPlan);
     console.log('💳 Selected PayPal plan ID:', newPlanId);
     
     if (!newPlanId) {
@@ -93,11 +90,12 @@ export async function POST(request: Request) {
         );
 
         // Update database immediately (revision is instant)
+        // All new plans include white-label functionality
         await prisma.user.update({
           where: { id: user.id },
           data: {
             plan: targetPlan,
-            whiteLabelEnabled: addWhiteLabel || user.whiteLabelEnabled
+            whiteLabelEnabled: true // All new plans include white-label
           }
         });
 
@@ -107,7 +105,7 @@ export async function POST(request: Request) {
           success: true,
           planUpdated: true,
           newPlan: targetPlan,
-          whiteLabelEnabled: addWhiteLabel || user.whiteLabelEnabled
+          whiteLabelEnabled: true // All new plans include white-label
         });
         
       } catch (error) {
@@ -192,19 +190,20 @@ export async function POST(request: Request) {
 }
 
 // Helper: Get correct PayPal plan ID with detailed debugging
-function getPlanId(plan: string, withWhiteLabel: boolean): string | null {
-  const key = withWhiteLabel ? `${plan}_WL` : plan;
-  console.log('🔑 Looking for plan key:', key);
+// Note: All new plans include white-label functionality by default
+function getPlanId(plan: string): string | null {
+  console.log('🔑 Looking for plan key:', plan);
   console.log('📋 Available plan keys:', Object.keys(PLAN_IDS));
   
-  const planId = PLAN_IDS[key as keyof typeof PLAN_IDS];
+  const planId = PLAN_IDS[plan as keyof typeof PLAN_IDS];
   console.log('💰 Plan ID value:', planId);
   
   if (!planId) {
-    console.error(`❌ No plan ID found for key: ${key}`);
+    console.error(`❌ No plan ID found for key: ${plan}`);
     console.error('🏷️  Available plans:', Object.keys(PLAN_IDS));
     console.error('🌍 Environment check - PAYPAL_STARTER_TRIAL_PLAN_ID:', process.env.PAYPAL_STARTER_TRIAL_PLAN_ID ? 'SET' : 'NOT SET');
     console.error('🌍 Environment check - PAYPAL_PRO_TRIAL_PLAN_ID:', process.env.PAYPAL_PRO_TRIAL_PLAN_ID ? 'SET' : 'NOT SET');
+    console.error('🌍 Environment check - PAYPAL_AGENCY_TRIAL_PLAN_ID:', process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID ? 'SET' : 'NOT SET');
   }
   
   return planId || null;

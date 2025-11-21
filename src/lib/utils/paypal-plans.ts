@@ -13,22 +13,19 @@ export type PlanSelection = {
 
 /**
  * Get the correct PayPal plan ID based on tier and white-label selection
+ * Note: All new plans include white-label functionality, so whiteLabelEnabled parameter is ignored
  */
 export function getPayPalPlanId(selection: PlanSelection): string {
-  const { tier, whiteLabelEnabled } = selection
+  const { tier } = selection
 
-  // Map to environment variable names
+  // Map to new unified environment variable names (all plans include white-label)
   const planMap: Record<string, string> = {
-    'starter-false': process.env.PAYPAL_STARTER_PLAN_ID!,
-    'starter-true': process.env.PAYPAL_STARTER_WL_PLAN_ID!,
-    'professional-false': process.env.PAYPAL_PRO_PLAN_ID!,
-    'professional-true': process.env.PAYPAL_PRO_WL_PLAN_ID!,
-    'agency-false': process.env.PAYPAL_AGENCY_PLAN_ID!,
-    'agency-true': process.env.PAYPAL_AGENCY_WL_PLAN_ID!,
+    'starter': process.env.PAYPAL_STARTER_DIRECT_PLAN_ID!,
+    'professional': process.env.PAYPAL_PRO_DIRECT_PLAN_ID!,
+    'agency': process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID!,
   }
 
-  const key = `${tier}-${whiteLabelEnabled}`
-  const planId = planMap[key]
+  const planId = planMap[tier]
 
   if (!planId) {
     // Check if environment variables are properly configured
@@ -36,7 +33,7 @@ export function getPayPalPlanId(selection: PlanSelection): string {
     if (!validation.isValid) {
       throw new Error(`PayPal environment not configured. Missing: ${validation.missing.join(', ')}`)
     }
-    throw new Error(`No PayPal plan ID found for: ${tier} (white-label: ${whiteLabelEnabled})`)
+    throw new Error(`No PayPal plan ID found for: ${tier}`)
   }
 
   return planId
@@ -44,25 +41,22 @@ export function getPayPalPlanId(selection: PlanSelection): string {
 
 /**
  * Get the correct PayPal trial plan ID based on tier and white-label selection
+ * Note: All new plans include white-label functionality, so whiteLabelEnabled parameter is ignored
  */
 export function getPayPalTrialPlanId(selection: PlanSelection): string {
-  const { tier, whiteLabelEnabled } = selection
+  const { tier } = selection
 
-  // Map to trial plan environment variable names
+  // Map to new unified trial plan environment variable names (all plans include white-label)
   const trialPlanMap: Record<string, string> = {
-    'starter-false': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!,
-    'starter-true': process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!,
-    'professional-false': process.env.PAYPAL_PRO_TRIAL_PLAN_ID!,
-    'professional-true': process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!,
-    'agency-false': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!,
-    'agency-true': process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!,
+    'starter': process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!,
+    'professional': process.env.PAYPAL_PRO_TRIAL_PLAN_ID!,
+    'agency': process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!,
   }
 
-  const key = `${tier}-${whiteLabelEnabled}`
-  const trialPlanId = trialPlanMap[key]
+  const trialPlanId = trialPlanMap[tier]
 
   if (!trialPlanId) {
-    throw new Error(`No PayPal trial plan ID found for: ${tier} (white-label: ${whiteLabelEnabled})`)
+    throw new Error(`No PayPal trial plan ID found for: ${tier}`)
   }
 
   return trialPlanId
@@ -101,18 +95,19 @@ export function parsePlanFromQuery(planQuery: string | null): PlanSelection | nu
 /**
  * Determine if a PayPal plan ID is a white-label plan
  * Used by webhook to auto-enable white-label
+ * Note: All new plans include white-label functionality
  */
 export function isWhiteLabelPlan(paypalPlanId: string): boolean {
-  const whiteLabelPlanIds = [
-    process.env.PAYPAL_STARTER_WL_PLAN_ID,
-    process.env.PAYPAL_PRO_WL_PLAN_ID,
-    process.env.PAYPAL_AGENCY_WL_PLAN_ID,
-    process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID,
-    process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID,
-    process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID,
+  const allNewPlanIds = [
+    process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
+    process.env.PAYPAL_STARTER_DIRECT_PLAN_ID,
+    process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
+    process.env.PAYPAL_PRO_DIRECT_PLAN_ID,
+    process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
+    process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID,
   ]
 
-  return whiteLabelPlanIds.includes(paypalPlanId)
+  return allNewPlanIds.includes(paypalPlanId)
 }
 
 /**
@@ -120,18 +115,12 @@ export function isWhiteLabelPlan(paypalPlanId: string): boolean {
  */
 export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
   const planIdMap: Record<string, PlanTier> = {
-    [process.env.PAYPAL_STARTER_PLAN_ID!]: 'starter',
-    [process.env.PAYPAL_STARTER_WL_PLAN_ID!]: 'starter',
-    [process.env.PAYPAL_PRO_PLAN_ID!]: 'professional',
-    [process.env.PAYPAL_PRO_WL_PLAN_ID!]: 'professional',
-    [process.env.PAYPAL_AGENCY_PLAN_ID!]: 'agency',
-    [process.env.PAYPAL_AGENCY_WL_PLAN_ID!]: 'agency',
     [process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!]: 'starter',
-    [process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID!]: 'starter',
+    [process.env.PAYPAL_STARTER_DIRECT_PLAN_ID!]: 'starter',
     [process.env.PAYPAL_PRO_TRIAL_PLAN_ID!]: 'professional',
-    [process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID!]: 'professional',
+    [process.env.PAYPAL_PRO_DIRECT_PLAN_ID!]: 'professional',
     [process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!]: 'agency',
-    [process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID!]: 'agency',
+    [process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID!]: 'agency',
   }
 
   return planIdMap[paypalPlanId] || null
@@ -144,11 +133,8 @@ export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
 export function isTrialPlan(paypalPlanId: string): boolean {
   const trialPlanIds = [
     process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
-    process.env.PAYPAL_STARTER_WL_TRIAL_PLAN_ID,
     process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
-    process.env.PAYPAL_PRO_WL_TRIAL_PLAN_ID,
     process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
-    process.env.PAYPAL_AGENCY_WL_TRIAL_PLAN_ID,
   ]
 
   return trialPlanIds.includes(paypalPlanId)
