@@ -126,11 +126,10 @@ function DashboardContent() {
     }
   };
 
-  // 🔧 FIX: Check session for unverified FREE users only
-  // PAID_TRIAL users should NOT see the verification banner
-  const isUnverified = session?.user && 
-                       !session.user.emailVerified && 
-                       session.user.signupFlow !== 'PAID_TRIAL';
+  // 🔧 FIX: Show verification banner ONLY for FREE tier users with unverified email
+  // PAID_TRIAL and paid users should NEVER see the verification banner
+  const showVerificationBanner = session?.user?.signupFlow === 'FREE' && 
+                                  session?.user?.emailVerified === null;
 
   // Calculate stats from real data
   const stats = [
@@ -278,8 +277,8 @@ function DashboardContent() {
   return (
     <DashboardLayout>
       <div className="p-4 sm:p-6 lg:p-8">
-        {/* NEW CODE - Verification banner for unverified users */}
-        {isUnverified && session?.user?.email && (
+        {/* Verification banner for FREE tier unverified users ONLY */}
+        {showVerificationBanner && session?.user?.email && (
           <EmailVerificationBanner 
             email={session.user.email}
             onResend={handleResendEmail}

@@ -101,16 +101,11 @@ export const authOptions: NextAuthOptions = {
               }
             });
 
-            // 🔧 FIX: Send verification email ONLY for FREE flow users
+            // 🔧 FIX: Email verification for FREE users is now manual (banner-triggered)
             // PAID_TRIAL users (PayPal) skip email verification entirely
+            // FREE users will get verification banner on dashboard instead of auto-email
             if (!hasTrialRecord && signupFlow === 'FREE') {
-              console.log(`📧 Sending verification email to FREE user: ${user.email}`);
-              const token = await generateVerificationToken(user.email);
-              await sendVerificationEmail(
-                user.email,
-                user.name || 'there',
-                token
-              );
+              console.log(`✅ FREE user created: ${user.email} (verification banner will be shown)`);
             } else if (signupFlow === 'PAID_TRIAL') {
               console.log(`✅ Skipping verification email for PAID_TRIAL user: ${user.email}`);
             } else {
