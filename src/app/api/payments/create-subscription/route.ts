@@ -55,6 +55,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { planId, plan } = body;
 
+    console.log('🔵 CREATE-SUB: Request body:', JSON.stringify(body));
+    console.log('🔵 CREATE-SUB: Plan received:', body.plan);
+
     // Validate plan ID
     if (!planId) {
       return NextResponse.json(
@@ -94,6 +97,8 @@ export async function POST(request: Request) {
     if (!approvalUrl) {
       throw new Error('No approval URL returned from PayPal');
     }
+
+    console.log('🔵 CREATE-SUB: Return URL being sent:', returnUrl);
 
     return NextResponse.json({
       subscriptionId: subscription.id,

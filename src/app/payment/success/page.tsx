@@ -43,10 +43,14 @@ function PaymentSuccessContent() {
   useEffect(() => {
     const activateSubscription = async () => {
       try {
+        console.log('🟢 PAYMENT-SUCCESS: Full URL search params:', window.location.search);
+        
         // Get subscription ID and plan from URL
         const subscriptionId = searchParams.get('subscription_id');
         const token = searchParams.get('token');
         const plan = searchParams.get('plan'); // STARTER, PROFESSIONAL, or AGENCY
+
+        console.log('🟢 PAYMENT-SUCCESS: Plan from URL:', plan);
 
         if (!subscriptionId && !token) {
           throw new Error('Missing subscription information');
@@ -60,6 +64,7 @@ function PaymentSuccessContent() {
         const subId = subscriptionId || token;
 
         console.log('🔄 Activating subscription:', subId, 'for plan:', plan);
+        console.log('🟢 PAYMENT-SUCCESS: Sending to activation:', { subscriptionId: subId, plan: plan });
 
         // Activate subscription on our backend
         const response = await fetch('/api/payments/activate-subscription', {

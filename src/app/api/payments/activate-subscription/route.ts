@@ -23,6 +23,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { subscriptionId, plan } = body;
 
+    console.log('🟠 ACTIVATE: Full request body:', JSON.stringify(body));
+    console.log('🟠 ACTIVATE: Plan from body:', body.plan);
+
     // Validate inputs
     if (!subscriptionId) {
       return NextResponse.json(
