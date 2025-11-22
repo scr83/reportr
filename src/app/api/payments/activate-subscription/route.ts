@@ -24,20 +24,22 @@ export async function POST(request: Request) {
     const { subscriptionId, plan } = body;
 
     // Validate inputs
-    if (!subscriptionId || !plan) {
+    if (!subscriptionId) {
       return NextResponse.json(
-        { error: 'Subscription ID and plan are required' },
+        { error: 'Subscription ID is required' },
         { status: 400 }
       );
     }
 
-    // Validate plan enum
-    const validPlans: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE'];
-    if (!validPlans.includes(plan as Plan)) {
-      return NextResponse.json(
-        { error: 'Invalid plan' },
-        { status: 400 }
-      );
+    // Validate plan enum if provided (plan is optional - will be detected from PayPal)
+    if (plan) {
+      const validPlans: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE'];
+      if (!validPlans.includes(plan as Plan)) {
+        return NextResponse.json(
+          { error: 'Invalid plan' },
+          { status: 400 }
+        );
+      }
     }
 
     console.log('🔥 Activating subscription:', subscriptionId, 'for user:', session.user.id);

@@ -62,7 +62,6 @@ function PaymentSuccessContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             subscriptionId: subId,
-            plan: 'STARTER', // For MVP, always STARTER
           }),
         });
 
