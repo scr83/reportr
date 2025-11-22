@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     // ========================================
 
     const body = await request.json();
-    const { planId } = body;
+    const { planId, plan } = body;
 
     // Validate plan ID
     if (!planId) {
@@ -63,9 +63,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate plan name
+    if (!plan) {
+      return NextResponse.json(
+        { error: 'Plan name is required' },
+        { status: 400 }
+      );
+    }
+
     // Get base URL for return URLs
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-    const returnUrl = `${baseUrl}/payment/success?session_id=${session.user.id}`;
+    const returnUrl = `${baseUrl}/payment/success?session_id=${session.user.id}&plan=${plan}`;
     const cancelUrl = `${baseUrl}/payment/canceled`;
 
     // Create subscription with PayPal

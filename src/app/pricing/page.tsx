@@ -245,6 +245,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0X464499YG9822634NEQJ5XQ'}
                   planName="STARTER"
+                  plan="STARTER"
                   price={finalPrice}
                   isTrial={true}
                 />
@@ -253,6 +254,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_DIRECT_PLAN_ID || 'P-6PJ50716H4431863PNEQKBLQ'}
                   planName="STARTER"
+                  plan="STARTER"
                   price={finalPrice}
                 />
               </div>
@@ -262,6 +264,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_TRIAL_PLAN_ID || 'P-09P26662R8680522DNEQJ7XY'}
                   planName="PROFESSIONAL"
+                  plan="PROFESSIONAL"
                   price={finalPrice}
                   isTrial={true}
                 />
@@ -270,6 +273,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_DIRECT_PLAN_ID || 'P-90W906144W5364313NEQKB5I'}
                   planName="PROFESSIONAL"
+                  plan="PROFESSIONAL"
                   price={finalPrice}
                 />
               </div>
@@ -279,6 +283,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-7SU477161L382370MNEQKCQQ'}
                   planName="AGENCY"
+                  plan="AGENCY"
                   price={finalPrice}
                   isTrial={true}
                 />
@@ -287,6 +292,7 @@ function PricingTiers() {
                 <PayPalSubscribeButton
                   planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_DIRECT_PLAN_ID || 'P-0KW62605U4011430FNEQKDCY'}
                   planName="AGENCY"
+                  plan="AGENCY"
                   price={finalPrice}
                 />
               </div>

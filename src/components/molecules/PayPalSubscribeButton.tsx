@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 interface PayPalSubscribeButtonProps {
   planId: string;
   planName: string;
+  plan: 'STARTER' | 'PROFESSIONAL' | 'AGENCY'; // Explicit plan tier for database
   price: number;
   disabled?: boolean;
   className?: string;
@@ -16,6 +17,7 @@ interface PayPalSubscribeButtonProps {
 export function PayPalSubscribeButton({
   planId,
   planName,
+  plan,
   price,
   disabled = false,
   className = '',
@@ -38,7 +40,7 @@ export function PayPalSubscribeButton({
       const response = await fetch('/api/payments/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
+        body: JSON.stringify({ planId, plan }),
       });
 
       if (!response.ok) {
@@ -62,7 +64,7 @@ export function PayPalSubscribeButton({
       setError(err instanceof Error ? err.message : 'Failed to start subscription. Please try again.');
       setLoading(false);
     }
-  }, [planId]);
+  }, [planId, plan]);
 
   // Auto-trigger subscription after OAuth redirect
   useEffect(() => {
