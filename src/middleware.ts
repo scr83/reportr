@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
           signupFlow,
           hasActivePayPalSubscription,
           isPaidTrialFlow,
-          isFreeVerifiedUser
+          isFreeUser
         });
         const verifyUrl = new URL('/verify-email-prompt', request.url);
         return NextResponse.redirect(verifyUrl);
