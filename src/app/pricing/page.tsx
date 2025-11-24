@@ -352,8 +352,9 @@ function FeatureComparison() {
       category: 'Branding & Customization',
       items: [
         { name: 'White-Label Branding', free: false, starter: true, pro: true, enterprise: true },
-        { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
-        { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true, badge: 'With White-Label' },
+        { name: 'Custom Agency Name', free: false, starter: true, pro: true, enterprise: true },
+        { name: 'Custom Colors', free: false, starter: true, pro: true, enterprise: true },
+        { name: 'Custom Drag & Drop Template', free: false, starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
         { name: 'Custom Domain', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
       ]
     },
@@ -573,7 +574,7 @@ function FAQ() {
       <div className="mt-12 text-center">
         <p className="text-gray-600 mb-4">Still have questions?</p>
         <a
-          href="mailto:sales@reportr.agency"
+          href="mailto:hello@reportr.agency"
           className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
         >
           Contact Us
