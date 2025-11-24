@@ -85,7 +85,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
             Simple, Transparent Pricing
           </Typography>
           <Typography variant="body" className="text-xl text-neutral-600">
-            Whether you're a solo freelancer or a growing team. Start free, upgrade when you're ready.
+            Whether you&apos;re a solo freelancer or a growing team. Start free, upgrade when you&apos;re ready.
           </Typography>
         </div>
 

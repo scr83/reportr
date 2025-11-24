@@ -30,7 +30,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
           Stop Wasting Time on Manual Reports
         </h2>
         <p className="text-xl text-[#e4c7ff] mb-8">
-          Join SEO freelancers and agencies who've automated their reporting. Start free today.
+          Join SEO freelancers and agencies who&apos;ve automated their reporting. Start free today.
         </p>
         
         {status === 'loading' ? (
