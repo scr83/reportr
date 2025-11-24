@@ -71,7 +71,7 @@ function renderMarkdownContent(content: string): string {
 
   // Handle tables with professional styling and responsive design
   html = html.replace(
-    /\|(.+)\|\s*\n\|[-\s\|]+\|\s*\n((?:\|.+\|\s*\n)*)/g,
+    /\|(.+)\|\s*\n\|[-\s\|]+\|\s*\n((?:\|.+\|[ \t]*\n?)+)/g,
     (match, header, rows) => {
       const headerCells = header.split('|').map((cell: string) => cell.trim()).filter((cell: string) => cell);
       const rowsArray = rows.trim().split('\n').map((row: string) => 
