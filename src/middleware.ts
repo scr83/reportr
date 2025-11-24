@@ -40,13 +40,13 @@ export async function middleware(request: NextRequest) {
       // Check if user has access (PAID USERS GET PRIORITY)
       const hasActivePayPalSubscription = paypalSubscriptionId && subscriptionStatus === 'active';
       const isPaidTrialFlow = signupFlow === 'PAID_TRIAL';
-      const isFreeVerifiedUser = signupFlow === 'FREE' && emailVerified;
+      const isFreeUser = signupFlow === 'FREE';  // FREE users always allowed to dashboard
       
       // Allow access if user has (ORDER MATTERS - paid users first):
       // 1. Active PayPal subscription (highest priority), OR
       // 2. PAID_TRIAL flow (trusted PayPal users who don't need email verification), OR  
       // 3. Email verification for FREE flow users
-      const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || isFreeVerifiedUser;
+      const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || isFreeUser;
       
       if (!hasAccess) {
         // User is logged in but needs verification - LOG ALL CONDITIONS
