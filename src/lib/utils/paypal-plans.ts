@@ -143,11 +143,11 @@ export function isTrialPlan(paypalPlanId: string): boolean {
 /**
  * Convert tier to Prisma Plan enum
  */
-export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'AGENCY' {
+export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE' {
   const tierToPlanMap = {
     'starter': 'STARTER' as const,
     'professional': 'PROFESSIONAL' as const,
-    'agency': 'AGENCY' as const,  // ✅ FIXED: Was 'ENTERPRISE'
+    'agency': 'ENTERPRISE' as const,  // Maps to ENTERPRISE in database
   }
   
   return tierToPlanMap[tier]
