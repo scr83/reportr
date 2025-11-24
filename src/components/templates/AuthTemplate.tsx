@@ -79,7 +79,7 @@ export const AuthTemplate: React.FC<AuthTemplateProps> = ({
           {/* Footer */}
           <div className="mt-8 text-center">
             <Typography variant="caption" className="text-neutral-500">
-              Professional SEO reporting for digital marketing agencies
+              Professional SEO reporting for SEO freelancers and growing agencies
             </Typography>
           </div>
         </div>

@@ -44,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
               </span>
             </div>
             <Typography variant="body" className="text-neutral-400 max-w-sm">
-              Professional SEO reports in minutes. Built for agencies.
+              Professional SEO reports in minutes. Built for SEO freelancers and growing agencies.
             </Typography>
           </div>
 
@@ -117,7 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
               © 2025 Reportr. All rights reserved.
             </Typography>
             <Typography variant="caption" className="text-neutral-500">
-              Professional SEO reporting for digital marketing agencies.
+              Professional SEO reporting for SEO freelancers and growing agencies.
             </Typography>
           </div>
         </div>

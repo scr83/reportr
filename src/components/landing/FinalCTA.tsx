@@ -27,10 +27,10 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
     >
       <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-4xl font-bold text-white mb-6">
-          Ready to Transform Your SEO Reporting?
+          Stop Wasting Time on Manual Reports
         </h2>
         <p className="text-xl text-[#e4c7ff] mb-8">
-          Start creating professional SEO reports in minutes. No setup fees required.
+          Join SEO freelancers and agencies who've automated their reporting. Start free today.
         </p>
         
         {status === 'loading' ? (

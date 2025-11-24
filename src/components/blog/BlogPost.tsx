@@ -339,7 +339,7 @@ export function BlogPost({ post, relatedPosts, tableOfContents }: BlogPostProps)
                     </h3>
                     <p className="text-gray-600 mb-4">
                       Expert insights on white label SEO reporting and agency growth strategies. 
-                      Helping digital marketing agencies scale with professional reporting solutions.
+                      Helping SEO freelancers and growing agencies scale with professional reporting solutions.
                     </p>
                     <Link 
                       href="/blog"

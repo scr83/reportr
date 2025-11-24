@@ -27,7 +27,7 @@ const steps = [
     number: 2,
     icon: BarChart3,
     title: 'Pull Your Data',
-    description: 'Our AI automatically collects and analyzes your SEO data, identifying trends, opportunities, and insights.',
+    description: 'Automatically collects and analyzes your SEO data, identifying trends, opportunities, and insights.',
     color: 'from-brand-500 to-brand-600'
   },
   {
@@ -55,7 +55,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ className }) => {
             How It Works
           </Typography>
           <Typography variant="body" className="text-xl text-neutral-600">
-            Get professional SEO reports in three simple steps. No technical expertise required.
+            From Google data to client-ready PDF in under 5 minutes. No technical setup required.
           </Typography>
         </div>
 

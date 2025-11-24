@@ -26,13 +26,13 @@ const features = [
   {
     icon: Zap,
     title: 'Automated Reports',
-    description: 'Generate professional SEO reports automatically with automated insights and recommendations.',
+    description: 'Pull data from Google Search Console, Analytics 4, and PageSpeed Insights automatically.',
     color: 'text-yellow-600 bg-yellow-100'
   },
   {
     icon: Clock,
-    title: 'Save Time',
-    description: 'Reduce report creation time from hours to minutes with our streamlined automation process.',
+    title: 'Save 8+ Hours Monthly',
+    description: 'What used to take a full morning now takes 30 seconds. Seriously.',
     color: 'text-blue-600 bg-blue-100'
   },
   {
@@ -43,20 +43,20 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: 'Advanced Analytics',
-    description: 'Comprehensive SEO metrics from Google Search Console and Analytics 4.',
+    title: 'Complete SEO Metrics',
+    description: 'Rankings, clicks, impressions, traffic, bounce rates, conversions, and PageSpeed scores.',
     color: 'text-green-600 bg-green-100'
   },
   {
     icon: Shield,
-    title: 'Secure & Reliable',
-    description: 'Enterprise-grade security with encrypted data storage and 99.9% uptime reliability.',
+    title: 'Secure Connection',
+    description: 'OAuth2 Google authentication. We never store your passwords. Your data stays yours.',
     color: 'text-red-600 bg-red-100'
   },
   {
     icon: Star,
     title: 'Client-Ready',
-    description: 'Professional reports that impress clients with clear insights and actionable recommendations.',
+    description: 'Professional reports your clients will think you spent hours creating.',
     color: 'text-brand-600 bg-brand-100'
   }
 ]
@@ -77,8 +77,8 @@ export const Features: React.FC<FeaturesProps> = ({ className }) => {
             Everything You Need to Impress Your Clients
           </Typography>
           <Typography variant="body" className="text-xl text-neutral-600">
-            Built specifically for digital marketing agencies who need professional 
-            reports without the hassle.
+            Built for SEO freelancers and small teams who want professional 
+            reports without the busywork.
           </Typography>
         </div>
 
@@ -120,18 +120,18 @@ export const Features: React.FC<FeaturesProps> = ({ className }) => {
             <Grid cols={1} gap="lg" className="sm:grid-cols-2">
               <div className="text-center">
                 <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
-                  10x
+                  30 seconds
                 </Typography>
                 <Typography variant="body" className="text-neutral-600">
-                  Faster than manual reporting
+                  Average report generation time
                 </Typography>
               </div>
               <div className="text-center">
                 <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
-                  99.9%
+                  8+ hours
                 </Typography>
                 <Typography variant="body" className="text-neutral-600">
-                  Uptime reliability
+                  Saved per month on reporting
                 </Typography>
               </div>
             </Grid>

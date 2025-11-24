@@ -59,10 +59,10 @@ const mainFeatures = [
   },
   {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'Robust security with encrypted data storage, secure API connections, and 99.9% uptime.',
+    title: 'Secure Connections',
+    description: 'Bank-level security with OAuth2 Google authentication and encrypted data storage.',
     color: 'text-red-600 bg-red-100',
-    details: ['OAuth2 secure connections', 'Encrypted data storage', '99.9% uptime SLA']
+    details: ['OAuth2 Google authentication', 'Encrypted data storage', 'Secure API connections']
   },
   {
     icon: Star,
@@ -154,7 +154,7 @@ export default function FeaturesPage() {
                 Core Features
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                Built specifically for digital marketing agencies who need to present client 
+                Built specifically for SEO freelancers and growing agencies who need to present client 
                 SEO data professionally without spending hours on formatting.
               </Typography>
             </div>
@@ -290,7 +290,7 @@ export default function FeaturesPage() {
                 Ready to Transform Your SEO Reporting?
               </Typography>
               <Typography variant="body" className="text-xl text-brand-100 mb-8">
-                Join hundreds of agencies saving time and impressing clients with professional SEO reports.
+                Join SEO freelancers and agencies saving time and impressing clients with professional SEO reports.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 

@@ -25,7 +25,7 @@ const plans = [
     name: 'FREE',
     price: '$0',
     period: '/month',
-    description: 'Perfect for trying out Reportr',
+    description: 'Perfect for solo freelancers getting started',
     popular: false,
     features: [
       '5 reports per month',
@@ -42,7 +42,7 @@ const plans = [
     name: 'STARTER',
     price: '$29',
     period: '/month',
-    description: 'Best for growing agencies',
+    description: 'For freelancers with multiple clients',
     popular: true,
     features: [
       '25 reports per month',
@@ -85,7 +85,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
             Simple, Transparent Pricing
           </Typography>
           <Typography variant="body" className="text-xl text-neutral-600">
-            Start free and scale as your agency grows. No hidden fees, no surprises.
+            Whether you're a solo freelancer or a growing team. Start free, upgrade when you're ready.
           </Typography>
         </div>
 

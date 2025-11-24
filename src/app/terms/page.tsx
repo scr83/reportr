@@ -20,7 +20,7 @@ export default function TermsPage() {
             <p className="text-gray-700 leading-relaxed">
               Reportr is an SEO reporting tool that generates professional PDF reports using 
               data from Google Search Console and Google Analytics 4. The Service is designed 
-              for digital marketing agencies and professionals.
+              for SEO freelancers and growing agencies.
             </p>
           </section>
 

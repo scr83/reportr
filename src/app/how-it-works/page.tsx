@@ -97,9 +97,9 @@ const benefits = [
   },
   {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'OAuth2 connections and encrypted storage keep your data safe.',
-    stat: '99.9% Uptime'
+    title: 'Secure Connections',
+    description: 'OAuth2 Google authentication keeps your client data safe and secure.',
+    stat: 'Bank-Level Security'
   },
   {
     icon: Sparkles,
@@ -111,7 +111,7 @@ const benefits = [
     icon: Users,
     title: 'Impress Your Clients',
     description: 'Professional reports that showcase your expertise and value.',
-    stat: '200+ Agencies'
+    stat: 'Client-Ready'
   }
 ]
 
@@ -283,7 +283,7 @@ export default function HowItWorksPage() {
                 The Reportr Advantage
               </Typography>
               <Typography variant="body" className="text-xl text-neutral-600">
-                See why agencies choose Reportr to save time on SEO data presentation.
+                See why SEO freelancers and growing agencies choose Reportr to save time on SEO data presentation.
               </Typography>
             </div>
 
@@ -396,7 +396,7 @@ export default function HowItWorksPage() {
                 Ready to Get Started?
               </Typography>
               <Typography variant="body" className="text-xl text-brand-100 mb-8">
-                Join hundreds of agencies who have transformed their SEO reporting with Reportr. 
+                Join SEO freelancers and agencies who have transformed their SEO reporting with Reportr. 
                 Try it free for 14 days.
               </Typography>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
