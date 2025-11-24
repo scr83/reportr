@@ -67,8 +67,8 @@ export async function middleware(request: NextRequest) {
           console.log(`✅ User ${userId} accessed via PayPal subscription (${paypalSubscriptionId})`);
         } else if (isPaidTrialFlow) {
           console.log(`✅ User ${userId} accessed via PAID_TRIAL flow (skipped email verification)`);
-        } else if (isFreeVerifiedUser) {
-          console.log(`✅ User ${userId} accessed via email verification (FREE user)`);
+        } else if (isFreeUser) {
+          console.log(`✅ User ${userId} accessed via FREE flow`);
         }
       }
     }
