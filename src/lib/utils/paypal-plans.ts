@@ -115,12 +115,12 @@ export function isWhiteLabelPlan(paypalPlanId: string): boolean {
  */
 export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
   const planIdMap: Record<string, PlanTier> = {
-    [process.env.PAYPAL_STARTER_TRIAL_PLAN_ID!]: 'starter',
-    [process.env.PAYPAL_STARTER_DIRECT_PLAN_ID!]: 'starter',
-    [process.env.PAYPAL_PRO_TRIAL_PLAN_ID!]: 'professional',
-    [process.env.PAYPAL_PRO_DIRECT_PLAN_ID!]: 'professional',
-    [process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID!]: 'agency',
-    [process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID!]: 'agency',
+    'P-0X464499YG9822634NEQJ5XQ': 'starter',      // STARTER trial
+    'P-6PJ50716H4431863PNEQKBLQ': 'starter',      // STARTER direct
+    'P-09P26662R8680522DNEQJ7XY': 'professional', // PRO trial
+    'P-90W906144W5364313NEQKB5I': 'professional', // PRO direct
+    'P-7SU477161L382370MNEQKCQQ': 'agency',       // AGENCY trial
+    'P-0KW62605U4011430FNEQKDCY': 'agency',       // AGENCY direct
   }
 
   return planIdMap[paypalPlanId] || null
@@ -143,11 +143,11 @@ export function isTrialPlan(paypalPlanId: string): boolean {
 /**
  * Convert tier to Prisma Plan enum
  */
-export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE' {
+export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'AGENCY' {
   const tierToPlanMap = {
     'starter': 'STARTER' as const,
     'professional': 'PROFESSIONAL' as const,
-    'agency': 'ENTERPRISE' as const,
+    'agency': 'AGENCY' as const,  // ✅ FIXED: Was 'ENTERPRISE'
   }
   
   return tierToPlanMap[tier]
