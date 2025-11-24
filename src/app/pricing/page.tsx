@@ -241,18 +241,18 @@ function PricingTiers() {
               </button>
             ) : tier.name === 'STARTER' ? (
               <div className="space-y-3">
-                {/* STARTER: Trial Button */}
+                {/* STARTER: Trial Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_TRIAL_PLAN_ID || 'P-0X464499YG9822634NEQJ5XQ'}
+                  planId={'P-0X464499YG9822634NEQJ5XQ'}
                   planName="STARTER"
                   plan="STARTER"
                   price={finalPrice}
                   isTrial={true}
                 />
                 
-                {/* STARTER: Subscribe Button */}
+                {/* STARTER: Subscribe Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_DIRECT_PLAN_ID || 'P-6PJ50716H4431863PNEQKBLQ'}
+                  planId={'P-6PJ50716H4431863PNEQKBLQ'}
                   planName="STARTER"
                   plan="STARTER"
                   price={finalPrice}
@@ -260,18 +260,18 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'PROFESSIONAL' ? (
               <div className="space-y-3">
-                {/* PROFESSIONAL: Trial Button */}
+                {/* PROFESSIONAL: Trial Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_TRIAL_PLAN_ID || 'P-09P26662R8680522DNEQJ7XY'}
+                  planId={'P-09P26662R8680522DNEQJ7XY'}
                   planName="PROFESSIONAL"
                   plan="PROFESSIONAL"
                   price={finalPrice}
                   isTrial={true}
                 />
                 
-                {/* PROFESSIONAL: Subscribe Button */}
+                {/* PROFESSIONAL: Subscribe Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_PRO_DIRECT_PLAN_ID || 'P-90W906144W5364313NEQKB5I'}
+                  planId={'P-90W906144W5364313NEQKB5I'}
                   planName="PROFESSIONAL"
                   plan="PROFESSIONAL"
                   price={finalPrice}
@@ -279,18 +279,18 @@ function PricingTiers() {
               </div>
             ) : tier.name === 'AGENCY' ? (
               <div className="space-y-3">
-                {/* AGENCY: Trial Button */}
+                {/* AGENCY: Trial Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_TRIAL_PLAN_ID || 'P-7SU477161L382370MNEQKCQQ'}
+                  planId={'P-7SU477161L382370MNEQKCQQ'}
                   planName="AGENCY"
                   plan="AGENCY"
                   price={finalPrice}
                   isTrial={true}
                 />
                 
-                {/* AGENCY: Subscribe Button */}
+                {/* AGENCY: Subscribe Button - HARDCODED */}
                 <PayPalSubscribeButton
-                  planId={process.env.NEXT_PUBLIC_PAYPAL_AGENCY_DIRECT_PLAN_ID || 'P-0KW62605U4011430FNEQKDCY'}
+                  planId={'P-0KW62605U4011430FNEQKDCY'}
                   planName="AGENCY"
                   plan="AGENCY"
                   price={finalPrice}
