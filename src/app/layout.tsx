@@ -14,7 +14,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: 'Reportr - Professional SEO Reports in Minutes',
-  description: 'Generate branded, automated SEO reports for SEO freelancers and growing agencies. Save time with automated reporting from Google Search Console, Analytics 4, and PageSpeed Insights.',
+  description: 'Professional SEO reporting for freelancers and growing agencies. Generate white-label reports in ~1 minute. Plans from $29/month. Try free.',
   keywords: 'SEO reports, digital marketing, agency tools, Google Search Console, analytics reporting, white label',
   authors: [{ name: 'Reportr' }],
   creator: 'Reportr',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://reportr.com'),
+  metadataBase: new URL('https://reportr.agency'),
   alternates: {
     canonical: '/',
     languages: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Reportr - Professional SEO Reports in Minutes',
-    description: 'Generate branded, automated SEO reports for SEO freelancers and growing agencies. Save time with automated reporting.',
+    description: 'Professional SEO reporting for freelancers and growing agencies. Generate white-label reports in ~1 minute. Plans from $29/month. Try free.',
     url: '/',
     siteName: 'Reportr',
     images: [
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Reportr - Professional SEO Reports in Minutes',
-    description: 'Generate branded, automated SEO reports for SEO freelancers and growing agencies.',
+    description: 'Professional SEO reporting for freelancers and growing agencies. Generate white-label reports in ~1 minute. Plans from $29/month.',
     images: ['/twitter-image.jpg'],
   },
   robots: {

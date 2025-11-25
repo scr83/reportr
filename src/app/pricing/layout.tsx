@@ -1,0 +1,17 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Pricing - Affordable SEO Reporting Plans | Reportr',
+  description: 'SEO reporting from $29/month. White-label included. Plans: FREE (1 client), STARTER ($29), PROFESSIONAL ($59), AGENCY ($99). Try free.',
+  alternates: {
+    canonical: '/pricing',
+  },
+}
+
+export default function PricingLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
+}
