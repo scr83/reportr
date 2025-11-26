@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { parsePlanFromQuery, getPayPalPlanId } from '@/lib/utils/paypal-plans'
+import { parsePlanFromQuery } from '@/lib/utils/paypal-plans'
 
 function SubscribeContent() {
   const router = useRouter()
@@ -38,8 +38,32 @@ function SubscribeContent() {
           return
         }
 
-        // Get PayPal plan ID
-        const paypalPlanId = getPayPalPlanId(planSelection)
+        // Get PayPal plan ID using hardcoded mapping (same as backend)
+        const getHardcodedPlanId = (tier: string, isTrial: boolean = true): string => {
+          const trialPlanMap: Record<string, string> = {
+            'starter': 'P-0X464499YG9822634NEQJ5XQ',      // STARTER trial
+            'professional': 'P-09P26662R8680522DNEQJ7XY', // PRO trial  
+            'agency': 'P-7SU477161L382370MNEQKCQQ',       // AGENCY trial
+          }
+          
+          const directPlanMap: Record<string, string> = {
+            'starter': 'P-6PJ50716H4431863PNEQKBLQ',      // STARTER direct
+            'professional': 'P-90W906144W5364313NEQKB5I', // PRO direct
+            'agency': 'P-0KW62605U4011430FNEQKDCY',       // AGENCY direct
+          }
+          
+          const planMap = isTrial ? trialPlanMap : directPlanMap
+          const planId = planMap[tier.toLowerCase()]
+          
+          if (!planId) {
+            throw new Error(`No PayPal plan ID found for tier: ${tier}, isTrial: ${isTrial}`)
+          }
+          return planId
+        }
+        
+        // Check if this is a trial or direct subscription (default to trial)
+        const isTrial = searchParams.get('type') !== 'direct'
+        const paypalPlanId = getHardcodedPlanId(planSelection.tier, isTrial)
 
         console.log('Creating subscription:', {
           tier: planSelection.tier,
@@ -51,7 +75,10 @@ function SubscribeContent() {
         const response = await fetch('/api/payments/create-subscription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planId: paypalPlanId })
+          body: JSON.stringify({ 
+            planId: paypalPlanId,
+            plan: planSelection.tier.toUpperCase() // Convert to match database enum
+          })
         })
 
         if (!response.ok) {
