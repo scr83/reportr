@@ -65,23 +65,31 @@ export function PayPalSubscribeButton({
     }
   }, [planId, plan]);
 
-  // Auto-trigger subscription after OAuth redirect
+  // Auto-trigger subscription after OAuth redirect - ONLY for the selected plan
   useEffect(() => {
-    // Check URL parameter for pending subscription
+    // Check URL parameters for pending subscription and plan match
     const urlParams = new URLSearchParams(window.location.search);
     const shouldSubscribe = urlParams.get('subscribe') === 'pending';
+    const selectedPlan = urlParams.get('selectedPlan');
+    const selectedPlanId = urlParams.get('selectedPlanId');
     
-    if (shouldSubscribe && session?.user) {
-      
-      // Clean up URL parameter
+    // Only auto-trigger if:
+    // 1. subscribe=pending is in URL
+    // 2. This button's plan matches selectedPlan from URL
+    // 3. This button's planId matches selectedPlanId from URL (extra verification)
+    if (shouldSubscribe && session?.user && selectedPlan === plan && selectedPlanId === planId) {
+      // Clean up URL parameters
       urlParams.delete('subscribe');
+      urlParams.delete('selectedPlan');
+      urlParams.delete('selectedPlanId');
+      urlParams.delete('flow');
       const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
       window.history.replaceState({}, '', newUrl);
       
-      // Trigger subscription
+      // Trigger subscription for the correct plan
       createSubscription();
     }
-  }, [session, createSubscription]);
+  }, [session, createSubscription, plan, planId]);
 
   const handleSubscribe = async () => {
     // Check if user is authenticated
@@ -90,7 +98,6 @@ export function PayPalSubscribeButton({
     }
 
     if (!session?.user) {
-      console.log('⚠️  User not authenticated, showing auth modal...');
       setShowAuthModal(true);
       return;
     }
@@ -100,20 +107,19 @@ export function PayPalSubscribeButton({
   };
 
   const handleGoogleSignIn = async () => {
-    console.log('🔐 Initiating Google sign-in for PayPal subscription...');
-    
     // 🔧 FIX: Set cookie to mark paid trial intent BEFORE OAuth (server-accessible)
     document.cookie = `signupIntent=PAID_TRIAL; path=/; max-age=1800; SameSite=Lax`;
-    console.log('📝 Set signupIntent cookie = PAID_TRIAL');
     
-    // Add URL parameter to persist subscription intent across redirect
+    // Add URL parameters to persist subscription intent AND plan info across redirect
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('subscribe', 'pending');
+    currentUrl.searchParams.set('selectedPlan', plan); // Store which plan was clicked
+    currentUrl.searchParams.set('selectedPlanId', planId); // Store the plan ID for verification
     currentUrl.searchParams.set('flow', 'paid'); // Mark as paid flow for analytics
     
-    // Trigger Google OAuth with callback URL that includes subscription intent
+    // Trigger Google OAuth with callback URL that includes plan-specific subscription intent
     await signIn('google', {
-      callbackUrl: currentUrl.toString(), // Return with ?subscribe=pending&flow=paid
+      callbackUrl: currentUrl.toString(), // Return with ?subscribe=pending&selectedPlan=PROFESSIONAL&selectedPlanId=P-09P...
     });
   };
 
