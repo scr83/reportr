@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 // Main component wrapped in Suspense
 export default function PaymentSuccessPage() {
@@ -39,6 +40,7 @@ function PaymentSuccessContent() {
   const [message, setMessage] = useState('Processing your subscription...');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, update: updateSession } = useSession();
 
   useEffect(() => {
     const activateSubscription = async () => {
@@ -75,8 +77,15 @@ function PaymentSuccessContent() {
           throw new Error(error.message || 'Failed to activate subscription');
         }
 
+        const result = await response.json();
         setStatus('success');
         setMessage('Subscription activated successfully!');
+
+        // If activation signals session refresh, force NextAuth to update
+        if (result.refreshSession) {
+          console.log('🔄 Refreshing session after PayPal activation...');
+          await updateSession(); // This triggers JWT callback to fetch fresh data
+        }
 
         // Redirect to dashboard after 2 seconds
         setTimeout(() => {
@@ -91,7 +100,7 @@ function PaymentSuccessContent() {
     };
 
     activateSubscription();
-  }, [searchParams, router]);
+  }, [searchParams, router, updateSession]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#030712]">

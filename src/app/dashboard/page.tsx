@@ -129,7 +129,8 @@ function DashboardContent() {
   // 🔧 FIX: Show verification banner ONLY for FREE tier users with unverified email
   // PAID_TRIAL and paid users should NEVER see the verification banner
   const showVerificationBanner = session?.user?.signupFlow === 'FREE' && 
-                                  !session?.user?.emailVerified;
+                                  !session?.user?.emailVerified &&
+                                  !session?.user?.paypalSubscriptionId;
 
   // Calculate stats from real data
   const stats = [

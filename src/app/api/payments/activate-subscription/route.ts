@@ -59,6 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Subscription activated',
+      refreshSession: true, // Signal frontend to refresh session
     });
 
   } catch (error) {

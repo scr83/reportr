@@ -40,13 +40,15 @@ export async function middleware(request: NextRequest) {
       // Check if user has access (PAID USERS GET PRIORITY)
       const hasActivePayPalSubscription = paypalSubscriptionId && subscriptionStatus === 'active';
       const isPaidTrialFlow = signupFlow === 'PAID_TRIAL';
-      const isFreeUser = signupFlow === 'FREE';  // FREE users always allowed to dashboard
+      const isFreeUserVerified = signupFlow === 'FREE' && emailVerified;
+      const hasPayPalSubscription = !!paypalSubscriptionId; // Any PayPal subscription (even if stale status)
       
       // Allow access if user has (ORDER MATTERS - paid users first):
       // 1. Active PayPal subscription (highest priority), OR
-      // 2. PAID_TRIAL flow (trusted PayPal users who don't need email verification), OR  
-      // 3. Email verification for FREE flow users
-      const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || isFreeUser;
+      // 2. PAID_TRIAL flow (trusted PayPal users), OR  
+      // 3. ANY PayPal subscription ID (handles stale session data), OR
+      // 4. FREE user with email verification
+      const hasAccess = hasActivePayPalSubscription || isPaidTrialFlow || hasPayPalSubscription || isFreeUserVerified;
       
       if (!hasAccess) {
         // User is logged in but needs verification - LOG ALL CONDITIONS
@@ -57,7 +59,8 @@ export async function middleware(request: NextRequest) {
           signupFlow,
           hasActivePayPalSubscription,
           isPaidTrialFlow,
-          isFreeUser
+          hasPayPalSubscription,
+          isFreeUserVerified
         });
         const verifyUrl = new URL('/verify-email-prompt', request.url);
         return NextResponse.redirect(verifyUrl);
@@ -67,8 +70,10 @@ export async function middleware(request: NextRequest) {
           console.log(`✅ User ${userId} accessed via PayPal subscription (${paypalSubscriptionId})`);
         } else if (isPaidTrialFlow) {
           console.log(`✅ User ${userId} accessed via PAID_TRIAL flow (skipped email verification)`);
-        } else if (isFreeUser) {
-          console.log(`✅ User ${userId} accessed via FREE flow`);
+        } else if (hasPayPalSubscription) {
+          console.log(`✅ User ${userId} accessed via PayPal subscription ID (${paypalSubscriptionId}) - stale session handling`);
+        } else {
+          console.log(`✅ User ${userId} accessed via FREE tier (email verified)`);
         }
       }
     }
