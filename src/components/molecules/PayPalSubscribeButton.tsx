@@ -34,7 +34,6 @@ export function PayPalSubscribeButton({
       setLoading(true);
       setError(null);
 
-      console.log('🔄 Creating PayPal subscription...');
 
       // Create subscription
       const response = await fetch('/api/payments/create-subscription', {
@@ -73,7 +72,6 @@ export function PayPalSubscribeButton({
     const shouldSubscribe = urlParams.get('subscribe') === 'pending';
     
     if (shouldSubscribe && session?.user) {
-      console.log('✅ User authenticated after OAuth, auto-triggering subscription...');
       
       // Clean up URL parameter
       urlParams.delete('subscribe');
@@ -98,7 +96,6 @@ export function PayPalSubscribeButton({
     }
 
     // User is authenticated, proceed with subscription
-    console.log('✅ User authenticated, creating subscription...');
     createSubscription();
   };
 

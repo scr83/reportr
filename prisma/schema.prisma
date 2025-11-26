@@ -193,7 +193,7 @@ enum Plan {
   FREE
   STARTER
   PROFESSIONAL
-  ENTERPRISE
+  AGENCY
 }
 
 enum ReportStatus {

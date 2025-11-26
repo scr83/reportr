@@ -105,10 +105,10 @@ export default function EnterpriseBatchClientsPage() {
               Add Your Clients
             </Typography>
             <Typography variant="lead" className="text-slate-600 text-center mb-8">
-              ENTERPRISE Plan: Up to 50 clients, 250 reports per month
+              AGENCY Plan: Up to 50 clients, 250 reports per month
             </Typography>
 
-            {/* ENTERPRISE Tier Info */}
+            {/* AGENCY Tier Info */}
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-8">
               <div className="flex items-start space-x-3">
                 <span className="inline-flex items-center justify-center w-6 h-6 bg-[#9233ea] text-white rounded-full text-sm flex-shrink-0">
@@ -116,7 +116,7 @@ export default function EnterpriseBatchClientsPage() {
                 </span>
                 <div className="flex-1">
                   <Typography variant="body" className="text-slate-700 text-sm">
-                    <strong>ENTERPRISE Plan - 14-Day Free Trial:</strong> Perfect for large agencies
+                    <strong>AGENCY Plan - 14-Day Free Trial:</strong> Perfect for large agencies
                   </Typography>
                   <Typography variant="caption" className="text-slate-600 mt-1 block">
                     • Up to 50 clients • 250 reports per month • $199/month after trial

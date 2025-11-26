@@ -47,7 +47,7 @@ export function BillingCard({ data, loading }: BillingCardProps) {
       case 'FREE': return 'Free Plan'
       case 'STARTER': return 'Starter Plan'
       case 'PROFESSIONAL': return 'Professional Plan'
-      case 'ENTERPRISE': return 'Enterprise Plan'
+      case 'AGENCY': return 'Agency Plan'
       default: return plan
     }
   }

@@ -267,7 +267,7 @@ function DashboardContent() {
     const clientUsagePercent = usageStats.clients.percentage;
     const reportUsagePercent = usageStats.reports.percentage;
 
-    if (shouldShowUpgradePrompt(clientUsagePercent, reportUsagePercent, 80) && userData.plan !== 'ENTERPRISE') {
+    if (shouldShowUpgradePrompt(clientUsagePercent, reportUsagePercent, 80) && userData.plan !== 'AGENCY') {
       setShowUpgradePrompt(true);
       sessionStorage.setItem('upgrade-prompt-shown', 'true');
     }

@@ -6,7 +6,7 @@
 import { prisma } from '../prisma';
 import { paypalClient } from './paypal-client';
 import { Plan } from '@prisma/client';
-import { isWhiteLabelPlan, getTierFromPlanId, tierToPlan } from '../utils/paypal-plans';
+import { PAYPAL_PLAN_TO_DB_PLAN } from '../paypal';
 
 interface SubscriptionData {
   userId: string;
@@ -25,13 +25,15 @@ export class SubscriptionService {
       // Get subscription details from PayPal
       const subscriptionDetails = await paypalClient.getSubscriptionDetails(paypalSubscriptionId);
 
-      // Detect white-label plan and get PayPal plan ID from subscription details
+      // Get plan from PayPal subscription using hardcoded mapping
       const paypalPlanId = subscriptionDetails.plan_id;
-      const isWhiteLabel = isWhiteLabelPlan(paypalPlanId);
-      const tierFromPlan = getTierFromPlanId(paypalPlanId);
-      
-      // Convert tier to correct Prisma Plan enum
-      const actualPlan = tierFromPlan ? tierToPlan(tierFromPlan) : plan;
+      const actualPlan = PAYPAL_PLAN_TO_DB_PLAN[paypalPlanId];
+
+      if (!actualPlan) {
+        console.error('Unknown PayPal plan ID:', paypalPlanId);
+        throw new Error(`Unknown PayPal plan ID: ${paypalPlanId}`);
+      }
+
 
 
       // Note: Trial fields are handled directly in the user update below
@@ -58,8 +60,8 @@ export class SubscriptionService {
           subscriptionStatus: 'active',
           planExpires: null, // Clear trial expiration
           
-          // Billing cycle dates (THE FIX)
-          billingCycleStart: firstPaymentDate,
+          // Billing cycle dates - proper calculation
+          billingCycleStart: hasTrial ? now : firstPaymentDate,
           billingCycleEnd: firstPaymentDate,
           
           // Trial tracking fields (BONUS: proper population)
@@ -68,7 +70,7 @@ export class SubscriptionService {
           trialType: 'PAYPAL', // Always mark PayPal users as PAYPAL type regardless of trial
           trialUsed: true, // Mark trial as used for PayPal subscribers
           
-          whiteLabelEnabled: isWhiteLabel, // Auto-enable white-label for WL plans
+          whiteLabelEnabled: true, // ALL paid plans include white label
           signupFlow: 'PAID_TRIAL', // Mark as paid trial flow to skip email verification
         },
       });
@@ -91,7 +93,7 @@ export class SubscriptionService {
         });
       }
 
-      console.log(`Subscription activated for user ${userId}, plan: ${plan}`);
+      console.log(`✅ Subscription activated for user ${userId}, SAVED plan: ${actualPlan}`);
     } catch (error) {
       console.error('Error activating subscription:', error);
       throw error;

@@ -28,7 +28,7 @@ export default function SignInPage() {
         case 'PROFESSIONAL':
           router.push('/onboarding/professional/batch-clients')
           break
-        case 'ENTERPRISE':
+        case 'AGENCY':
           router.push('/onboarding/enterprise/batch-clients')
           break
         default:
@@ -49,7 +49,7 @@ export default function SignInPage() {
       case 'PROFESSIONAL':
         callbackUrl = '/onboarding/professional/batch-clients'
         break
-      case 'ENTERPRISE':
+      case 'AGENCY':
         callbackUrl = '/onboarding/enterprise/batch-clients'
         break
     }

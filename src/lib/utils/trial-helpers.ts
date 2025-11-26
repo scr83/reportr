@@ -56,7 +56,7 @@ export function shouldShowUpgradePrompt(
  * @returns Recommended next plan tier
  */
 export function getNextTier(currentPlan: Plan): Plan {
-  const tierOrder: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE'];
+  const tierOrder: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'AGENCY'];
   const currentIndex = tierOrder.indexOf(currentPlan);
   
   // If already at highest tier or plan not found, stay at current
@@ -190,7 +190,7 @@ export function getPlanDisplayInfo(plan: Plan) {
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
-    ENTERPRISE: {
+    AGENCY: {
       name: 'Enterprise',
       color: 'text-green-600',
       bgColor: 'bg-green-100',

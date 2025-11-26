@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     // Validate plan enum if provided (plan is optional - will be detected from PayPal)
     if (plan) {
-      const validPlans: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE'];
+      const validPlans: Plan[] = ['FREE', 'STARTER', 'PROFESSIONAL', 'AGENCY'];
       if (!validPlans.includes(plan as Plan)) {
         return NextResponse.json(
           { error: 'Invalid plan' },

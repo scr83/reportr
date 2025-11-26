@@ -48,7 +48,7 @@ export default function WelcomePage() {
     { value: '1', label: '1 client', tier: 'FREE', price: '$0' },
     { value: '2-5', label: '2-5 clients', tier: 'STARTER', price: '$29/mo' },
     { value: '6-15', label: '6-15 clients', tier: 'PROFESSIONAL', price: '$99/mo' },
-    { value: '16+', label: '16+ clients', tier: 'ENTERPRISE', price: '$199/mo' }
+    { value: '16+', label: '16+ clients', tier: 'AGENCY', price: '$199/mo' }
   ]
 
   // Get recommended tier based on client count
@@ -56,7 +56,7 @@ export default function WelcomePage() {
     if (clientCount === '1') return 'FREE'
     if (clientCount === '2-5') return 'STARTER'
     if (clientCount === '6-15') return 'PROFESSIONAL'
-    if (clientCount === '16+') return 'ENTERPRISE'
+    if (clientCount === '16+') return 'AGENCY'
     return 'FREE'
   }
 

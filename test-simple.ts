@@ -9,7 +9,7 @@ async function testAllPlans() {
   
   try {
     // Test each plan tier
-    const plans = ['FREE', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE'] as const
+    const plans = ['FREE', 'STARTER', 'PROFESSIONAL', 'AGENCY'] as const
     
     for (const planType of plans) {
       console.log(`\n🎯 Testing ${planType} Plan`)

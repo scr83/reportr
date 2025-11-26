@@ -32,11 +32,11 @@ export function getPlanLimits(plan: Plan): PlanLimits {
       whiteLabelEnabled: true,
       planName: 'Professional',
     },
-    ENTERPRISE: {
+    AGENCY: {
       clients: 50,
       reportsPerMonth: 250,
       whiteLabelEnabled: true,
-      planName: 'Enterprise',
+      planName: 'Agency',
     },
   };
 
@@ -185,7 +185,7 @@ export function canUseWhiteLabel(user: any): boolean {
   // This covers:
   // - STARTER users who paid $20/mo white-label add-on
   // - PROFESSIONAL users (white-label included, field set to true)
-  // - ENTERPRISE users (white-label included, field set to true)
+  // - AGENCY users (white-label included, field set to true)
   if (user.whiteLabelEnabled === true) {
     return true;
   }
@@ -195,7 +195,7 @@ export function canUseWhiteLabel(user: any): boolean {
                     user.trialEndDate && 
                     new Date() < user.trialEndDate;
   
-  if (isInTrial && ['STARTER', 'PROFESSIONAL', 'ENTERPRISE'].includes(user.plan)) {
+  if (isInTrial && ['STARTER', 'PROFESSIONAL', 'AGENCY'].includes(user.plan)) {
     return true;
   }
   

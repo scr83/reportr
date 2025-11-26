@@ -93,27 +93,37 @@ export function parsePlanFromQuery(planQuery: string | null): PlanSelection | nu
 }
 
 /**
+ * All PayPal plan IDs (hardcoded for reliability)
+ * Updated Nov 25, 2025 - All paid plans include white-label
+ */
+const ALL_PAYPAL_PLAN_IDS = [
+  'P-0X464499YG9822634NEQJ5XQ', // STARTER trial
+  'P-6PJ50716H4431863PNEQKBLQ', // STARTER direct
+  'P-09P26662R8680522DNEQJ7XY', // PRO trial
+  'P-90W906144W5364313NEQKB5I', // PRO direct
+  'P-7SU477161L382370MNEQKCQQ', // AGENCY trial
+  'P-0KW62605U4011430FNEQKDCY', // AGENCY direct
+]
+
+/**
  * Determine if a PayPal plan ID is a white-label plan
  * Used by webhook to auto-enable white-label
- * Note: All new plans include white-label functionality
+ * Note: All new paid plans include white-label functionality
+ * HARDCODED to avoid env var issues
  */
 export function isWhiteLabelPlan(paypalPlanId: string): boolean {
-  const allNewPlanIds = [
-    process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
-    process.env.PAYPAL_STARTER_DIRECT_PLAN_ID,
-    process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
-    process.env.PAYPAL_PRO_DIRECT_PLAN_ID,
-    process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
-    process.env.PAYPAL_AGENCY_DIRECT_PLAN_ID,
-  ]
-
-  return allNewPlanIds.includes(paypalPlanId)
+  const result = ALL_PAYPAL_PLAN_IDS.includes(paypalPlanId)
+  console.log('🟡 isWhiteLabelPlan:', { paypalPlanId, result })
+  return result
 }
 
 /**
  * Get tier name from PayPal plan ID
+ * HARDCODED for reliability - no environment variables
  */
 export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
+  console.log('🟡 getTierFromPlanId called with:', paypalPlanId)
+  
   const planIdMap: Record<string, PlanTier> = {
     'P-0X464499YG9822634NEQJ5XQ': 'starter',      // STARTER trial
     'P-6PJ50716H4431863PNEQKBLQ': 'starter',      // STARTER direct
@@ -123,32 +133,53 @@ export function getTierFromPlanId(paypalPlanId: string): PlanTier | null {
     'P-0KW62605U4011430FNEQKDCY': 'agency',       // AGENCY direct
   }
 
-  return planIdMap[paypalPlanId] || null
+  const result = planIdMap[paypalPlanId] || null
+  console.log('🟡 getTierFromPlanId result:', result)
+  
+  // Log if we got an unknown plan ID
+  if (!result) {
+    console.error('🔴 UNKNOWN PayPal plan ID:', paypalPlanId)
+    console.error('🔴 Known plan IDs:', Object.keys(planIdMap))
+  }
+  
+  return result
 }
+
+/**
+ * Trial plan IDs (hardcoded for reliability)
+ */
+const TRIAL_PLAN_IDS = [
+  'P-0X464499YG9822634NEQJ5XQ', // STARTER trial
+  'P-09P26662R8680522DNEQJ7XY', // PRO trial
+  'P-7SU477161L382370MNEQKCQQ', // AGENCY trial
+]
 
 /**
  * Determine if a PayPal plan ID is a trial plan
  * Used to check if subscription is in trial period
+ * HARDCODED to avoid env var issues
  */
 export function isTrialPlan(paypalPlanId: string): boolean {
-  const trialPlanIds = [
-    process.env.PAYPAL_STARTER_TRIAL_PLAN_ID,
-    process.env.PAYPAL_PRO_TRIAL_PLAN_ID,
-    process.env.PAYPAL_AGENCY_TRIAL_PLAN_ID,
-  ]
-
-  return trialPlanIds.includes(paypalPlanId)
+  const result = TRIAL_PLAN_IDS.includes(paypalPlanId)
+  console.log('🟡 isTrialPlan:', { paypalPlanId, result })
+  return result
 }
 
 /**
  * Convert tier to Prisma Plan enum
+ * CRITICAL: Maps lowercase tier to uppercase Prisma enum
  */
-export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE' {
+export function tierToPlan(tier: PlanTier): 'STARTER' | 'PROFESSIONAL' | 'AGENCY' {
+  console.log('🟡 tierToPlan called with:', tier)
+  
   const tierToPlanMap = {
     'starter': 'STARTER' as const,
     'professional': 'PROFESSIONAL' as const,
-    'agency': 'ENTERPRISE' as const,  // Maps to ENTERPRISE in database
+    'agency': 'AGENCY' as const,  // Maps to AGENCY in database
   }
   
-  return tierToPlanMap[tier]
+  const result = tierToPlanMap[tier]
+  console.log('🟡 tierToPlan result:', result)
+  
+  return result
 }

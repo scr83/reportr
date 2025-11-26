@@ -173,7 +173,7 @@ export async function getUsageStats(userId: string, userPlan: string): Promise<U
     FREE: 5,
     STARTER: 25,
     PROFESSIONAL: 75,
-    ENTERPRISE: 250
+    AGENCY: 250
   } as const;
 
   const reportsLimit = limits[userPlan as keyof typeof limits] || limits.FREE;

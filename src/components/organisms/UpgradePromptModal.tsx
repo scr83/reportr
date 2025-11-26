@@ -186,7 +186,7 @@ export const UpgradePromptModal: React.FC<UpgradePromptModalProps> = ({
               </>
             )}
             
-            {suggestedPlan === 'ENTERPRISE' && (
+            {suggestedPlan === 'AGENCY' && (
               <>
                 <div className="flex items-center gap-3">
                   <Check className="h-4 w-4 text-green-600" />

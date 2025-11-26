@@ -8,7 +8,7 @@ import { Plan } from '@prisma/client'
 import { cn } from '@/lib/utils'
 
 export interface UpgradeOption {
-  plan: 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE'
+  plan: 'STARTER' | 'PROFESSIONAL' | 'AGENCY'
   name: string
   price: number
   whiteLabelPrice?: number
@@ -83,7 +83,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         ctaText: 'Upgrade to Professional'
       },
       {
-        plan: 'ENTERPRISE',
+        plan: 'AGENCY',
         name: 'Agency',
         price: 199,
         whiteLabelPrice: 20,
@@ -106,7 +106,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
       'FREE': -1,
       'STARTER': 0,
       'PROFESSIONAL': 1,
-      'ENTERPRISE': 2
+      'AGENCY': 2
     }[currentPlan]
 
     let availableOptions = allOptions.filter((_, index) => index > currentIndex)
@@ -165,15 +165,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             ctaText: 'Add White-Label (+$20/mo)'
           }
         ]
-      } else if (currentPlan === 'ENTERPRISE') {
-        // ENTERPRISE user wanting white-label: show add-on option
-        const enterpriseOption = allOptions.find(opt => opt.plan === 'ENTERPRISE')
+      } else if (currentPlan === 'AGENCY') {
+        // AGENCY user wanting white-label: show add-on option
+        const enterpriseOption = allOptions.find(opt => opt.plan === 'AGENCY')
         const enterpriseBasePrice = enterpriseOption?.price || 199
         const whiteLabelPrice = enterpriseOption?.whiteLabelPrice || 20
         
         availableOptions = [
           {
-            plan: 'ENTERPRISE',
+            plan: 'AGENCY',
             name: 'Agency + White-Label',
             price: enterpriseBasePrice + whiteLabelPrice,
             period: 'month',

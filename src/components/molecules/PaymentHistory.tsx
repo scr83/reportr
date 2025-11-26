@@ -56,7 +56,7 @@ export function PaymentHistory({ payments, loading }: PaymentHistoryProps) {
     switch (plan) {
       case 'STARTER': return 'Starter'
       case 'PROFESSIONAL': return 'Professional'
-      case 'ENTERPRISE': return 'Enterprise'
+      case 'AGENCY': return 'Agency'
       default: return plan
     }
   }
