@@ -37,6 +37,14 @@ export async function middleware(request: NextRequest) {
       const subscriptionStatus = token.subscriptionStatus as string;
       const signupFlow = token.signupFlow as string | null;
       
+      // NEW: Independent FREE user path - early return
+      if (signupFlow === 'FREE') {
+        // FREE users always reach dashboard if authenticated
+        // Dashboard UI handles verification banner - not middleware's job
+        console.log(`✅ FREE user ${userId} allowed to dashboard - UI will handle verification`);
+        return NextResponse.next();
+      }
+      
       // Check if user has access (PAID USERS GET PRIORITY)
       const hasActivePayPalSubscription = paypalSubscriptionId && subscriptionStatus === 'active';
       const isPaidTrialFlow = signupFlow === 'PAID_TRIAL';
