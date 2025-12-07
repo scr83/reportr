@@ -222,9 +222,9 @@ function WhiteLabelSEOReportsContent() {
             See how agencies like yours are transforming their reporting workflow.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-2 items-center max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-1 items-center max-w-4xl mx-auto">
             {/* Before */}
-            <div className="bg-gray-100 border-2 border-dashed border-gray-300 p-8 rounded-2xl">
+            <div className="bg-gray-100 border-2 border-dashed border-gray-300 p-8 rounded-2xl aspect-square flex flex-col justify-center">
               <span className="inline-block bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-semibold mb-5">
                 Before Reportr
               </span>
@@ -248,13 +248,13 @@ function WhiteLabelSEOReportsContent() {
             
             {/* Arrow */}
             <div className="flex justify-center">
-              <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#8B5CF6] transform md:rotate-0 rotate-90">
+              <svg width="64" height="64" fill="none" stroke="currentColor" strokeWidth="3" className="text-[#8B5CF6] transform md:rotate-0 rotate-90">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </div>
             
             {/* After */}
-            <div className="bg-gradient-to-br from-[#f5f0ff] to-[#ede5ff] border-2 border-[#c4adff] p-8 rounded-2xl shadow-lg">
+            <div className="bg-gradient-to-br from-[#f5f0ff] to-[#ede5ff] border-2 border-[#c4adff] p-8 rounded-2xl shadow-lg aspect-square flex flex-col justify-center">
               <span className="inline-block bg-[#8B5CF6] text-white px-4 py-2 rounded-full text-sm font-semibold mb-5">
                 With Reportr
               </span>
