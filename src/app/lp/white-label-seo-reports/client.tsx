@@ -222,7 +222,7 @@ function WhiteLabelSEOReportsContent() {
             See how agencies like yours are transforming their reporting workflow.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-1 items-center max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 items-center max-w-7xl mx-auto">
             {/* Before */}
             <div className="bg-gray-100 border-2 border-dashed border-gray-300 p-8 rounded-2xl aspect-square flex flex-col justify-center">
               <span className="inline-block bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-semibold mb-5">
