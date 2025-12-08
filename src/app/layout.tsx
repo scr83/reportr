@@ -1,6 +1,7 @@
 import { Inter, Poppins } from 'next/font/google'
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { Suspense } from 'react'
 import { Providers } from '@/components/providers/Providers'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { UTMPreserver } from '@/components/UTMPreserver'
@@ -124,7 +125,9 @@ export default function RootLayout({
         
         <Providers>
           <ThemeProvider>
-            <UTMPreserver />
+            <Suspense fallback={null}>
+              <UTMPreserver />
+            </Suspense>
             {children}
           </ThemeProvider>
         </Providers>
