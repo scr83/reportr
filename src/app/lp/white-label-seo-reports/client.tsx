@@ -218,9 +218,9 @@ function WhiteLabelSEOReportsContent() {
             See how agencies like yours are transforming their reporting workflow.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-center max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-start max-w-5xl mx-auto">
             {/* Before */}
-            <div className="bg-white border-2 border-dashed border-gray-300 pt-4 pb-4 pl-6 pr-4 rounded-2xl aspect-square flex flex-col justify-center">
+            <div className="bg-white border-2 border-dashed border-gray-300 pt-4 pb-4 pl-6 pr-4 rounded-2xl flex flex-col">
               <span className="inline-flex bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-sm font-semibold mb-5 w-fit">
                 Before Reportr
               </span>
@@ -250,7 +250,7 @@ function WhiteLabelSEOReportsContent() {
             </div>
             
             {/* After */}
-            <div className="bg-white border-2 border-[#c4adff] pt-4 pb-4 pl-6 pr-4 rounded-2xl shadow-lg aspect-square flex flex-col justify-center">
+            <div className="bg-white border-2 border-[#c4adff] pt-4 pb-4 pl-6 pr-4 rounded-2xl shadow-lg flex flex-col">
               <span className="inline-flex bg-[#8B5CF6] text-white px-3 py-1.5 rounded-full text-sm font-semibold mb-5 w-fit">
                 With Reportr
               </span>
