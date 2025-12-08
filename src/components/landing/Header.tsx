@@ -119,7 +119,19 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 </Button>
                 <Button 
                   size="sm" 
-                  onClick={() => navigateToPage('/pricing')}
+                  onClick={() => {
+                    // Add GTM tracking BEFORE existing navigation
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                      event: 'cta_click',
+                      cta_location: 'nav',
+                      cta_text: 'Get Started',
+                      cta_destination: '/pricing'
+                    });
+                    
+                    // Keep existing navigation logic unchanged
+                    navigateToPage('/pricing');
+                  }}
                   className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Get Started
@@ -184,7 +196,19 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                     </Button>
                     <Button 
                       size="sm" 
-                      onClick={() => navigateToPage('/pricing')}
+                      onClick={() => {
+                        // Add GTM tracking BEFORE existing navigation
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                          event: 'cta_click',
+                          cta_location: 'nav',
+                          cta_text: 'Get Started',
+                          cta_destination: '/pricing'
+                        });
+                        
+                        // Keep existing navigation logic unchanged
+                        navigateToPage('/pricing');
+                      }}
                       className="bg-brand-600 hover:bg-brand-700 text-white justify-center"
                     >
                       Get Started

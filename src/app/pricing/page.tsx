@@ -59,6 +59,18 @@ function PricingTiers() {
 
   // Handle authentication for FREE plan
   const handleFreeAuth = () => {
+    // Add GTM tracking FIRST, before any existing logic
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'cta_click',
+        cta_location: 'pricing_page',
+        cta_text: 'Start Free',
+        plan: 'FREE',
+        cta_destination: '/signup'
+      });
+    }
+
     if (session) {
       router.push('/dashboard')
     } else {

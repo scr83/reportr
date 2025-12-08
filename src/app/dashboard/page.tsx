@@ -201,34 +201,39 @@ function DashboardContent() {
       setTimeout(() => setSuccessMessage(null), 5000)
     }
 
-    // Check for new signup event
+    // Check for new signup event and track trial_signup
     const isNewSignup = searchParams.get('new_signup') === 'true'
+    const flow = searchParams.get('flow')
     
     if (isNewSignup && typeof window !== 'undefined' && window.dataLayer) {
+      // Determine the plan based on signup flow
+      let signupPlan = 'FREE'; // Default
+      if (flow === 'paid') {
+        signupPlan = 'STARTER'; // Default paid plan, could be enhanced to detect actual plan
+      } else if (flow === 'free') {
+        signupPlan = 'FREE';
+      }
+      
       // Retrieve stored UTM parameters from sessionStorage
       const storedUTMs = sessionStorage.getItem('utm_params')
       const utmData = storedUTMs ? JSON.parse(storedUTMs) : {}
       
       window.dataLayer.push({
-        event: 'sign_up',
-        method: 'google_oauth',
-        campaign_source: utmData.utm_source || searchParams.get('utm_source') || 'direct',
-        campaign_medium: utmData.utm_medium || searchParams.get('utm_medium') || 'none',
-        campaign_name: utmData.utm_campaign || searchParams.get('utm_campaign') || 'none',
-        campaign_content: utmData.utm_content || searchParams.get('utm_content') || 'none',
-        value: 15,
-        currency: 'USD'
+        event: 'trial_signup',
+        plan: signupPlan,
+        signup_method: 'google'
       })
       
       console.log('✅ Trial signup event pushed to dataLayer', {
-        event: 'sign_up',
-        value: 15,
-        campaign_source: utmData.utm_source || 'direct'
+        event: 'trial_signup',
+        plan: signupPlan,
+        signup_method: 'google'
       })
       
       // Clear the new_signup flag to prevent duplicate events
       const newUrl = new URL(window.location.href)
       newUrl.searchParams.delete('new_signup')
+      newUrl.searchParams.delete('flow')
       window.history.replaceState({}, '', newUrl)
     }
 

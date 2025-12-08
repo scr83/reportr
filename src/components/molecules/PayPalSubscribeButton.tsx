@@ -92,6 +92,18 @@ export function PayPalSubscribeButton({
   }, [session, createSubscription, plan, planId]);
 
   const handleSubscribe = async () => {
+    // Add GTM tracking FIRST, before any existing logic
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'cta_click',
+        cta_location: 'pricing_page',
+        cta_text: isTrial ? 'Start 14-Day Trial' : `Subscribe to ${planName} - $${price}/month`,
+        plan: plan,
+        cta_destination: 'paypal'
+      });
+    }
+
     // Check if user is authenticated
     if (status === 'loading') {
       return; // Wait for session to load

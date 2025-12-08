@@ -12,6 +12,7 @@ interface CTAButtonProps {
   variant?: 'primary' | 'secondary' | 'outline'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   target?: '_blank' | '_self'
+  plan?: 'FREE' | 'STARTER' | 'PROFESSIONAL' // For pricing CTA buttons
 }
 
 export const CTAButton: React.FC<CTAButtonProps> = ({ 
@@ -21,7 +22,8 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
   className,
   variant = 'primary',
   size = 'md',
-  target = '_self'
+  target = '_self',
+  plan
 }) => {
   const pathname = usePathname()
   
@@ -29,20 +31,22 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
     if (typeof window !== 'undefined' && window.dataLayer) {
       const ctaText = typeof children === 'string' ? children : 'CTA Button'
       
-      window.dataLayer.push({
+      // Enhanced tracking data structure
+      const trackingData: any = {
         event: 'cta_click',
         cta_location: location || pathname || 'unknown',
         cta_text: ctaText,
-        cta_url: href,
-        page_path: pathname
-      })
+        cta_destination: href.startsWith('/') ? href : 'external'
+      }
       
-      console.log('✅ CTA click event pushed to dataLayer', {
-        event: 'cta_click',
-        cta_text: ctaText,
-        cta_url: href,
-        location: location || pathname
-      })
+      // Add plan information if provided
+      if (plan) {
+        trackingData.plan = plan;
+      }
+      
+      window.dataLayer.push(trackingData);
+      
+      console.log('✅ CTA click event pushed to dataLayer', trackingData);
     }
   }
 
