@@ -8,6 +8,7 @@ import {
   Container,
   Typography,
   Button,
+  CTAButton,
   Icon,
   Grid,
   Card
@@ -80,14 +81,15 @@ export const Hero: React.FC<HeroProps> = ({ className }) => {
               </Button>
             ) : (
               <>
-                <Button 
+                <CTAButton 
+                  href="/signup"
+                  location="hero"
                   size="lg" 
-                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200" 
-                  onClick={() => router.push('/pricing')}
+                  className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Start Free Trial
                   <Icon icon={ArrowRight} size="sm" className="ml-2" />
-                </Button>
+                </CTAButton>
                 <Button 
                   variant="secondary" 
                   size="lg" 

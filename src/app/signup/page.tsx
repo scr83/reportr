@@ -41,9 +41,9 @@ function SignupPageContent() {
       })
     }
 
-    // Sign in with Google, redirect to dashboard on success
+    // Sign in with Google, redirect to dashboard with new_signup flag
     signIn('google', { 
-      callbackUrl: '/dashboard',
+      callbackUrl: '/dashboard?new_signup=true',
       redirect: true 
     })
   }

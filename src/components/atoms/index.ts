@@ -1,5 +1,6 @@
 // Core UI Elements
 export { Button } from './Button'
+export { CTAButton } from './CTAButton'
 export { Input } from './Input'
 export { Textarea } from './Textarea'
 export { Select } from './Select'

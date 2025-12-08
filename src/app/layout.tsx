@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Providers } from '@/components/providers/Providers'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { UTMPreserver } from '@/components/UTMPreserver'
 
 import './globals.css'
 
@@ -123,6 +124,7 @@ export default function RootLayout({
         
         <Providers>
           <ThemeProvider>
+            <UTMPreserver />
             {children}
           </ThemeProvider>
         </Providers>

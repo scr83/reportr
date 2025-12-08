@@ -8,6 +8,7 @@ import {
   Container,
   Typography,
   Button,
+  CTAButton,
   Icon,
   Grid,
   Card,
@@ -66,7 +67,7 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
     if (session) {
       router.push('/dashboard')
     } else {
-      signIn('google', { callbackUrl: '/dashboard' })
+      signIn('google', { callbackUrl: '/dashboard?new_signup=true' })
     }
   }
 
@@ -158,13 +159,14 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                     </Button>
                   ) : plan.name === 'STARTER' ? (
                     <div className="space-y-3">
-                      <Button 
+                      <CTAButton 
+                        href="/signup"
+                        location="pricing-starter"
                         size="lg" 
                         className="w-full py-3 text-lg font-semibold text-[#7e23ce] bg-white border-2 border-[#7e23ce] hover:bg-purple-50 transition-all duration-200"
-                        onClick={() => handleGetStarted(plan.name)}
                       >
                         {plan.cta}
-                      </Button>
+                      </CTAButton>
                       
                       <PayPalSubscribeButton
                         planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_DIRECT_PLAN_ID || 'P-6PJ50716H4431863PNEQKBLQ'}
@@ -175,7 +177,9 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                       />
                     </div>
                   ) : (
-                    <Button 
+                    <CTAButton 
+                      href="/signup"
+                      location="pricing-free"
                       size="lg" 
                       className={cn(
                         'w-full py-3 text-lg font-semibold transition-all duration-200',
@@ -183,10 +187,9 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                           ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-lg hover:shadow-xl' 
                           : 'bg-neutral-900 hover:bg-neutral-800 text-white'
                       )}
-                      onClick={() => handleGetStarted(plan.name)}
                     >
                       {plan.cta}
-                    </Button>
+                    </CTAButton>
                   )}
                 </div>
               </Card>

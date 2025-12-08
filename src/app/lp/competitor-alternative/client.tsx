@@ -3,6 +3,7 @@
 import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Check, X } from 'lucide-react'
+import { CTAButton } from '@/components/atoms'
 
 function CompetitorAlternativeContent() {
   const searchParams = useSearchParams()
@@ -37,16 +38,16 @@ function CompetitorAlternativeContent() {
             Generate beautiful, white-label SEO reports in 30 seconds. No learning curve. No bloated features. Just professional PDFs your clients will love.
           </p>
           
-          <a
+          <CTAButton
             href={signupUrl}
-            data-track="cta-hero-competitor"
+            location="hero-competitor"
             className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-10 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
             Start Free Trial
-          </a>
+          </CTAButton>
           
           <p className="mt-4 text-sm opacity-85">
             <Check className="inline w-4 h-4 mr-2" />
@@ -291,16 +292,16 @@ function CompetitorAlternativeContent() {
             Join agencies who&apos;ve already made the switch. Your first report is 5 minutes away.
           </p>
           
-          <a
+          <CTAButton
             href={signupUrl}
-            data-track="cta-final-competitor"
+            location="final-competitor"
             className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-12 py-6 text-xl font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
             Start Free Trial
-          </a>
+          </CTAButton>
           
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-8 mt-12 opacity-90">

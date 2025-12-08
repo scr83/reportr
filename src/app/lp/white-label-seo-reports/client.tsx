@@ -4,6 +4,7 @@ import React, { Suspense } from 'react'
 import { useSession, signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
+import { CTAButton } from '@/components/atoms'
 import { Check, X } from 'lucide-react'
 
 function WhiteLabelSEOReportsContent() {
@@ -29,7 +30,7 @@ function WhiteLabelSEOReportsContent() {
         document.cookie = `signupIntent=FREE; path=/; max-age=1800; SameSite=Lax`
         console.log('📝 Set signupIntent cookie = FREE')
       }
-      signIn('google', { callbackUrl: '/dashboard?flow=free' })
+      signIn('google', { callbackUrl: '/dashboard?flow=free&new_signup=true' })
     }
   }
 

@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                  onClick={() => signIn('google', { callbackUrl: '/dashboard?new_signup=true' })}
                   className="text-neutral-600 hover:text-neutral-900"
                 >
                   Login
@@ -177,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                      onClick={() => signIn('google', { callbackUrl: '/dashboard?new_signup=true' })}
                       className="justify-start"
                     >
                       Login

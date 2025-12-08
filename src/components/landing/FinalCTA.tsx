@@ -8,6 +8,7 @@ import {
   Container,
   Typography,
   Button,
+  CTAButton,
   Icon
 } from '@/components/atoms'
 import { cn } from '@/lib/utils'
@@ -48,12 +49,13 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ className }) => {
             Go to Dashboard →
           </button>
         ) : (
-          <button 
+          <CTAButton 
+            href="/signup"
+            location="final-cta"
             className="bg-white text-[#9810f9] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#f8f3ff] hover:scale-105 transition-all duration-200 shadow-lg"
-            onClick={() => router.push('/pricing')}
           >
             Start Free Trial Now →
-          </button>
+          </CTAButton>
         )}
         
         <div className="mt-6 flex items-center justify-center gap-6 text-[#e4c7ff] text-sm">
