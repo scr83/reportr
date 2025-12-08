@@ -243,7 +243,7 @@ function WhiteLabelSEOReportsContent() {
             </div>
             
             {/* Arrow */}
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center self-center">
               <svg width="64" height="64" fill="none" stroke="currentColor" strokeWidth="3" className="text-[#8B5CF6] transform md:rotate-0 rotate-90">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
