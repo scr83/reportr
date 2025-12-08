@@ -25,16 +25,18 @@ const plans = [
   {
     name: 'FREE',
     price: '$0',
-    period: '/month',
-    description: 'Perfect for solo freelancers getting started',
+    period: '/forever',
+    description: 'Perfect for trying out Reportr',
     popular: false,
     features: [
+      'Up to 1 client',
       '5 reports per month',
-      '1 client',
       'Basic SEO metrics',
+      'Google Search Console',
+      'Google Analytics 4',
+      'PageSpeed Insights',
       'Standard templates',
-      'Email support',
-      'Google integrations'
+      'Email support (48hrs)'
     ],
     cta: 'Start Free',
     highlight: false
@@ -43,19 +45,42 @@ const plans = [
     name: 'STARTER',
     price: '$29',
     period: '/month',
-    description: 'For freelancers with multiple clients',
+    description: 'Perfect for freelancers',
     popular: true,
     features: [
+      'Up to 5 clients',
       '25 reports per month',
-      '5 clients',
-      'Advanced SEO metrics',
-      'automated insights',
-      'Priority support',
-      'All integrations',
-      'PDF downloads'
+      'Advanced SEO analytics',
+      'Google Search Console',
+      'Google Analytics 4',
+      'PageSpeed Insights',
+      'White-label branding included',
+      'Custom logo, colors & company name',
+      { text: 'AI Insights', badge: 'Coming Soon' },
+      'Priority email support (24hrs)'
     ],
     cta: 'Start Free Trial',
     highlight: true
+  },
+  {
+    name: 'PROFESSIONAL',
+    price: '$59',
+    period: '/month',
+    description: 'For growing agencies',
+    popular: false,
+    features: [
+      'Up to 15 clients',
+      '75 reports per month',
+      'Everything in Starter',
+      'White-label branding included',
+      'Custom logo, colors & company name',
+      'PageSpeed Insights',
+      { text: 'AI Insights', badge: 'Coming Soon' },
+      'Priority support',
+      'Advanced analytics'
+    ],
+    cta: 'Start Free Trial',
+    highlight: false
   }
 ]
 
@@ -63,11 +88,17 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
   const router = useRouter()
   const { data: session, status } = useSession()
 
-  const handleGetStarted = (planName: string) => {
+  // Handle authentication for FREE plan
+  const handleFreeAuth = () => {
     if (session) {
       router.push('/dashboard')
     } else {
-      signIn('google', { callbackUrl: '/dashboard?new_signup=true' })
+      // Set cookie to mark FREE intent (server-accessible)
+      if (typeof window !== 'undefined') {
+        document.cookie = `signupIntent=FREE; path=/; max-age=1800; SameSite=Lax`;
+        console.log('📝 Set signupIntent cookie = FREE');
+      }
+      signIn('google', { callbackUrl: '/dashboard?flow=free' })
     }
   }
 
@@ -91,8 +122,8 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="max-w-4xl mx-auto">
-          <Grid cols={1} gap="lg" className="lg:grid-cols-2">
+        <div className="max-w-6xl mx-auto">
+          <Grid cols={1} gap="lg" className="lg:grid-cols-3">
             {plans.map((plan, index) => (
               <Card 
                 key={index}
@@ -134,16 +165,28 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                 {/* Features List */}
                 <div className="mb-8">
                   <ul className="space-y-4">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                          <Icon icon={Check} size="xs" className="text-green-600" />
-                        </div>
-                        <Typography variant="body" className="text-neutral-700">
-                          {feature}
-                        </Typography>
-                      </li>
-                    ))}
+                    {plan.features.map((feature, featureIndex) => {
+                      // Handle both string and object features
+                      const isObject = typeof feature === 'object'
+                      const featureText = isObject ? feature.text : feature
+                      const badge = isObject ? feature.badge : null
+                      
+                      return (
+                        <li key={featureIndex} className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                            <Icon icon={Check} size="xs" className="text-green-600" />
+                          </div>
+                          <Typography variant="body" className="text-neutral-700 flex-1">
+                            {featureText}
+                            {badge && (
+                              <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                {badge}
+                              </span>
+                            )}
+                          </Typography>
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
 
@@ -157,36 +200,58 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                     >
                       Loading...
                     </Button>
+                  ) : plan.name === 'FREE' ? (
+                    <button
+                      onClick={handleFreeAuth}
+                      disabled={status === 'loading' as any}
+                      className="w-full py-3 text-lg font-semibold bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg transition-all duration-200"
+                    >
+                      {status === 'loading' as any ? 'Loading...' : 'Start Free'}
+                    </button>
                   ) : plan.name === 'STARTER' ? (
                     <div className="space-y-3">
-                      <CTAButton 
-                        href="/signup"
-                        location="pricing-starter"
-                        size="lg" 
-                        className="w-full py-3 text-lg font-semibold text-[#7e23ce] bg-white border-2 border-[#7e23ce] hover:bg-purple-50 transition-all duration-200"
-                      >
-                        {plan.cta}
-                      </CTAButton>
-                      
+                      {/* STARTER: Trial Button */}
                       <PayPalSubscribeButton
-                        planId={process.env.NEXT_PUBLIC_PAYPAL_STARTER_DIRECT_PLAN_ID || 'P-6PJ50716H4431863PNEQKBLQ'}
-                        planName="Starter"
+                        planId={'P-0X464499YG9822634NEQJ5XQ'}
+                        planName="STARTER"
                         plan="STARTER"
                         price={29}
-                        className="mt-2"
+                        isTrial={true}
+                      />
+                      
+                      {/* STARTER: Subscribe Button */}
+                      <PayPalSubscribeButton
+                        planId={'P-6PJ50716H4431863PNEQKBLQ'}
+                        planName="STARTER"
+                        plan="STARTER"
+                        price={29}
+                      />
+                    </div>
+                  ) : plan.name === 'PROFESSIONAL' ? (
+                    <div className="space-y-3">
+                      {/* PROFESSIONAL: Trial Button */}
+                      <PayPalSubscribeButton
+                        planId={'P-09P26662R8680522DNEQJ7XY'}
+                        planName="PROFESSIONAL"
+                        plan="PROFESSIONAL"
+                        price={59}
+                        isTrial={true}
+                      />
+                      
+                      {/* PROFESSIONAL: Subscribe Button */}
+                      <PayPalSubscribeButton
+                        planId={'P-90W906144W5364313NEQKB5I'}
+                        planName="PROFESSIONAL"
+                        plan="PROFESSIONAL"
+                        price={59}
                       />
                     </div>
                   ) : (
                     <CTAButton 
                       href="/signup"
-                      location="pricing-free"
+                      location="pricing-fallback"
                       size="lg" 
-                      className={cn(
-                        'w-full py-3 text-lg font-semibold transition-all duration-200',
-                        plan.highlight 
-                          ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-lg hover:shadow-xl' 
-                          : 'bg-neutral-900 hover:bg-neutral-800 text-white'
-                      )}
+                      className="w-full py-3 text-lg font-semibold bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg transition-all duration-200"
                     >
                       {plan.cta}
                     </CTAButton>
