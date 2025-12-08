@@ -27,7 +27,9 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
 }) => {
   const pathname = usePathname()
   
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Stop immediate navigation
+    
     if (typeof window !== 'undefined' && window.dataLayer) {
       const ctaText = typeof children === 'string' ? children : 'CTA Button'
       
@@ -48,6 +50,11 @@ export const CTAButton: React.FC<CTAButtonProps> = ({
       
       console.log('✅ CTA click event pushed to dataLayer', trackingData);
     }
+    
+    // Wait 300ms for GTM to capture, then navigate
+    setTimeout(() => {
+      window.location.href = href;
+    }, 300);
   }
 
   // Base styles matching the existing Button component structure
