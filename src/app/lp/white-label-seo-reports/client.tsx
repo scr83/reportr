@@ -221,7 +221,7 @@ function WhiteLabelSEOReportsContent() {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-center max-w-7xl mx-auto">
             {/* Before */}
             <div className="bg-white border-2 border-dashed border-gray-300 p-8 rounded-2xl aspect-square flex flex-col justify-center">
-              <span className="inline-block bg-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-semibold mb-5">
+              <span className="inline-flex bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-sm font-semibold mb-5 w-fit">
                 Before Reportr
               </span>
               <h3 className="text-2xl font-bold text-gray-600 mb-5">Manual Reporting Hell</h3>
@@ -251,7 +251,7 @@ function WhiteLabelSEOReportsContent() {
             
             {/* After */}
             <div className="bg-white border-2 border-[#c4adff] p-8 rounded-2xl shadow-lg aspect-square flex flex-col justify-center">
-              <span className="inline-block bg-[#8B5CF6] text-white px-4 py-2 rounded-full text-sm font-semibold mb-5">
+              <span className="inline-flex bg-[#8B5CF6] text-white px-3 py-1.5 rounded-full text-sm font-semibold mb-5 w-fit">
                 With Reportr
               </span>
               <h3 className="text-2xl font-bold text-[#6b1fad] mb-5">One-Click Automation</h3>
