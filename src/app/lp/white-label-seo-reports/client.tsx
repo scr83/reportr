@@ -36,6 +36,28 @@ function WhiteLabelSEOReportsContent() {
   // Pricing plans - matching the pricing page structure
   const tiers = [
     {
+      name: 'FREE',
+      basePrice: 0,
+      period: 'forever',
+      description: 'Perfect for trying out Reportr',
+      clients: 1,
+      reports: 5,
+      features: [
+        'Up to 1 client',
+        '5 reports per month',
+        'Basic SEO metrics',
+        'Google Search Console',
+        'Google Analytics 4',
+        'PageSpeed Insights',
+        'Standard templates',
+        'Email support (48hrs)'
+      ],
+      cta: 'Start Free',
+      ctaLink: '/auth/signin',
+      popular: false,
+      canAddWhiteLabel: false
+    },
+    {
       name: 'STARTER',
       basePrice: 29,
       period: 'month',
@@ -79,32 +101,6 @@ function WhiteLabelSEOReportsContent() {
       ],
       cta: 'Start 14-Day Trial',
       ctaLink: '/subscribe?plan=professional',
-      popular: false,
-      canAddWhiteLabel: false
-    },
-    {
-      name: 'AGENCY',
-      basePrice: 99,
-      period: 'month',
-      description: 'For large agencies',
-      clients: 50,
-      reports: 250,
-      features: [
-        'Up to 50 clients',
-        '250 reports per month',
-        'Everything in Professional',
-        'White-label branding included',
-        'Custom logo, colors & company name',
-        'PageSpeed Insights',
-        { text: 'AI Insights', badge: 'Coming Soon' },
-        { text: 'Custom Domain', badge: 'Coming Soon' },
-        'Dedicated account manager',
-        'Priority support',
-        '99.9% uptime SLA',
-        'White-glove onboarding'
-      ],
-      cta: 'Start 14-Day Trial',
-      ctaLink: '/subscribe?plan=agency',
       popular: false,
       canAddWhiteLabel: false
     }
@@ -442,7 +438,15 @@ function WhiteLabelSEOReportsContent() {
                   </ul>
 
                   {/* BUTTONS - Using exact same logic as pricing page */}
-                  {tier.name === 'STARTER' ? (
+                  {tier.name === 'FREE' ? (
+                    <button
+                      onClick={handleFreeAuth}
+                      disabled={status === 'loading'}
+                      className="block w-full text-center px-6 py-3 rounded-lg font-semibold transition bg-gray-900 text-white hover:bg-gray-800"
+                    >
+                      {status === 'loading' ? 'Loading...' : 'Start Free'}
+                    </button>
+                  ) : tier.name === 'STARTER' ? (
                     <div className="space-y-3">
                       {/* STARTER: Trial Button - HARDCODED */}
                       <PayPalSubscribeButton
@@ -477,25 +481,6 @@ function WhiteLabelSEOReportsContent() {
                         planId={'P-90W906144W5364313NEQKB5I'}
                         planName="PROFESSIONAL"
                         plan="PROFESSIONAL"
-                        price={finalPrice}
-                      />
-                    </div>
-                  ) : tier.name === 'AGENCY' ? (
-                    <div className="space-y-3">
-                      {/* AGENCY: Trial Button - HARDCODED */}
-                      <PayPalSubscribeButton
-                        planId={'P-7SU477161L382370MNEQKCQQ'}
-                        planName="AGENCY"
-                        plan="AGENCY"
-                        price={finalPrice}
-                        isTrial={true}
-                      />
-                      
-                      {/* AGENCY: Subscribe Button - HARDCODED */}
-                      <PayPalSubscribeButton
-                        planId={'P-0KW62605U4011430FNEQKDCY'}
-                        planName="AGENCY"
-                        plan="AGENCY"
                         price={finalPrice}
                       />
                     </div>
