@@ -562,7 +562,7 @@ function WhiteLabelSEOReportsContent() {
           </button>
           
           <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
-            We'll only charge you after 14 days. Cancel anytime during your trial.
+            We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
           </p>
           
           <div className="mt-6 flex items-center justify-center gap-3 text-sm opacity-90">
