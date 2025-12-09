@@ -21,16 +21,13 @@ function WhiteLabelSEOReportsContent() {
     utm_term: searchParams.get('utm_term'),
   }
 
-  // Handle authentication for FREE plan
-  const handleFreeAuth = () => {
+  // Handle navigation to STARTER trial signup
+  const handleStarterTrialAuth = () => {
     if (session) {
       router.push('/dashboard')
     } else {
-      if (typeof window !== 'undefined') {
-        document.cookie = `signupIntent=FREE; path=/; max-age=1800; SameSite=Lax`
-        console.log('📝 Set signupIntent cookie = FREE')
-      }
-      signIn('google', { callbackUrl: '/dashboard?flow=free&new_signup=true' })
+      // Navigate to signup page which now defaults to STARTER trial
+      router.push('/signup')
     }
   }
 
@@ -137,15 +134,19 @@ function WhiteLabelSEOReportsContent() {
               </p>
               
               <button
-                onClick={handleFreeAuth}
+                onClick={handleStarterTrialAuth}
                 disabled={status === 'loading'}
                 className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
               >
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
-                {status === 'loading' ? 'Loading...' : 'Start Free Trial'}
+                {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial — Then $29/mo'}
               </button>
+              
+              <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
+                We'll only charge you after 14 days. Cancel anytime during your trial.
+              </p>
               
               <div className="mt-5 flex flex-wrap gap-6 text-sm opacity-90">
                 <span className="flex items-center gap-2">
@@ -550,15 +551,19 @@ function WhiteLabelSEOReportsContent() {
           </p>
           
           <button
-            onClick={handleFreeAuth}
+            onClick={handleStarterTrialAuth}
             disabled={status === 'loading'}
             className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
-            {status === 'loading' ? 'Loading...' : 'Start Free Trial'}
+            {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial — Then $29/mo'}
           </button>
+          
+          <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
+            We'll only charge you after 14 days. Cancel anytime during your trial.
+          </p>
           
           <div className="mt-6 flex items-center justify-center gap-3 text-sm opacity-90">
             <svg fill="currentColor" viewBox="0 0 20 20" className="w-6 h-6">

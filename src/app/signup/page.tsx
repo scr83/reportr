@@ -9,6 +9,7 @@ import {
   Button,
   Icon
 } from '@/components/atoms'
+import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
 import { ArrowLeft, CheckCircle, Users } from 'lucide-react'
 
 function SignupPageContent() {
@@ -41,9 +42,22 @@ function SignupPageContent() {
       })
     }
 
-    // Sign in with Google, redirect to dashboard with new_signup flag
+    // 🔧 NEW: Set STARTER trial intent instead of FREE
+    if (typeof window !== 'undefined') {
+      document.cookie = `signupIntent=PAID_TRIAL; path=/; max-age=1800; SameSite=Lax`;
+      console.log('📝 Set signupIntent cookie = PAID_TRIAL for STARTER trial');
+    }
+
+    // Add URL parameters to persist subscription intent
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('subscribe', 'pending');
+    currentUrl.searchParams.set('selectedPlan', 'STARTER');
+    currentUrl.searchParams.set('selectedPlanId', 'P-0X464499YG9822634NEQJ5XQ');
+    currentUrl.searchParams.set('flow', 'paid');
+    
+    // Sign in with Google, redirect back with subscription intent
     signIn('google', { 
-      callbackUrl: '/dashboard?new_signup=true',
+      callbackUrl: currentUrl.toString(),
       redirect: true 
     })
   }
@@ -91,12 +105,12 @@ function SignupPageContent() {
               variant="h1" 
               className="text-4xl sm:text-5xl font-bold text-neutral-900"
             >
-              Start Your Free Trial
+              Start Your 14-Day Trial
             </Typography>
             <Typography 
               className="text-2xl font-semibold text-brand-600"
             >
-              No Setup Fees Required
+              Then $29/mo — Cancel Anytime
             </Typography>
           </div>
 
@@ -109,14 +123,34 @@ function SignupPageContent() {
 
           {/* Main CTA Button */}
           <div className="space-y-6">
-            <Button 
-              size="lg" 
-              className="bg-brand-600 hover:bg-brand-700 text-white px-12 py-5 text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto" 
-              onClick={handleSignup}
-            >
-              <Icon icon={Users} size="sm" className="mr-3" />
-              Sign Up with Google
-            </Button>
+            {/* For authenticated users: Show PayPal trial button */}
+            {session?.user ? (
+              <div className="space-y-3">
+                <PayPalSubscribeButton
+                  planId={'P-0X464499YG9822634NEQJ5XQ'}
+                  planName="STARTER"
+                  plan="STARTER"
+                  price={29}
+                  isTrial={true}
+                  className="w-full"
+                />
+              </div>
+            ) : (
+              /* For non-authenticated users: Show Google signup button */
+              <Button 
+                size="lg" 
+                className="bg-brand-600 hover:bg-brand-700 text-white px-12 py-5 text-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto" 
+                onClick={handleSignup}
+              >
+                <Icon icon={Users} size="sm" className="mr-3" />
+                Start 14-Day Trial — Then $29/mo
+              </Button>
+            )}
+
+            {/* Trust Message */}
+            <p className="text-sm text-gray-600 mt-2 text-center">
+              We'll only charge you after 14 days. Cancel anytime during your trial.
+            </p>
 
             {/* Trust Badges */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-neutral-600">

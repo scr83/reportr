@@ -46,12 +46,11 @@ function CompetitorAlternativeContent() {
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
-            Start Free Trial
+            Start 14-Day Trial — Then $29/mo
           </CTAButton>
           
-          <p className="mt-4 text-sm opacity-85">
-            <Check className="inline w-4 h-4 mr-2" />
-            No setup fees • Full features for 14 days
+          <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
+            We'll only charge you after 14 days. Cancel anytime during your trial.
           </p>
         </div>
       </section>
@@ -300,8 +299,12 @@ function CompetitorAlternativeContent() {
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
-            Start Free Trial
+            Start 14-Day Trial — Then $29/mo
           </CTAButton>
+          
+          <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
+            We'll only charge you after 14 days. Cancel anytime during your trial.
+          </p>
           
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-8 mt-12 opacity-90">
