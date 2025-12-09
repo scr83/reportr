@@ -159,15 +159,13 @@ function WhiteLabelSEOReportsContent() {
                 Stop wasting hours on manual reporting. Connect your clients&apos; Google APIs once, and download beautiful, branded PDF reports forever.
               </p>
               
-              <PayPalSubscribeButton
-                planId={'P-0X464499YG9822634NEQJ5XQ'}
-                planName="STARTER"
-                plan="STARTER"
-                price={29}
-                isTrial={true}
-              >
-                Start 14-Day Trial — Then $29/mo
-              </PayPalSubscribeButton>
+                <PayPalSubscribeButton
+                  planId={'P-0X464499YG9822634NEQJ5XQ'}
+                  planName="STARTER"
+                  plan="STARTER"
+                  price={29}
+                  isTrial={true}
+                />
               
               <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
                 We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
@@ -581,9 +579,7 @@ function WhiteLabelSEOReportsContent() {
             plan="STARTER"
             price={29}
             isTrial={true}
-          >
-            Start 14-Day Trial — Then $29/mo
-          </PayPalSubscribeButton>
+          />
           
           <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
             We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
