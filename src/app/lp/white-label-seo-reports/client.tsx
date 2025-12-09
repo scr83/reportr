@@ -165,11 +165,7 @@ function WhiteLabelSEOReportsContent() {
                 plan="STARTER"
                 price={29}
                 isTrial={true}
-                className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
               >
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
                 Start 14-Day Trial — Then $29/mo
               </PayPalSubscribeButton>
               
@@ -585,11 +581,7 @@ function WhiteLabelSEOReportsContent() {
             plan="STARTER"
             price={29}
             isTrial={true}
-            className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
           >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
             Start 14-Day Trial — Then $29/mo
           </PayPalSubscribeButton>
           
