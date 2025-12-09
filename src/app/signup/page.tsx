@@ -149,7 +149,7 @@ function SignupPageContent() {
 
             {/* Trust Message */}
             <p className="text-sm text-gray-600 mt-2 text-center">
-              We'll only charge you after 14 days. Cancel anytime during your trial.
+              We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
             </p>
 
             {/* Trust Badges */}
