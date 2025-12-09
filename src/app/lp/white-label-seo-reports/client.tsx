@@ -31,6 +31,32 @@ function WhiteLabelSEOReportsContent() {
     }
   }
 
+  // Handle authentication for FREE plan (copied from pricing page)
+  const handleFreeAuth = () => {
+    // Add GTM tracking FIRST, before any existing logic
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'cta_click',
+        cta_location: 'pricing_page',
+        cta_text: 'Start Free',
+        plan: 'FREE',
+        cta_destination: '/signup'
+      });
+    }
+
+    if (session) {
+      router.push('/dashboard')
+    } else {
+      // 🔧 FIX: Set cookie to mark FREE intent (server-accessible)
+      if (typeof window !== 'undefined') {
+        document.cookie = `signupIntent=FREE; path=/; max-age=1800; SameSite=Lax`;
+        console.log('📝 Set signupIntent cookie = FREE');
+      }
+      signIn('google', { callbackUrl: '/dashboard?flow=free' })
+    }
+  }
+
   // Pricing plans - matching the pricing page structure
   const tiers = [
     {
@@ -133,16 +159,19 @@ function WhiteLabelSEOReportsContent() {
                 Stop wasting hours on manual reporting. Connect your clients&apos; Google APIs once, and download beautiful, branded PDF reports forever.
               </p>
               
-              <button
-                onClick={handleStarterTrialAuth}
-                disabled={status === 'loading'}
+              <PayPalSubscribeButton
+                planId={'P-0X464499YG9822634NEQJ5XQ'}
+                planName="STARTER"
+                plan="STARTER"
+                price={29}
+                isTrial={true}
                 className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
               >
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
-                {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial — Then $29/mo'}
-              </button>
+                Start 14-Day Trial — Then $29/mo
+              </PayPalSubscribeButton>
               
               <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
                 We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
@@ -439,7 +468,7 @@ function WhiteLabelSEOReportsContent() {
                     })}
                   </ul>
 
-                  {/* BUTTONS - Using exact same logic as pricing page */}
+                  {/* BUTTONS - Exact copy from pricing page */}
                   {tier.name === 'FREE' ? (
                     <button
                       onClick={handleFreeAuth}
@@ -550,16 +579,19 @@ function WhiteLabelSEOReportsContent() {
             Join agencies saving 8+ hours every week on SEO reporting. No setup fees, no annual contracts.
           </p>
           
-          <button
-            onClick={handleStarterTrialAuth}
-            disabled={status === 'loading'}
+          <PayPalSubscribeButton
+            planId={'P-0X464499YG9822634NEQJ5XQ'}
+            planName="STARTER"
+            plan="STARTER"
+            price={29}
+            isTrial={true}
             className="inline-flex items-center gap-3 bg-white text-[#6b1fad] px-11 py-5 text-lg font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all duration-300 shadow-2xl hover:shadow-3xl"
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
-            {status === 'loading' ? 'Loading...' : 'Start 14-Day Trial — Then $29/mo'}
-          </button>
+            Start 14-Day Trial — Then $29/mo
+          </PayPalSubscribeButton>
           
           <p className="text-sm text-gray-200 mt-2 text-center opacity-90">
             We&apos;ll only charge you after 14 days. Cancel anytime during your trial.
