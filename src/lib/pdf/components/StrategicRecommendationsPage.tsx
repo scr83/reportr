@@ -236,6 +236,48 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
     },
   });
 
+  // Split recommendations into pages based on count
+  const shouldSplitRecommendations = recommendations.length > 3;
+  const firstPageRecommendations = shouldSplitRecommendations ? recommendations.slice(0, 3) : recommendations;
+  const secondPageRecommendations = shouldSplitRecommendations ? recommendations.slice(3) : [];
+
+  // Helper function to render recommendation items
+  const renderRecommendation = (recommendation: any, index: number, startingIndex = 0) => (
+    <View key={index} style={styles.actionItem}>
+      <View style={[
+        styles.actionNumber,
+        { backgroundColor: getPriorityColor(recommendation.priority) }
+      ]}>
+        <Text style={styles.actionNumberText}>{startingIndex + index + 1}</Text>
+      </View>
+      <View style={styles.actionContent}>
+        <Text style={styles.actionTitle}>{recommendation.title}</Text>
+        <Text style={styles.actionDescription}>
+          {recommendation.description}
+        </Text>
+        
+        {/* Show expected impact if available */}
+        {recommendation.expectedImpact && (
+          <Text style={styles.expectedImpact}>
+            Expected Impact: {recommendation.expectedImpact}
+          </Text>
+        )}
+        
+        {/* Show action items if available */}
+        {recommendation.actionItems && recommendation.actionItems.length > 0 && (
+          <View style={styles.actionItemsContainer}>
+            <Text style={styles.actionItemsHeader}>Action Steps:</Text>
+            {recommendation.actionItems.map((action: string, actionIndex: number) => (
+              <Text key={actionIndex} style={styles.actionItemBullet}>
+                • {action}
+              </Text>
+            ))}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+
   return (
     <>
       {/* Page 1: Strategic Recommendations */}
@@ -252,47 +294,39 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
 
         <Text style={styles.sectionTitle}>Priority Actions</Text>
 
-        {/* Dynamic Action Items - AI Insights or Fallback */}
-        {recommendations.map((recommendation, index) => (
-          <View key={index} style={styles.actionItem}>
-            <View style={[
-              styles.actionNumber,
-              { backgroundColor: getPriorityColor(recommendation.priority) }
-            ]}>
-              <Text style={styles.actionNumberText}>{index + 1}</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>{recommendation.title}</Text>
-              <Text style={styles.actionDescription}>
-                {recommendation.description}
-              </Text>
-              
-              {/* Show expected impact if available */}
-              {recommendation.expectedImpact && (
-                <Text style={styles.expectedImpact}>
-                  Expected Impact: {recommendation.expectedImpact}
-                </Text>
-              )}
-              
-              {/* Show action items if available */}
-              {recommendation.actionItems && recommendation.actionItems.length > 0 && (
-                <View style={styles.actionItemsContainer}>
-                  <Text style={styles.actionItemsHeader}>Action Steps:</Text>
-                  {recommendation.actionItems.map((action, actionIndex) => (
-                    <Text key={actionIndex} style={styles.actionItemBullet}>
-                      • {action}
-                    </Text>
-                  ))}
-                </View>
-              )}
-            </View>
-          </View>
-        ))}
+        {/* First page recommendations (1-3) */}
+        {firstPageRecommendations.map((recommendation, index) => 
+          renderRecommendation(recommendation, index, 0)
+        )}
 
         <ReportFooter branding={data.branding} pageNumber={1} />
       </Page>
 
-      {/* Page 2: Next Steps */}
+      {/* Page 2: Additional Recommendations (if more than 3) */}
+      {shouldSplitRecommendations && (
+        <Page style={styles.page}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.title}>Strategic Recommendations</Text>
+              <Text style={styles.subtitle}>Priority actions (continued)</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <Text style={styles.clientName}>{data.clientName}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sectionTitle}>Additional Priority Actions</Text>
+
+          {/* Second page recommendations (4-5) */}
+          {secondPageRecommendations.map((recommendation, index) => 
+            renderRecommendation(recommendation, index, 3)
+          )}
+
+          <ReportFooter branding={data.branding} pageNumber={2} />
+        </Page>
+      )}
+
+      {/* Final Page: Next Steps */}
       <Page style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -324,7 +358,7 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
           {(!data.branding.whiteLabelEnabled && !data.branding.enabled) ? 'hello@reportr.agency' : (data.branding.supportEmail || data.branding.email || 'hello@reportr.agency')}
         </Text>
 
-        <ReportFooter branding={data.branding} pageNumber={2} />
+        <ReportFooter branding={data.branding} pageNumber={shouldSplitRecommendations ? 3 : 2} />
       </Page>
     </>
   );
