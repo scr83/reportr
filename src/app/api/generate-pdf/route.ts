@@ -8,6 +8,7 @@ import { canGenerateReport } from '@/lib/plan-limits'
 import { getBillingCycleInfo } from '@/lib/billing-cycle'
 import { randomUUID } from 'crypto'
 import { fetchPageSpeedData } from '@/lib/integrations/pagespeed'
+import { AIInsightsGenerator } from '@/lib/ai/insights-generator'
 
 // Enhanced validation schemas for flexible data handling
 const topQuerySchema = z.object({
@@ -376,6 +377,96 @@ export async function POST(request: NextRequest) {
       conversions: mergedGA4Data.conversions
     })
     
+    // Step 4.5: Generate AI insights
+    console.log('14.5. Generating AI insights...')
+    let aiInsightsResult = {
+      insights: null as any,
+      source: 'rule-based' as 'ai' | 'rule-based' | 'fallback',
+      generatedAt: null as Date | null,
+      tokensUsed: null as number | null,
+      costUsd: null as number | null,
+      error: null as string | null
+    };
+
+    try {
+      const generator = new AIInsightsGenerator();
+      
+      // Build ReportData structure for AI insights
+      const reportDataForAI = {
+        client: {
+          id: client.id,
+          name: client.name,
+          domain: client.domain
+        },
+        summary: {
+          totalClicks: validatedData.gscData?.clicks || 0,
+          clicksChange: 0, // No comparison data available in this context
+          totalImpressions: validatedData.gscData?.impressions || 0,
+          impressionsChange: 0,
+          averagePosition: validatedData.gscData?.position || 0,
+          positionChange: 0,
+          organicSessions: mergedGA4Data.sessions || 0,
+          sessionsChange: 0,
+          mobileScore: validatedData.pageSpeedData?.mobile?.score || 0,
+          desktopScore: validatedData.pageSpeedData?.desktop?.score || 0,
+        },
+        searchConsole: {
+          totalClicks: validatedData.gscData?.clicks || 0,
+          totalImpressions: validatedData.gscData?.impressions || 0,
+          averagePosition: validatedData.gscData?.position || 0,
+          averageCTR: validatedData.gscData?.ctr || 0,
+          topKeywords: (validatedData.gscData?.topQueries || []).map(q => ({
+            keyword: q.query,
+            clicks: q.clicks,
+            impressions: q.impressions,
+            ctr: q.ctr,
+            position: q.position
+          })),
+          topPages: [], // Not available in current data structure
+          dateRange: {
+            startDate: validatedData.startDate,
+            endDate: validatedData.endDate,
+          },
+        }
+      };
+      
+      const startTime = Date.now();
+      const insights = await generator.generateInsights(reportDataForAI);
+      const generationTime = Date.now() - startTime;
+      
+      aiInsightsResult = {
+        insights: insights,
+        source: 'ai',
+        generatedAt: new Date(),
+        tokensUsed: 2000, // Estimated based on AIInsightsGenerator.estimateInsightCost()
+        costUsd: generator.estimateInsightCost(JSON.stringify(reportDataForAI).length),
+        error: null
+      };
+      
+      console.log(`✅ AI insights generated successfully in ${generationTime}ms:`, {
+        insightCount: insights.length,
+        source: 'ai',
+        estimatedCost: aiInsightsResult.costUsd,
+        tokensUsed: aiInsightsResult.tokensUsed
+      });
+      
+    } catch (error) {
+      console.error('⚠️ AI insights generation failed, using fallback:', error);
+      
+      // Store error but don't fail report generation
+      aiInsightsResult = {
+        insights: null, // Will use rule-based insights in PDF if needed
+        source: 'fallback',
+        generatedAt: new Date(),
+        tokensUsed: null,
+        costUsd: null,
+        error: error instanceof Error ? error.message : 'Unknown AI error'
+      };
+      
+      console.log('Using fallback strategy - report will still generate successfully');
+      // DO NOT throw - let report generation continue
+    }
+    
     // Step 5: Generate PDF with React-PDF
     console.log(`[${requestId}] 15. Generating PDF with React-PDF...`)
     
@@ -552,7 +643,15 @@ export async function POST(request: NextRequest) {
         processingCompletedAt: new Date(),
         generationTimeMs: Date.now() - processingStarted.getTime(),
         clientId: validatedData.clientId,
-        userId: user.id
+        userId: user.id,
+        
+        // AI Insights fields
+        aiInsights: aiInsightsResult.insights,
+        aiInsightsSource: aiInsightsResult.source,
+        aiInsightsGeneratedAt: aiInsightsResult.generatedAt,
+        aiTokensUsed: aiInsightsResult.tokensUsed,
+        aiCostUsd: aiInsightsResult.costUsd,
+        aiError: aiInsightsResult.error,
       }
     })
     
@@ -560,7 +659,15 @@ export async function POST(request: NextRequest) {
       reportId: report.id,
       title: report.title,
       pdfUrl: report.pdfUrl,
-      dataSize: JSON.stringify(reportData).length
+      dataSize: JSON.stringify(reportData).length,
+      aiInsights: {
+        source: aiInsightsResult.source,
+        hasInsights: !!aiInsightsResult.insights,
+        insightCount: aiInsightsResult.insights?.length || 0,
+        costUsd: aiInsightsResult.costUsd,
+        tokensUsed: aiInsightsResult.tokensUsed,
+        hasError: !!aiInsightsResult.error
+      }
     })
     
     // Step 8: Update client statistics
