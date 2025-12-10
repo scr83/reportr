@@ -15,6 +15,9 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
   const insights = data.aiInsights && data.aiInsights.length > 0 
     ? data.aiInsights.slice(0, 5) // Limit to 5 insights to match layout
     : null;
+    
+  console.log('🔍 [STRATEGIC-RECOMMENDATIONS-PDF] Received data.aiInsights:', JSON.stringify(data.aiInsights, null, 2));
+  console.log('🔍 [STRATEGIC-RECOMMENDATIONS-PDF] Using insights:', insights ? 'AI insights' : 'fallback recommendations');
 
   // Helper function to get priority-based action number background color
   const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
@@ -35,27 +38,57 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
     {
       title: 'Enhance Conversion Tracking',
       description: 'Set up detailed conversion tracking to measure the effectiveness of your marketing efforts. Implement event tracking for key user actions and establish conversion funnels to identify drop-off points.',
-      priority: 'high' as const
+      priority: 'high' as const,
+      expectedImpact: 'Better tracking leads to 25% improvement in marketing ROI',
+      actionItems: [
+        'Set up Google Analytics 4 conversion goals',
+        'Implement event tracking for key user actions',
+        'Create custom conversion funnels in analytics'
+      ]
     },
     {
       title: 'Optimize Conversion Funnel',
       description: 'Focus on improving the user journey and conversion funnel to maximize results from existing traffic. Conduct A/B testing on landing pages and CTAs to improve conversion rates across high-traffic pages.',
-      priority: 'medium' as const
+      priority: 'medium' as const,
+      expectedImpact: 'A/B testing typically increases conversions by 10-30%',
+      actionItems: [
+        'Identify top 3 high-traffic landing pages',
+        'Create A/B tests for headlines and CTAs',
+        'Optimize checkout or contact form processes'
+      ]
     },
     {
       title: 'Improve Search Visibility',
       description: `Based on your current average position of ${data.gscMetrics.position.toFixed(1)}, focus on optimizing content for target keywords. Implement technical SEO improvements and content optimization to move rankings from page 2 to page 1.`,
-      priority: 'high' as const
+      priority: 'high' as const,
+      expectedImpact: 'Moving to page 1 can increase organic traffic by 50-100%',
+      actionItems: [
+        'Optimize title tags and meta descriptions',
+        'Improve page loading speed and Core Web Vitals',
+        'Build high-quality backlinks to target pages'
+      ]
     },
     {
       title: 'Enhance User Experience',
       description: `With a bounce rate of ${formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving page load speeds, mobile responsiveness, and content relevance. Consider implementing personalization features to increase engagement and session duration.`,
-      priority: 'medium' as const
+      priority: 'medium' as const,
+      expectedImpact: 'Better UX can reduce bounce rate by 20% and increase conversions',
+      actionItems: [
+        'Optimize page loading speed (target <3 seconds)',
+        'Improve mobile responsiveness and navigation',
+        'Add relevant calls-to-action above the fold'
+      ]
     },
     {
       title: 'Expand Content Strategy',
       description: 'Develop a comprehensive content strategy targeting long-tail keywords and user intent. Create valuable resources that address your audience\'s pain points and establish thought leadership in your industry.',
-      priority: 'low' as const
+      priority: 'low' as const,
+      expectedImpact: 'Content hubs can increase organic traffic by 30-50% over 6 months',
+      actionItems: [
+        'Research competitor content gaps and opportunities',
+        'Create comprehensive topic clusters',
+        'Develop regular content publication schedule'
+      ]
     }
   ];
 
@@ -63,7 +96,9 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
   const recommendations = insights ? insights.map(insight => ({
     title: insight.title,
     description: insight.description,
-    priority: insight.priority
+    priority: insight.priority,
+    expectedImpact: insight.expectedImpact,
+    actionItems: insight.actionItems
   })) : fallbackRecommendations;
 
   const styles = StyleSheet.create({
@@ -176,6 +211,29 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
       textAlign: 'center',
       fontWeight: 'bold',
     },
+    expectedImpact: {
+      fontSize: 11,
+      color: '#059669', // green-600
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 6,
+    },
+    actionItemsContainer: {
+      marginTop: 8,
+    },
+    actionItemsHeader: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#374151',
+      marginBottom: 4,
+    },
+    actionItemBullet: {
+      fontSize: 10,
+      color: '#4B5563',
+      lineHeight: 1.4,
+      marginBottom: 2,
+      marginLeft: 8,
+    },
   });
 
   return (
@@ -208,6 +266,25 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
               <Text style={styles.actionDescription}>
                 {recommendation.description}
               </Text>
+              
+              {/* Show expected impact if available */}
+              {recommendation.expectedImpact && (
+                <Text style={styles.expectedImpact}>
+                  Expected Impact: {recommendation.expectedImpact}
+                </Text>
+              )}
+              
+              {/* Show action items if available */}
+              {recommendation.actionItems && recommendation.actionItems.length > 0 && (
+                <View style={styles.actionItemsContainer}>
+                  <Text style={styles.actionItemsHeader}>Action Steps:</Text>
+                  {recommendation.actionItems.map((action, actionIndex) => (
+                    <Text key={actionIndex} style={styles.actionItemBullet}>
+                      • {action}
+                    </Text>
+                  ))}
+                </View>
+              )}
             </View>
           </View>
         ))}

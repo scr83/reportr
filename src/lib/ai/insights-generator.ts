@@ -32,36 +32,72 @@ export class AIInsightsGenerator {
   }
 
   private buildInsightPrompt(data: Partial<ReportData>): string {
+    const domain = data.client?.domain || 'example.com';
+    const clicks = data.summary?.totalClicks || 0;
+    const clicksChange = data.summary?.clicksChange || 0;
+    const impressions = data.summary?.totalImpressions || 0;
+    const position = data.summary?.averagePosition || 0;
+    const organicSessions = data.summary?.organicSessions || 0;
+    const sessionsChange = data.summary?.sessionsChange || 0;
+    const mobileScore = data.summary?.mobileScore || 0;
+    const desktopScore = data.summary?.desktopScore || 0;
+    
+    const topKeywords = data.searchConsole?.topKeywords?.map(k => `${k.keyword} (pos: ${k.position}, clicks: ${k.clicks})`) || [];
+    const topPages = data.searchConsole?.topPages?.map(p => p.page) || [];
+
     return `
-Analyze this SEO data and provide exactly 3 actionable insights in JSON format.
+Generate exactly 5 strategic recommendations based on this SEO data.
 
-Data Summary:
-- Domain: ${data.client?.domain || 'example.com'}
-- Total Clicks: ${data.summary?.totalClicks || 0} (${data.summary?.clicksChange || 0}% change)
-- Average Position: ${data.summary?.averagePosition || 0}
-- Organic Sessions: ${data.summary?.organicSessions || 0} (${data.summary?.sessionsChange || 0}% change)
-- Mobile Score: ${data.summary?.mobileScore || 0}/100
-- Desktop Score: ${data.summary?.desktopScore || 0}/100
+Each recommendation MUST be:
+1. SPECIFIC to this client's actual data (reference specific keywords, pages, or metrics)
+2. ACTIONABLE with clear next steps  
+3. PRIORITIZED based on potential impact
 
-Top Keywords: ${data.searchConsole?.topKeywords?.map(k => `${k.keyword} (pos: ${k.position})`).join(', ') || 'No data'}
-Top Pages: ${data.searchConsole?.topPages?.map(p => p.page).join(', ') || 'No data'}
+For each recommendation provide:
+- title: Action-oriented headline (5-8 words)
+- description: 2-3 sentences explaining the opportunity and approach. Reference specific data points.
+- priority: "high", "medium", or "low" based on potential ROI
+- category: "keyword", "technical", "content", or "performance"  
+- expectedImpact: Quantified expected outcome (e.g., "Potential 20% increase in organic traffic")
+- actionItems: Array of 2-3 specific action steps
 
-Provide response in this exact JSON format:
+Example of GOOD recommendation:
+{
+  "title": "Target Page 2 Keywords for Quick Wins",
+  "description": "You have 12 keywords ranking positions 11-20 that are close to page 1. Keywords like 'digital marketing services' at position 14 with 450 monthly impressions represent immediate opportunities. Optimizing these pages could move them to page 1 within 30-60 days.",
+  "priority": "high", 
+  "category": "keyword",
+  "expectedImpact": "Moving 5 keywords to page 1 could generate 200+ additional monthly clicks",
+  "actionItems": ["Identify top 5 keywords in positions 11-15", "Add target keyword to H1 and first paragraph", "Build 2-3 internal links to each target page"]
+}
+
+DATA TO ANALYZE:
+- Domain: ${domain}
+- Total Clicks: ${clicks} (${clicksChange}% change)
+- Total Impressions: ${impressions}  
+- Average Position: ${position}
+- Organic Sessions: ${organicSessions} (${sessionsChange}% change)
+- Mobile Score: ${mobileScore}/100
+- Desktop Score: ${desktopScore}/100
+- Top Keywords: ${topKeywords.slice(0, 10).join(', ') || 'No data'}
+- Top Pages: ${topPages.slice(0, 5).join(', ') || 'No data'}
+
+Return ONLY valid JSON array with exactly 5 recommendations in this format:
 {
   "insights": [
     {
-      "title": "Specific actionable title",
-      "description": "Detailed explanation with data backing",
+      "title": "Action-oriented title",
+      "description": "Detailed explanation referencing specific data",
       "priority": "high|medium|low",
       "category": "keyword|technical|content|performance",
-      "expectedImpact": "Quantified expected result with timeframe",
+      "expectedImpact": "Quantified expected result",
       "actionItems": ["Step 1", "Step 2", "Step 3"],
-      "dataSource": ["source of insight"]
+      "dataSource": ["Google Search Console", "PageSpeed Insights", "etc."]
     }
   ]
 }
 
-Make insights specific, actionable, and data-driven. Avoid generic advice.`;
+Make insights specific, actionable, and data-driven. Reference actual metrics from the data provided.`;
   }
 
   private parseInsights(aiResponse: string): AIInsight[] {
@@ -92,61 +128,98 @@ Make insights specific, actionable, and data-driven. Avoid generic advice.`;
 
   private getFallbackInsights(data?: Partial<ReportData>): AIInsight[] {
     const insights: AIInsight[] = [];
+    const timestamp = Date.now();
 
-    // Generate basic insights based on available data
-    if (data?.summary?.mobileScore && data.summary.mobileScore < 60) {
+    // Generate 5 fallback insights based on available data
+    
+    // 1. Mobile Performance (high priority if poor score)
+    const mobileScore = data?.summary?.mobileScore || 50;
+    if (mobileScore < 75) {
       insights.push({
-        id: `fallback-mobile-${Date.now()}`,
+        id: `fallback-mobile-${timestamp}-1`,
         title: 'Improve Mobile Page Speed',
-        description: `Mobile page speed score is ${data.summary.mobileScore}/100, which may impact search rankings and user experience.`,
-        priority: 'high',
+        description: `Your mobile page speed score is ${mobileScore}/100, which is below optimal performance. Mobile speed directly impacts both user experience and Google rankings, especially since mobile-first indexing.`,
+        priority: mobileScore < 50 ? 'high' : 'medium',
         category: 'technical',
-        expectedImpact: '15-25% improvement in mobile rankings within 30 days',
+        expectedImpact: `Improving to 85+ could increase mobile traffic by 15-25%`,
         actionItems: [
-          'Optimize image sizes and formats',
-          'Minimize JavaScript and CSS',
-          'Enable browser caching'
+          'Compress and optimize all images to WebP format',
+          'Minimize JavaScript and CSS file sizes',
+          'Implement lazy loading for non-critical content'
         ],
         dataSource: ['PageSpeed Insights']
       });
     }
 
-    if (data?.summary?.averagePosition && data.summary.averagePosition > 10) {
+    // 2. Keyword Optimization (based on position)
+    const avgPosition = data?.summary?.averagePosition || 15;
+    if (avgPosition > 8) {
       insights.push({
-        id: `fallback-keywords-${Date.now()}`,
-        title: 'Target Lower Competition Keywords',
-        description: `Average keyword position is ${data.summary.averagePosition}, indicating opportunity to target more specific, long-tail keywords.`,
-        priority: 'medium',
+        id: `fallback-keywords-${timestamp}-2`,
+        title: 'Target Page 2 Keywords for Quick Wins',
+        description: `Your average keyword position is ${avgPosition.toFixed(1)}, indicating many keywords are on page 2-3. Focusing on keywords ranking positions 8-20 represents the highest ROI opportunities for quick ranking improvements.`,
+        priority: 'high',
         category: 'keyword',
-        expectedImpact: '20-30% increase in organic traffic within 60 days',
+        expectedImpact: 'Moving 10 keywords from page 2 to page 1 could double organic traffic',
         actionItems: [
-          'Research long-tail keyword variations',
-          'Create content targeting specific user intent',
-          'Optimize existing pages for secondary keywords'
+          'Identify keywords ranking positions 8-20 with high search volume',
+          'Optimize title tags and H1s for target keywords',
+          'Build strategic internal links to boost page authority'
         ],
         dataSource: ['Google Search Console']
       });
     }
 
-    // Always provide at least one insight
-    if (insights.length === 0) {
-      insights.push({
-        id: `fallback-general-${Date.now()}`,
-        title: 'Expand Content Strategy',
-        description: 'Based on current performance, there are opportunities to improve organic visibility through strategic content expansion.',
-        priority: 'medium',
-        category: 'content',
-        expectedImpact: '10-20% increase in organic traffic within 90 days',
-        actionItems: [
-          'Analyze competitor content gaps',
-          'Create comprehensive topic clusters',
-          'Improve internal linking structure'
-        ],
-        dataSource: ['Google Analytics', 'Search Console']
-      });
-    }
+    // 3. Content Expansion Strategy
+    insights.push({
+      id: `fallback-content-${timestamp}-3`,
+      title: 'Expand Content for Target Topics',
+      description: 'Your current content strategy has opportunities for expansion. Creating comprehensive, topic-cluster content can improve topical authority and capture more long-tail search traffic.',
+      priority: 'medium',
+      category: 'content',
+      expectedImpact: 'Comprehensive content hubs can increase organic traffic by 25-40%',
+      actionItems: [
+        'Identify top 5 topics relevant to your business',
+        'Create pillar pages for each main topic',
+        'Develop 8-10 supporting articles per pillar page'
+      ],
+      dataSource: ['Google Analytics', 'Search Console']
+    });
 
-    return insights.slice(0, 3); // Limit to 3 insights
+    // 4. Technical SEO Improvements
+    insights.push({
+      id: `fallback-technical-${timestamp}-4`,
+      title: 'Enhance Technical SEO Foundation',
+      description: 'Technical SEO improvements provide foundational benefits for all organic search efforts. Addressing common technical issues can unlock ranking potential across your entire website.',
+      priority: 'medium',
+      category: 'technical',
+      expectedImpact: 'Technical optimizations typically improve rankings by 10-20%',
+      actionItems: [
+        'Conduct comprehensive site audit for crawl errors',
+        'Optimize XML sitemaps and robots.txt',
+        'Implement structured data markup for key pages'
+      ],
+      dataSource: ['Google Search Console', 'PageSpeed Insights']
+    });
+
+    // 5. Performance Tracking & Optimization
+    const clicksChange = data?.summary?.clicksChange || 0;
+    insights.push({
+      id: `fallback-tracking-${timestamp}-5`,
+      title: 'Implement Advanced Performance Tracking',
+      description: `With ${clicksChange >= 0 ? 'positive' : 'declining'} traffic trends, enhanced tracking will help identify the highest-impact optimization opportunities. Better data leads to better decision-making.`,
+      priority: 'low',
+      category: 'performance',
+      expectedImpact: 'Improved tracking leads to 30% better optimization ROI',
+      actionItems: [
+        'Set up conversion tracking for all business goals',
+        'Implement heat map tracking on key landing pages',
+        'Create custom dashboards for performance monitoring'
+      ],
+      dataSource: ['Google Analytics', 'Google Search Console']
+    });
+
+    return insights.slice(0, 5); // Return exactly 5 insights
   }
 
   // Cost estimation for AI usage

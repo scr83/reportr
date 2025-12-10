@@ -577,6 +577,8 @@ export async function POST(request: NextRequest) {
       pageSpeedData: validatedData.pageSpeedData || null,
     }
     
+    console.log('🔍 [STRATEGIC-RECOMMENDATIONS] AI Insights Array being passed to PDF:', JSON.stringify(aiInsightsResult?.insights, null, 2));
+    
     // Generate PDF using React-PDF
     const result = await pdfGenerator.generateReport(reactPDFReportData)
     
