@@ -779,26 +779,43 @@ export function CustomReportTemplate({ data }: PDFTemplateProps) {
           />
           
           <View style={{ marginBottom: 24 }}>
-            <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
-              1. Focus on High-Impact Metrics
-            </Text>
-            <Text style={[styles.body, { marginBottom: 12 }]}>
-              Prioritize optimization efforts on the metrics showing the greatest potential for improvement.
-            </Text>
-            
-            <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
-              2. Regular Monitoring
-            </Text>
-            <Text style={[styles.body, { marginBottom: 12 }]}>
-              Schedule monthly reviews of these custom metrics to track progress and identify trends.
-            </Text>
-            
-            <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
-              3. Data-Driven Decisions
-            </Text>
-            <Text style={styles.body}>
-              Use these metrics to guide strategic decisions and measure the success of optimization efforts.
-            </Text>
+            {data.insights && data.insights.length > 0 ? (
+              // Show AI-generated recommendations if available
+              data.insights.map((insight: any, index: number) => (
+                <View key={insight.id || index} style={{ marginBottom: 12 }}>
+                  <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
+                    {index + 1}. {insight.title}
+                  </Text>
+                  <Text style={[styles.body, { marginBottom: 12 }]}>
+                    {insight.description}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              // Fallback to original static recommendations
+              <>
+                <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
+                  1. Focus on High-Impact Metrics
+                </Text>
+                <Text style={[styles.body, { marginBottom: 12 }]}>
+                  Prioritize optimization efforts on the metrics showing the greatest potential for improvement.
+                </Text>
+                
+                <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
+                  2. Regular Monitoring
+                </Text>
+                <Text style={[styles.body, { marginBottom: 12 }]}>
+                  Schedule monthly reviews of these custom metrics to track progress and identify trends.
+                </Text>
+                
+                <Text style={[styles.h4, { color: pdfStyles.colors.primary, marginBottom: 8 }]}>
+                  3. Data-Driven Decisions
+                </Text>
+                <Text style={styles.body}>
+                  Use these metrics to guide strategic decisions and measure the success of optimization efforts.
+                </Text>
+              </>
+            )}
           </View>
           
           {/* Contact Information */}

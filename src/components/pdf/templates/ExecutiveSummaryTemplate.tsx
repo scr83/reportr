@@ -120,60 +120,84 @@ export function ExecutiveSummaryTemplate({ data }: PDFTemplateProps) {
             marginBottom={16}
           />
           
-          {/* Traffic Overview */}
-          <InsightBox
-            title="Traffic Overview"
-            content={`Your website received ${users} unique visitors across ${sessions} sessions during this period. ${sessions > users ? 'Visitors are returning to your site, indicating good content quality.' : 'Most traffic consists of new visitors, presenting growth opportunities.'}`}
-            type="info"
-            branding={data.branding}
-          />
-          
-          {/* Bounce Rate Analysis */}
-          <InsightBox
-            title="User Engagement"
-            content={bounceInsight.message}
-            type={bounceInsight.type}
-            branding={data.branding}
-          />
-          
-          {/* Conversion Performance */}
-          <InsightBox
-            title="Conversion Performance"
-            content={data.metrics?.conversions ? 
-              `Great! You achieved ${data.metrics.conversions} conversions during this period. Continue optimizing high-performing pages.` :
-              'No conversions were tracked during this period. Consider setting up goal tracking in Google Analytics to measure success.'
-            }
-            type={data.metrics?.conversions ? 'success' : 'warning'}
-            branding={data.branding}
-          />
+          {/* AI-Generated Insights */}
+          {data.insights && data.insights.length > 0 ? (
+            data.insights.slice(0, 3).map((insight: any, index: number) => {
+              const getPriorityType = (priority: string) => {
+                switch (priority) {
+                  case 'high': return 'warning';
+                  case 'medium': return 'info';
+                  case 'low': return 'success';
+                  default: return 'info';
+                }
+              };
 
-          {/* PageSpeed Performance */}
-          {data.pageSpeedData ? (
-            <InsightBox
-              title="Website Performance"
-              content={`Your website scores ${data.pageSpeedData.mobile.score}/100 on mobile and ${data.pageSpeedData.desktop.score}/100 on desktop performance. ${
-                Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
-                  ? 'Excellent performance! Your site loads quickly for users.'
-                  : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
-                  ? 'Good performance with room for optimization. Consider improving loading speed.'
-                  : 'Performance needs attention. Slow loading speeds may impact user experience and SEO rankings.'
-              }`}
-              type={
-                Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
-                  ? 'success' 
-                  : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
-                  ? 'warning'
-                  : 'error'
-              }
-              branding={data.branding}
-            />
+              return (
+                <InsightBox
+                  key={insight.id || index}
+                  title={insight.title}
+                  content={insight.description}
+                  type={getPriorityType(insight.priority)}
+                  branding={data.branding}
+                />
+              );
+            })
           ) : (
-            <InsightBox
-              title="Website Performance"
-              content="⚠️ Performance data temporarily unavailable. PageSpeed Insights could not be retrieved at this time."
-              type="warning"
-              branding={data.branding}
-            />
+            <>
+              {/* Fallback to original static insights */}
+              <InsightBox
+                title="Traffic Overview"
+                content={`Your website received ${users} unique visitors across ${sessions} sessions during this period. ${sessions > users ? 'Visitors are returning to your site, indicating good content quality.' : 'Most traffic consists of new visitors, presenting growth opportunities.'}`}
+                type="info"
+                branding={data.branding}
+              />
+              
+              <InsightBox
+                title="User Engagement"
+                content={bounceInsight.message}
+                type={bounceInsight.type}
+                branding={data.branding}
+              />
+              
+              <InsightBox
+                title="Conversion Performance"
+                content={data.metrics?.conversions ? 
+                  `Great! You achieved ${data.metrics.conversions} conversions during this period. Continue optimizing high-performing pages.` :
+                  'No conversions were tracked during this period. Consider setting up goal tracking in Google Analytics to measure success.'
+                }
+                type={data.metrics?.conversions ? 'success' : 'warning'}
+                branding={data.branding}
+              />
+
+              {/* PageSpeed Performance */}
+              {data.pageSpeedData ? (
+                <InsightBox
+                  title="Website Performance"
+                  content={`Your website scores ${data.pageSpeedData.mobile.score}/100 on mobile and ${data.pageSpeedData.desktop.score}/100 on desktop performance. ${
+                    Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
+                      ? 'Excellent performance! Your site loads quickly for users.'
+                      : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
+                      ? 'Good performance with room for optimization. Consider improving loading speed.'
+                      : 'Performance needs attention. Slow loading speeds may impact user experience and SEO rankings.'
+                  }`}
+                  type={
+                    Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 90 
+                      ? 'success' 
+                      : Math.min(data.pageSpeedData.mobile.score, data.pageSpeedData.desktop.score) >= 50
+                      ? 'warning'
+                      : 'error'
+                  }
+                  branding={data.branding}
+                />
+              ) : (
+                <InsightBox
+                  title="Website Performance"
+                  content="⚠️ Performance data temporarily unavailable. PageSpeed Insights could not be retrieved at this time."
+                  type="warning"
+                  branding={data.branding}
+                />
+              )}
+            </>
           )}
         </View>
         

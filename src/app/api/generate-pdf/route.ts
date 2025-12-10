@@ -547,6 +547,9 @@ export async function POST(request: NextRequest) {
       // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
       selectedMetrics: validatedData.selectedMetrics || [],
       
+      // AI-Generated Insights
+      insights: aiInsightsResult.insights,
+      
       // CRITICAL FIX: Use ONLY the PageSpeed data from request body to ensure preview = PDF
       pageSpeedData: validatedData.pageSpeedData || null,
     }
@@ -619,6 +622,9 @@ export async function POST(request: NextRequest) {
       // CRITICAL FIX: Store ONLY the PageSpeed data from request body (no auto-fetch)
       pageSpeedData: validatedData.pageSpeedData,
       
+      // AI-Generated Insights
+      insights: aiInsightsResult.insights,
+      
       // Additional metadata
       generatedAt: processingStarted.toISOString(),
       dataSourceInfo: {
@@ -628,7 +634,8 @@ export async function POST(request: NextRequest) {
         pageSpeedFromRequest: !!validatedData.pageSpeedData,
         metricsCount: Object.keys(mergedGA4Data).length,
         hasCustomFields: !!validatedData.customFields?.length,
-        selectedMetricsCount: validatedData.selectedMetrics?.length || 0
+        selectedMetricsCount: validatedData.selectedMetrics?.length || 0,
+        aiInsightsAvailable: !!aiInsightsResult.insights
       }
     }
     

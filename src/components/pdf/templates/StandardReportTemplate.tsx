@@ -763,57 +763,102 @@ export function StandardReportTemplate({ data }: PDFTemplateProps) {
             marginTop={0}
           />
           
-          {/* Performance Analysis */}
-          <InsightBox
-            title="Search Performance"
-            content={`With ${data.gscData?.totalClicks || 0} clicks from ${data.gscData?.totalImpressions || 0} impressions, your CTR is ${((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100).toFixed(2)}%. ${((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100) > 3 ? 'This is performing well above average.' : 'Consider optimizing meta titles and descriptions to improve click-through rates.'}`}
-            type={((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100) > 3 ? 'success' : 'warning'}
-            branding={data.branding}
-          />
+          {/* AI-Generated Insights */}
+          {data.insights && data.insights.length > 0 ? (
+            data.insights.map((insight: any, index: number) => {
+              const getPriorityType = (priority: string) => {
+                switch (priority) {
+                  case 'high': return 'warning';
+                  case 'medium': return 'info';
+                  case 'low': return 'success';
+                  default: return 'info';
+                }
+              };
+
+              return (
+                <InsightBox
+                  key={insight.id || index}
+                  title={insight.title}
+                  content={insight.description}
+                  type={getPriorityType(insight.priority)}
+                  branding={data.branding}
+                />
+              );
+            })
+          ) : (
+            <>
+              {/* Fallback to original static insights */}
+              <InsightBox
+                title="Search Performance"
+                content={`With ${data.gscData?.totalClicks || 0} clicks from ${data.gscData?.totalImpressions || 0} impressions, your CTR is ${((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100).toFixed(2)}%. ${((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100) > 3 ? 'This is performing well above average.' : 'Consider optimizing meta titles and descriptions to improve click-through rates.'}`}
+                type={((data.gscData?.totalClicks || 0) / (data.gscData?.totalImpressions || 1) * 100) > 3 ? 'success' : 'warning'}
+                branding={data.branding}
+              />
+              
+              <InsightBox
+                title="User Engagement"
+                content={`Users spend an average of ${Math.floor((data.ga4Data?.avgSessionDuration || 0) / 60)} minutes on your site and view ${data.ga4Data?.pagesPerSession?.toFixed(1) || 0} pages per session. ${(data.ga4Data?.pagesPerSession || 0) > 2 ? 'Strong engagement indicates quality content.' : 'Consider improving internal linking and content relevance.'}`}
+                type={(data.ga4Data?.pagesPerSession || 0) > 2 ? 'success' : 'info'}
+                branding={data.branding}
+              />
+              
+              <InsightBox
+                title="Mobile Optimization"
+                content={`${Math.round((data.ga4Data?.deviceBreakdown?.mobile || 0) / (data.ga4Data?.sessions || 1) * 100)}% of your traffic comes from mobile devices. ${(data.ga4Data?.deviceBreakdown?.mobile || 0) / (data.ga4Data?.sessions || 1) > 0.5 ? 'Ensure your mobile experience is optimized for the majority of your users.' : 'Desktop remains the primary device - maintain strong desktop performance while improving mobile experience.'}`}
+                type="info"
+                branding={data.branding}
+              />
+            </>
+          )}
           
-          <InsightBox
-            title="User Engagement"
-            content={`Users spend an average of ${Math.floor((data.ga4Data?.avgSessionDuration || 0) / 60)} minutes on your site and view ${data.ga4Data?.pagesPerSession?.toFixed(1) || 0} pages per session. ${(data.ga4Data?.pagesPerSession || 0) > 2 ? 'Strong engagement indicates quality content.' : 'Consider improving internal linking and content relevance.'}`}
-            type={(data.ga4Data?.pagesPerSession || 0) > 2 ? 'success' : 'info'}
-            branding={data.branding}
-          />
-          
-          <InsightBox
-            title="Mobile Optimization"
-            content={`${Math.round((data.ga4Data?.deviceBreakdown?.mobile || 0) / (data.ga4Data?.sessions || 1) * 100)}% of your traffic comes from mobile devices. ${(data.ga4Data?.deviceBreakdown?.mobile || 0) / (data.ga4Data?.sessions || 1) > 0.5 ? 'Ensure your mobile experience is optimized for the majority of your users.' : 'Desktop remains the primary device - maintain strong desktop performance while improving mobile experience.'}`}
-            type="info"
-            branding={data.branding}
-          />
-          
-          {/* Action Items */}
+          {/* Action Items - Show AI recommendations or fallback */}
           <View style={[styles.card, { backgroundColor: `${pdfStyles.colors.primary}20`, padding: 20, marginTop: 24 }]}>
             <Text style={[styles.h3, { color: pdfStyles.colors.primary, marginBottom: 16 }]}>
-              Priority Action Items
+              {data.insights && data.insights.length > 0 ? 'AI-Generated Recommendations' : 'Priority Action Items'}
             </Text>
             
-            <Text style={[styles.h4, { marginBottom: 8 }]}>
-              1. SEO Optimization
-            </Text>
-            <Text style={[styles.body, { marginBottom: 12 }]}>
-              Focus on improving rankings for keywords currently in positions 5-15 to drive more clicks.
-            </Text>
-            
-            <Text style={[styles.h4, { marginBottom: 8 }]}>
-              2. Content Strategy
-            </Text>
-            <Text style={[styles.body, { marginBottom: 12 }]}>
-              Create content targeting high-impression, low-click keywords to capture more traffic.
-            </Text>
-            
-            <Text style={[styles.h4, { marginBottom: 8 }]}>
-              3. Conversion Optimization
-            </Text>
-            <Text style={styles.body}>
-              {data.ga4Data?.conversions ? 
-                'Build on successful conversion tracking with A/B testing and funnel optimization.' :
-                'Implement goal tracking to measure and optimize conversion performance.'
-              }
-            </Text>
+            {data.insights && data.insights.length > 0 && data.insights.some((insight: any) => insight.recommendations) ? (
+              // Show AI recommendations if available
+              data.insights.map((insight: any, index: number) => 
+                insight.recommendations?.map((rec: string, recIndex: number) => (
+                  <View key={`${index}-${recIndex}`} style={{ marginBottom: 12 }}>
+                    <Text style={[styles.h4, { marginBottom: 8 }]}>
+                      {recIndex + 1}. {insight.category?.charAt(0).toUpperCase() + insight.category?.slice(1)} Focus
+                    </Text>
+                    <Text style={styles.body}>
+                      {rec}
+                    </Text>
+                  </View>
+                ))
+              ).flat().slice(0, 3)
+            ) : (
+              // Fallback to original static action items
+              <>
+                <Text style={[styles.h4, { marginBottom: 8 }]}>
+                  1. SEO Optimization
+                </Text>
+                <Text style={[styles.body, { marginBottom: 12 }]}>
+                  Focus on improving rankings for keywords currently in positions 5-15 to drive more clicks.
+                </Text>
+                
+                <Text style={[styles.h4, { marginBottom: 8 }]}>
+                  2. Content Strategy
+                </Text>
+                <Text style={[styles.body, { marginBottom: 12 }]}>
+                  Create content targeting high-impression, low-click keywords to capture more traffic.
+                </Text>
+                
+                <Text style={[styles.h4, { marginBottom: 8 }]}>
+                  3. Conversion Optimization
+                </Text>
+                <Text style={styles.body}>
+                  {data.ga4Data?.conversions ? 
+                    'Build on successful conversion tracking with A/B testing and funnel optimization.' :
+                    'Implement goal tracking to measure and optimize conversion performance.'
+                  }
+                </Text>
+              </>
+            )}
           </View>
         </View>
         
