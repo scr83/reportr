@@ -7,7 +7,6 @@ import { TopQueriesPage } from './TopQueriesPage';
 import { ExecutiveGA4Page } from './ExecutiveGA4Page';
 import { StandardGA4Pages } from './StandardGA4Pages';
 import { CustomGA4Pages } from './CustomGA4Pages';
-import { RecommendationsPage } from './RecommendationsPage';
 import { KeyInsightsPage } from './KeyInsightsPage';
 import { StrategicRecommendationsPage } from './StrategicRecommendationsPage';
 import { GSCPerformancePage } from '../../../components/pdf/components/GSCPerformancePage';
@@ -81,10 +80,6 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({ data }) => {
       {/* Strategic Recommendations Page - Always included */}
       <StrategicRecommendationsPage data={data} />
 
-      {/* Original Recommendations Page - Include if we have specific insights or recommendations */}
-      {(data.insights || data.recommendations) && (
-        <RecommendationsPage data={data} />
-      )}
     </Document>
   );
 };
