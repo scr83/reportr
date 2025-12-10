@@ -121,6 +121,15 @@ model Report {
   updatedAt             DateTime     @updatedAt
   clientId              String
   userId                String
+  
+  // AI Insights fields (all optional/nullable)
+  aiInsights            Json?        // Array of insight objects from AI
+  aiInsightsSource      String?      // "ai" | "rule-based" | "fallback"
+  aiInsightsGeneratedAt DateTime?    // When insights were generated
+  aiTokensUsed          Int?         // Token count for cost tracking
+  aiCostUsd             Float?       // Cost in USD for this generation
+  aiError               String?      // Error message if AI failed
+  
   client                Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
   user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
