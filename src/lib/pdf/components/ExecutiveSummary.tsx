@@ -158,6 +158,14 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({ data }) => {
                 priority="high"
               />
             )}
+            {data.insights.technical && (
+              <KeyInsight
+                key="technical"
+                title="Technical Optimization"
+                description={data.insights.technical}
+                priority="medium"
+              />
+            )}
           </>
         ) : (
           <>

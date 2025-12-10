@@ -547,8 +547,31 @@ export async function POST(request: NextRequest) {
       // CRITICAL FIX: Pass selectedMetrics to PDF generator for custom reports
       selectedMetrics: validatedData.selectedMetrics || [],
       
-      // AI-Generated Insights
-      insights: aiInsightsResult.insights,
+      // Transform AI insights for legacy PDF format
+      insights: (() => {
+        if (!aiInsightsResult?.insights) return undefined;
+        
+        const transformedInsights = {
+          traffic: aiInsightsResult.insights.find((insight: any) => insight.category === 'performance')?.description,
+          engagement: aiInsightsResult.insights.find((insight: any) => insight.category === 'content')?.description,
+          search: aiInsightsResult.insights.find((insight: any) => insight.category === 'keyword')?.description,
+          technical: aiInsightsResult.insights.find((insight: any) => insight.category === 'technical')?.description,
+        };
+        
+        console.log('🔍 [AI-INSIGHTS] Transformed insights for PDF:', {
+          original: aiInsightsResult.insights.length,
+          transformed: transformedInsights,
+          hasTraffic: !!transformedInsights.traffic,
+          hasEngagement: !!transformedInsights.engagement,
+          hasSearch: !!transformedInsights.search,
+          hasTechnical: !!transformedInsights.technical
+        });
+        
+        return transformedInsights;
+      })(),
+      
+      // Full AI insights array for new/future components  
+      aiInsights: aiInsightsResult?.insights,
       
       // CRITICAL FIX: Use ONLY the PageSpeed data from request body to ensure preview = PDF
       pageSpeedData: validatedData.pageSpeedData || null,

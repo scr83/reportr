@@ -26,6 +26,7 @@ export const RecommendationsPage: React.FC<RecommendationsPageProps> = ({ data }
       if (data.insights.traffic) recommendations.push(data.insights.traffic);
       if (data.insights.engagement) recommendations.push(data.insights.engagement);
       if (data.insights.search) recommendations.push(data.insights.search);
+      if (data.insights.technical) recommendations.push(data.insights.technical);
       if (recommendations.length > 0) return recommendations;
     }
 

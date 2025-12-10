@@ -105,7 +105,20 @@ export interface ReportData {
     traffic?: string;
     engagement?: string;
     search?: string;
+    technical?: string;
   };
+  
+  // Full AI insights array for new/future components
+  aiInsights?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    priority: 'high' | 'medium' | 'low';
+    category: 'keyword' | 'technical' | 'content' | 'performance';
+    expectedImpact?: string;
+    actionItems?: string[];
+    dataSource?: string[];
+  }>;
   
   recommendations?: Array<{
     title: string;
