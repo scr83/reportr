@@ -10,6 +10,61 @@ interface StrategicRecommendationsPageProps {
 
 export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPageProps> = ({ data }) => {
   const primaryColor = data.branding.primaryColor || '#7e23ce';
+  
+  // Get AI insights or fallback to hardcoded recommendations
+  const insights = data.aiInsights && data.aiInsights.length > 0 
+    ? data.aiInsights.slice(0, 5) // Limit to 5 insights to match layout
+    : null;
+
+  // Helper function to get priority-based action number background color
+  const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
+    switch (priority) {
+      case 'high':
+        return '#DC2626'; // red-600
+      case 'medium':
+        return '#D97706'; // orange-600
+      case 'low':
+        return '#059669'; // green-600
+      default:
+        return primaryColor;
+    }
+  };
+
+  // Fallback hardcoded recommendations for backward compatibility
+  const fallbackRecommendations = [
+    {
+      title: 'Enhance Conversion Tracking',
+      description: 'Set up detailed conversion tracking to measure the effectiveness of your marketing efforts. Implement event tracking for key user actions and establish conversion funnels to identify drop-off points.',
+      priority: 'high' as const
+    },
+    {
+      title: 'Optimize Conversion Funnel',
+      description: 'Focus on improving the user journey and conversion funnel to maximize results from existing traffic. Conduct A/B testing on landing pages and CTAs to improve conversion rates across high-traffic pages.',
+      priority: 'medium' as const
+    },
+    {
+      title: 'Improve Search Visibility',
+      description: `Based on your current average position of ${data.gscMetrics.position.toFixed(1)}, focus on optimizing content for target keywords. Implement technical SEO improvements and content optimization to move rankings from page 2 to page 1.`,
+      priority: 'high' as const
+    },
+    {
+      title: 'Enhance User Experience',
+      description: `With a bounce rate of ${formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving page load speeds, mobile responsiveness, and content relevance. Consider implementing personalization features to increase engagement and session duration.`,
+      priority: 'medium' as const
+    },
+    {
+      title: 'Expand Content Strategy',
+      description: 'Develop a comprehensive content strategy targeting long-tail keywords and user intent. Create valuable resources that address your audience\'s pain points and establish thought leadership in your industry.',
+      priority: 'low' as const
+    }
+  ];
+
+  // Get recommendations to display (AI insights or fallback)
+  const recommendations = insights ? insights.map(insight => ({
+    title: insight.title,
+    description: insight.description,
+    priority: insight.priority
+  })) : fallbackRecommendations;
 
   const styles = StyleSheet.create({
     page: {
@@ -139,80 +194,23 @@ export const StrategicRecommendationsPage: React.FC<StrategicRecommendationsPage
 
         <Text style={styles.sectionTitle}>Priority Actions</Text>
 
-        {/* Action 1 */}
-        <View style={styles.actionItem}>
-          <View style={styles.actionNumber}>
-            <Text style={styles.actionNumberText}>1</Text>
+        {/* Dynamic Action Items - AI Insights or Fallback */}
+        {recommendations.map((recommendation, index) => (
+          <View key={index} style={styles.actionItem}>
+            <View style={[
+              styles.actionNumber,
+              { backgroundColor: getPriorityColor(recommendation.priority) }
+            ]}>
+              <Text style={styles.actionNumberText}>{index + 1}</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>{recommendation.title}</Text>
+              <Text style={styles.actionDescription}>
+                {recommendation.description}
+              </Text>
+            </View>
           </View>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Enhance Conversion Tracking</Text>
-            <Text style={styles.actionDescription}>
-              Set up detailed conversion tracking to measure the effectiveness of your marketing 
-              efforts. Implement event tracking for key user actions and establish conversion 
-              funnels to identify drop-off points.
-            </Text>
-          </View>
-        </View>
-
-        {/* Action 2 */}
-        <View style={styles.actionItem}>
-          <View style={styles.actionNumber}>
-            <Text style={styles.actionNumberText}>2</Text>
-          </View>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Optimize Conversion Funnel</Text>
-            <Text style={styles.actionDescription}>
-              Focus on improving the user journey and conversion funnel to maximize results from 
-              existing traffic. Conduct A/B testing on landing pages and CTAs to improve 
-              conversion rates across high-traffic pages.
-            </Text>
-          </View>
-        </View>
-
-        {/* Action 3 */}
-        <View style={styles.actionItem}>
-          <View style={styles.actionNumber}>
-            <Text style={styles.actionNumberText}>3</Text>
-          </View>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Improve Search Visibility</Text>
-            <Text style={styles.actionDescription}>
-              Based on your current average position of {data.gscMetrics.position.toFixed(1)}, 
-              focus on optimizing content for target keywords. Implement technical SEO improvements 
-              and content optimization to move rankings from page 2 to page 1.
-            </Text>
-          </View>
-        </View>
-
-        {/* Action 4 */}
-        <View style={styles.actionItem}>
-          <View style={styles.actionNumber}>
-            <Text style={styles.actionNumberText}>4</Text>
-          </View>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Enhance User Experience</Text>
-            <Text style={styles.actionDescription}>
-              With a bounce rate of {formatPercentage(data.ga4Metrics.bounceRate)}, focus on improving 
-              page load speeds, mobile responsiveness, and content relevance. Consider implementing 
-              personalization features to increase engagement and session duration.
-            </Text>
-          </View>
-        </View>
-
-        {/* Action 5 */}
-        <View style={styles.actionItem}>
-          <View style={styles.actionNumber}>
-            <Text style={styles.actionNumberText}>5</Text>
-          </View>
-          <View style={styles.actionContent}>
-            <Text style={styles.actionTitle}>Expand Content Strategy</Text>
-            <Text style={styles.actionDescription}>
-              Develop a comprehensive content strategy targeting long-tail keywords and user intent. 
-              Create valuable resources that address your audience&apos;s pain points and establish 
-              thought leadership in your industry.
-            </Text>
-          </View>
-        </View>
+        ))}
 
         <ReportFooter branding={data.branding} pageNumber={1} />
       </Page>
