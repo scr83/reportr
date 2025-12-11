@@ -177,24 +177,13 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                 {/* Features List */}
                 <div className="mb-8">
                   <ul className="space-y-4">
-                    {plan.features.map((feature, featureIndex) => {
-                      // Handle both string and object features
-                      const isObject = typeof feature === 'object'
-                      const featureText = isObject ? feature.text : feature
-                      const badge = isObject ? feature.badge : null
-                      
-                      return (
+                    {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-center space-x-3">
                           <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
                             <Icon icon={Check} size="xs" className="text-green-600" />
                           </div>
                           <Typography variant="body" className="text-neutral-700 flex-1">
-                            {featureText}
-                            {badge && (
-                              <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                                {badge}
-                              </span>
-                            )}
+                            {feature}
                           </Typography>
                         </li>
                       )
