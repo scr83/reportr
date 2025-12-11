@@ -40,7 +40,7 @@ export class AIInsightsGenerator {
         model: 'claude-sonnet-4-20250514', // CRITICAL FIX: Use the working model from curl test
         max_tokens: 2000,
         messages: [{
-          role: 'user',
+          role: 'user' as const,
           content: prompt
         }]
       };
