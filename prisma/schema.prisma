@@ -45,6 +45,7 @@ model User {
   clients              Client[]
   payments             Payment[]
   reports              Report[]
+  emailLogs            EmailLog[]
 
   @@map("users")
 }
@@ -196,6 +197,23 @@ model VerificationToken {
   @@index([email])
   @@index([token])
   @@map("verification_tokens")
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  emailType String   // e.g., "welcome", "onboarding_day1", "trial_3days"
+  sentAt    DateTime @default(now())
+  
+  metadata  Json?    // Optional: store dynamic data used in email
+  
+  @@unique([userId, emailType]) // Prevent duplicate sends
+  @@index([userId])
+  @@index([emailType])
+  @@index([sentAt])
+  @@map("email_logs")
 }
 
 enum Plan {
