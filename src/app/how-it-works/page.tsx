@@ -59,10 +59,10 @@ const mainSteps = [
     number: 3,
     icon: FileText,
     title: 'Generate Professional Reports',
-    description: 'Get a beautifully designed, white-labeled PDF report with your client\'s data professionally formatted in 30 seconds.',
+    description: 'Get a beautifully designed, white-labeled PDF report with your client\'s data professionally formatted in minutes.',
     color: 'from-green-500 to-green-600',
     details: [
-      '30-second report generation',
+      'Report generation in minutes',
       'Professional PDF formatting',
       'Custom branding throughout',
       'Ready to send to clients'
@@ -92,7 +92,7 @@ const benefits = [
   {
     icon: Clock,
     title: 'Save 8+ Hours Per Report',
-    description: 'Automate what used to take hours of manual work into 30 seconds.',
+    description: 'Automate what used to take hours of manual work into minutes.',
     stat: '95% Time Saved'
   },
   {
@@ -369,8 +369,8 @@ export default function HowItWorksPage() {
                     4
                   </div>
                   <div className="flex-1">
-                    <Typography className="font-semibold text-neutral-900">Generate first report (30 seconds)</Typography>
-                    <Typography className="text-neutral-600 text-sm">Click generate and download your professional PDF</Typography>
+                    <Typography className="font-semibold text-neutral-900">Generate first report (under 5 minutes)</Typography>
+                    <Typography className="text-neutral-600 text-sm">Click generate and download your professional PDF with AI insights</Typography>
                   </div>
                 </div>
 

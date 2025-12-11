@@ -15,7 +15,8 @@ import {
   Globe,
   TrendingUp,
   Users,
-  CheckCircle
+  CheckCircle,
+  Sparkles
 } from 'lucide-react'
 import { 
   Container,
@@ -30,6 +31,13 @@ import { cn } from '@/lib/utils'
 
 const mainFeatures = [
   {
+    icon: Sparkles,
+    title: 'AI Insights',
+    description: 'Every report includes actionable AI-generated recommendations and strategic insights tailored to your client\'s specific SEO performance.',
+    color: 'text-purple-600 bg-purple-100',
+    details: ['AI-generated recommendations', 'Strategic action items', 'Performance insights']
+  },
+  {
     icon: Zap,
     title: 'Automated Reporting',
     description: 'Generate professional SEO reports automatically by pulling and formatting data from Google Search Console and Analytics.',
@@ -41,7 +49,7 @@ const mainFeatures = [
     title: 'Save 95% of Your Time',
     description: 'Reduce report creation time from hours to minutes with our streamlined automation process.',
     color: 'text-blue-600 bg-blue-100',
-    details: ['30-second report generation', 'Scheduled automated reports', 'Bulk client processing']
+    details: ['Report generation in minutes', 'Scheduled automated reports', 'Bulk client processing']
   },
   {
     icon: Palette,
@@ -263,7 +271,7 @@ export default function FeaturesPage() {
                 </div>
                 <div>
                   <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
-                    30s
+                    3 min
                   </Typography>
                   <Typography variant="body" className="text-neutral-600">
                     Average Report Generation
