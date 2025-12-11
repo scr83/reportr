@@ -56,7 +56,7 @@ const plans = [
       'PageSpeed Insights',
       'White-label branding included',
       'Custom logo, colors & company name',
-      { text: 'AI Insights', badge: 'Coming Soon' },
+      'AI insights',
       'Priority email support (24hrs)'
     ],
     cta: 'Start Free Trial',
@@ -75,7 +75,7 @@ const plans = [
       'White-label branding included',
       'Custom logo, colors & company name',
       'PageSpeed Insights',
-      { text: 'AI Insights', badge: 'Coming Soon' },
+      'AI insights',
       'Priority support',
       'Advanced analytics'
     ],

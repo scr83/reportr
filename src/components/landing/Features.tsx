@@ -7,7 +7,8 @@ import {
   Palette, 
   BarChart3, 
   Shield, 
-  Star 
+  Star,
+  Sparkles
 } from 'lucide-react'
 import { 
   Container,
@@ -24,6 +25,12 @@ export interface FeaturesProps {
 
 const features = [
   {
+    icon: Sparkles,
+    title: 'AI Insights',
+    description: 'Every report includes actionable AI-generated recommendations. Know exactly what to focus on next.',
+    color: 'text-purple-600 bg-purple-100'
+  },
+  {
     icon: Zap,
     title: 'Automated Reports',
     description: 'Pull data from Google Search Console, Analytics 4, and PageSpeed Insights automatically.',
@@ -32,7 +39,7 @@ const features = [
   {
     icon: Clock,
     title: 'Save 8+ Hours Monthly',
-    description: 'What used to take a full morning now takes 30 seconds. Seriously.',
+    description: 'What used to take a full morning now takes minutes. Seriously.',
     color: 'text-blue-600 bg-blue-100'
   },
   {
@@ -120,7 +127,7 @@ export const Features: React.FC<FeaturesProps> = ({ className }) => {
             <Grid cols={1} gap="lg" className="sm:grid-cols-2">
               <div className="text-center">
                 <Typography variant="h2" className="text-4xl font-bold text-brand-600 mb-2">
-                  30 seconds
+                  3 minutes
                 </Typography>
                 <Typography variant="body" className="text-neutral-600">
                   Average report generation time

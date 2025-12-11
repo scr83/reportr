@@ -124,7 +124,7 @@ function PricingTiers() {
         'PageSpeed Insights',
         'White-label branding included',
         'Custom logo, colors & company name',
-        { text: 'AI Insights', badge: 'Coming Soon' },
+        'AI insights',
         'Priority email support (24hrs)'
       ],
       cta: 'Start 14-Day Trial',
@@ -147,7 +147,7 @@ function PricingTiers() {
         'White-label branding included',
         'Custom logo, colors & company name',
         'PageSpeed Insights',
-        { text: 'AI Insights', badge: 'Coming Soon' },
+        'AI insights',
         'Priority support',
         'Advanced analytics'
       ],
@@ -171,7 +171,7 @@ function PricingTiers() {
         'White-label branding included',
         'Custom logo, colors & company name',
         'PageSpeed Insights',
-        { text: 'AI Insights', badge: 'Coming Soon' },
+        'AI insights',
         { text: 'Custom Domain', badge: 'Coming Soon' },
         'Dedicated account manager',
         'Priority support',
@@ -356,7 +356,7 @@ function FeatureComparison() {
         { name: 'Google Search Console', free: true, starter: true, pro: true, enterprise: true },
         { name: 'Google Analytics 4', free: true, starter: true, pro: true, enterprise: true },
         { name: 'PageSpeed Insights', free: true, starter: true, pro: true, enterprise: true },
-        { name: 'AI Insights', free: false, starter: 'Coming Soon', pro: 'Coming Soon', enterprise: 'Coming Soon' },
+        { name: 'AI Insights', free: false, starter: true, pro: true, enterprise: true },
         { name: 'API Access', free: false, starter: false, pro: false, enterprise: 'Coming Soon' },
       ]
     },
@@ -525,7 +525,7 @@ function FAQ() {
     },
     {
       question: 'Do all plans include AI insights?',
-      answer: 'No, our free forever plan does not include AI Insights. AI insights are only available for paid plans, does not include the free 14-day trial'
+      answer: 'No, our free forever plan does not include AI insights. AI insights are only available for paid plans (Starter, Professional, and Agency).'
     },
     {
       question: 'Can I add more clients to my plan?',

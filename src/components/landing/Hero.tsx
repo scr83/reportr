@@ -60,7 +60,7 @@ export const Hero: React.FC<HeroProps> = ({ className }) => {
             variant="h2" 
             className="text-xl lg:text-2xl text-neutral-600 mb-8 max-w-3xl mx-auto leading-relaxed"
           >
-            Stop spending hours on manual client reports. Generate stunning, white-label SEO reports automatically from Google Search Console 
+            Stop spending hours on manual client reports. Generate stunning, white-label SEO reports with AI insights from Google Search Console 
             and Analytics 4. Perfect for SEO freelancers and growing agencies.
           </Typography>
 
