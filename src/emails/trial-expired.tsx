@@ -1,0 +1,177 @@
+import {
+  Body,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Link,
+  Preview,
+  Section,
+  Text,
+} from '@react-email/components';
+import * as React from 'react';
+
+interface TrialExpiredEmailProps {
+  userName: string | null;
+}
+
+export const TrialExpiredEmail = ({ userName }: TrialExpiredEmailProps) => {
+  const previewText = `Your Reportr trial has ended`;
+
+  return (
+    <Html>
+      <Head />
+      <Preview>{previewText}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={h1}>Your trial has ended 📅</Heading>
+          
+          <Text style={text}>
+            Hi {userName || 'there'},
+          </Text>
+          
+          <Text style={text}>
+            Your Reportr trial has officially ended. Thank you for giving us a try!
+          </Text>
+          
+          <Text style={text}>
+            <strong>What happens now?</strong>
+          </Text>
+          
+          <Text style={text}>
+            Your account has automatically switched to our free plan. You still have access to:
+          </Text>
+          
+          <Text style={listItem}>
+            • <strong>1 client</strong> (instead of unlimited)
+          </Text>
+          <Text style={listItem}>
+            • <strong>5 reports per month</strong> (instead of unlimited)
+          </Text>
+          <Text style={listItem}>
+            • <strong>All core features</strong> (Search Console, Analytics, PageSpeed, AI insights)
+          </Text>
+          
+          <Section style={infoBox}>
+            <Text style={infoText}>
+              <strong>The free plan is yours forever!</strong><br />
+              No credit card required, no time limits.
+            </Text>
+          </Section>
+          
+          <Text style={text}>
+            If you find yourself needing more clients or reports, you can upgrade 
+            anytime. The door is always open.
+          </Text>
+          
+          <Section style={buttonContainer}>
+            <Link style={button} href="https://reportr.agency/pricing">
+              Upgrade to Continue →
+            </Link>
+          </Section>
+          
+          <Text style={text}>
+            Otherwise, enjoy the free plan! No pressure from me.
+          </Text>
+          
+          <Text style={signature}>
+            Sebastian<br />
+            Founder, Reportr
+          </Text>
+          
+          <Text style={footer}>
+            <Link href="https://reportr.agency" style={footerLink}>Reportr</Link>
+            {' '}•{' '}
+            White-label SEO reports for agencies
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  );
+};
+
+export default TrialExpiredEmail;
+
+const main = {
+  backgroundColor: '#f6f9fc',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+};
+
+const container = {
+  backgroundColor: '#ffffff',
+  margin: '0 auto',
+  padding: '40px 20px',
+  maxWidth: '560px',
+};
+
+const h1 = {
+  color: '#1a1a1a',
+  fontSize: '24px',
+  fontWeight: '600',
+  lineHeight: '1.3',
+  margin: '0 0 20px',
+};
+
+const text = {
+  color: '#4a4a4a',
+  fontSize: '16px',
+  lineHeight: '1.6',
+  margin: '0 0 16px',
+};
+
+const listItem = {
+  color: '#4a4a4a',
+  fontSize: '16px',
+  lineHeight: '1.6',
+  margin: '0 0 8px',
+  paddingLeft: '8px',
+};
+
+const infoBox = {
+  backgroundColor: '#f0f9ff',
+  border: '1px solid #0ea5e9',
+  borderRadius: '8px',
+  padding: '16px',
+  margin: '24px 0',
+};
+
+const infoText = {
+  color: '#0c4a6e',
+  fontSize: '15px',
+  lineHeight: '1.6',
+  margin: '0',
+};
+
+const buttonContainer = {
+  margin: '24px 0',
+};
+
+const button = {
+  backgroundColor: '#7e23ce',
+  borderRadius: '6px',
+  color: '#ffffff',
+  display: 'inline-block',
+  fontSize: '16px',
+  fontWeight: '600',
+  padding: '12px 24px',
+  textDecoration: 'none',
+};
+
+const signature = {
+  color: '#4a4a4a',
+  fontSize: '16px',
+  lineHeight: '1.6',
+  margin: '32px 0 16px',
+};
+
+const footer = {
+  color: '#8c8c8c',
+  fontSize: '14px',
+  margin: '32px 0 0',
+  textAlign: 'center' as const,
+};
+
+const footerLink = {
+  color: '#7e23ce',
+  textDecoration: 'none',
+};

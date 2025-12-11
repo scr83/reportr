@@ -7,6 +7,7 @@ import { prisma } from '../prisma';
 import { paypalClient } from './paypal-client';
 import { Plan } from '@prisma/client';
 import { PAYPAL_PLAN_TO_DB_PLAN } from '../paypal';
+import { sendUpgradeSuccessEmail, sendCancellationEmail } from '../email-service';
 
 interface SubscriptionData {
   userId: string;
@@ -91,6 +92,18 @@ export class SubscriptionService {
             metadata: subscriptionDetails as any,
           },
         });
+      }
+
+      // Send upgrade success email (non-blocking)
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true }
+      });
+      if (userData?.email) {
+        const planDisplayName = actualPlan === 'STARTER' ? 'Starter' : 
+                                actualPlan === 'PROFESSIONAL' ? 'Professional' : 
+                                actualPlan === 'AGENCY' ? 'Agency' : actualPlan;
+        sendUpgradeSuccessEmail(userId, userData.email, userData.name, planDisplayName).catch(console.error);
       }
 
       console.log(`✅ Subscription activated for user ${userId}, SAVED plan: ${actualPlan}`);
@@ -184,6 +197,17 @@ export class SubscriptionService {
           subscriptionStatus: 'canceled',
         },
       });
+
+      // Send cancellation confirmation email (non-blocking)
+      if (user.email) {
+        const accessUntilDate = user.billingCycleEnd || new Date();
+        const accessUntil = accessUntilDate.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        sendCancellationEmail(user.id, user.email, user.name, accessUntil).catch(console.error);
+      }
 
       console.log(`Subscription canceled for user ${user.id}`);
     } catch (error) {

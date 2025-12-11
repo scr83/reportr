@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from '@/lib/prisma';
 import { generateVerificationToken, hasUsedTrial } from '@/lib/email-tokens';
 import { sendVerificationEmail } from '@/lib/email';
+import { sendWelcomeEmail } from '@/lib/email-service';
 import { cookies } from 'next/headers';
 
 declare module 'next-auth' {
@@ -100,6 +101,9 @@ export const authOptions: NextAuthOptions = {
                 signupFlow: true
               }
             });
+
+            // Send welcome email (non-blocking)
+            sendWelcomeEmail(existingUser.id, user.email, user.name || null).catch(console.error);
 
             // 🔧 FIX: Email verification for FREE users is now manual (banner-triggered)
             // PAID_TRIAL users (PayPal) skip email verification entirely
