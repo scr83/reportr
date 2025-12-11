@@ -186,8 +186,8 @@ export const Pricing: React.FC<PricingProps> = ({ className }) => {
                             {feature}
                           </Typography>
                         </li>
-                      )
-                    })}
+                      ))
+                    }
                   </ul>
                 </div>
 
