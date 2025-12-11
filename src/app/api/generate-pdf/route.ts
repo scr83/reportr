@@ -379,6 +379,16 @@ export async function POST(request: NextRequest) {
     
     // Step 4.5: Generate AI insights
     console.log('14.5. Generating AI insights...')
+    console.log('🔧 [PDF-API] RUNTIME Environment check for AI:', {
+      hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+      keyLength: process.env.ANTHROPIC_API_KEY?.length || 0,
+      keyPrefix: process.env.ANTHROPIC_API_KEY?.substring(0, 15) + '...' || 'NOT_SET',
+      matchesExpectedKey: process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant-api03-') || false,
+      isValidFormat: process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant-') || false,
+      nodeEnv: process.env.NODE_ENV,
+      runtime: 'nodejs-serverless'
+    });
+    
     let aiInsightsResult = {
       insights: null as any,
       source: 'rule-based' as 'ai' | 'rule-based' | 'fallback',
@@ -389,6 +399,23 @@ export async function POST(request: NextRequest) {
     };
 
     try {
+      console.log('🔧 [PDF-API] Creating AIInsightsGenerator instance...');
+      
+      // CRITICAL: Runtime environment check - different from build time
+      console.log('🔧 [PDF-API] RUNTIME vs BUILD-TIME Environment Check:');
+      console.log('🔧 [PDF-API] process.env keys containing ANTHROPIC:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')));
+      console.log('🔧 [PDF-API] All env var count:', Object.keys(process.env).length);
+      
+      // Check if the env var exists at this exact moment
+      const runtimeApiKey = process.env.ANTHROPIC_API_KEY;
+      if (!runtimeApiKey) {
+        console.error('🔧 [PDF-API] ❌ CRITICAL: ANTHROPIC_API_KEY is NULL/UNDEFINED at runtime!');
+        console.log('🔧 [PDF-API] Available env vars:', Object.keys(process.env).slice(0, 20));
+        throw new Error('ANTHROPIC_API_KEY environment variable not available at runtime');
+      }
+      
+      console.log('🔧 [PDF-API] ✅ API key confirmed present at runtime');
+      
       const generator = new AIInsightsGenerator();
       
       // Build ReportData structure for AI insights
@@ -451,7 +478,11 @@ export async function POST(request: NextRequest) {
       });
       
     } catch (error) {
-      console.error('⚠️ AI insights generation failed, using fallback:', error);
+      console.error('❌ [PDF-API] AI insights generation failed, using fallback:', {
+        error: error instanceof Error ? error.message : error,
+        errorName: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack?.substring(0, 500) : undefined
+      });
       
       // Store error but don't fail report generation
       aiInsightsResult = {
@@ -463,7 +494,7 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : 'Unknown AI error'
       };
       
-      console.log('Using fallback strategy - report will still generate successfully');
+      console.log('🔄 [PDF-API] Using fallback strategy - report will still generate successfully');
       // DO NOT throw - let report generation continue
     }
     

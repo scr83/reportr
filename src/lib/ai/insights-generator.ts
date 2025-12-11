@@ -1,32 +1,85 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { AIInsight, ReportData } from '@/types/google-api';
 
+console.log('🔧 [AI-INSIGHTS] Initializing Anthropic SDK...');
+console.log('🔧 [AI-INSIGHTS] API Key status:', {
+  exists: !!process.env.ANTHROPIC_API_KEY,
+  length: process.env.ANTHROPIC_API_KEY?.length || 0,
+  startsWithCorrectPrefix: process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant-') || false
+});
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 export class AIInsightsGenerator {
   async generateInsights(data: Partial<ReportData>): Promise<AIInsight[]> {
+    console.log('🚀 [AI-INSIGHTS] Starting AI insights generation...');
+    console.log('🚀 [AI-INSIGHTS] Input data structure:', {
+      hasClient: !!data.client,
+      hasSummary: !!data.summary,
+      hasSearchConsole: !!data.searchConsole,
+      clientDomain: data.client?.domain,
+      totalClicks: data.summary?.totalClicks,
+      keywordCount: data.searchConsole?.topKeywords?.length || 0
+    });
+    
     const prompt = this.buildInsightPrompt(data);
+    console.log('🚀 [AI-INSIGHTS] Generated prompt length:', prompt.length);
     
     try {
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+      console.log('🚀 [AI-INSIGHTS] Making API call to Claude...');
+      console.log('🚀 [AI-INSIGHTS] API Key check at runtime:', {
+        exists: !!process.env.ANTHROPIC_API_KEY,
+        length: process.env.ANTHROPIC_API_KEY?.length || 0,
+        prefix: process.env.ANTHROPIC_API_KEY?.substring(0, 15) + '...' || 'NOT_SET',
+        matchesExpected: process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant-api03-') || false
+      });
+      
+      const requestPayload = {
+        model: 'claude-sonnet-4-20250514', // CRITICAL FIX: Use the working model from curl test
         max_tokens: 2000,
         messages: [{
           role: 'user',
           content: prompt
         }]
+      };
+      
+      console.log('🚀 [AI-INSIGHTS] Request payload:', {
+        model: requestPayload.model,
+        maxTokens: requestPayload.max_tokens,
+        promptLength: prompt.length,
+        messageCount: requestPayload.messages.length
+      });
+      
+      const response = await anthropic.messages.create(requestPayload);
+
+      console.log('🚀 [AI-INSIGHTS] Received response from Claude:', {
+        contentLength: response.content.length,
+        contentType: response.content[0]?.type,
+        usage: response.usage
       });
 
       const content = response.content[0];
       if (content && content.type === 'text') {
-        return this.parseInsights(content.text);
+        console.log('🚀 [AI-INSIGHTS] Parsing insights from response...');
+        const insights = this.parseInsights(content.text);
+        console.log('🚀 [AI-INSIGHTS] ✅ Successfully generated AI insights:', {
+          count: insights.length,
+          categories: insights.map(i => i.category)
+        });
+        return insights;
       }
       
-      throw new Error('Invalid response format from AI');
+      throw new Error('Invalid response format from AI - content is not text type');
     } catch (error) {
-      console.error('AI insights generation failed:', error);
+      console.error('❌ [AI-INSIGHTS] AI insights generation failed:', {
+        error: error instanceof Error ? error.message : error,
+        errorName: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      console.log('🔄 [AI-INSIGHTS] Falling back to rule-based insights...');
       return this.getFallbackInsights(data);
     }
   }
