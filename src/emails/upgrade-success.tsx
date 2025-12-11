@@ -25,7 +25,7 @@ export const UpgradeSuccessEmail = ({ userName, planName }: UpgradeSuccessEmailP
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>You're on {planName}! 🚀</Heading>
+          <Heading style={h1}>You are on {planName}! 🚀</Heading>
           
           <Text style={text}>
             Hi {userName || 'there'},
@@ -38,7 +38,7 @@ export const UpgradeSuccessEmail = ({ userName, planName }: UpgradeSuccessEmailP
           
           <Section style={highlightBox}>
             <Text style={highlightText}>
-              <strong>What's unlocked:</strong><br />
+              <strong>What is unlocked:</strong><br />
               ✓ More clients & reports<br />
               ✓ Priority support<br />
               ✓ White-label branding (if included in your plan)

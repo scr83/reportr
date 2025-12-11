@@ -32,7 +32,7 @@ export const CancellationConfirmedEmail = ({ userName, accessUntil }: Cancellati
           </Text>
           
           <Text style={text}>
-            Your subscription has been cancelled as requested. You'll still have 
+            Your subscription has been cancelled as requested. You will still have 
             access to your paid features until <strong>{accessUntil}</strong>.
           </Text>
           
@@ -54,7 +54,7 @@ export const CancellationConfirmedEmail = ({ userName, accessUntil }: Cancellati
           </Section>
           
           <Text style={text}>
-            <strong>Quick question:</strong> What made you cancel? I'd genuinely love 
+            <strong>Quick question:</strong> What made you cancel? I would genuinely love 
             to know so I can improve Reportr. Just reply to this email.
           </Text>
           

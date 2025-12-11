@@ -31,7 +31,7 @@ export const WelcomeEmail = ({ userName }: WelcomeEmailProps) => {
           </Text>
           
           <Text style={text}>
-            Thanks for signing up! You're now ready to generate professional, 
+            Thanks for signing up! You are now ready to generate professional, 
             white-label SEO reports in minutes instead of hours.
           </Text>
           
@@ -42,17 +42,17 @@ export const WelcomeEmail = ({ userName }: WelcomeEmailProps) => {
           </Section>
           
           <Text style={text}>
-            <strong>Here's how to get started:</strong>
+            <strong>Here is how to get started:</strong>
           </Text>
           
           <Text style={listItem}>
-            1. <strong>Add your first client</strong> - Click "Add Client" and enter their website
+            1. <strong>Add your first client</strong> - Click the Add Client button and enter their website
           </Text>
           <Text style={listItem}>
             2. <strong>Connect Google</strong> - Link Search Console & Analytics with one click
           </Text>
           <Text style={listItem}>
-            3. <strong>Generate a report</strong> - Hit "Generate" and watch the magic happen
+            3. <strong>Generate a report</strong> - Hit the Generate button and watch the magic happen
           </Text>
           
           <Text style={text}>
