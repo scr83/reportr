@@ -5,6 +5,19 @@ Allow: /
 Disallow: /api/
 Disallow: /dashboard/
 Disallow: /settings/
+Disallow: /auth/
 
-# Sitemap
-Sitemap: https://reportr.com/sitemap.xml
+# Block low-value pages from crawl budget
+Disallow: /*?utm_*
+Disallow: /*?ref=*
+Disallow: /lp/*
+
+# Sitemap location (CORRECTED DOMAIN)
+Sitemap: https://reportr.agency/sitemap.xml
+
+# Block AI scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
