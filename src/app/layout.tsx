@@ -88,7 +88,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
-        {/* Google tag (gtag.js) */}
+        {/* Google Analytics tag (gtag.js) */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-5THD175YH2"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -97,6 +97,24 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-5THD175YH2');
+            `,
+          }}
+        />
+        
+        {/* Google Ads Global Site Tag */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17791827981"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-ads-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-17791827981');
             `,
           }}
         />

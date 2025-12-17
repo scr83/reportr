@@ -9,6 +9,7 @@ import { UsageProgressBar } from '@/components/molecules/UsageProgressBar'
 import { TrialCountdown } from '@/components/molecules/TrialCountdown'
 import { EmailVerificationBanner } from '@/components/molecules/EmailVerificationBanner'
 import { UpgradeModal } from '@/components/organisms/UpgradeModal'
+import GoogleAdsConversion from '@/components/GoogleAdsConversion'
 import { Users, FileText, TrendingUp, Plus, ExternalLink, UserCheck } from 'lucide-react'
 import { Plan } from '@prisma/client'
 import { 
@@ -312,8 +313,14 @@ function DashboardContent() {
 
 
   return (
-    <DashboardLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
+    <>
+      {/* Google Ads Conversion Tracking - Fires once per user */}
+      {session?.user?.id && (
+        <GoogleAdsConversion userId={session.user.id} />
+      )}
+
+      <DashboardLayout>
+        <div className="p-4 sm:p-6 lg:p-8">
         {/* Verification banner for FREE tier unverified users ONLY */}
         {showVerificationBanner && session?.user?.email && (
           <EmailVerificationBanner 
@@ -658,7 +665,8 @@ function DashboardContent() {
           />
         )}
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   )
 }
 
