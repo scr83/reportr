@@ -101,24 +101,6 @@ export default function RootLayout({
           }}
         />
         
-        {/* Google Ads Global Site Tag */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17791827981"
-          strategy="afterInteractive"
-        />
-        <Script
-          id="google-ads-init"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-17791827981');
-            `,
-          }}
-        />
-        
         {/* Google Tag Manager */}
         <Script id="gtm-script" strategy="afterInteractive">
           {`
