@@ -115,11 +115,59 @@ const benefits = [
   }
 ]
 
+// FAQ Schema for SEO
+const howItWorksFAQSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How long does setup take?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Setup takes about 5 minutes. Sign up for an account, connect your Google account with one-click OAuth authentication, add your agency branding (logo and colors), and generate your first report immediately. No technical knowledge or training required.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need technical skills to use Reportr?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Reportr is designed for non-technical users like agency owners and freelance SEO consultants. If you can connect your Google account and upload a logo, you can use Reportr. The entire process is point-and-click with no coding or technical configuration required.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I connect Google Search Console and Analytics?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We use secure OAuth 2.0 authentication, the same technology used by major platforms. Click the "Connect Google" button and authorize Reportr to access your Search Console and Analytics data. We never see or store your Google password, and you can revoke access anytime from your Google account settings.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'How long does it take to generate a report?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Reports generate in approximately 30 seconds to 2 minutes, depending on the amount of data being processed. Simply click the generate button, wait briefly while we collect and process your Google data, then download your professional PDF report ready to send to clients.'
+      }
+    }
+  ]
+};
+
 export default function HowItWorksPage() {
   const router = useRouter()
 
   return (
     <div className="min-h-screen bg-white">
+      {/* FAQ Schema */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(howItWorksFAQSchema)
+        }}
+      />
+      
       <Header />
       
       <main className="pt-16">

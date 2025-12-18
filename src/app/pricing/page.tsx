@@ -15,9 +15,65 @@ const BrandLink = ({ children }: { children: React.ReactNode }) => (
   </a>
 )
 
+// FAQ Schema for SEO
+const pricingFAQSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How much does Reportr cost?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Reportr starts at $29/month for the Starter plan (5 clients, 25 reports/month). Professional is $59/month (15 clients, 75 reports/month), and Agency is $99/month (50 clients, 250 reports/month). All paid plans include a 14-day free trial, white-label branding features, and no setup fees.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I cancel anytime?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. There are no contracts or annual commitments. You can cancel from your dashboard with one click and you will keep access until the end of your billing period.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'What is white-label branding?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'White-label branding means the reports show your agency logo, colors, and company name instead of Reportr branding. There are no "Powered by Reportr" badges anywhere on the reports. White-label features are included in all paid plans at no extra cost.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'What data sources are included?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'All plans include Google Search Console (keywords, clicks, impressions, positions), Google Analytics 4 (users, sessions, traffic metrics), and PageSpeed Insights (Core Web Vitals, performance scores). Reports are fully customizable to show the metrics that matter most to your clients.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Is there a free trial?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. All paid plans include a 14-day free trial with full access to white-label features and all data sources. No setup fees required to start your trial.'
+      }
+    }
+  ]
+};
+
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-white">
+      {/* FAQ Schema */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(pricingFAQSchema)
+        }}
+      />
+      
       <Header />
       
       <main className="py-24 px-4">
