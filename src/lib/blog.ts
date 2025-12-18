@@ -13,6 +13,7 @@ export interface BlogPost {
   keywordDifficulty: number
   contentType: 'Pillar' | 'Supporting' | 'Comparison'
   publishDate: string
+  updatedAt?: string
   author: string
   featuredImage: string
   excerpt: string
@@ -142,4 +143,45 @@ export function extractExcerpt(content: string, length: number = 160): string {
   return lastSpaceIndex > 0 
     ? truncated.substring(0, lastSpaceIndex) + '...'
     : truncated + '...'
+}
+
+// Schema generation function for Article/BlogPosting schema
+export function generateArticleSchema(post: BlogPost) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://reportr.agency'
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.metaDescription || post.excerpt,
+    image: post.featuredImage 
+      ? `${baseUrl}${post.featuredImage}`
+      : `${baseUrl}/images/reportr-og-default.jpg`,
+    datePublished: post.publishDate,
+    dateModified: post.updatedAt || post.publishDate,
+    author: {
+      '@type': 'Person',
+      name: post.author || 'Reportr Team',
+      url: `${baseUrl}/about`
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Reportr',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+        width: 600,
+        height: 60
+      }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/${post.slug}`
+    },
+    url: `${baseUrl}/blog/${post.slug}`,
+    wordCount: post.readingTime.words,
+    keywords: post.targetKeyword,
+    articleSection: 'SEO',
+    inLanguage: 'en-US'
+  }
 }

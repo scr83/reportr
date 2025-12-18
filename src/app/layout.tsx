@@ -15,6 +15,33 @@ const poppins = Poppins({
   variable: '--font-poppins'
 })
 
+// Organization Schema for Reportr
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Reportr',
+  alternateName: 'Reportr Agency',
+  url: 'https://reportr.agency',
+  logo: 'https://reportr.agency/logo.png',
+  description: 'White-label SEO reporting software for freelancers and growing agencies',
+  foundingDate: '2025',
+  founder: {
+    '@type': 'Organization',
+    name: 'Reportr'
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'Customer Support',
+    email: 'support@reportr.agency',
+    availableLanguage: ['English']
+  },
+  sameAs: [
+    // Add social media URLs here when available
+    // 'https://twitter.com/reportr',
+    // 'https://linkedin.com/company/reportr'
+  ]
+} as const
+
 export const metadata: Metadata = {
   title: 'Reportr - Professional SEO Reports in Minutes',
   description: 'Professional SEO reporting for freelancers and growing agencies. Generate white-label reports in ~1 minute. Plans from $29/month. Try free.',
@@ -114,6 +141,14 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-K587T8FF');
           `}
         </Script>
+
+        {/* Organization Schema JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
       </head>
       <body className={`${inter.className} ${poppins.variable}`}>
         {/* Google Tag Manager (noscript) */}

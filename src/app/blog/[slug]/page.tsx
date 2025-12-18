@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getAllBlogPosts, getBlogPostBySlug, getRelatedPosts, generateTableOfContents } from '@/lib/blog'
+import { getAllBlogPosts, getBlogPostBySlug, getRelatedPosts, generateTableOfContents, generateArticleSchema } from '@/lib/blog'
 import { BlogPost } from '@/components/blog/BlogPost'
 
 interface BlogPostPageProps {
@@ -105,49 +105,14 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = getRelatedPosts(post.slug, post.relatedPosts)
   const tableOfContents = generateTableOfContents(post.content)
 
-  // Generate JSON-LD structured data
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://reportr.agency'
-  const postUrl = `${siteUrl}/blog/${post.slug}`
-  const imageUrl = post.featuredImage ? `${siteUrl}${post.featuredImage}` : `${siteUrl}/images/og-default.jpg`
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.title,
-    description: post.metaDescription,
-    image: imageUrl,
-    author: {
-      '@type': 'Organization',
-      name: post.author,
-      url: siteUrl,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Reportr',
-      url: siteUrl,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${siteUrl}/images/logo.png`,
-      },
-    },
-    datePublished: post.publishDate,
-    dateModified: post.publishDate,
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': postUrl,
-    },
-    url: postUrl,
-    wordCount: post.readingTime.words,
-    keywords: post.targetKeyword,
-    articleSection: 'SEO',
-    inLanguage: 'en-US',
-  }
+  // Generate JSON-LD structured data using the new schema function
+  const articleSchema = generateArticleSchema(post)
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
       <BlogPost 
         post={post} 
