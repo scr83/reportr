@@ -63,10 +63,13 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     alternates: {
       canonical: postUrl,
       languages: {
+        'en': postUrl,
         'en-US': postUrl,
         'en-GB': postUrl,
         'en-AU': postUrl,
+        'en-CA': postUrl,
         'en-NZ': postUrl,
+        'en-IE': postUrl,
         'en-IN': postUrl,
         'x-default': postUrl,
       },

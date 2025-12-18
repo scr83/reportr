@@ -31,10 +31,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
     languages: {
+      'en': '/',
       'en-US': '/',
       'en-GB': '/',
       'en-AU': '/',
+      'en-CA': '/',
       'en-NZ': '/',
+      'en-IE': '/',
       'en-IN': '/',
       'x-default': '/',
     },
