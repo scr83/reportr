@@ -7,7 +7,8 @@ import Link from 'next/link'
 import { 
   Typography,
   Button,
-  Icon
+  Icon,
+  Logo
 } from '@/components/atoms'
 import { PayPalSubscribeButton } from '@/components/molecules/PayPalSubscribeButton'
 import { ArrowLeft, CheckCircle, Users } from 'lucide-react'
@@ -90,9 +91,14 @@ function SignupPageContent() {
       {/* Logo Section (Top Left) */}
       <div className="absolute top-8 left-8 z-10">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center group-hover:bg-brand-700 transition-colors">
-            <span className="text-white font-bold text-xl">R</span>
-          </div>
+          <Logo 
+            src="/reportr-logo.svg"
+            alt="Reportr"
+            size="xs"
+            width={40}
+            height={40}
+            className="group-hover:opacity-80 transition-opacity"
+          />
           <span className="text-xl font-bold text-gray-900">Reportr</span>
         </Link>
       </div>
