@@ -251,7 +251,7 @@ function PricingTiers() {
             key={tier.name}
             className={`relative rounded-2xl border-2 p-8 ${
               tier.popular
-                ? 'border-purple-600 shadow-xl scale-105'
+                ? 'border-purple-600 shadow-xl ring-4 ring-purple-100'
                 : 'border-gray-200'
             }`}
           >
