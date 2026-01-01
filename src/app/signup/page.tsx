@@ -193,7 +193,7 @@ function SignupPageContent() {
               </svg>
             </div>
             <h3 className="font-bold text-gray-900 mb-2 text-lg">White-Label</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">Your logo, your colors. No "Powered by" badges</p>
+            <p className="text-gray-600 text-sm leading-relaxed">Your logo, your colors. No &quot;Powered by&quot; badges</p>
           </div>
         </div>
 
