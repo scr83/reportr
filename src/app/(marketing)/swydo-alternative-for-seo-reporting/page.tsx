@@ -97,7 +97,7 @@ const StructuredData = () => {
         "name": "How does Reportr pricing compare to Swydo?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Swydo starts at $49/month for basic reporting. Reportr starts at $29/month (Starter) or free for 1 client. Both offer white-label options, but Reportr's white-label add-on is $20/month vs Swydo's higher-tier pricing requirements."
+          "text": "Swydo starts at $49/month for basic reporting. Reportr starts at $29/month (Starter) or free for 1 client. Both offer white-label options, and Reportr's white-label branding is included in all paid plans vs Swydo's higher-tier pricing requirements."
         }
       },
       {
@@ -216,7 +216,7 @@ export default function SwydoAlternativePage() {
                 
                 {/* Subtitle */}
                 <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-                  Swydo is powerful but complex. If you just need white-label SEO reports without the learning curve, <a href="/" className="text-yellow-300 hover:underline">Reportr</a> delivers professional PDFs in 30 seconds. <span className="font-semibold">Simpler setup. Lower price. Same professional results.</span>
+                  Swydo is powerful but complex. If you just need white-label SEO reports without the learning curve, <a href="https://reportr.agency" className="font-bold text-yellow-300 hover:underline">Reportr</a> delivers professional PDFs in 30 seconds. <span className="font-semibold">Simpler setup. Lower price. Same professional results.</span>
                 </p>
                 
                 {/* Trust badges */}
@@ -307,7 +307,7 @@ export default function SwydoAlternativePage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Why Agencies Switch from Swydo</h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                Swydo is a great tool for multi-channel reporting. But if SEO is your focus, here&apos;s why Reportr might be a better fit.
+                Swydo is a great tool for multi-channel reporting. But if SEO is your focus, here&apos;s why <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> might be a better fit.
               </p>
             </div>
             
@@ -321,7 +321,7 @@ export default function SwydoAlternativePage() {
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-3">Swydo&apos;s Learning Curve</h3>
                 <p className="text-gray-700">
-                  Swydo requires building custom report templates with widgets, data sources, and layouts. Great for power users, but overkill if you just need clean SEO reports. Reportr has pre-built templates — connect and generate.
+                  Swydo requires building custom report templates with widgets, data sources, and layouts. Great for power users, but overkill if you just need clean SEO reports. <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> has pre-built templates — connect and generate.
                 </p>
               </div>
               
@@ -334,7 +334,7 @@ export default function SwydoAlternativePage() {
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-3">Paying for Integrations You Don&apos;t Need</h3>
                 <p className="text-gray-700">
-                  Swydo connects to 30+ platforms — PPC, social, email, CRM. If you only need SEO data from Google, you&apos;re paying for complexity you&apos;ll never use. Reportr focuses on GSC + GA4 + PageSpeed at a fraction of the cost.
+                  Swydo connects to 30+ platforms — PPC, social, email, CRM. If you only need SEO data from Google, you&apos;re paying for complexity you&apos;ll never use. <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> focuses on GSC + GA4 + PageSpeed at a fraction of the cost.
                 </p>
               </div>
               
@@ -347,7 +347,7 @@ export default function SwydoAlternativePage() {
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-3">Time Spent Building Reports</h3>
                 <p className="text-gray-700">
-                  With Swydo, you design each report template manually. With Reportr, professional report templates are ready out of the box. Click generate, download PDF, send to client. Done in 30 seconds.
+                  With Swydo, you design each report template manually. With <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>, professional report templates are ready out of the box. Click generate, download PDF, send to client. Done in 30 seconds.
                 </p>
               </div>
             </div>
@@ -358,7 +358,7 @@ export default function SwydoAlternativePage() {
         <section id="how-it-works" className="py-16 md:py-24 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How Reportr Works</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> Works</h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">Three simple steps to professional SEO reports with your branding.</p>
             </div>
             
@@ -406,7 +406,7 @@ export default function SwydoAlternativePage() {
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Swydo vs Reportr: Quick Comparison</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Swydo vs <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>: Quick Comparison</h2>
               <p className="text-xl text-gray-600">Feature-by-feature breakdown to help you decide.</p>
             </div>
             
@@ -416,7 +416,7 @@ export default function SwydoAlternativePage() {
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left py-4 px-6 font-semibold text-gray-900">Feature</th>
                     <th className="text-center py-4 px-6 font-semibold text-gray-600">Swydo</th>
-                    <th className="text-center py-4 px-6 font-semibold text-brand-600">Reportr</th>
+                    <th className="text-center py-4 px-6 font-semibold text-brand-600"><a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -438,7 +438,7 @@ export default function SwydoAlternativePage() {
                   <tr className="border-b border-gray-100 bg-gray-50">
                     <td className="py-4 px-6 text-gray-700 font-medium">White-Label</td>
                     <td className="py-4 px-6 text-center text-gray-600">Yes (higher tiers)</td>
-                    <td className="py-4 px-6 text-center text-green-600 font-semibold">Yes ($20/mo add-on)</td>
+                    <td className="py-4 px-6 text-center text-green-600 font-semibold">Yes (included)</td>
                   </tr>
                   <tr className="border-b border-gray-100">
                     <td className="py-4 px-6 text-gray-700 font-medium">SEO Data (GSC + GA4)</td>
@@ -488,7 +488,7 @@ export default function SwydoAlternativePage() {
                   <li>1 client</li>
                   <li>5 reports/month</li>
                   <li>GSC + GA4 + PSI</li>
-                  <li>Reportr branding</li>
+                  <li><a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> branding</li>
                 </ul>
                 <a href="/signup" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
                   Start Free
@@ -556,67 +556,67 @@ export default function SwydoAlternativePage() {
           <div className="max-w-3xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Swydo Alternative FAQ</h2>
-              <p className="text-xl text-gray-600">Common questions about switching from Swydo to Reportr.</p>
+              <p className="text-xl text-gray-600">Common questions about switching from Swydo to <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>.</p>
             </div>
             
             <div className="space-y-4">
               <details className="bg-gray-50 rounded-xl border border-gray-200 group">
                 <summary className="flex items-center justify-between cursor-pointer p-6 font-semibold text-gray-900">
-                  Why switch from Swydo to Reportr?
+                  Why switch from Swydo to <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>?
                   <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Reportr is simpler and more affordable. While Swydo starts at $49/month and requires complex template setup, Reportr starts at $29/month with ready-to-use report templates. If you primarily need SEO reporting (not PPC or social), Reportr gives you everything you need without the bloat.
+                  <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> is simpler and more affordable. While Swydo starts at $49/month and requires complex template setup, <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> starts at $29/month with ready-to-use report templates. If you primarily need SEO reporting (not PPC or social), <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> gives you everything you need without the bloat.
                 </div>
               </details>
               
               <details className="bg-gray-50 rounded-xl border border-gray-200 group">
                 <summary className="flex items-center justify-between cursor-pointer p-6 font-semibold text-gray-900">
-                  How does Reportr pricing compare to Swydo?
+                  How does <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> pricing compare to Swydo?
                   <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Swydo starts at $49/month for basic reporting. Reportr starts at $29/month (Starter) or free for 1 client. Both offer white-label options, but Reportr&apos;s white-label add-on is $20/month vs Swydo&apos;s higher-tier pricing requirements.
+                  Swydo starts at $49/month for basic reporting. <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> starts at $29/month (Starter) or free for 1 client. Both offer white-label options, and <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>&apos;s white-label branding is included in all paid plans vs Swydo&apos;s higher-tier pricing requirements.
                 </div>
               </details>
               
               <details className="bg-gray-50 rounded-xl border border-gray-200 group">
                 <summary className="flex items-center justify-between cursor-pointer p-6 font-semibold text-gray-900">
-                  Can I migrate my clients from Swydo to Reportr?
+                  Can I migrate my clients from Swydo to <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>?
                   <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Yes. Simply add your clients to Reportr and connect their Google accounts. There&apos;s no data migration needed — Reportr pulls fresh data directly from Google Search Console, GA4, and PageSpeed Insights. Setup takes about 5 minutes per client.
+                  Yes. Simply add your clients to <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> and connect their Google accounts. There&apos;s no data migration needed — <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> pulls fresh data directly from Google Search Console, GA4, and PageSpeed Insights. Setup takes about 5 minutes per client.
                 </div>
               </details>
               
               <details className="bg-gray-50 rounded-xl border border-gray-200 group">
                 <summary className="flex items-center justify-between cursor-pointer p-6 font-semibold text-gray-900">
-                  Does Reportr have the same integrations as Swydo?
+                  Does <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> have the same integrations as Swydo?
                   <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  No — and that&apos;s intentional. Swydo connects to 30+ platforms (PPC, social, email, etc.). Reportr focuses specifically on SEO reporting with Google Search Console, Google Analytics 4, and PageSpeed Insights. If you need PPC/social reporting, Swydo may be better. If you need focused SEO reporting, Reportr is simpler and cheaper.
+                  No — and that&apos;s intentional. Swydo connects to 30+ platforms (PPC, social, email, etc.). <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> focuses specifically on SEO reporting with Google Search Console, Google Analytics 4, and PageSpeed Insights. If you need PPC/social reporting, Swydo may be better. If you need focused SEO reporting, <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> is simpler and cheaper.
                 </div>
               </details>
               
               <details className="bg-gray-50 rounded-xl border border-gray-200 group">
                 <summary className="flex items-center justify-between cursor-pointer p-6 font-semibold text-gray-900">
-                  Is Reportr easier to use than Swydo?
+                  Is <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> easier to use than Swydo?
                   <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Yes. Swydo requires building custom report templates with widgets and data sources. Reportr has pre-built report templates — just connect your client&apos;s Google accounts and generate. Most users create their first report within 5 minutes of signing up.
+                  Yes. Swydo requires building custom report templates with widgets and data sources. <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> has pre-built report templates — just connect your client&apos;s Google accounts and generate. Most users create their first report within 5 minutes of signing up.
                 </div>
               </details>
             </div>
@@ -628,7 +628,7 @@ export default function SwydoAlternativePage() {
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Simplify Your SEO Reporting?</h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Try Reportr free. No setup fees. Generate your first report in 5 minutes.
+              Try <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> free. No setup fees. Generate your first report in 5 minutes.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -671,8 +671,8 @@ export default function SwydoAlternativePage() {
             <div className="grid md:grid-cols-3 gap-6">
               <a href="/blog/vs-swydo" className="bg-white rounded-xl p-6 border border-gray-100 hover:border-brand-200 hover:shadow-lg transition-all">
                 <span className="text-xs font-semibold text-brand-600 uppercase tracking-wide">Comparison</span>
-                <h3 className="font-bold text-gray-900 mt-2 mb-2">Swydo vs Reportr: Full Comparison</h3>
-                <p className="text-gray-600 text-sm">Complete feature breakdown between Swydo and Reportr.</p>
+                <h3 className="font-bold text-gray-900 mt-2 mb-2">Swydo vs <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>: Full Comparison</h3>
+                <p className="text-gray-600 text-sm">Complete feature breakdown between Swydo and <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a>.</p>
               </a>
               
               <a href="/white-label-seo-reports" className="bg-white rounded-xl p-6 border border-gray-100 hover:border-brand-200 hover:shadow-lg transition-all">
@@ -684,7 +684,7 @@ export default function SwydoAlternativePage() {
               <a href="/dashthis-alternative-for-seo-reporting" className="bg-white rounded-xl p-6 border border-gray-100 hover:border-brand-200 hover:shadow-lg transition-all">
                 <span className="text-xs font-semibold text-brand-600 uppercase tracking-wide">Alternative</span>
                 <h3 className="font-bold text-gray-900 mt-2 mb-2">DashThis Alternative</h3>
-                <p className="text-gray-600 text-sm">Compare DashThis vs Reportr for SEO reporting needs.</p>
+                <p className="text-gray-600 text-sm">Compare DashThis vs <a href="https://reportr.agency" className="font-bold hover:underline">Reportr</a> for SEO reporting needs.</p>
               </a>
             </div>
           </div>
