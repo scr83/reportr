@@ -418,4 +418,23 @@
       font-size: 0.8rem;
     }
   }
+
+  /* White Label SEO Reports Page Animations */
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0); 
+    }
+    50% { 
+      transform: translateY(-10px); 
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Smooth scrolling for the page */
+  html {
+    scroll-behavior: smooth;
+  }
 }
