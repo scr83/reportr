@@ -202,6 +202,32 @@ export default function WhiteLabelSEOReportsPage() {
       <StructuredData />
       <div className="bg-white text-gray-900 antialiased">
         
+        {/* NAVIGATION BAR */}
+        <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <a href="/" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">R</span>
+                </div>
+                <span className="text-gray-900 font-bold text-lg">Reportr</span>
+              </a>
+              <div className="hidden md:flex items-center gap-8">
+                <a href="/" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Home</a>
+                <a href="/features" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Features</a>
+                <a href="/how-it-works" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">How It Works</a>
+                <a href="/pricing" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Pricing</a>
+              </div>
+              <div className="flex items-center gap-4">
+                <a href="/login" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium hidden sm:block">Login</a>
+                <a href="/signup" className="bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+                  Get Started
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+
         {/* BREADCRUMB */}
         <div className="bg-gray-50 border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-4 py-3">
@@ -217,29 +243,10 @@ export default function WhiteLabelSEOReportsPage() {
 
         {/* HERO SECTION */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white">
-          {/* Grid pattern overlay */}
-          <div className="absolute inset-0 opacity-10">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-          
           <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               
               <div className="text-center md:text-left">
-                {/* Trust badge */}
-                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                  <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-sm font-medium">Trusted by 500+ agencies and freelancers</span>
-                </div>
                 
                 {/* H1 - Exact match for primary keyword */}
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
@@ -802,7 +809,10 @@ export default function WhiteLabelSEOReportsPage() {
               </div>
               
               {/* Starter */}
-              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+              <div className="bg-white rounded-2xl p-6 border-2 border-brand-600 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </div>
                 <h3 className="font-bold text-gray-900 mb-1">Starter</h3>
                 <div className="text-3xl font-bold text-gray-900 mb-4">$29<span className="text-base font-normal text-gray-500">/mo</span></div>
                 <ul className="space-y-2 text-sm text-gray-600 mb-6">
@@ -811,16 +821,13 @@ export default function WhiteLabelSEOReportsPage() {
                   <li>GSC + GA4 + PSI</li>
                   <li>+$20 white-label</li>
                 </ul>
-                <a href="/signup?plan=starter" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+                <a href="/signup?plan=starter" className="block text-center py-2 px-4 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium">
                   Start Trial
                 </a>
               </div>
               
               {/* Professional */}
-              <div className="bg-white rounded-2xl p-6 border-2 border-brand-600 relative">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  POPULAR
-                </div>
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
                 <h3 className="font-bold text-gray-900 mb-1">Professional</h3>
                 <div className="text-3xl font-bold text-gray-900 mb-4">$59<span className="text-base font-normal text-gray-500">/mo</span></div>
                 <ul className="space-y-2 text-sm text-gray-600 mb-6">
@@ -829,7 +836,7 @@ export default function WhiteLabelSEOReportsPage() {
                   <li>GSC + GA4 + PSI</li>
                   <li>+$20 white-label</li>
                 </ul>
-                <a href="/signup?plan=professional" className="block text-center py-2 px-4 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium">
+                <a href="/signup?plan=professional" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
                   Start Trial
                 </a>
               </div>
@@ -1019,6 +1026,54 @@ export default function WhiteLabelSEOReportsPage() {
             </div>
           </div>
         </section>
+
+        {/* FOOTER */}
+        <footer className="bg-white border-t border-gray-100">
+          <div className="max-w-6xl mx-auto px-4 py-12">
+            <div className="grid md:grid-cols-4 gap-8">
+              {/* Logo + Tagline */}
+              <div className="md:col-span-1">
+                <a href="/" className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">R</span>
+                  </div>
+                  <span className="text-gray-900 font-bold text-lg">Reportr</span>
+                </a>
+                <p className="text-gray-600 text-sm">
+                  Professional SEO reports in minutes. Built for SEO freelancers and growing agencies.
+                </p>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
+                <ul className="space-y-3 text-sm">
+                  <li><a href="/features" className="text-gray-600 hover:text-brand-600 transition-colors">Features</a></li>
+                  <li><a href="/pricing" className="text-gray-600 hover:text-brand-600 transition-colors">Pricing</a></li>
+                  <li><a href="/how-it-works" className="text-gray-600 hover:text-brand-600 transition-colors">How It Works</a></li>
+                  <li><a href="/blog" className="text-gray-600 hover:text-brand-600 transition-colors">Blog</a></li>
+                </ul>
+              </div>
+
+              {/* Support */}
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
+                <ul className="space-y-3 text-sm">
+                  <li><a href="mailto:support@reportr.com" className="text-gray-600 hover:text-brand-600 transition-colors">support@reportr.com</a></li>
+                  <li><a href="/privacy" className="text-gray-600 hover:text-brand-600 transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms" className="text-gray-600 hover:text-brand-600 transition-colors">Terms of Service</a></li>
+                </ul>
+              </div>
+
+              {/* Copyright */}
+              <div>
+                <p className="text-gray-500 text-sm">
+                  © 2025 Reportr. All rights reserved.
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
 
       </div>
     </>
