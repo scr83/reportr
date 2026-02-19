@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Digital Marketing Agencies | Reportr",
@@ -157,28 +158,10 @@ const StructuredData = () => {
 
 export default function DigitalMarketingAgenciesPage() {
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <StructuredData />
-      <div className="bg-white text-gray-900 antialiased">
-        
-        {/* NAVIGATION BAR */}
-        <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <a href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
-                <span className="text-gray-900 font-bold text-lg">Reportr</span>
-              </a>
-              <div className="flex items-center gap-4">
-                <a href="/signup" className="bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
-                  Start Free Trial
-                </a>
-              </div>
-            </div>
-          </div>
-        </nav>
+      <Header />
+      <main className="bg-white text-gray-900 antialiased">
 
         {/* HERO SECTION */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white">
@@ -634,7 +617,8 @@ export default function DigitalMarketingAgenciesPage() {
           </div>
         </section>
 
-      </div>
-    </>
+      </main>
+      <Footer />
+    </div>
   );
 }

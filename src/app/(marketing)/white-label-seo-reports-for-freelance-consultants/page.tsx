@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Freelance Consultants | Reportr",
@@ -159,52 +160,10 @@ const StructuredData = () => {
 
 export default function FreelanceConsultantsPage() {
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <StructuredData />
-      <div className="bg-white text-gray-900 antialiased">
-        
-        {/* NAVIGATION BAR */}
-        <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <a href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
-                <span className="text-gray-900 font-bold text-lg">Reportr</span>
-              </a>
-              <div className="hidden md:flex items-center gap-8">
-                <a href="/" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Home</a>
-                <a href="/features" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Features</a>
-                <a href="/how-it-works" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">How It Works</a>
-                <a href="/pricing" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium">Pricing</a>
-              </div>
-              <div className="flex items-center gap-4">
-                <a href="/login" className="text-gray-600 hover:text-brand-600 transition-colors text-sm font-medium hidden sm:block">Login</a>
-                <a href="/signup" className="bg-brand-600 text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
-                  Get Started
-                </a>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        {/* BREADCRUMB */}
-        <div className="bg-gray-50 border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <nav className="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
-              <a href="/" className="hover:text-brand-600 transition-colors">Home</a>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-              </svg>
-              <a href="/white-label-seo-reports" className="hover:text-brand-600 transition-colors">White Label SEO Reports</a>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-              </svg>
-              <span className="text-gray-900 font-medium">For Freelance Consultants</span>
-            </nav>
-          </div>
-        </div>
+      <Header />
+      <main className="bg-white text-gray-900 antialiased">
 
         {/* HERO SECTION */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white">
@@ -743,55 +702,8 @@ export default function FreelanceConsultantsPage() {
           </div>
         </section>
 
-        {/* FOOTER */}
-        <footer className="bg-gray-900 text-white">
-          <div className="max-w-6xl mx-auto px-4 py-12">
-            <div className="grid md:grid-cols-4 gap-8">
-              {/* Logo + Tagline */}
-              <div className="md:col-span-1">
-                <a href="/" className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">R</span>
-                  </div>
-                  <span className="text-white font-bold text-lg">Reportr</span>
-                </a>
-                <p className="text-gray-400 text-sm">
-                  Professional SEO reports in minutes. Built for SEO freelancers and growing agencies.
-                </p>
-              </div>
-
-              {/* Quick Links */}
-              <div>
-                <h3 className="font-semibold text-white mb-4">Quick Links</h3>
-                <ul className="space-y-3 text-sm">
-                  <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
-                  <li><a href="/features" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
-                  <li><a href="/how-it-works" className="text-gray-400 hover:text-white transition-colors">How It Works</a></li>
-                  <li><a href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
-                </ul>
-              </div>
-
-              {/* Support */}
-              <div>
-                <h3 className="font-semibold text-white mb-4">Support</h3>
-                <ul className="space-y-3 text-sm">
-                  <li><a href="mailto:support@reportr.com" className="text-gray-400 hover:text-white transition-colors">support@reportr.com</a></li>
-                  <li><a href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
-                </ul>
-              </div>
-
-              {/* Copyright */}
-              <div>
-                <p className="text-gray-500 text-sm">
-                  © 2025 Reportr. All rights reserved.
-                </p>
-              </div>
-            </div>
-          </div>
-        </footer>
-
-      </div>
-    </>
+      </main>
+      <Footer />
+    </div>
   );
 }
