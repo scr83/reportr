@@ -4,15 +4,12 @@ import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Digital Marketing Agencies | Reportr",
-  description: "Generate professional white-label SEO reports for your agency clients. Your logo, your colors, one-click PDFs. Scale from 5-50 clients effortlessly. From $59/mo.",
+  description: "Generate professional white-label SEO reports for agency clients. Your logo, colors, one-click PDFs. Scale from 5-50 clients. From $59/mo.",
   
-  keywords: [
-    "white label seo reports for digital marketing agencies",
-    "agency seo reporting tool",
-    "white label seo reports agencies", 
-    "branded seo reports for agencies",
-    "seo reporting software for agencies"
-  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
   
   alternates: {
     canonical: "https://reportr.agency/white-label-seo-reports-for-digital-marketing-agencies",
@@ -28,17 +25,19 @@ export const metadata: Metadata = {
     }
   },
   
-  robots: {
-    index: true,
-    follow: true,
-  },
-  
   openGraph: {
     title: "White Label SEO Reports for Digital Marketing Agencies | Reportr",
-    description: "Generate professional white-label SEO reports for your agency clients. Your logo, your colors, one-click PDFs.",
+    description: "Generate professional white-label SEO reports for agency clients. Your logo, colors, one-click PDFs. Scale from 5-50 clients. From $59/mo.",
     url: "https://reportr.agency/white-label-seo-reports-for-digital-marketing-agencies",
     siteName: "Reportr",
     type: "website",
+    locale: "en_US",
+  },
+  
+  twitter: {
+    card: "summary_large_image",
+    title: "White Label SEO Reports for Digital Marketing Agencies | Reportr",
+    description: "Generate professional white-label SEO reports for agency clients. Your logo, colors, one-click PDFs. Scale from 5-50 clients. From $59/mo.",
   },
 };
 

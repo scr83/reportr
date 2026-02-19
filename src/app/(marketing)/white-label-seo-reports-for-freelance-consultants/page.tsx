@@ -4,17 +4,12 @@ import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Freelance Consultants | Reportr",
-  description: "Generate professional white-label SEO reports as a freelancer. Your logo, your colors, one-click PDFs. Save hours every month. From $29/mo. Try free.",
+  description: "Generate professional white-label SEO reports as a freelancer. Your logo, your colors, one-click PDFs. Save hours every month. Try free.",
   
-  keywords: [
-    "white label seo reports for freelancers",
-    "freelance seo reporting tool",
-    "seo reports for freelancers",
-    "white label seo freelancer",
-    "branded seo reports freelance",
-    "freelance seo consultant reports",
-    "seo reporting tool for consultants"
-  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
   
   alternates: {
     canonical: "https://reportr.agency/white-label-seo-reports-for-freelance-consultants",
@@ -30,17 +25,19 @@ export const metadata: Metadata = {
     }
   },
   
-  robots: {
-    index: true,
-    follow: true,
-  },
-  
   openGraph: {
     title: "White Label SEO Reports for Freelance Consultants | Reportr",
-    description: "Generate professional white-label SEO reports as a freelancer. Your logo, your colors, one-click PDFs.",
+    description: "Generate professional white-label SEO reports as a freelancer. Your logo, your colors, one-click PDFs. Save hours every month. Try free.",
     url: "https://reportr.agency/white-label-seo-reports-for-freelance-consultants",
     siteName: "Reportr",
     type: "website",
+    locale: "en_US",
+  },
+  
+  twitter: {
+    card: "summary_large_image",
+    title: "White Label SEO Reports for Freelance Consultants | Reportr",
+    description: "Generate professional white-label SEO reports as a freelancer. Your logo, your colors, one-click PDFs. Save hours every month. Try free.",
   },
 };
 

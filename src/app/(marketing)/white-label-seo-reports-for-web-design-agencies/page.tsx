@@ -4,15 +4,12 @@ import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Web Design Agencies | Reportr",
-  description: "Add SEO reporting to your web design services. Professional white-label reports that complement your design work. Your branding, easy setup. From $29/mo.",
+  description: "Add SEO reporting to your web design services. Professional white-label reports that complement your design work. Your branding, easy setup.",
   
-  keywords: [
-    "white label seo reports for web design agencies",
-    "seo reporting for web designers",
-    "web agency seo reports",
-    "seo reports web development agency",
-    "white label seo web design"
-  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
   
   alternates: {
     canonical: "https://reportr.agency/white-label-seo-reports-for-web-design-agencies",
@@ -28,17 +25,19 @@ export const metadata: Metadata = {
     }
   },
   
-  robots: {
-    index: true,
-    follow: true,
-  },
-  
   openGraph: {
     title: "White Label SEO Reports for Web Design Agencies | Reportr",
-    description: "Add SEO reporting to your web design services. Professional white-label reports that complement your design work.",
+    description: "Add SEO reporting to your web design services. Professional white-label reports that complement your design work. Your branding, easy setup.",
     url: "https://reportr.agency/white-label-seo-reports-for-web-design-agencies",
     siteName: "Reportr",
     type: "website",
+    locale: "en_US",
+  },
+  
+  twitter: {
+    card: "summary_large_image",
+    title: "White Label SEO Reports for Web Design Agencies | Reportr",
+    description: "Add SEO reporting to your web design services. Professional white-label reports that complement your design work. Your branding, easy setup.",
   },
 };
 

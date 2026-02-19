@@ -4,15 +4,12 @@ import { Header, Footer } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: "White Label SEO Reports for Small Agencies | Reportr",
-  description: "Affordable white-label SEO reports for small agency teams. Your branding, professional PDFs, budget-friendly pricing. Perfect for 3-10 clients. From $29/mo.",
+  description: "Affordable white-label SEO reports for small agency teams. Your branding, professional PDFs, budget-friendly pricing. Perfect for 3-10 clients.",
   
-  keywords: [
-    "white label seo reports for small agencies",
-    "affordable seo reporting tool",
-    "seo reports small agency",
-    "cheap white label seo reports",
-    "seo reporting for small teams"
-  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
   
   alternates: {
     canonical: "https://reportr.agency/white-label-seo-reports-for-small-agencies",
@@ -28,17 +25,19 @@ export const metadata: Metadata = {
     }
   },
   
-  robots: {
-    index: true,
-    follow: true,
-  },
-  
   openGraph: {
     title: "White Label SEO Reports for Small Agencies | Reportr",
-    description: "Affordable white-label SEO reports for small agency teams. Your branding, professional PDFs, budget-friendly pricing.",
+    description: "Affordable white-label SEO reports for small agency teams. Your branding, professional PDFs, budget-friendly pricing. Perfect for 3-10 clients.",
     url: "https://reportr.agency/white-label-seo-reports-for-small-agencies",
     siteName: "Reportr",
     type: "website",
+    locale: "en_US",
+  },
+  
+  twitter: {
+    card: "summary_large_image",
+    title: "White Label SEO Reports for Small Agencies | Reportr",
+    description: "Affordable white-label SEO reports for small agency teams. Your branding, professional PDFs, budget-friendly pricing. Perfect for 3-10 clients.",
   },
 };
 
