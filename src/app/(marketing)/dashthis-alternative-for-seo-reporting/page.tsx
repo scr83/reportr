@@ -240,7 +240,7 @@ export default function DashThisAlternativePage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Why Agencies Switch from DashThis</h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                DashThis excels at real-time dashboards. But for client-facing deliverables, here's why <strong>Reportr</strong> might be a better fit.
+                DashThis excels at real-time dashboards. But for client-facing deliverables, here&apos;s why <strong>Reportr</strong> might be a better fit.
               </p>
             </div>
             
@@ -267,7 +267,7 @@ export default function DashThisAlternativePage() {
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-3">Dashboard Exports Look Unprofessional</h3>
                 <p className="text-gray-700">
-                  Exporting DashThis dashboards to PDF produces broken layouts, cut-off charts, and ugly formatting. Dashboard tools aren't designed for print-ready documents. <strong>Reportr</strong> creates purpose-built PDF reports that look professional every time.
+                  Exporting DashThis dashboards to PDF produces broken layouts, cut-off charts, and ugly formatting. Dashboard tools aren&apos;t designed for print-ready documents. <strong>Reportr</strong> creates purpose-built PDF reports that look professional every time.
                 </p>
               </div>
               
@@ -506,7 +506,7 @@ export default function DashThisAlternativePage() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  DashThis starts at approximately $49/month for 3 dashboards, scaling up quickly as you add more. <strong>Reportr</strong> starts at $29/month for 5 clients or free for 1 client. <strong>Reportr</strong>'s pricing is based on client count, not dashboard count, making it more predictable for agencies.
+                  DashThis starts at approximately $49/month for 3 dashboards, scaling up quickly as you add more. <strong>Reportr</strong> starts at $29/month for 5 clients or free for 1 client. <strong>Reportr</strong>&apos;s pricing is based on client count, not dashboard count, making it more predictable for agencies.
                 </div>
               </details>
               
@@ -530,7 +530,7 @@ export default function DashThisAlternativePage() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  About 5 minutes per client. Simply connect their Google accounts to <strong>Reportr</strong> and generate your first PDF report. There's no dashboard configuration needed — <strong>Reportr</strong> uses pre-built report templates optimized for client presentations.
+                  About 5 minutes per client. Simply connect their Google accounts to <strong>Reportr</strong> and generate your first PDF report. There&apos;s no dashboard configuration needed — <strong>Reportr</strong> uses pre-built report templates optimized for client presentations.
                 </div>
               </details>
             </div>
