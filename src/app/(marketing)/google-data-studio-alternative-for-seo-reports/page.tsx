@@ -240,7 +240,7 @@ export default function GoogleDataStudioAlternativePage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Why Agencies Switch from Looker Studio</h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                Looker Studio is incredibly flexible and free. But for agencies serving multiple clients, here's why <strong>Reportr</strong> might save you time and money.
+                Looker Studio is incredibly flexible and free. But for agencies serving multiple clients, here&apos;s why <strong>Reportr</strong> might save you time and money.
               </p>
             </div>
             
@@ -267,7 +267,7 @@ export default function GoogleDataStudioAlternativePage() {
                 </div>
                 <h3 className="text-xl font-bold text-red-800 mb-3">No True White-Label Branding</h3>
                 <p className="text-gray-700">
-                  Looker Studio always shows Google branding and &quot;Made with Google&quot; attribution. Clients see Google's name, not yours. <strong>Reportr</strong> generates true white-label PDF reports with your logo and zero platform branding.
+                  Looker Studio always shows Google branding and &quot;Made with Google&quot; attribution. Clients see Google&apos;s name, not yours. <strong>Reportr</strong> generates true white-label PDF reports with your logo and zero platform branding.
                 </p>
               </div>
               
@@ -318,7 +318,7 @@ export default function GoogleDataStudioAlternativePage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Add Your Agency Branding</h3>
-                <p className="text-gray-600">Upload your logo and choose your colors. True white-label branding with zero Google attribution — something Looker Studio can't provide.</p>
+                <p className="text-gray-600">Upload your logo and choose your colors. True white-label branding with zero Google attribution — something Looker Studio can&apos;t provide.</p>
               </div>
               
               {/* Step 3 */}
@@ -407,7 +407,7 @@ export default function GoogleDataStudioAlternativePage() {
           <div className="max-w-4xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Reportr vs Looker Studio</h2>
-              <p className="text-xl text-gray-600">Free vs paid — but what's the true cost of your time?</p>
+              <p className="text-xl text-gray-600">Free vs paid — but what&apos;s the true cost of your time?</p>
             </div>
             
             <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
@@ -483,7 +483,7 @@ export default function GoogleDataStudioAlternativePage() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Looker Studio is free but costs 2-4 hours of manual setup per client dashboard. <strong>Reportr</strong> saves time with pre-built templates and automated report generation. At $29/month, you're paying for time savings vs doing manual setup work for every client.
+                  Looker Studio is free but costs 2-4 hours of manual setup per client dashboard. <strong>Reportr</strong> saves time with pre-built templates and automated report generation. At $29/month, you&apos;re paying for time savings vs doing manual setup work for every client.
                 </div>
               </details>
               
@@ -495,7 +495,7 @@ export default function GoogleDataStudioAlternativePage() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  No, and that's intentional. Looker Studio is extremely flexible for custom visualizations across any data source. <strong>Reportr</strong> focuses specifically on SEO reporting with Google Search Console, GA4, and PageSpeed Insights. For SEO agencies, this focused approach is faster and easier.
+                  No, and that&apos;s intentional. Looker Studio is extremely flexible for custom visualizations across any data source. <strong>Reportr</strong> focuses specifically on SEO reporting with Google Search Console, GA4, and PageSpeed Insights. For SEO agencies, this focused approach is faster and easier.
                 </div>
               </details>
               
@@ -531,7 +531,7 @@ export default function GoogleDataStudioAlternativePage() {
                   </svg>
                 </summary>
                 <div className="px-6 pb-6 text-gray-600">
-                  Yes. Looker Studio always displays Google branding and &quot;Made with Google&quot; attribution. <strong>Reportr</strong> generates true white-label PDF reports with your logo, colors, and no platform branding. Clients see your agency name, not Google's.
+                  Yes. Looker Studio always displays Google branding and &quot;Made with Google&quot; attribution. <strong>Reportr</strong> generates true white-label PDF reports with your logo, colors, and no platform branding. Clients see your agency name, not Google&apos;s.
                 </div>
               </details>
             </div>
