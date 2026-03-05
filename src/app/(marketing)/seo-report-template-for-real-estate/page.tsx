@@ -516,6 +516,86 @@ export default function RealEstateSEOReportPage() {
           </div>
         </section>
 
+        {/* PRICING PREVIEW */}
+        <section className="py-16 md:py-24 bg-gray-50">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
+              <p className="text-xl text-gray-600">Start free. Upgrade when you&apos;re ready. Cancel anytime.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-4 gap-6">
+              {/* Free */}
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-1">Free</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">$0<span className="text-base font-normal text-gray-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                  <li>1 client</li>
+                  <li>5 reports/month</li>
+                  <li>GSC + GA4 + PSI</li>
+                  <li>Reportr branding</li>
+                </ul>
+                <a href="/signup" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+                  Start Free
+                </a>
+              </div>
+              
+              {/* Starter */}
+              <div className="bg-white rounded-2xl p-6 border-2 border-brand-600 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">Starter</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">$29<span className="text-base font-normal text-gray-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                  <li>5 clients</li>
+                  <li>25 reports/month</li>
+                  <li>GSC + GA4 + PSI</li>
+                  <li>White-label included ✓</li>
+                </ul>
+                <a href="/signup?plan=starter" className="block text-center py-2 px-4 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium">
+                  Start Trial
+                </a>
+              </div>
+              
+              {/* Professional */}
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-1">Professional</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">$59<span className="text-base font-normal text-gray-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                  <li>15 clients</li>
+                  <li>75 reports/month</li>
+                  <li>GSC + GA4 + PSI</li>
+                  <li>White-label included ✓</li>
+                </ul>
+                <a href="/signup?plan=professional" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+                  Start Trial
+                </a>
+              </div>
+              
+              {/* Agency */}
+              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-1">Agency</h3>
+                <div className="text-3xl font-bold text-gray-900 mb-4">$99<span className="text-base font-normal text-gray-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                  <li>50 clients</li>
+                  <li>250 reports/month</li>
+                  <li>GSC + GA4 + PSI</li>
+                  <li>White-label included ✓</li>
+                </ul>
+                <a href="/signup?plan=agency" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+                  Start Trial
+                </a>
+              </div>
+            </div>
+            
+            <p className="text-center text-gray-500 text-sm mt-6">
+              All paid plans include a 14-day free trial. White-label branding is included in all paid plans.
+              <a href="/pricing" className="text-brand-600 hover:underline ml-1">See full pricing details →</a>
+            </p>
+          </div>
+        </section>
+
         {/* FINAL CTA */}
         <section className="py-16 md:py-24 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white">
           <div className="max-w-4xl mx-auto px-4 text-center">
