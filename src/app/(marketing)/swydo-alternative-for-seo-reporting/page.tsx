@@ -506,7 +506,7 @@ export default function SwydoAlternativePage() {
                   <li>5 clients</li>
                   <li>25 reports/month</li>
                   <li>GSC + GA4 + PSI</li>
-                  <li>+$20 white-label</li>
+                  <li>White-label included ✓</li>
                 </ul>
                 <a href="/signup?plan=starter" className="block text-center py-2 px-4 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium">
                   Start Trial
@@ -521,7 +521,7 @@ export default function SwydoAlternativePage() {
                   <li>15 clients</li>
                   <li>75 reports/month</li>
                   <li>GSC + GA4 + PSI</li>
-                  <li>+$20 white-label</li>
+                  <li>White-label included ✓</li>
                 </ul>
                 <a href="/signup?plan=professional" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
                   Start Trial
@@ -536,7 +536,7 @@ export default function SwydoAlternativePage() {
                   <li>50 clients</li>
                   <li>250 reports/month</li>
                   <li>GSC + GA4 + PSI</li>
-                  <li>+$20 white-label</li>
+                  <li>White-label included ✓</li>
                 </ul>
                 <a href="/signup?plan=agency" className="block text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
                   Start Trial
@@ -545,7 +545,7 @@ export default function SwydoAlternativePage() {
             </div>
             
             <p className="text-center text-gray-500 text-sm mt-6">
-              All paid plans include a 14-day free trial. White-label branding is a $20/month add-on.
+              All paid plans include a 14-day free trial. White-label branding is included in all paid plans.
               <a href="/pricing" className="text-brand-600 hover:underline ml-1">See full pricing details →</a>
             </p>
           </div>
